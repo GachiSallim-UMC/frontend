@@ -1,0 +1,1 @@
+export { ShareTypeBar } from './ShareTypeBar';
