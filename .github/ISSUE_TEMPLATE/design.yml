@@ -1,0 +1,33 @@
+name: '🎨 Design'
+description: 'UI 구현 또는 디자인 반영'
+title: 'design: '
+labels: ['design']
+body:
+  - type: textarea
+    attributes:
+      label: 📄 설명
+      description: 구현하거나 수정할 UI를 설명해 주세요.
+      placeholder: 어떤 화면/컴포넌트인가요?
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: 🎨 Figma
+      description: Figma 화면/노드 링크를 첨부해 주세요.
+      placeholder: https://figma.com/design/...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ✅ 작업할 내용
+      description: 할 일을 체크리스트로 작성해 주세요.
+      placeholder: |
+        - [ ] 공통 컴포넌트 재사용/확장
+        - [ ] 디자인 토큰 적용 (임의 색상/크기 X)
+        - [ ] 반응형 확인
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🙋🏻 참고 자료
+      description: 참고 자료가 있다면 작성해 주세요.
