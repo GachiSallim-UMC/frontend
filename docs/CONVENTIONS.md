@@ -84,13 +84,13 @@ import { choreApi } from '@/features/chore/api/chore.api';
 
 ```
 main          # 배포 가능한 안정 버전
- └─ dev       # 통합 개발 브랜치
+ └─ develop       # 통합 개발 브랜치
      └─ feature/<도메인>-<기능>   # 기능 단위 작업
 ```
 
 - 예: `feature/chore-list`, `feature/expense-form`
-- 작업은 `dev`에서 분기 → 완료 후 `dev`로 PR.
-- `dev` → `main` 머지는 배포 시점에만.
+- 작업은 `develop`에서 분기 → 완료 후 `develop`로 PR.
+- `develop` → `main` 머지는 배포 시점에만.
 
 ## 7. PR 컨벤션
 
