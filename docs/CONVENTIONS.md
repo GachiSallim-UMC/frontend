@@ -85,10 +85,11 @@ import { choreApi } from '@/features/chore/api/chore.api';
 ```
 main          # 배포 가능한 안정 버전
  └─ develop       # 통합 개발 브랜치
-     └─ feature/<도메인>-<기능>   # 기능 단위 작업
+     └─ feature/<이슈번호>-<도메인>-<기능>   # 기능 단위 작업
 ```
 
-- 예: `feature/chore-list`, `feature/expense-form`
+- 이슈번호는 **필수**입니다. 반드시 관련 이슈를 먼저 만들고 브랜치를 딴 뒤 작업합니다.
+- 예: `feature/7-chore-list`, `feature/12-expense-form`, `fix/23-button`, `docs/4-readme`
 - 작업은 `develop`에서 분기 → 완료 후 `develop`로 PR.
 - `develop` → `main` 머지는 배포 시점에만.
 
