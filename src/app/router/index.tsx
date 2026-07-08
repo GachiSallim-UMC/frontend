@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
 import { AppLayout } from './AppLayout';
+import { ChorePage } from '@/pages/chore/ChorePage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -9,7 +10,7 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
-      { path: '/chores', element: <PlaceholderPage title="집안일 목록" /> },
+      { path: '/chores', element: <ChorePage /> },
       { path: '/chores/new', element: <PlaceholderPage title="집안일 등록" /> },
       { path: '/chores/:id/edit', element: <PlaceholderPage title="집안일 수정" /> },
       { path: '/expenses', element: <PlaceholderPage title="생활비 정산" /> },
