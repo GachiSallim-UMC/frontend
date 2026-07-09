@@ -2,18 +2,18 @@ import { useState } from 'react';
 
 /**날짜 변경 훅 */
 export const useWeekCalendar = () => {
-  const [currentDate, setCurrnetDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const handlePrevWeek = () => {
     const prev = new Date(currentDate);
     prev.setDate(prev.getDate() - 7);
-    setCurrnetDate(prev);
+    setCurrentDate(prev);
   };
 
   const handleNextWeek = () => {
     const next = new Date(currentDate);
     next.setDate(next.getDate() + 7);
-    setCurrnetDate(next);
+    setCurrentDate(next);
   };
 
   const startOfWeek = new Date(currentDate);
