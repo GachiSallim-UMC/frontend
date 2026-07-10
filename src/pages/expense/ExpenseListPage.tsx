@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import TabButton from '@/features/expense/components/TabButton';
 import type { ExpenseFilter } from '@/features/expense/components/TabButton';
 import ExpenseSummaryCard from '@/features/expense/components/ExpenseSummaryCard';
