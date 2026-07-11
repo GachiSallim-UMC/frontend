@@ -1,6 +1,6 @@
 import type { Expense } from '@/features/expense/types/expense.types';
-import editIcon from '@/assets/icons/expense/edit.svg';
-import shareIcon from '@/assets/icons/expense/share.svg';
+import EditIcon from '@/assets/icons/action/edit.svg?react';
+import ShareIcon from '@/assets/icons/action/share.svg?react';
 
 interface ExpenseRowProps {
   expense: Expense;
@@ -47,11 +47,11 @@ const ExpenseRow = ({ expense }: ExpenseRowProps) => {
       </div>
 
       <div className='flex items-center'>
-        <button className='w-[39px] h-[39px] flex items-center justify-center'>
-          <img src={editIcon} alt='수정' className='w-[20px] h-[20px]' />
+        <button className='w-[39px] h-[39px] flex items-center justify-center text-gray-400'>
+          <EditIcon />
         </button>
-        <button className='w-[39px] h-[39px] flex items-center justify-center'>
-          <img src={shareIcon} alt='공유' className='w-[20px] h-[20px]' />
+        <button className='w-[39px] h-[39px] flex items-center justify-center text-gray-400'>
+          <ShareIcon />
         </button>
       </div>
     </div>

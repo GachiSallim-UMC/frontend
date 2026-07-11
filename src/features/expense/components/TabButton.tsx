@@ -12,7 +12,7 @@ const TabButton = ({ label, filter, activeFilter, onFilterChange }: TabButtonPro
   const baseStyle = 'px-[20px] sm:w-[148px] sm:px-0 h-[44px] lg:h-[50px] rounded-[8px] border-[1px] transition-all flex items-center justify-center font-sans font-normal text-button whitespace-nowrap'
 
   const isActive = activeFilter === filter;
-  const activeStyle = 'bg-blue-100 border-blue-500 text-blue-500'
+  const activeStyle = 'bg-primary-100 border-primary-500 text-primary-500'
   const inactiveStyle = 'bg-gray-0 border-gray-100 text-gray-400'
 
   return (

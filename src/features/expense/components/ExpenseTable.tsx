@@ -10,7 +10,7 @@ const GRID_COLS = 'grid-cols-[114fr_166fr_150fr_157fr_163fr_176fr_78fr]';
 const ExpenseTable = ({ expenses }: ExpenseTableProps) => {
   return (
     <div className='w-full min-w-[720px] rounded-t-[10px] bg-gray-0 border-[1px] border-gray-100 flex flex-col overflow-hidden'>
-      <div className={`grid ${GRID_COLS} items-center w-full h-[60px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-blue-50 border-b border-gray-100`}>
+      <div className={`grid ${GRID_COLS} items-center w-full h-[60px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-primary-50 border-b border-gray-100`}>
         <span className='font-sans font-bold text-caption text-gray-500 whitespace-nowrap'>날짜</span>
         <span className='font-sans font-bold text-caption text-gray-500 whitespace-nowrap'>항목</span>
         <span className='font-sans font-bold text-caption text-gray-500 whitespace-nowrap'>지불자</span>
