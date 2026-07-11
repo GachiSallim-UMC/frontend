@@ -3,8 +3,8 @@ import { useWeekCalendar } from '../hooks/useWeekCalendar';
 import type { Chore } from '../types/chore.types';
 
 const STATUS_COLORS = {
-  pending: 'text-green-700',
-  done: 'text-primary-700',
+  done: 'text-green-700',
+  pending: 'text-primary-700',
   scheduled: 'text-purple-700',
 } as const;
 
@@ -48,7 +48,7 @@ export const ChoreCalendarView = () => {
           id: '4',
           name: '화장실 청소',
           assignee: { id: 'u2', name: '홍길동', nickname: '길동', email: 'b@test.com' },
-          status: 'pending',
+          status: 'done',
         },
         {
           id: '5',
@@ -90,7 +90,7 @@ export const ChoreCalendarView = () => {
           id: '8',
           name: '설거지',
           assignee: { id: 'u1', name: '김영희', nickname: '영희', email: 'a@test.com' },
-          status: 'pending',
+          status: 'done',
         },
         {
           id: '9',
@@ -156,6 +156,10 @@ export const ChoreCalendarView = () => {
         {/*우측 상태*/}
         <div className="flex items-center gap-[16px] text-[14px] font-medium text-gray-900">
           <div className="flex items-center gap-[6px]">
+            <Circle size={10} fill="currentColor" strokeWidth={0} className={STATUS_COLORS.done} />
+            완료
+          </div>
+          <div className="flex items-center gap-[6px]">
             <Circle
               size={10}
               fill="currentColor"
@@ -163,10 +167,6 @@ export const ChoreCalendarView = () => {
               className={STATUS_COLORS.pending}
             />
             미완료
-          </div>
-          <div className="flex items-center gap-[6px]">
-            <Circle size={10} fill="currentColor" strokeWidth={0} className={STATUS_COLORS.done} />
-            완료
           </div>
           <div className="flex items-center gap-[6px]">
             <Circle
