@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
+import { RuleListPage, RuleDetailPage } from '@/pages/rule';
 import { AppLayout } from './AppLayout';
 
 export const router = createBrowserRouter([
@@ -18,9 +19,9 @@ export const router = createBrowserRouter([
       { path: '/items', element: <PlaceholderPage title="공용 물품" /> },
       { path: '/items/new', element: <PlaceholderPage title="물품 등록" /> },
       { path: '/items/:id/edit', element: <PlaceholderPage title="물품 수정" /> },
-      { path: '/rules', element: <PlaceholderPage title="생활 규칙" /> },
+      { path: '/rules', element: <RuleListPage /> },
       { path: '/rules/new', element: <PlaceholderPage title="규칙 등록" /> },
-      { path: '/rules/:id', element: <PlaceholderPage title="규칙 상세" /> },
+      { path: '/rules/:id', element: <RuleDetailPage /> },
       { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
       { path: '/notifications', element: <PlaceholderPage title="알림 목록" /> },
       { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },
