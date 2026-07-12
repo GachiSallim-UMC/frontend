@@ -1,4 +1,3 @@
-import { Button } from '@/shared/components/ui/Button/Button';
 import KakaoIcon from '@/assets/icons/login/kakao.svg?react';
 import GoogleIcon from '@/assets/icons/login/google.svg?react';
 
