@@ -1,38 +1,19 @@
-import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { ItemCategory } from '@/features/item';
-import type { ItemStatus } from '@/shared/types';
+import { ITEM_CATEGORY_OPTIONS, ITEM_STATUS_OPTIONS, useItemForm, useQuickItemStatus } from '@/features/item';
 import { Button, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { items, users } from '@/pages/_shared/mockData';
-
-const categoryOptions = [
-  { value: 'kitchen', label: '주방' },
-  { value: 'bathroom', label: '욕실' },
-  { value: 'cleaning', label: '청소' },
-  { value: 'etc', label: '기타' },
-] as const;
-
-const statusOptions = [
-  { value: 'enough', label: '충분' },
-  { value: 'short', label: '부족' },
-  { value: 'empty', label: '소진' },
-] as const;
 
 export const ItemFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const editingItem = id ? items.find(item => item.id === id) : undefined;
 
-  const [name, setName] = useState(editingItem?.name ?? '');
-  const [category, setCategory] = useState<ItemCategory | ''>(editingItem?.category ?? '');
-  const [status, setStatus] = useState<ItemStatus | ''>(editingItem?.status ?? 'enough');
-  const [buyerId, setBuyerId] = useState(editingItem?.buyer?.id ?? '');
-  const [memo, setMemo] = useState('');
-
-  const [quickItemId, setQuickItemId] = useState('');
-  const [quickStatus, setQuickStatus] = useState<ItemStatus | ''>('');
+  const { name, setName, category, setCategory, status, setStatus, buyerId, setBuyerId, memo, setMemo } =
+    useItemForm(editingItem);
+  const { itemId: quickItemId, setItemId: setQuickItemId, status: quickStatus, setStatus: setQuickStatus } =
+    useQuickItemStatus();
 
   return (
     <>
@@ -51,7 +32,7 @@ export const ItemFormPage = () => {
               required
               value={category}
               onChange={setCategory}
-              options={[...categoryOptions]}
+              options={ITEM_CATEGORY_OPTIONS}
               placeholder="카테고리 선택"
             />
             <SelectDropdown
@@ -59,7 +40,7 @@ export const ItemFormPage = () => {
               required
               value={status}
               onChange={setStatus}
-              options={[...statusOptions]}
+              options={ITEM_STATUS_OPTIONS}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -107,7 +88,7 @@ export const ItemFormPage = () => {
           <SelectDropdown
             value={quickStatus}
             onChange={setQuickStatus}
-            options={[...statusOptions]}
+            options={ITEM_STATUS_OPTIONS}
             placeholder="상태 선택"
             className="w-[300px]"
           />

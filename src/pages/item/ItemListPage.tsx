@@ -1,9 +1,14 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, PackageMinus, PackageX, Plus } from 'lucide-react';
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
-import type { Item, ItemCategory } from '@/features/item';
+import {
+  ITEM_CATEGORY_LABEL,
+  ITEM_CATEGORY_OPTIONS,
+  ITEM_STATUS_FILTER_TABS,
+  useItemFilters,
+  type Item,
+} from '@/features/item';
 import {
   DataTable,
   FilterTabGroup,
@@ -16,44 +21,22 @@ import {
 import { SelectDropdown } from '@/shared/components/form';
 import { items } from '@/pages/_shared/mockData';
 
-const CATEGORY_LABEL: Record<ItemCategory, string> = {
-  kitchen: '주방',
-  bathroom: '욕실',
-  cleaning: '청소',
-  etc: '기타',
-};
-
-const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABEL) as ItemCategory[]).map(value => ({
-  value,
-  label: CATEGORY_LABEL[value],
-}));
-
-type StatusFilter = 'all' | 'short' | 'empty';
-
-const STATUS_TABS: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: '전체 상태' },
-  { value: 'short', label: '부족' },
-  { value: 'empty', label: '소진' },
-];
-
 export const ItemListPage = () => {
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [categoryFilter, setCategoryFilter] = useState<ItemCategory | ''>('');
-  const [keyword, setKeyword] = useState('');
-
-  const shortCount = items.filter(item => item.status === 'short').length;
-  const emptyCount = items.filter(item => item.status === 'empty').length;
-
-  const filteredItems = items.filter(item => {
-    if (statusFilter !== 'all' && item.status !== statusFilter) return false;
-    if (categoryFilter && item.category !== categoryFilter) return false;
-    if (keyword && !item.name.includes(keyword)) return false;
-    return true;
-  });
+  const {
+    statusFilter,
+    setStatusFilter,
+    categoryFilter,
+    setCategoryFilter,
+    keyword,
+    setKeyword,
+    filteredItems,
+    shortCount,
+    emptyCount,
+  } = useItemFilters(items);
 
   const columns: Column<Item>[] = [
     { key: 'name', header: '물품명' },
-    { key: 'category', header: '카테고리', render: item => CATEGORY_LABEL[item.category] },
+    { key: 'category', header: '카테고리', render: item => ITEM_CATEGORY_LABEL[item.category] },
     {
       key: 'buyer',
       header: '구매 담당',
@@ -115,11 +98,11 @@ export const ItemListPage = () => {
       <section className="rounded-[20px] bg-white p-[30px] shadow-card">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
-            <FilterTabGroup tabs={STATUS_TABS} value={statusFilter} onChange={setStatusFilter} />
+            <FilterTabGroup tabs={ITEM_STATUS_FILTER_TABS} value={statusFilter} onChange={setStatusFilter} />
             <SelectDropdown
               value={categoryFilter}
               onChange={setCategoryFilter}
-              options={CATEGORY_OPTIONS}
+              options={ITEM_CATEGORY_OPTIONS}
               placeholder="전체 카테고리"
               className="w-[191px]"
             />
