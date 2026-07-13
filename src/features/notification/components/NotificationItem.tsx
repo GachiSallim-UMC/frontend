@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 import type { Notification } from '@/features/notification/types';
-import UnreadIcon from '@/assets/icons/notification/Ellipse 273-1.svg';
-import ReadIcon from '@/assets/icons/notification/Ellipse 273.svg'; 
-import ArrowGoIcon from '@/assets/icons/notification/solar_arrow-up-linear.svg';
+import UnreadIcon from '@/assets/icons/notification/status-unread.svg';
+import ReadIcon from '@/assets/icons/notification/status-read.svg'; 
+import ArrowGoIcon from '@/assets/icons/notification/arrow-go.svg';
 
 export const NotificationItem: FC<Notification> = ({
   title,

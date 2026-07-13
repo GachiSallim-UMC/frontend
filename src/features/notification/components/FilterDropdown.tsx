@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import DropdownIcon from '@/assets/icons/notification/iconamoon_arrow-up-2-light.svg';
+import DropdownIcon from '@/assets/icons/notification/chevron-down.svg';
 
 interface FilterDropdownProps {
   value: string;
