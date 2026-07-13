@@ -49,9 +49,11 @@ export const RuleListPage = () => {
                 index !== filteredRules.length - 1 ? 'border-b border-gray-100' : ''
               }`}
             >
-              <div className="flex w-[55px] shrink-0 items-center gap-5">
+              <div className="flex shrink-0 items-center gap-5">
                 <span className="h-[30px] w-px bg-gray-200" />
-                <span className="text-button font-bold text-primary-700">{RULE_CATEGORY_LABEL[rule.category]}</span>
+                <span className="whitespace-nowrap text-button font-bold text-primary-700">
+                  {RULE_CATEGORY_LABEL[rule.category]}
+                </span>
               </div>
 
               <Link to={`/rules/${rule.id}`} className="min-w-0 flex-1">
