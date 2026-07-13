@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { FormInput } from '@/shared/components/form/FormInput/FormInput';
-import { Button } from '@/shared/components/ui/Button/Button';
+import { FormInput } from '@/shared/components/form';
+import { Button } from '@/shared/components/ui';
 import EyeOnIcon from '@/assets/icons/login/eye-on.svg?react';
 import EyeOffIcon from '@/assets/icons/login/eye-off.svg?react';
 

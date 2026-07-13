@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { FormInput } from '@/shared/components/form/FormInput/FormInput';
-import { Button } from '@/shared/components/ui/Button/Button';
-import { CheckboxGroup } from '@/shared/components/form/CheckboxGroup/CheckboxGroup';
+import { FormInput } from '@/shared/components/form';
+import { Button } from '@/shared/components/ui';
+import { CheckboxGroup } from '@/shared/components/form';
 
 
 interface SignupFormProps {
