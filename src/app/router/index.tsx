@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
 import { AppLayout } from './AppLayout';
+import { NotificationPage } from '@/pages/notification';
+import { ChorePage } from '@/pages/chore/ChorePage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -9,7 +11,7 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
-      { path: '/chores', element: <PlaceholderPage title="집안일 목록" /> },
+      { path: '/chores', element: <ChorePage /> },
       { path: '/chores/new', element: <PlaceholderPage title="집안일 등록" /> },
       { path: '/chores/:id/edit', element: <PlaceholderPage title="집안일 수정" /> },
       { path: '/expenses', element: <PlaceholderPage title="생활비 정산" /> },
@@ -22,7 +24,7 @@ export const router = createBrowserRouter([
       { path: '/rules/new', element: <PlaceholderPage title="규칙 등록" /> },
       { path: '/rules/:id', element: <PlaceholderPage title="규칙 상세" /> },
       { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
-      { path: '/notifications', element: <PlaceholderPage title="알림 목록" /> },
+      { path: '/notifications', element: <NotificationPage /> },
       { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },
       { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
       { path: '/group/settings', element: <PlaceholderPage title="그룹 설정" /> },
