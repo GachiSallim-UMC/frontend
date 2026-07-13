@@ -104,7 +104,7 @@ const NavItemLink = ({ item }: { item: NavItem }) => (
 export const Sidebar = () => {
   return (
     <aside
-      className="fixed inset-y-0 left-0 z-20 flex w-[200px] flex-col border-r border-gray-100 bg-white"
+      className="z-20 flex w-[200px] shrink-0 flex-col border-r border-gray-100 bg-white"
       style={{ width: 'var(--sidebar-width)' }}
     >
       {/* 로고 */}

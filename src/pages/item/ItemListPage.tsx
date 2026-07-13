@@ -71,7 +71,7 @@ export const ItemListPage = () => {
 
   return (
     <>
-      <div className="mb-4 grid grid-cols-3 gap-4">
+      <div className="mb-4 mt-7 grid grid-cols-3 gap-4">
         <SummaryCard
           icon={<Package className="h-6 w-6 text-primary-600" />}
           iconBg="bg-primary-100"

@@ -17,7 +17,7 @@ export const ItemFormPage = () => {
 
   return (
     <>
-      <Panel title="물품 정보" className="rounded-[18px]">
+      <Panel title="물품 정보" className="mt-7 rounded-[18px]">
         <div className="grid gap-4">
           <FormInput
             label="물품명"
