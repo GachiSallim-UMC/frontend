@@ -29,7 +29,6 @@ export const LoginForm = ({onSubmit}: LoginFormProps) => {
                     <FormInput
                         type="email"
                         placeholder="이메일 주소를 입력해주세요"
-                        className="text-base text-gray-500"
                     />
                 </div>
                 <div>
@@ -37,7 +36,6 @@ export const LoginForm = ({onSubmit}: LoginFormProps) => {
                     <FormInput
                         type={showPassword ? "text" : "password"}
                         placeholder="비밀번호를 입력해주세요"
-                        className="text-base text-gray-500"
 
                         rightAddon={
                             <button 
