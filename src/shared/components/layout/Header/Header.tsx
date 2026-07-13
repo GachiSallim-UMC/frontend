@@ -13,10 +13,7 @@ interface HeaderProps {
 
 export const Header = ({ groupName, memberCount, user, unreadMessageCount = 0 }: HeaderProps) => {
   return (
-    <header
-      className="fixed inset-x-0 top-0 z-10 flex h-16 items-center justify-between border-b border-gray-100 bg-white px-6"
-      style={{ left: 'var(--sidebar-width)' }}
-    >
+    <header className="z-10 flex h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6">
       {/* 그룹 정보 */}
       <div>
         <h1 className="text-group-title font-semibold text-gray-900">{groupName}</h1>

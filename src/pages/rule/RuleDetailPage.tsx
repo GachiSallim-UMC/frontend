@@ -19,7 +19,7 @@ export const RuleDetailPage = () => {
   const { myAgreement, setMyAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUser, users);
 
   return (
-    <div className="grid grid-cols-2 gap-5">
+    <div className="mt-7 grid grid-cols-2 gap-5">
       <Panel title="기본정보" className="rounded-[18px]">
         <div className="grid gap-4">
           <FormInput label="규칙 제목" required value={title} onChange={e => setTitle(e.target.value)} />

@@ -11,7 +11,7 @@ export const RuleListPage = () => {
   const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } = useRuleFilters(rules);
 
   return (
-    <section className="rounded-[20px] bg-white p-[30px] shadow-card">
+    <section className="mt-7 rounded-[20px] bg-white p-[30px] shadow-card">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <SelectDropdown
