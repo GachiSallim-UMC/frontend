@@ -1,41 +1,14 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
-import type { RuleCategory } from '@/features/rule';
-import type { RuleStatus } from '@/shared/types';
+import { RULE_CATEGORY_LABEL, RULE_CATEGORY_OPTIONS, RULE_STATUS_OPTIONS, useRuleFilters } from '@/features/rule';
 import { StatusBadge } from '@/shared/components/ui';
 import { SelectDropdown } from '@/shared/components/form';
 import { rules } from '@/pages/_shared/mockData';
 
-const CATEGORY_LABEL: Record<RuleCategory, string> = {
-  noise: '소음',
-  visitor: '방문객',
-  cleanliness: '청결',
-  trash: '분리수거',
-  etc: '기타',
-};
-
-const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABEL) as RuleCategory[]).map(value => ({
-  value,
-  label: CATEGORY_LABEL[value],
-}));
-
-const STATUS_OPTIONS: { value: RuleStatus; label: string }[] = [
-  { value: 'active', label: '활성' },
-  { value: 'inactive', label: '비활성' },
-];
-
 export const RuleListPage = () => {
-  const [categoryFilter, setCategoryFilter] = useState<RuleCategory | ''>('');
-  const [statusFilter, setStatusFilter] = useState<RuleStatus | ''>('');
-
-  const filteredRules = rules.filter(rule => {
-    if (categoryFilter && rule.category !== categoryFilter) return false;
-    if (statusFilter && rule.status !== statusFilter) return false;
-    return true;
-  });
+  const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } = useRuleFilters(rules);
 
   return (
     <section className="rounded-[20px] bg-white p-[30px] shadow-card">
@@ -44,14 +17,14 @@ export const RuleListPage = () => {
           <SelectDropdown
             value={categoryFilter}
             onChange={setCategoryFilter}
-            options={CATEGORY_OPTIONS}
+            options={RULE_CATEGORY_OPTIONS}
             placeholder="전체 카테고리"
             className="w-[150px]"
           />
           <SelectDropdown
             value={statusFilter}
             onChange={setStatusFilter}
-            options={STATUS_OPTIONS}
+            options={RULE_STATUS_OPTIONS}
             placeholder="전체 상태"
             className="w-[150px]"
           />
@@ -78,7 +51,7 @@ export const RuleListPage = () => {
             >
               <div className="flex w-[55px] shrink-0 items-center gap-5">
                 <span className="h-[30px] w-px bg-gray-200" />
-                <span className="text-button font-bold text-primary-700">{CATEGORY_LABEL[rule.category]}</span>
+                <span className="text-button font-bold text-primary-700">{RULE_CATEGORY_LABEL[rule.category]}</span>
               </div>
 
               <Link to={`/rules/${rule.id}`} className="min-w-0 flex-1">
