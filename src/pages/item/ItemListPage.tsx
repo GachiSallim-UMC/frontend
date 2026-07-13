@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Package, PackageMinus, PackageX, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
+import AllItemsIcon from '@/assets/icons/item/all-items.svg?react';
+import ShortItemIcon from '@/assets/icons/item/short.svg?react';
+import EmptyItemIcon from '@/assets/icons/item/empty.svg?react';
 import {
   ITEM_CATEGORY_LABEL,
   ITEM_CATEGORY_OPTIONS,
@@ -73,22 +76,22 @@ export const ItemListPage = () => {
     <>
       <div className="mb-4 mt-7 grid grid-cols-3 gap-4">
         <SummaryCard
-          icon={<Package className="h-6 w-6 text-primary-600" />}
-          iconBg="bg-primary-100"
+          icon={<AllItemsIcon className="h-12 w-12" />}
+          iconBg="bg-gray-100"
           label="전체 물품"
           value={`${items.length}종`}
           subText="등록된 공용 물품"
         />
         <SummaryCard
-          icon={<PackageMinus className="h-6 w-6 text-orange-700" />}
-          iconBg="bg-orange-100"
+          icon={<ShortItemIcon className="h-12 w-12" />}
+          iconBg="bg-gray-100"
           label="부족"
           value={`${shortCount}종`}
           subText="구매 확인 필요"
         />
         <SummaryCard
-          icon={<PackageX className="h-6 w-6 text-red-700" />}
-          iconBg="bg-red-100"
+          icon={<EmptyItemIcon className="h-12 w-12" />}
+          iconBg="bg-gray-100"
           label="소진"
           value={`${emptyCount}종`}
           subText="즉시 구매 필요"
