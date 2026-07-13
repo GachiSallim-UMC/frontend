@@ -4,8 +4,11 @@ import type { Rule } from '../types/rule.types';
 
 type MyAgreement = 'agree' | 'disagree' | 'pending';
 
+export type RuleHistoryType = 'register' | 'agree' | 'edit';
+
 interface RuleHistoryEntry {
   id: string;
+  type: RuleHistoryType;
   title: string;
   subtitle: string;
   time: string | null;
@@ -41,6 +44,7 @@ export const useRuleAgreement = (rule: Rule, currentUser: User, members: User[])
     const entries: RuleHistoryEntry[] = [
       {
         id: 'h-created',
+        type: 'register',
         title: `${rule.registeredBy.name} 님이 규칙을 등록했습니다.`,
         subtitle: `새 규칙: ${rule.title}`,
         time: toDaysAgoLabel(rule.registeredAt),
@@ -49,6 +53,7 @@ export const useRuleAgreement = (rule: Rule, currentUser: User, members: User[])
     if (rule.agreement.agreedCount > 0) {
       entries.push({
         id: 'h-agreed',
+        type: 'agree',
         title: `현재 ${rule.agreement.agreedCount}/${rule.agreement.totalCount}명이 동의했습니다.`,
         subtitle: rule.title,
         time: null,

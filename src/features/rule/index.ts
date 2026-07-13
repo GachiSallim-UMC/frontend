@@ -11,4 +11,5 @@ export {
 } from './hooks/useRuleFilters';
 export { useRuleForm } from './hooks/useRuleForm';
 export { useRuleAgreement } from './hooks/useRuleAgreement';
+export type { RuleHistoryType } from './hooks/useRuleAgreement';
 export type { Rule, RuleCategory, RuleAgreement, CreateRuleDto } from './types/rule.types';

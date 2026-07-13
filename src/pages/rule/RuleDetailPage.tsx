@@ -1,9 +1,24 @@
 import { useParams } from 'react-router-dom';
-import { RULE_CATEGORY_OPTIONS, RULE_STATUS_OPTIONS, useRuleAgreement, useRuleForm } from '@/features/rule';
+import {
+  RULE_CATEGORY_OPTIONS,
+  RULE_STATUS_OPTIONS,
+  useRuleAgreement,
+  useRuleForm,
+  type RuleHistoryType,
+} from '@/features/rule';
 import { Button, ShareMessengerButton, StatusBadge, UserAvatar } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { currentUser, rules, users } from '@/pages/_shared/mockData';
+import HistoryRegisterIcon from '@/assets/icons/rule/history-register.svg?react';
+import HistoryAgreeIcon from '@/assets/icons/rule/history-agree.svg?react';
+import HistoryEditIcon from '@/assets/icons/rule/history-edit.svg?react';
+
+const HISTORY_ICON: Record<RuleHistoryType, typeof HistoryRegisterIcon> = {
+  register: HistoryRegisterIcon,
+  agree: HistoryAgreeIcon,
+  edit: HistoryEditIcon,
+};
 
 const AGREEMENT_TOGGLE_OPTIONS = [
   { value: 'agree', label: '동의' },
@@ -109,18 +124,23 @@ export const RuleDetailPage = () => {
 
         <Panel title="규칙 히스토리" className="rounded-[18px]">
           <div className="divide-y divide-gray-100">
-            {historyEntries.map(entry => (
-              <div key={entry.id} className="flex items-center justify-between gap-3 py-4">
-                <div className="flex items-center gap-[9px]">
-                  <span className="h-10 w-10 shrink-0 rounded-full bg-primary-100" />
-                  <span>
-                    <p className="text-button font-bold text-gray-900">{entry.title}</p>
-                    <p className="text-caption text-gray-600">{entry.subtitle}</p>
-                  </span>
+            {historyEntries.map(entry => {
+              const HistoryIcon = HISTORY_ICON[entry.type];
+              return (
+                <div key={entry.id} className="flex items-center justify-between gap-3 py-4">
+                  <div className="flex items-center gap-[9px]">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100">
+                      <HistoryIcon className="h-6 w-6" />
+                    </span>
+                    <span>
+                      <p className="text-button font-bold text-gray-900">{entry.title}</p>
+                      <p className="text-caption text-gray-600">{entry.subtitle}</p>
+                    </span>
+                  </div>
+                  {entry.time && <span className="shrink-0 text-caption text-gray-400">{entry.time}</span>}
                 </div>
-                {entry.time && <span className="shrink-0 text-caption text-gray-400">{entry.time}</span>}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Panel>
       </div>
