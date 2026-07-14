@@ -1,12 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
+import { LoginPage } from '@/pages/login/LoginPage';
 import { AppLayout } from './AppLayout';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
-  { path: '/login', element: <PlaceholderPage title="로그인" /> },
+  { path: '/login', element: <LoginPage /> },
   {
     element: <AppLayout />,
     children: [
