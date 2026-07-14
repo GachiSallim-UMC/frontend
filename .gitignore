@@ -31,5 +31,9 @@ npm-debug.log*
 # TypeScript
 *.tsbuildinfo
 
+# CDK (infra/)
+infra/cdk.out/
+infra/.cdk.staging/
+
 # Claude Code 로컬 설정
 .claude/

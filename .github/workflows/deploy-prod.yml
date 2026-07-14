@@ -1,0 +1,104 @@
+name: Deploy Prod (Blue-Green)
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false # 승격 도중 취소되면 색이 꼬일 수 있어 순차 진행
+
+jobs:
+  deploy:
+    name: prod 블루그린 배포
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 타입 체크
+        run: npm run type-check
+
+      - name: 린트
+        run: npm run lint
+
+      - name: AWS 자격 증명 설정 (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/gha-deploy-prod
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: 현재 활성 색 조회 및 비활성 색 계산
+        run: |
+          CURRENT_COLOR=$(aws ssm get-parameter --name "/gachi-salim/prod/active-color" --query 'Parameter.Value' --output text)
+          if [ "$CURRENT_COLOR" = "blue" ]; then
+            INACTIVE_COLOR="green"
+          else
+            INACTIVE_COLOR="blue"
+          fi
+          echo "현재 활성 색: ${CURRENT_COLOR} → 이번 배포 대상(비활성): ${INACTIVE_COLOR}"
+          echo "CURRENT_COLOR=${CURRENT_COLOR}" >> "$GITHUB_ENV"
+          echo "INACTIVE_COLOR=${INACTIVE_COLOR}" >> "$GITHUB_ENV"
+
+      - name: SSM에서 빌드 환경변수 로드
+        run: |
+          VITE_API_BASE_URL=$(aws ssm get-parameter --name "/gachi-salim/prod/VITE_API_BASE_URL" --query 'Parameter.Value' --output text)
+          echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> .env
+
+      - name: 빌드
+        run: npm run build
+
+      - name: 비활성 색 prefix에 S3 동기화
+        run: aws s3 sync dist/ "s3://${{ vars.PROD_BUCKET_NAME }}/${INACTIVE_COLOR}/" --delete
+
+      - name: staging distribution origin path를 비활성 색으로 갱신
+        run: |
+          STAGING_ID="${{ vars.PROD_STAGING_DISTRIBUTION_ID }}"
+          aws cloudfront get-distribution-config --id "$STAGING_ID" > /tmp/staging-config.json
+          ETAG=$(jq -r '.ETag' /tmp/staging-config.json)
+          jq --arg path "/${INACTIVE_COLOR}" '.DistributionConfig.Origins.Items[0].OriginPath = $path | .DistributionConfig' /tmp/staging-config.json > /tmp/staging-new-config.json
+          aws cloudfront update-distribution --id "$STAGING_ID" --if-match "$ETAG" --distribution-config file:///tmp/staging-new-config.json
+          echo "staging distribution 배포 완료 대기 중..."
+          aws cloudfront wait distribution-deployed --id "$STAGING_ID"
+
+      - name: 스모크 테스트 (staging distribution)
+        run: |
+          chmod +x infra/scripts/smoke-test.sh
+          infra/scripts/smoke-test.sh "${{ vars.PROD_STAGING_DISTRIBUTION_DOMAIN }}" dist
+
+      # ⚠️ update-distribution-with-staging-config의 정확한 CLI 파라미터(특히 --if-match에
+      # primary/staging ETag를 어떻게 넘기는지)는 실행 전 `aws cloudfront
+      # update-distribution-with-staging-config help`로 최신 문서 기준 재확인할 것.
+      # 최초 실행은 반드시 스테이징 환경에서 리허설 후 진행.
+      - name: primary로 승격
+        run: |
+          PRIMARY_ID="${{ vars.PROD_PRIMARY_DISTRIBUTION_ID }}"
+          STAGING_ID="${{ vars.PROD_STAGING_DISTRIBUTION_ID }}"
+          PRIMARY_ETAG=$(aws cloudfront get-distribution-config --id "$PRIMARY_ID" --query 'ETag' --output text)
+          STAGING_ETAG=$(aws cloudfront get-distribution-config --id "$STAGING_ID" --query 'ETag' --output text)
+          aws cloudfront update-distribution-with-staging-config \
+            --id "$PRIMARY_ID" \
+            --staging-distribution-id "$STAGING_ID" \
+            --if-match "${PRIMARY_ETAG},${STAGING_ETAG}"
+
+      - name: primary 캐시 무효화
+        run: aws cloudfront create-invalidation --distribution-id "${{ vars.PROD_PRIMARY_DISTRIBUTION_ID }}" --paths "/*"
+
+      - name: 활성 색 플립
+        run: |
+          aws ssm put-parameter --name "/gachi-salim/prod/active-color" --value "${INACTIVE_COLOR}" --type String --overwrite
+          echo "활성 색 전환 완료: ${CURRENT_COLOR} → ${INACTIVE_COLOR}"
