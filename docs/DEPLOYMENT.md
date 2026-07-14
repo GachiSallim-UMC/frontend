@@ -82,9 +82,3 @@ prod 배포 후 문제가 보이면:
 3. primary distribution이 이전 색으로 즉시 되돌아가고 캐시 무효화까지 자동 수행
 
 재빌드나 재배포가 필요 없어 수 분 내로 완료됩니다. 실제 원인 파악 후 수정한 새 커밋으로 다시 `main`에 push하면 정상적인 블루그린 배포 흐름을 탑니다.
-
-## 알아둘 것 / 한계
-
-- **`update-distribution-with-staging-config`의 정확한 CLI 파라미터**는 CloudFront Continuous Deployment가 비교적 신규 기능(2023년 출시)이라 `deploy-prod.yml`에 작성된 형태(특히 `--if-match`에 primary/staging ETag를 함께 넘기는 부분)를 실제 실행 전에 `aws cloudfront update-distribution-with-staging-config help`로 재확인하세요. **최초 실행은 반드시 별도 테스트 계정/스테이징에서 리허설**하고 main에 반영하는 걸 권장합니다.
-- CDK 코드의 `CfnContinuousDeploymentPolicy` 관련 부분도 같은 이유로 `cdk synth` 결과를 실제 배포 전 검토하세요.
-- 비용: S3+CloudFront+Route53+SSM Parameter Store 조합은 소규모 트래픽 기준 월 몇 달러 수준입니다(참고용 추정치, 확정 견적 아님).
