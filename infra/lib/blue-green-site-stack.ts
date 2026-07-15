@@ -118,7 +118,7 @@ export class FrontendProdStack extends cdk.Stack {
     this.activeColorParam = new ssm.StringParameter(this, 'ActiveColorParam', {
       parameterName: `${PARAM_PREFIX}/active-color`,
       stringValue: 'blue',
-      description: 'prod에서 현재 실제 서빙 중인 색 (blue|green)',
+      description: 'Color currently serving live prod traffic (blue|green)',
     });
 
     // GitHub Actions(main 브랜치 한정) 배포 역할
@@ -132,7 +132,7 @@ export class FrontendProdStack extends cdk.Stack {
           'token.actions.githubusercontent.com:sub': `repo:${props.githubOrg}/${props.githubRepo}:ref:refs/heads/main`,
         },
       }),
-      description: 'GitHub Actions(main)가 prod 블루그린 배포·승격·롤백 시 assume하는 역할',
+      description: 'Assumed by GitHub Actions (main) for prod blue-green deploy, promote, and rollback',
     });
 
     bucket.grantReadWrite(deployRole);

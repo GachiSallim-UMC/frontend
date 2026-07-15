@@ -35,7 +35,7 @@ export class FrontendDevStack extends cdk.Stack {
           'token.actions.githubusercontent.com:sub': `repo:${props.githubOrg}/${props.githubRepo}:ref:refs/heads/develop`,
         },
       }),
-      description: 'GitHub Actions(develop)가 dev 환경에 배포할 때 assume하는 역할',
+      description: 'Assumed by GitHub Actions (develop) to deploy the dev environment',
     });
 
     site.bucket.grantReadWrite(deployRole);
