@@ -32,9 +32,7 @@ export interface FrontendProdStackProps extends cdk.StackProps {
  *   수행 — primary의 distribution ID 자체는 유지되므로 apex ALIAS 레코드는 최초 설정
  *   이후 다시 손댈 필요 없음
  *
- * ⚠️ ContinuousDeploymentPolicy는 2023년 출시된 비교적 신규 CloudFront 기능이라
- * aws-cdk-lib의 L1(Cfn*) 리소스로 구성했다. `npm install` 후 `tsc`/`cdk synth`로
- * 실제 타입 정의 기준 프로퍼티명을 재검증할 것.
+ * ContinuousDeploymentPolicy는 aws-cdk-lib에 L2 construct가 아직 없어 L1(Cfn*)로 구성했다.
  */
 export class FrontendProdStack extends cdk.Stack {
   public readonly activeColorParam: ssm.StringParameter;

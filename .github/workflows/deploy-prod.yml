@@ -80,10 +80,6 @@ jobs:
           chmod +x infra/scripts/smoke-test.sh
           infra/scripts/smoke-test.sh "${{ vars.PROD_STAGING_DISTRIBUTION_DOMAIN }}" dist
 
-      # ⚠️ update-distribution-with-staging-config의 정확한 CLI 파라미터(특히 --if-match에
-      # primary/staging ETag를 어떻게 넘기는지)는 실행 전 `aws cloudfront
-      # update-distribution-with-staging-config help`로 최신 문서 기준 재확인할 것.
-      # 최초 실행은 반드시 스테이징 환경에서 리허설 후 진행.
       - name: primary로 승격
         run: |
           PRIMARY_ID="${{ vars.PROD_PRIMARY_DISTRIBUTION_ID }}"
@@ -93,7 +89,7 @@ jobs:
           aws cloudfront update-distribution-with-staging-config \
             --id "$PRIMARY_ID" \
             --staging-distribution-id "$STAGING_ID" \
-            --if-match "${PRIMARY_ETAG},${STAGING_ETAG}"
+            --if-match "${PRIMARY_ETAG}, ${STAGING_ETAG}"
 
       - name: primary 캐시 무효화
         run: aws cloudfront create-invalidation --distribution-id "${{ vars.PROD_PRIMARY_DISTRIBUTION_ID }}" --paths "/*"
