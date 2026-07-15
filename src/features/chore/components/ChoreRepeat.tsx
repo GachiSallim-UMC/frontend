@@ -1,5 +1,7 @@
 import { SelectDropdown, FormInput } from '@/shared/components';
 import { useChoreRepeat } from '../hooks/useChoreRepeat';
+import type { DayOfWeek, RepeatType, CustomOption } from '../types/chore.types';
+import CalendarIcon from '@/assets/icons/chore/calendar.svg';
 import {
   CUSTOM_OPTIONS,
   REPEAT_TYPE_OPTIONS,
@@ -7,7 +9,6 @@ import {
   MONTH_OPTIONS,
   DAYS,
 } from '../constants/chore.constants';
-import type { DayOfWeek, RepeatType, CustomOption } from '../types/chore.types';
 
 export const ChoreRepeat = () => {
   const {
@@ -52,10 +53,16 @@ export const ChoreRepeat = () => {
           {repeatType === 'custom' && customOption === 'every_n_days' && (
             <FormInput
               type="number"
+              min="1"
               label="반복일 (N일마다)"
               placeholder="숫자 입력 (예: 3)"
               value={repeatInterval}
-              onChange={e => setRepeatInterval(e.target.value)}
+              onChange={e => {
+                const val = e.target.value;
+                if (val == '' || Number(val) >= 1) {
+                  setRepeatInterval(val);
+                }
+              }}
             />
           )}
           {repeatType === 'custom' && customOption === 'every_n_weeks' && (
@@ -109,24 +116,48 @@ export const ChoreRepeat = () => {
       </div>
 
       <div className="flex w-full gap-[20px]">
-        <div className="flex-1">
+        <div className="relative flex-1">
           <FormInput
-            type="date"
+            type="text"
             label="시작일"
             placeholder="yyyy/mm/dd"
             required
             value={startDate}
             onChange={e => setStartDate(e.target.value)}
           />
+          <div className="absolute right-[16px] bottom-[17px] h-[16px] w-[16px]">
+            <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
+            <input
+              type="date"
+              className="absolute inset-0 cursor-pointer opacity-0"
+              onChange={e => {
+                if (e.target.value) {
+                  setStartDate(e.target.value.replace(/-/g, '/'));
+                }
+              }}
+            />
+          </div>
         </div>
-        <div className="flex-1">
+        <div className="relative flex-1">
           <FormInput
-            type="date"
+            type="text"
             label="종료일 (선택)"
             placeholder="yyyy/mm/dd"
             value={endDate}
             onChange={e => setEndDate(e.target.value)}
           />
+          <div className="absolute right-[16px] bottom-[17px] h-[16px] w-[16px]">
+            <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
+            <input
+              type="date"
+              className="absolute inset-0 cursor-pointer opacity-0"
+              onChange={e => {
+                if (e.target.value) {
+                  setStartDate(e.target.value.replace(/-/g, '/'));
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
     </section>
