@@ -28,10 +28,20 @@ grep -q '<div id="root">' /tmp/smoke-route.html || fail "클라이언트 라우�
 echo "✅ 클라이언트 라우트(/dashboard) SPA 폴백 확인"
 
 # 3. index.html이 참조하는 정적 자산 1개가 실제로 로드되는지
-asset_path=$(grep -oE 'src="/assets/[^"]+\.js"' "${DIST_DIR}/index.html" | head -1 | sed -E 's/src="(.*)"/\1/')
+# `|| true`로 파이프라인 실패를 흡수 — grep이 매치를 못 찾아도(exit 1) set -e가
+# 여기서 바로 죽지 않고 다음 줄의 -n 검사에서 의도한 fail() 메시지로 이어지게 한다.
+asset_path=$(grep -oE 'src="/assets/[^"]+\.js"' "${DIST_DIR}/index.html" | head -1 | sed -E 's/src="(.*)"/\1/' || true)
 [ -n "$asset_path" ] || fail "${DIST_DIR}/index.html에서 정적 자산 경로를 찾지 못함"
-status=$(curl -s -o /dev/null -w '%{http_code}' -H "${STAGING_HEADER}" "${BASE_URL}${asset_path}")
+response=$(curl -s -o /dev/null -w '%{http_code} %{content_type}' -H "${STAGING_HEADER}" "${BASE_URL}${asset_path}")
+status="${response%% *}"
+content_type="${response#* }"
 [ "$status" = "200" ] || fail "정적 자산(${asset_path}) 응답 코드 ${status} (기대: 200)"
-echo "✅ 정적 자산(${asset_path}) 200"
+# Content-Type까지 확인 — CloudFront의 SPA 폴백(403/404→index.html)도 200을 주므로
+# 상태 코드만으론 "자산이 실제로 있음"과 "없어서 폴백 HTML이 온 것"을 구분 못 한다.
+case "$content_type" in
+  *javascript*) ;;
+  *) fail "정적 자산(${asset_path}) Content-Type이 예상과 다름 (실제: ${content_type}) — 자산이 없어서 SPA 폴백이 대신 응답했을 가능성" ;;
+esac
+echo "✅ 정적 자산(${asset_path}) 200 (${content_type})"
 
 echo "스모크 테스트 통과"

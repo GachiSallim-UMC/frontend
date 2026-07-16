@@ -30,16 +30,13 @@ jobs:
       - name: 의존성 설치
         run: npm ci
 
-      - name: 타입 체크
-        run: npm run type-check
-
       - name: 린트
         run: npm run lint
 
       - name: AWS 자격 증명 설정 (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/gha-deploy-prod
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gha-deploy-prod
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: 현재 활성 색 조회 및 비활성 색 계산
@@ -47,8 +44,11 @@ jobs:
           CURRENT_COLOR=$(aws ssm get-parameter --name "/gachi-salim/prod/active-color" --query 'Parameter.Value' --output text)
           if [ "$CURRENT_COLOR" = "blue" ]; then
             INACTIVE_COLOR="green"
-          else
+          elif [ "$CURRENT_COLOR" = "green" ]; then
             INACTIVE_COLOR="blue"
+          else
+            echo "::error::active-color 파라미터 값이 blue/green이 아님: '${CURRENT_COLOR}'"
+            exit 1
           fi
           echo "현재 활성 색: ${CURRENT_COLOR} → 이번 배포 대상(비활성): ${INACTIVE_COLOR}"
           echo "CURRENT_COLOR=${CURRENT_COLOR}" >> "$GITHUB_ENV"
@@ -57,9 +57,13 @@ jobs:
       - name: SSM에서 빌드 환경변수 로드
         run: |
           VITE_API_BASE_URL=$(aws ssm get-parameter --name "/gachi-salim/prod/VITE_API_BASE_URL" --query 'Parameter.Value' --output text)
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "::error::VITE_API_BASE_URL 파라미터 값이 비어있음"
+            exit 1
+          fi
           echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> .env
 
-      - name: 빌드
+      - name: 빌드 (타입 체크 포함 — npm run build가 tsc -b를 실행함)
         run: npm run build
 
       - name: 비활성 색 prefix에 S3 동기화
@@ -70,10 +74,15 @@ jobs:
           STAGING_ID="${{ vars.PROD_STAGING_DISTRIBUTION_ID }}"
           aws cloudfront get-distribution-config --id "$STAGING_ID" > /tmp/staging-config.json
           ETAG=$(jq -r '.ETag' /tmp/staging-config.json)
-          jq --arg path "/${INACTIVE_COLOR}" '.DistributionConfig.Origins.Items[0].OriginPath = $path | .DistributionConfig' /tmp/staging-config.json > /tmp/staging-new-config.json
+          jq --arg path "/${INACTIVE_COLOR}" \
+            '(.DistributionConfig.Origins.Items[] | select(.Id == "S3Origin") | .OriginPath) = $path | .DistributionConfig' \
+            /tmp/staging-config.json > /tmp/staging-new-config.json
           aws cloudfront update-distribution --id "$STAGING_ID" --if-match "$ETAG" --distribution-config file:///tmp/staging-new-config.json
           echo "staging distribution 배포 완료 대기 중..."
           aws cloudfront wait distribution-deployed --id "$STAGING_ID"
+
+      - name: staging 캐시 무효화 (스모크 테스트가 이전 배포의 캐시를 보지 않도록)
+        run: aws cloudfront create-invalidation --distribution-id "${{ vars.PROD_STAGING_DISTRIBUTION_ID }}" --paths "/*"
 
       - name: 스모크 테스트 (staging distribution)
         run: |
@@ -90,11 +99,24 @@ jobs:
             --id "$PRIMARY_ID" \
             --staging-distribution-id "$STAGING_ID" \
             --if-match "${PRIMARY_ETAG}, ${STAGING_ETAG}"
+          echo "primary distribution 배포 완료 대기 중..."
+          aws cloudfront wait distribution-deployed --id "$PRIMARY_ID"
 
-      - name: primary 캐시 무효화
-        run: aws cloudfront create-invalidation --distribution-id "${{ vars.PROD_PRIMARY_DISTRIBUTION_ID }}" --paths "/*"
+      - name: Continuous Deployment Policy 재활성화
+        # CloudFront는 승격(promote) 시 정책을 자동으로 비활성화한다(AWS 공식 문서:
+        # "CloudFront also disables the continuous deployment policy"). 다음 배포의
+        # 승격이 정상 동작하려면 매번 다시 활성화해야 한다.
+        run: |
+          POLICY_ID="${{ vars.PROD_CONTINUOUS_DEPLOYMENT_POLICY_ID }}"
+          aws cloudfront get-continuous-deployment-policy-config --id "$POLICY_ID" > /tmp/cdp-config.json
+          POLICY_ETAG=$(jq -r '.ETag' /tmp/cdp-config.json)
+          jq '.ContinuousDeploymentPolicyConfig.Enabled = true | .ContinuousDeploymentPolicyConfig' /tmp/cdp-config.json > /tmp/cdp-new-config.json
+          aws cloudfront update-continuous-deployment-policy --id "$POLICY_ID" --if-match "$POLICY_ETAG" --continuous-deployment-policy-config file:///tmp/cdp-new-config.json
 
       - name: 활성 색 플립
         run: |
           aws ssm put-parameter --name "/gachi-salim/prod/active-color" --value "${INACTIVE_COLOR}" --type String --overwrite
           echo "활성 색 전환 완료: ${CURRENT_COLOR} → ${INACTIVE_COLOR}"
+
+      - name: primary 캐시 무효화
+        run: aws cloudfront create-invalidation --distribution-id "${{ vars.PROD_PRIMARY_DISTRIBUTION_ID }}" --paths "/index.html"

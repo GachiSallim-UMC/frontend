@@ -31,28 +31,29 @@ jobs:
       - name: 의존성 설치
         run: npm ci
 
-      - name: 타입 체크
-        run: npm run type-check
-
       - name: 린트
         run: npm run lint
 
       - name: AWS 자격 증명 설정 (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/gha-deploy-dev
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gha-deploy-dev
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: SSM에서 빌드 환경변수 로드
         run: |
           VITE_API_BASE_URL=$(aws ssm get-parameter --name "/gachi-salim/dev/VITE_API_BASE_URL" --query 'Parameter.Value' --output text)
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "::error::VITE_API_BASE_URL 파라미터 값이 비어있음"
+            exit 1
+          fi
           echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> .env
 
-      - name: 빌드
+      - name: 빌드 (타입 체크 포함 — npm run build가 tsc -b를 실행함)
         run: npm run build
 
       - name: S3 동기화
         run: aws s3 sync dist/ "s3://${{ vars.DEV_BUCKET_NAME }}" --delete
 
       - name: CloudFront 캐시 무효화
-        run: aws cloudfront create-invalidation --distribution-id "${{ vars.DEV_DISTRIBUTION_ID }}" --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id "${{ vars.DEV_DISTRIBUTION_ID }}" --paths "/index.html"

@@ -14,17 +14,27 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: deploy-prod # deploy-prod.yml과 같은 그룹 — 둘 다 primary distribution과 active-color를 건드리므로 겹쳐 돌면 안 됨
+  cancel-in-progress: false
+
 jobs:
   rollback:
     name: prod 롤백
     runs-on: ubuntu-latest
     environment: prod
-    if: inputs.confirm == 'ROLLBACK'
     steps:
+      - name: 확인 문자열 검증
+        run: |
+          if [ "${{ inputs.confirm }}" != "ROLLBACK" ]; then
+            echo "::error::confirm 입력값이 'ROLLBACK'과 정확히 일치하지 않습니다 (입력값: '${{ inputs.confirm }}'). 롤백이 실행되지 않았습니다."
+            exit 1
+          fi
+
       - name: AWS 자격 증명 설정 (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/gha-deploy-prod
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gha-deploy-prod
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: 현재 활성 색 조회 및 롤백 대상 색 계산
@@ -32,8 +42,11 @@ jobs:
           CURRENT_COLOR=$(aws ssm get-parameter --name "/gachi-salim/prod/active-color" --query 'Parameter.Value' --output text)
           if [ "$CURRENT_COLOR" = "blue" ]; then
             ROLLBACK_COLOR="green"
-          else
+          elif [ "$CURRENT_COLOR" = "green" ]; then
             ROLLBACK_COLOR="blue"
+          else
+            echo "::error::active-color 파라미터 값이 blue/green이 아님: '${CURRENT_COLOR}'"
+            exit 1
           fi
           echo "현재: ${CURRENT_COLOR} → 롤백 대상: ${ROLLBACK_COLOR}"
           echo "ROLLBACK_COLOR=${ROLLBACK_COLOR}" >> "$GITHUB_ENV"
@@ -43,13 +56,17 @@ jobs:
           PRIMARY_ID="${{ vars.PROD_PRIMARY_DISTRIBUTION_ID }}"
           aws cloudfront get-distribution-config --id "$PRIMARY_ID" > /tmp/primary-config.json
           ETAG=$(jq -r '.ETag' /tmp/primary-config.json)
-          jq --arg path "/${ROLLBACK_COLOR}" '.DistributionConfig.Origins.Items[0].OriginPath = $path | .DistributionConfig' /tmp/primary-config.json > /tmp/primary-new-config.json
+          jq --arg path "/${ROLLBACK_COLOR}" \
+            '(.DistributionConfig.Origins.Items[] | select(.Id == "S3Origin") | .OriginPath) = $path | .DistributionConfig' \
+            /tmp/primary-config.json > /tmp/primary-new-config.json
           aws cloudfront update-distribution --id "$PRIMARY_ID" --if-match "$ETAG" --distribution-config file:///tmp/primary-new-config.json
-
-      - name: 캐시 무효화
-        run: aws cloudfront create-invalidation --distribution-id "${{ vars.PROD_PRIMARY_DISTRIBUTION_ID }}" --paths "/*"
+          echo "primary distribution 배포 완료 대기 중..."
+          aws cloudfront wait distribution-deployed --id "$PRIMARY_ID"
 
       - name: 활성 색 원복
         run: |
           aws ssm put-parameter --name "/gachi-salim/prod/active-color" --value "${ROLLBACK_COLOR}" --type String --overwrite
           echo "롤백 완료: 활성 색 = ${ROLLBACK_COLOR}"
+
+      - name: 캐시 무효화
+        run: aws cloudfront create-invalidation --distribution-id "${{ vars.PROD_PRIMARY_DISTRIBUTION_ID }}" --paths "/index.html"

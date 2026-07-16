@@ -30,7 +30,11 @@ hosted zone 위임 없이 dev·prod 모두 루트 DNS에 직접 레코드를 등
 
 ## 최초 1회 부트스트랩
 
-### 1. CDK 부트스트랩 및 스택 배포
+### 1. CDK 부트스트랩 및 스택 배포 (2단계)
+
+`FrontendProdStack`의 staging distribution은 CDK가 직접 만들 수 없습니다 — CloudFront는 `copy-distribution`으로 primary를 복사해 만든 distribution만 continuous deployment policy와 연결해줍니다. CDK가 독립적으로 새로 만든 distribution은 겉보기엔 똑같아도 연결 시도 시 `IllegalUpdate: One or more fields updated are not supported for continuous deployment`로 거부당합니다(실제로 겪은 문제). 그래서 배포가 2단계로 나뉩니다.
+
+**1단계 — primary distribution까지만 생성**
 
 ```bash
 cd infra
@@ -41,19 +45,44 @@ npx cdk deploy FrontendDevStack -c domainName=<실제 도메인> -c githubOrg=Ga
 npx cdk deploy FrontendProdStack -c domainName=<실제 도메인> -c githubOrg=GachiSallim-UMC -c githubRepo=frontend
 ```
 
-CloudFront용 ACM 인증서는 us-east-1 고정이라 전체 스택을 us-east-1에 배포합니다.
+CloudFront용 ACM 인증서는 us-east-1 고정이라 전체 스택을 us-east-1에 배포합니다. 이 시점엔 `FrontendProdStack`에 staging distribution과 continuous deployment policy가 아직 없습니다(`StagingBootstrapNote` 출력 참고).
 
-### 2. Continuous Deployment Policy 연결 (prod, 최초 1회)
-
-CloudFront API는 distribution 생성과 동시에 `ContinuousDeploymentPolicyId`를 설정하는 것을 허용하지 않습니다. 그래서 `FrontendProdStack`은 policy 없이 primary distribution만 먼저 만들고, 배포 완료 후 아래처럼 **한 번만** 연결해야 정상적으로 블루그린이 동작합니다(이후 승격·재배포에서는 다시 손댈 필요 없음):
+**2단계 — staging distribution을 copy-distribution으로 만든 뒤 재배포**
 
 ```bash
 PRIMARY_ID=<PrimaryDistributionId 출력값>
+PRIMARY_ETAG=$(aws cloudfront get-distribution --id "$PRIMARY_ID" --query 'ETag' --output text)
+aws cloudfront copy-distribution --primary-distribution-id "$PRIMARY_ID" --if-match "$PRIMARY_ETAG" \
+  --staging --caller-reference "gachi-salim-staging-bootstrap"
+# 출력의 Id·DomainName을 기록
+
+# copy-distribution은 origin path까지 primary(/blue)를 그대로 복사하므로 /green으로 수정
+# 필요 (get-distribution-config → OriginPath 수정 → update-distribution, 아래 2번과 같은
+# --cli-input-json 패턴 사용)
+
+npx cdk deploy FrontendProdStack -c domainName=<실제 도메인> -c githubOrg=GachiSallim-UMC -c githubRepo=frontend \
+  -c stagingDistributionId=<위 Id> -c stagingDistributionDomainName=<위 DomainName>
+```
+
+이제 `ContinuousDeploymentPolicy`와 관련 IAM 권한이 만들어집니다.
+
+### 2. Continuous Deployment Policy를 primary에 연결 (최초 1회)
+
+CloudFront API는 distribution 생성과 동시에 `ContinuousDeploymentPolicyId`를 설정하는 것도, 흔한 `--if-match`/`--distribution-config` 분리 호출로 나중에 붙이는 것도 허용하지 않습니다(둘 다 `IllegalUpdate` 에러). **`ETag`를 `IfMatch`로 이름만 바꿔서 `Id`·`IfMatch`·`DistributionConfig`를 한 파일에 담아 `--cli-input-json`으로** 넘겨야 통과합니다 — 이 최초 연결 자체는 **한 번만** 하면 됩니다:
+
+> **주의**: CloudFront는 승격(promote)할 때마다 이 정책을 자동으로 **비활성화**합니다(AWS 공식 문서). 그래서 `deploy-prod.yml`은 매 배포의 승격 직후 정책을 다시 활성화하는 스텝을 포함하고 있습니다 — 이건 파이프라인이 자동으로 처리하므로 사람이 반복할 필요는 없지만, "한 번 연결하면 끝"은 아니라는 점을 알아두세요.
+
+```bash
 POLICY_ID=<ContinuousDeploymentPolicyId 출력값>
-aws cloudfront get-distribution-config --id "$PRIMARY_ID" > primary-config.json
-ETAG=$(jq -r '.ETag' primary-config.json)
-jq --arg pid "$POLICY_ID" '.DistributionConfig.ContinuousDeploymentPolicyId = $pid | .DistributionConfig' primary-config.json > primary-new-config.json
-aws cloudfront update-distribution --id "$PRIMARY_ID" --if-match "$ETAG" --distribution-config file://primary-new-config.json
+aws cloudfront get-distribution-config --id "$PRIMARY_ID" --output json > primary.json
+python3 -c "
+import json
+data = json.load(open('primary.json'))
+payload = {'Id': '$PRIMARY_ID', 'IfMatch': data['ETag'], 'DistributionConfig': data['DistributionConfig']}
+payload['DistributionConfig']['ContinuousDeploymentPolicyId'] = '$POLICY_ID'
+json.dump(payload, open('primary-input.json', 'w'))
+"
+aws cloudfront update-distribution --id "$PRIMARY_ID" --cli-input-json file://primary-input.json
 ```
 
 ### 3. 도메인 연결 (백엔드와 AWS 계정이 달라도 무관하도록)
@@ -72,10 +101,11 @@ DNS 관리 도구가 NS·ALIAS 레코드 타입을 지원하지 않는 환경을
 ### 4. GitHub 설정
 
 - **Environments**: repo Settings → Environments에 `dev`, `prod` 생성 (워크플로우가 참조)
-- **Variables** (repo Settings → Variables, secrets 아님 — 민감값 아님):
-  - `AWS_ACCOUNT_ID`, `AWS_REGION`(`us-east-1`)
+- **Secrets** (repo Settings → Secrets): `AWS_ACCOUNT_ID` — 이 레포가 퍼블릭이라 워크플로우 실행 로그에 노출되지 않도록 Variable이 아닌 Secret으로 둡니다.
+- **Variables** (repo Settings → Variables, 민감값 아님):
+  - `AWS_REGION`(`us-east-1`)
   - `DEV_BUCKET_NAME`, `DEV_DISTRIBUTION_ID` — `FrontendDevStack` 출력값
-  - `PROD_BUCKET_NAME`, `PROD_PRIMARY_DISTRIBUTION_ID`, `PROD_STAGING_DISTRIBUTION_ID`, `PROD_STAGING_DISTRIBUTION_DOMAIN` — `FrontendProdStack` 출력값
+  - `PROD_BUCKET_NAME`, `PROD_PRIMARY_DISTRIBUTION_ID`, `PROD_STAGING_DISTRIBUTION_ID`, `PROD_STAGING_DISTRIBUTION_DOMAIN`, `PROD_CONTINUOUS_DEPLOYMENT_POLICY_ID` — `FrontendProdStack` 출력값
 
 ### 5. 애플리케이션 빌드 시크릿 시딩
 
