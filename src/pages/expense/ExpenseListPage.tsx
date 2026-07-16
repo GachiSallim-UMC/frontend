@@ -39,7 +39,7 @@ export const ExpenseListPage = ({ expenses = mockExpenses }: ExpenseListPageProp
           />
         </div>
 
-        <div className='w-full lg:w-[1114px] min-h-[484px] mt-[30px] rounded-[20px] bg-gray-0 flex flex-col'>
+        <div className='w-full lg:w-[1114px] min-h-[484px] mt-[30px] rounded-[20px] bg-white flex flex-col'>
           <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full px-4 lg:px-[30px] pt-[20px] lg:pt-[30px]'>
             <div className='flex flex-wrap items-center gap-[12px] lg:gap-[16px]'>
               <TabButton
