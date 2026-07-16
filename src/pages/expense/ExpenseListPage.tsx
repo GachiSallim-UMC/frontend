@@ -12,7 +12,7 @@ interface ExpenseListPageProps {
   title?: string;
 }
 
-const ExpenseListPage = ({ expenses = mockExpenses }: ExpenseListPageProps) => {
+export const ExpenseListPage = ({ expenses = mockExpenses }: ExpenseListPageProps) => {
   const [activeFilter, setActiveFilter] = useState<ExpenseFilter>('TOTAL');
 
   return (
@@ -68,4 +68,3 @@ const ExpenseListPage = ({ expenses = mockExpenses }: ExpenseListPageProps) => {
   );
 };
 
-export default ExpenseListPage;

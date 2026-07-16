@@ -1,7 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
 import { AppLayout } from './AppLayout';
-import ExpenseListPage from '@/pages/expense/ExpenseListPage';
+import { ExpenseListPage } from '@/pages/expense';
+
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
