@@ -51,7 +51,6 @@ const config: Config = {
         },
         // Figma: Gray
         gray: {
-          0: '#FFFFFF',
           100: '#EEEEEE',
           200: '#D9D9D9',
           400: '#C4C4C4',

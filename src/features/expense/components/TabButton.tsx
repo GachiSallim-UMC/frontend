@@ -13,7 +13,7 @@ const TabButton = ({ label, filter, activeFilter, onFilterChange }: TabButtonPro
 
   const isActive = activeFilter === filter;
   const activeStyle = 'bg-primary-100 border-primary-500 text-primary-500'
-  const inactiveStyle = 'bg-gray-0 border-gray-100 text-gray-400'
+  const inactiveStyle = 'bg-white border-gray-100 text-gray-400'
 
   return (
     <button

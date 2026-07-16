@@ -14,7 +14,7 @@ const ExpenseRow = ({ expense }: ExpenseRowProps) => {
     : 'bg-orange-100 text-orange-700';
 
   return (
-    <div className={`grid ${GRID_COLS} items-center w-full min-w-[720px] h-[72px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-gray-0 border-b border-gray-100 last:border-b-0`}>
+    <div className={`grid ${GRID_COLS} items-center w-full min-w-[720px] h-[72px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-white border-b border-gray-100 last:border-b-0`}>
       <span className='font-sans font-normal text-button text-gray-900 whitespace-nowrap'>
         {expense.date}
       </span>

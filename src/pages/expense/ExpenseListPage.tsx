@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import TabButton from '@/features/expense/components/TabButton';
+import { ExpenseTable, TabButton, AddExpense, ExpenseSummaryCard } from '@/features/expense' 
 import type { ExpenseFilter } from '@/features/expense/components/TabButton';
-import ExpenseSummaryCard from '@/features/expense/components/ExpenseSummaryCard';
-import ExpenseTable from '@/features/expense/components/ExpenseTable';
-import AddExpense from '@/features/expense/components/AddExpense';
 import type { Expense } from '@/features/expense/types/expense.types';
 import { mockExpenses } from '@/features/expense/mocks/expense.mock';
 import totalExpenseIcon from '@/assets/icons/expense/totalexpense.svg';
