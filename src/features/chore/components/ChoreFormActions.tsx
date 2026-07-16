@@ -3,7 +3,7 @@ import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react';
 
 export const ChoreFormActions = () => {
   return (
-    <div className="flex w-full items-center justify-between pt-[20px]">
+    <div className="flex w-full items-center justify-between">
       <div className="flex items-center gap-[12px]">
         <Button className="w-[150px] font-bold">저장</Button>
         <Button variant="secondary" className="w-[150px] font-bold">
