@@ -4,6 +4,7 @@ import { LoginPage } from '@/pages/login/LoginPage';
 import { AppLayout } from './AppLayout';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
+import { DashboardPage } from '@/pages/dashboard/DashboardPage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -11,7 +12,7 @@ export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
-      { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
+      { path: '/dashboard', element: <DashboardPage /> },
       { path: '/chores', element: <ChorePage /> },
       { path: '/chores/new', element: <PlaceholderPage title="집안일 등록" /> },
       { path: '/chores/:id/edit', element: <PlaceholderPage title="집안일 수정" /> },
