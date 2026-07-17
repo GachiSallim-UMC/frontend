@@ -11,6 +11,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'KBO Dia Gothic';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/KBO-Dia-Gothic_medium.woff')
+    format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --sidebar-width: 260px;
