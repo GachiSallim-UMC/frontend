@@ -7,14 +7,60 @@ import {
   RULE_CATEGORY_OPTIONS,
   RULE_STATUS_OPTIONS,
   useRuleFilters,
+  type Rule,
 } from '@/features/rule';
-import { StatusBadge } from '@/shared/components/ui';
+import { DataTable, StatusBadge, type Column } from '@/shared/components/ui';
 import { SelectDropdown } from '@/shared/components/form';
 import { rules } from '@/pages/_shared/mockData';
 
 export const RuleListPage = () => {
   const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } =
     useRuleFilters(rules);
+
+  const columns: Column<Rule>[] = [
+    {
+      key: 'category',
+      header: '카테고리',
+      render: rule => (
+        <span className="whitespace-nowrap font-bold text-primary-700">
+          {RULE_CATEGORY_LABEL[rule.category]}
+        </span>
+      ),
+    },
+    {
+      key: 'title',
+      header: '규칙',
+      render: rule => (
+        <Link to={`/rules/${rule.id}`} className="block min-w-0">
+          <p className="truncate font-bold text-gray-900">{rule.title}</p>
+          <p className="mt-1 truncate text-caption text-gray-600">
+            등록: {rule.registeredBy.name} | {rule.registeredAt} | 동의:{' '}
+            {rule.agreement.agreedCount}/{rule.agreement.totalCount}
+          </p>
+        </Link>
+      ),
+    },
+    { key: 'status', header: '상태', render: rule => <StatusBadge variant={rule.status} /> },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: rule => (
+        <span className="flex justify-end gap-1 text-gray-500">
+          <Link
+            to={`/rules/${rule.id}`}
+            aria-label="수정"
+            className="p-2 hover:text-primary-600"
+          >
+            <EditIcon className="h-5 w-5" />
+          </Link>
+          <button type="button" aria-label="공유" className="p-2 hover:text-primary-600">
+            <ShareIcon className="h-5 w-5" />
+          </button>
+        </span>
+      ),
+    },
+  ];
 
   return (
     <section className="mt-7 rounded-[20px] bg-white p-[30px] shadow-card">
@@ -44,50 +90,7 @@ export const RuleListPage = () => {
         </Link>
       </div>
 
-      <div className="rounded-[10px] border border-gray-100">
-        {filteredRules.length === 0 ? (
-          <p className="py-16 text-center text-gray-400">등록된 생활 규칙이 없습니다.</p>
-        ) : (
-          filteredRules.map((rule, index) => (
-            <div
-              key={rule.id}
-              className={`flex items-center gap-5 px-[34px] py-[23px] ${
-                index !== filteredRules.length - 1 ? 'border-b border-gray-100' : ''
-              }`}
-            >
-              <div className="flex shrink-0 items-center gap-5">
-                <span className="h-[30px] w-px bg-gray-200" />
-                <span className="whitespace-nowrap text-button font-bold text-primary-700">
-                  {RULE_CATEGORY_LABEL[rule.category]}
-                </span>
-              </div>
-
-              <Link to={`/rules/${rule.id}`} className="min-w-0 flex-1">
-                <p className="truncate text-button font-bold text-gray-900">{rule.title}</p>
-                <p className="mt-1 truncate text-caption text-gray-600">
-                  등록: {rule.registeredBy.name} | {rule.registeredAt} | 동의:{' '}
-                  {rule.agreement.agreedCount}/{rule.agreement.totalCount}
-                </p>
-              </Link>
-
-              <StatusBadge variant={rule.status} />
-
-              <span className="flex items-center gap-1 text-gray-500">
-                <Link
-                  to={`/rules/${rule.id}`}
-                  aria-label="수정"
-                  className="p-2 hover:text-primary-600"
-                >
-                  <EditIcon className="h-5 w-5" />
-                </Link>
-                <button type="button" aria-label="공유" className="p-2 hover:text-primary-600">
-                  <ShareIcon className="h-5 w-5" />
-                </button>
-              </span>
-            </div>
-          ))
-        )}
-      </div>
+      <DataTable columns={columns} data={filteredRules} emptyMessage="등록된 생활 규칙이 없습니다." />
     </section>
   );
 };

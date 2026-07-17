@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
-import { RuleListPage, RuleDetailPage, RuleFormPage } from '@/pages/rule';
+import { RuleListPage, RuleDetailRoute, RuleFormPage } from '@/pages/rule';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
 import { AppLayout } from './AppLayout';
@@ -28,7 +28,7 @@ export const router = createBrowserRouter([
       { path: '/items/:id/edit', element: <PlaceholderPage title="물품 수정" /> },
       { path: '/rules', element: <RuleListPage /> },
       { path: '/rules/new', element: <RuleFormPage /> },
-      { path: '/rules/:id', element: <RuleDetailPage /> },
+      { path: '/rules/:id', element: <RuleDetailRoute /> },
       { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
       { path: '/notifications', element: <NotificationPage /> },
       { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { toSelectOptions } from '@/shared/lib';
 import type { RuleStatus } from '@/shared/types';
 import type { Rule, RuleCategory } from '../types/rule.types';
 
@@ -10,12 +11,7 @@ export const RULE_CATEGORY_LABEL: Record<RuleCategory, string> = {
   etc: '기타',
 };
 
-export const RULE_CATEGORY_OPTIONS = (Object.keys(RULE_CATEGORY_LABEL) as RuleCategory[]).map(
-  value => ({
-    value,
-    label: RULE_CATEGORY_LABEL[value],
-  }),
-);
+export const RULE_CATEGORY_OPTIONS = toSelectOptions(RULE_CATEGORY_LABEL);
 
 export const RULE_STATUS_OPTIONS: { value: RuleStatus; label: string }[] = [
   { value: 'active', label: '활성' },

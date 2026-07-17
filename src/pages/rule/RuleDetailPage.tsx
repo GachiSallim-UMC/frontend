@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Check, Circle } from 'lucide-react';
 import {
@@ -7,7 +8,7 @@ import {
   useRuleForm,
   type RuleHistoryType,
 } from '@/features/rule';
-import { Button, ShareMessengerButton, StatusBadge, UserAvatar } from '@/shared/components/ui';
+import { FormActions, StatusBadge, UserAvatar } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { currentUser, rules, users } from '@/pages/_shared/mockData';
@@ -34,6 +35,8 @@ const AGREEMENT_TOGGLE_OPTIONS = [
   { value: 'pending', label: '보류' },
 ] as const;
 
+type FormErrors = Partial<Record<'title' | 'category' | 'status', string>>;
+
 export const RuleDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -46,10 +49,21 @@ export const RuleDetailPage = () => {
     currentUser,
     users,
   );
+  const [errors, setErrors] = useState<FormErrors>({});
 
   if (!rule) {
     return <Navigate to="/rules" replace />;
   }
+
+  const handleSave = () => {
+    const nextErrors: FormErrors = {};
+    if (!title.trim()) nextErrors.title = '규칙 제목을 입력해 주세요.';
+    if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
+    if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+    navigate('/rules');
+  };
 
   return (
     <div className="mt-7 grid grid-cols-2 gap-5">
@@ -60,6 +74,7 @@ export const RuleDetailPage = () => {
             required
             value={title}
             onChange={e => setTitle(e.target.value)}
+            error={errors.title}
           />
           <SelectDropdown
             label="카테고리"
@@ -67,6 +82,7 @@ export const RuleDetailPage = () => {
             value={category}
             onChange={setCategory}
             options={RULE_CATEGORY_OPTIONS}
+            error={errors.category}
           />
           <TextArea
             label="상세 설명"
@@ -83,18 +99,11 @@ export const RuleDetailPage = () => {
             value={status}
             onChange={setStatus}
             options={RULE_STATUS_OPTIONS}
+            error={errors.status}
           />
         </div>
 
-        <div className="mt-6 flex items-center justify-between">
-          <div className="flex gap-2">
-            <Button onClick={() => navigate('/rules')}>저장</Button>
-            <Button variant="secondary" onClick={() => navigate(-1)}>
-              취소
-            </Button>
-          </div>
-          <ShareMessengerButton />
-        </div>
+        <FormActions className="mt-6" onSave={handleSave} onCancel={() => navigate(-1)} />
       </Panel>
 
       <div className="flex flex-col gap-5">
