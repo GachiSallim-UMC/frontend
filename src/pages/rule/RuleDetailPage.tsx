@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Check, Circle } from 'lucide-react';
 import {
   RULE_CATEGORY_OPTIONS,
@@ -36,15 +36,20 @@ const AGREEMENT_TOGGLE_OPTIONS = [
 
 export const RuleDetailPage = () => {
   const { id } = useParams();
-  const rule = rules.find(item => item.id === id) ?? rules[0];
+  const navigate = useNavigate();
+  const rule = rules.find(item => item.id === id);
 
   const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
     useRuleForm(rule);
   const { myAgreement, setMyAgreement, memberStatuses, historyEntries } = useRuleAgreement(
-    rule,
+    rule ?? rules[0],
     currentUser,
     users,
   );
+
+  if (!rule) {
+    return <Navigate to="/rules" replace />;
+  }
 
   return (
     <div className="mt-7 grid grid-cols-2 gap-5">
@@ -83,8 +88,10 @@ export const RuleDetailPage = () => {
 
         <div className="mt-6 flex items-center justify-between">
           <div className="flex gap-2">
-            <Button>저장</Button>
-            <Button variant="secondary">취소</Button>
+            <Button onClick={() => navigate('/rules')}>저장</Button>
+            <Button variant="secondary" onClick={() => navigate(-1)}>
+              취소
+            </Button>
           </div>
           <ShareMessengerButton />
         </div>
