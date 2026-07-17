@@ -8,10 +8,12 @@ export const ITEM_CATEGORY_LABEL: Record<ItemCategory, string> = {
   etc: '기타',
 };
 
-export const ITEM_CATEGORY_OPTIONS = (Object.keys(ITEM_CATEGORY_LABEL) as ItemCategory[]).map(value => ({
-  value,
-  label: ITEM_CATEGORY_LABEL[value],
-}));
+export const ITEM_CATEGORY_OPTIONS = (Object.keys(ITEM_CATEGORY_LABEL) as ItemCategory[]).map(
+  value => ({
+    value,
+    label: ITEM_CATEGORY_LABEL[value],
+  }),
+);
 
 export type ItemStatusFilter = 'all' | 'short' | 'empty';
 

@@ -1,5 +1,10 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { ITEM_CATEGORY_OPTIONS, ITEM_STATUS_OPTIONS, useItemForm, useQuickItemStatus } from '@/features/item';
+import {
+  ITEM_CATEGORY_OPTIONS,
+  ITEM_STATUS_OPTIONS,
+  useItemForm,
+  useQuickItemStatus,
+} from '@/features/item';
 import { Button, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
@@ -10,10 +15,24 @@ export const ItemFormPage = () => {
   const navigate = useNavigate();
   const editingItem = id ? items.find(item => item.id === id) : undefined;
 
-  const { name, setName, category, setCategory, status, setStatus, buyerId, setBuyerId, memo, setMemo } =
-    useItemForm(editingItem);
-  const { itemId: quickItemId, setItemId: setQuickItemId, status: quickStatus, setStatus: setQuickStatus } =
-    useQuickItemStatus();
+  const {
+    name,
+    setName,
+    category,
+    setCategory,
+    status,
+    setStatus,
+    buyerId,
+    setBuyerId,
+    memo,
+    setMemo,
+  } = useItemForm(editingItem);
+  const {
+    itemId: quickItemId,
+    setItemId: setQuickItemId,
+    status: quickStatus,
+    setStatus: setQuickStatus,
+  } = useQuickItemStatus();
 
   return (
     <>

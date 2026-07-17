@@ -61,7 +61,11 @@ export const ItemListPage = () => {
       align: 'right',
       render: item => (
         <span className="flex justify-end gap-1 text-gray-500">
-          <Link to={`/items/${item.id}/edit`} aria-label="수정" className="p-2 hover:text-primary-600">
+          <Link
+            to={`/items/${item.id}/edit`}
+            aria-label="수정"
+            className="p-2 hover:text-primary-600"
+          >
             <EditIcon className="h-5 w-5" />
           </Link>
           <button type="button" aria-label="공유" className="p-2 hover:text-primary-600">
@@ -101,7 +105,11 @@ export const ItemListPage = () => {
       <section className="rounded-[20px] bg-white p-[30px] shadow-card">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
-            <FilterTabGroup tabs={ITEM_STATUS_FILTER_TABS} value={statusFilter} onChange={setStatusFilter} />
+            <FilterTabGroup
+              tabs={ITEM_STATUS_FILTER_TABS}
+              value={statusFilter}
+              onChange={setStatusFilter}
+            />
             <SelectDropdown
               value={categoryFilter}
               onChange={setCategoryFilter}
@@ -125,7 +133,11 @@ export const ItemListPage = () => {
           </Link>
         </div>
 
-        <DataTable columns={columns} data={filteredItems} emptyMessage="등록된 공용 물품이 없습니다." />
+        <DataTable
+          columns={columns}
+          data={filteredItems}
+          emptyMessage="등록된 공용 물품이 없습니다."
+        />
       </section>
     </>
   );
