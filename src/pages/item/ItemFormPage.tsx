@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   ITEM_CATEGORY_OPTIONS,
   ITEM_STATUS_OPTIONS,
@@ -14,6 +14,7 @@ export const ItemFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const editingItem = id ? items.find(item => item.id === id) : undefined;
+  const notFound = Boolean(id) && !editingItem;
 
   const {
     name,
@@ -33,6 +34,17 @@ export const ItemFormPage = () => {
     status: quickStatus,
     setStatus: setQuickStatus,
   } = useQuickItemStatus();
+
+  if (notFound) {
+    return <Navigate to="/items" replace />;
+  }
+
+  const handleQuickStatusChange = () => {
+    if (!quickItemId || !quickStatus) return;
+    // 실제 상태 변경 API가 아직 없어 목데이터라 반영은 안 되지만, 선택값 검증 후
+    // 목록으로 돌아가는 흐름은 저장 버튼과 동일하게 맞춰둔다.
+    navigate('/items');
+  };
 
   return (
     <>
@@ -114,6 +126,7 @@ export const ItemFormPage = () => {
           <Button
             variant="secondary"
             className="border-primary-500 bg-primary-100 text-primary-600 hover:bg-primary-200"
+            onClick={handleQuickStatusChange}
           >
             변경
           </Button>

@@ -14,7 +14,7 @@ export const useItemForm = (editingItem?: Item) => {
   const [category, setCategory] = useState<ItemCategory | ''>(editingItem?.category ?? '');
   const [status, setStatus] = useState<ItemStatus | ''>(editingItem?.status ?? 'enough');
   const [buyerId, setBuyerId] = useState(editingItem?.buyer?.id ?? '');
-  const [memo, setMemo] = useState('');
+  const [memo, setMemo] = useState(editingItem?.memo ?? '');
 
   return {
     name,

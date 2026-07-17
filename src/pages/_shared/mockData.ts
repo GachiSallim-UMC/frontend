@@ -165,7 +165,7 @@ export const expenses: Expense[] = [
 // 부족+소진 = 2종 → 대시보드 "2종" 일치
 
 export const items: Item[] = [
-  { id: 'i1', name: '세제',            category: 'kitchen',  buyer: users[2], status: 'short',  updatedAt: '2026.06.29' },
+  { id: 'i1', name: '세제',            category: 'kitchen',  buyer: users[2], status: 'short',  updatedAt: '2026.06.29', memo: '매달 구매, 마트에서 대용량으로 구입' },
   { id: 'i2', name: '두루마리 화장지', category: 'bathroom',                  status: 'empty',  updatedAt: '2026.06.28' },
   { id: 'i3', name: '샴푸',            category: 'bathroom', buyer: users[0], status: 'enough', updatedAt: '2026.06.15' },
   { id: 'i4', name: '주방 세척제',     category: 'kitchen',  buyer: users[1], status: 'enough', updatedAt: '2026.06.20' },

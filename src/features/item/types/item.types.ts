@@ -11,6 +11,7 @@ export interface Item {
   buyer?: User;
   status: ItemStatus;
   updatedAt: string;
+  memo?: string;
 }
 
 /** 공용 물품 등록 DTO */
@@ -19,4 +20,5 @@ export interface CreateItemDto {
   category: ItemCategory;
   buyerId?: string;
   status: ItemStatus;
+  memo?: string;
 }
