@@ -1,13 +1,12 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
-import { ItemListPage, ItemFormPage } from '@/pages/item';
+import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
 import { AppLayout } from './AppLayout';
 import { ExpenseListPage } from '@/pages/expense';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
-
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -25,7 +24,7 @@ export const router = createBrowserRouter([
       { path: '/expenses/:id', element: <PlaceholderPage title="정산 상세" /> },
       { path: '/items', element: <ItemListPage /> },
       { path: '/items/new', element: <ItemFormPage /> },
-      { path: '/items/:id/edit', element: <ItemFormPage /> },
+      { path: '/items/:id/edit', element: <ItemEditRoute /> },
       { path: '/rules', element: <PlaceholderPage title="생활 규칙" /> },
       { path: '/rules/new', element: <PlaceholderPage title="규칙 등록" /> },
       { path: '/rules/:id', element: <PlaceholderPage title="규칙 상세" /> },

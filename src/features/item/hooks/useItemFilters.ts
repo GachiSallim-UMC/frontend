@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { toSelectOptions } from '@/shared/lib';
 import type { Item, ItemCategory } from '../types/item.types';
 
 export const ITEM_CATEGORY_LABEL: Record<ItemCategory, string> = {
@@ -8,12 +9,7 @@ export const ITEM_CATEGORY_LABEL: Record<ItemCategory, string> = {
   etc: '기타',
 };
 
-export const ITEM_CATEGORY_OPTIONS = (Object.keys(ITEM_CATEGORY_LABEL) as ItemCategory[]).map(
-  value => ({
-    value,
-    label: ITEM_CATEGORY_LABEL[value],
-  }),
-);
+export const ITEM_CATEGORY_OPTIONS = toSelectOptions(ITEM_CATEGORY_LABEL);
 
 export type ItemStatusFilter = 'all' | 'short' | 'empty';
 

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   ITEM_CATEGORY_OPTIONS,
@@ -5,10 +6,12 @@ import {
   useItemForm,
   useQuickItemStatus,
 } from '@/features/item';
-import { Button, ShareMessengerButton } from '@/shared/components/ui';
+import { Button, FormActions } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { items, users } from '@/pages/_shared/mockData';
+
+type FormErrors = Partial<Record<'name' | 'category' | 'status', string>>;
 
 export const ItemFormPage = () => {
   const { id } = useParams();
@@ -34,10 +37,21 @@ export const ItemFormPage = () => {
     status: quickStatus,
     setStatus: setQuickStatus,
   } = useQuickItemStatus();
+  const [errors, setErrors] = useState<FormErrors>({});
 
   if (notFound) {
     return <Navigate to="/items" replace />;
   }
+
+  const handleSave = () => {
+    const nextErrors: FormErrors = {};
+    if (!name.trim()) nextErrors.name = '물품명을 입력해 주세요.';
+    if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
+    if (!status) nextErrors.status = '현재 상태를 선택해 주세요.';
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+    navigate('/items');
+  };
 
   const handleQuickStatusChange = () => {
     if (!quickItemId || !quickStatus) return;
@@ -56,6 +70,7 @@ export const ItemFormPage = () => {
             placeholder="예: 화장지"
             value={name}
             onChange={e => setName(e.target.value)}
+            error={errors.name}
           />
           <div className="grid grid-cols-2 gap-4">
             <SelectDropdown
@@ -65,6 +80,7 @@ export const ItemFormPage = () => {
               onChange={setCategory}
               options={ITEM_CATEGORY_OPTIONS}
               placeholder="카테고리 선택"
+              error={errors.category}
             />
             <SelectDropdown
               label="현재 상태"
@@ -72,6 +88,7 @@ export const ItemFormPage = () => {
               value={status}
               onChange={setStatus}
               options={ITEM_STATUS_OPTIONS}
+              error={errors.status}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -93,15 +110,7 @@ export const ItemFormPage = () => {
         </div>
       </Panel>
 
-      <div className="mt-4 flex items-center justify-between">
-        <div className="flex gap-2">
-          <Button onClick={() => navigate('/items')}>저장</Button>
-          <Button variant="secondary" onClick={() => navigate(-1)}>
-            취소
-          </Button>
-        </div>
-        <ShareMessengerButton />
-      </div>
+      <FormActions className="mt-4" onSave={handleSave} onCancel={() => navigate(-1)} />
 
       <Panel
         title="빠른 상태 변경"
