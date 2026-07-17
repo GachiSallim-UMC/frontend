@@ -10,7 +10,7 @@ export const EmailSentButtonGroup = () => {
             >재설정 링크 보내기</Button>
 
             <Button
-                variant="ghost"
+                variant="outline"
                 size="md"
                 className="w-full font-bold"
             >메일 다시 보내기</Button>

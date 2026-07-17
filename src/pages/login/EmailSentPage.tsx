@@ -1,4 +1,4 @@
-import { useLocation, Navigate } from "react-router-dom"
+import { useLocation, Navigate, Link } from "react-router-dom"
 import { EmailSentHeader, EmailSentButtonGroup } from "@/features/auth";
 
 export const EmailSentPage = () => {
@@ -10,14 +10,20 @@ export const EmailSentPage = () => {
     }
 
     return (
-    <div className="flex min-h-screen items-center justify-center bg-primary-100 font-sans">
-      <div className="flex w-full max-w-lg flex-col items-center rounded-3xl bg-white px-10 py-16 shadow-card">
+    <div className="flex min-h-screen items-center justify-center bg-primary-100">
+      <div className="w-full h-[696px] max-w-lg rounded-3xl bg-white px-10 pt-10 pb-8">
         
         <EmailSentHeader email={email} />
         
-        <div className="my-8 h-px w-full bg-gray-200" />
+        <div className="my-5 h-px w-full bg-gray-200" />
         
         <EmailSentButtonGroup />
+
+        <div className="mt-5 flex justify-center">
+          <Link to="/login" className="text-base font-medium text-primary-500 underline">
+            로그인으로 돌아가기
+          </Link>
+        </div>
       </div>
     </div>
   );

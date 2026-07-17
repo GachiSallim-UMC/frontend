@@ -1,12 +1,13 @@
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { FormInput, Button } from "@/shared/components"
 
 
-interface SendingEmailProps {
+interface SendingEmailFormProps {
     onSubmit?: (email: string) => void;
 }
 
-export const SendingEmailForm = ({onSubmit}: SendingEmailProps) => {
+export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
     const [email, setEmail] = useState("")
     ;
     const handleSubmit = (e: FormEvent) => {

@@ -6,12 +6,14 @@ import { ExpenseListPage } from '@/pages/expense';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
 import { SendingEmailPage } from '@/pages/login/SendingEmailPage';
+import { EmailSentPage } from '@/pages/login/EmailSentPage';
 
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
-  {path: '/find-password', element:<SendingEmailPage />},
+  { path: '/find-password', element:<SendingEmailPage />},
+  { path: '/find-password/sent', element:<EmailSentPage />},
 
   {
     element: <AppLayout />,
