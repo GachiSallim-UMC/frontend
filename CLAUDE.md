@@ -19,7 +19,7 @@ app  →  pages  →  features  →  shared
 - `shared`는 `features`를 import 하지 않습니다. (역방향 절대 금지)
 - 도메인끼리 직접 import 하지 않습니다. 조합은 `pages`에서.
 - 도메인은 `features/<domain>/index.ts`로만 외부 노출. 내부 파일 직접 import 금지.
-- `features/chore`가 **표준 템플릿**입니다. 새 도메인은 이 구조(api·components·hooks·types·index)를 그대로 따르세요.
+- 각 도메인은 `api·components·hooks·types·index` 구조를 따릅니다.
 
 ## 디자인 토큰 — 임의 색상 금지
 

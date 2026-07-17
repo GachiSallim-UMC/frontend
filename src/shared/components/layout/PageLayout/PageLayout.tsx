@@ -21,15 +21,19 @@ export const PageLayout = ({
   className,
 }: PageLayoutProps) => {
   return (
-    <div className="min-h-screen bg-primary-50">
+    <div className="flex h-screen w-full overflow-hidden bg-primary-50">
       <Sidebar />
-      <Header
-        groupName={groupName}
-        memberCount={memberCount}
-        user={user}
-        unreadMessageCount={unreadMessageCount}
-      />
-      <main className={cn('content-area p-6', className)}>{children}</main>
+      <div className="flex flex-1 flex-col h-screen overflow-hidden">
+        <Header
+          groupName={groupName}
+          memberCount={memberCount}
+          user={user}
+          unreadMessageCount={unreadMessageCount}
+        />
+        <main className={cn('flex flex-1 flex-col overflow-y-auto px-6 pb-6', className)}>
+          {children}
+        </main>
+      </div>
     </div>
   );
 };
