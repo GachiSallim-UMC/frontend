@@ -4,6 +4,7 @@ import { LoginPage } from '@/pages/login/LoginPage';
 import { AppLayout } from './AppLayout';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
+import { ActivityPage } from '@/pages/activity';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -26,7 +27,7 @@ export const router = createBrowserRouter([
       { path: '/rules/:id', element: <PlaceholderPage title="규칙 상세" /> },
       { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
       { path: '/notifications', element: <NotificationPage /> },
-      { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },
+      { path: '/activity', element: <ActivityPage /> },
       { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
       { path: '/group/settings', element: <PlaceholderPage title="그룹 설정" /> },
       { path: '/group/change', element: <PlaceholderPage title="그룹 변경" /> },
