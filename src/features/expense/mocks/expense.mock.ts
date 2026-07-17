@@ -38,7 +38,11 @@ export const mockExpenses: Expense[] = [
     splitType: 'equal',
     category: 'food',
     status: 'unpaid',
-    shares: [],
+    shares: [
+      { user: hong, amount: 10666, isPaid: false },
+      { user: kim, amount: 10666, isPaid: true }, 
+      { user: lee, amount: 10668, isPaid: false },
+    ],
   },
   {
     id: 'expense-2',
@@ -49,7 +53,11 @@ export const mockExpenses: Expense[] = [
     splitType: 'equal',
     category: 'utility',
     status: 'unpaid',
-    shares: [],
+    shares: [
+      { user: hong, amount: 10000, isPaid: true },
+      { user: kim, amount: 10000, isPaid: false },
+      { user: lee, amount: 10000, isPaid: false },
+    ],
   },
   {
     id: 'expense-3',
@@ -60,7 +68,11 @@ export const mockExpenses: Expense[] = [
     splitType: 'equal',
     category: 'utility',
     status: 'paid',
-    shares: [],
+    shares: [
+      { user: hong, amount: 18000, isPaid: true },
+      { user: kim, amount: 18000, isPaid: true },
+      { user: lee, amount: 18000, isPaid: true },
+    ],
   },
   {
     id: 'expense-4',
@@ -71,6 +83,10 @@ export const mockExpenses: Expense[] = [
     splitType: 'ratio',
     category: 'supplies',
     status: 'paid',
-    shares: [],
+    shares: [
+      { user: hong, amount: 7000, isPaid: true },
+      { user: kim, amount: 7000, isPaid: true },
+      { user: lee, amount: 7000, isPaid: true },
+    ],
   },
 ];

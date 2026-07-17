@@ -1,6 +1,7 @@
 import type { Expense } from '@/features/expense/types/expense.types';
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
+import { useNavigate } from 'react-router-dom';
 
 interface ExpenseRowProps {
   expense: Expense;
@@ -9,12 +10,19 @@ interface ExpenseRowProps {
 const GRID_COLS = 'grid-cols-[114fr_166fr_150fr_157fr_163fr_176fr_78fr]';
 
 const ExpenseRow = ({ expense }: ExpenseRowProps) => {
+  const navigate = useNavigate();
+ 
   const statusStyle = expense.status === 'paid'
     ? 'bg-green-100 text-green-700'
     : 'bg-orange-100 text-orange-700';
 
+  const handleRowClick = () => {
+    navigate(`/expenses/${expense.id}`); 
+  };
   return (
-    <div className={`grid ${GRID_COLS} items-center w-full min-w-[720px] h-[72px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-white border-b border-gray-100 last:border-b-0`}>
+    <div
+    onClick={handleRowClick}
+    className={`grid ${GRID_COLS} items-center w-full min-w-[720px] h-[72px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-white border-b border-gray-100 last:border-b-0`}>
       <span className='font-sans font-normal text-button text-gray-900 whitespace-nowrap'>
         {expense.date}
       </span>

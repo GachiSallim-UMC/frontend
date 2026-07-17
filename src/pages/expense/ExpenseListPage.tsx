@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ExpenseTable, TabButton, AddExpense, ExpenseSummaryCard } from '@/features/expense' 
 import type { ExpenseFilter } from '@/features/expense/components/TabButton';
 import type { Expense } from '@/features/expense/types/expense.types';
@@ -14,6 +15,7 @@ interface ExpenseListPageProps {
 
 export const ExpenseListPage = ({ expenses = mockExpenses }: ExpenseListPageProps) => {
   const [activeFilter, setActiveFilter] = useState<ExpenseFilter>('TOTAL');
+  const navigate = useNavigate();
 
   return (
     <div className='flex justify-center w-full flex-1 min-h-0 bg-gray-50'>
@@ -56,7 +58,7 @@ export const ExpenseListPage = ({ expenses = mockExpenses }: ExpenseListPageProp
               />
             </div>
 
-            <AddExpense onClick={() => console.log('생활비 등록 클릭')} />
+            <AddExpense onClick={() => navigate('/expenses/new')} />
           </div>
 
           <div className='mt-[20px] px-4 lg:px-[30px] flex flex-col items-start w-full overflow-x-auto'>
