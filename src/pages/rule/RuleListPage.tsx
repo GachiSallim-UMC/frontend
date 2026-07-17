@@ -2,13 +2,19 @@ import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
-import { RULE_CATEGORY_LABEL, RULE_CATEGORY_OPTIONS, RULE_STATUS_OPTIONS, useRuleFilters } from '@/features/rule';
+import {
+  RULE_CATEGORY_LABEL,
+  RULE_CATEGORY_OPTIONS,
+  RULE_STATUS_OPTIONS,
+  useRuleFilters,
+} from '@/features/rule';
 import { StatusBadge } from '@/shared/components/ui';
 import { SelectDropdown } from '@/shared/components/form';
 import { rules } from '@/pages/_shared/mockData';
 
 export const RuleListPage = () => {
-  const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } = useRuleFilters(rules);
+  const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } =
+    useRuleFilters(rules);
 
   return (
     <section className="mt-7 rounded-[20px] bg-white p-[30px] shadow-card">
@@ -59,15 +65,19 @@ export const RuleListPage = () => {
               <Link to={`/rules/${rule.id}`} className="min-w-0 flex-1">
                 <p className="truncate text-button font-bold text-gray-900">{rule.title}</p>
                 <p className="mt-1 truncate text-caption text-gray-600">
-                  등록: {rule.registeredBy.name} | {rule.registeredAt} | 동의: {rule.agreement.agreedCount}/
-                  {rule.agreement.totalCount}
+                  등록: {rule.registeredBy.name} | {rule.registeredAt} | 동의:{' '}
+                  {rule.agreement.agreedCount}/{rule.agreement.totalCount}
                 </p>
               </Link>
 
               <StatusBadge variant={rule.status} />
 
               <span className="flex items-center gap-1 text-gray-500">
-                <Link to={`/rules/${rule.id}`} aria-label="수정" className="p-2 hover:text-primary-600">
+                <Link
+                  to={`/rules/${rule.id}`}
+                  aria-label="수정"
+                  className="p-2 hover:text-primary-600"
+                >
                   <EditIcon className="h-5 w-5" />
                 </Link>
                 <button type="button" aria-label="공유" className="p-2 hover:text-primary-600">

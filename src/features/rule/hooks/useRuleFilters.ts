@@ -10,10 +10,12 @@ export const RULE_CATEGORY_LABEL: Record<RuleCategory, string> = {
   etc: '기타',
 };
 
-export const RULE_CATEGORY_OPTIONS = (Object.keys(RULE_CATEGORY_LABEL) as RuleCategory[]).map(value => ({
-  value,
-  label: RULE_CATEGORY_LABEL[value],
-}));
+export const RULE_CATEGORY_OPTIONS = (Object.keys(RULE_CATEGORY_LABEL) as RuleCategory[]).map(
+  value => ({
+    value,
+    label: RULE_CATEGORY_LABEL[value],
+  }),
+);
 
 export const RULE_STATUS_OPTIONS: { value: RuleStatus; label: string }[] = [
   { value: 'active', label: '활성' },

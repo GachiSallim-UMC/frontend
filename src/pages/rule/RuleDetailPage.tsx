@@ -38,14 +38,24 @@ export const RuleDetailPage = () => {
   const { id } = useParams();
   const rule = rules.find(item => item.id === id) ?? rules[0];
 
-  const { title, setTitle, category, setCategory, content, setContent, status, setStatus } = useRuleForm(rule);
-  const { myAgreement, setMyAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUser, users);
+  const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
+    useRuleForm(rule);
+  const { myAgreement, setMyAgreement, memberStatuses, historyEntries } = useRuleAgreement(
+    rule,
+    currentUser,
+    users,
+  );
 
   return (
     <div className="mt-7 grid grid-cols-2 gap-5">
       <Panel title="기본정보" className="rounded-[18px]">
         <div className="grid gap-4">
-          <FormInput label="규칙 제목" required value={title} onChange={e => setTitle(e.target.value)} />
+          <FormInput
+            label="규칙 제목"
+            required
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+          />
           <SelectDropdown
             label="카테고리"
             required
@@ -145,7 +155,9 @@ export const RuleDetailPage = () => {
                       <p className="text-caption text-gray-600">{entry.subtitle}</p>
                     </span>
                   </div>
-                  {entry.time && <span className="shrink-0 text-caption text-gray-400">{entry.time}</span>}
+                  {entry.time && (
+                    <span className="shrink-0 text-caption text-gray-400">{entry.time}</span>
+                  )}
                 </div>
               );
             })}
