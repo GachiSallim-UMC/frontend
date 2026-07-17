@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { Check, Circle } from 'lucide-react';
 import {
   RULE_CATEGORY_OPTIONS,
   RULE_STATUS_OPTIONS,
@@ -11,8 +12,15 @@ import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { currentUser, rules, users } from '@/pages/_shared/mockData';
 import HistoryRegisterIcon from '@/assets/icons/rule/history-register.svg?react';
-import HistoryAgreeIcon from '@/assets/icons/rule/history-agree.svg?react';
 import HistoryEditIcon from '@/assets/icons/rule/history-edit.svg?react';
+
+/** Figma의 "동의" 히스토리 아이콘은 단색 원 위에 체크 표시 — 전용 SVG 대신 lucide-react Circle/Check 조합으로 표현 */
+const HistoryAgreeIcon = ({ className }: { className?: string }) => (
+  <span className={`relative inline-flex items-center justify-center ${className ?? ''}`}>
+    <Circle className="absolute inset-0 h-full w-full fill-primary-500 text-primary-500" />
+    <Check className="relative h-1/2 w-1/2 text-white" strokeWidth={3} />
+  </span>
+);
 
 const HISTORY_ICON: Record<RuleHistoryType, typeof HistoryRegisterIcon> = {
   register: HistoryRegisterIcon,
