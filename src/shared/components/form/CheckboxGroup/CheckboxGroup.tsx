@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react';
 import { cn } from '@/shared/lib/cn';
 
 export interface CheckboxOption<T extends string> {
   value: T;
-  label: string;
+  label: ReactNode | string;
 }
 
 interface CheckboxGroupProps<T extends string> {
