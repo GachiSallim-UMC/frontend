@@ -18,7 +18,7 @@ export const PrivacyButtonGroup = ({ onAgree, onCancel }: PrivacyButtonGroupProp
             </Button>
 
             <Button
-                variant="ghost"
+                variant="outline"
                 size="md"
                 className="flex-1 font-bold"
                 onClick={onCancel}

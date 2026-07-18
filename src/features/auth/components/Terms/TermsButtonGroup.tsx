@@ -18,7 +18,7 @@ export const TermsButtonGroup = ({ onAgree, onCancel }: TermsButtonGroupProps) =
             </Button>
 
             <Button
-                variant="ghost"
+                variant="outline"
                 size="md"
                 className="flex-1 font-bold"
                 onClick={onCancel}
