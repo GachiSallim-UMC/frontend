@@ -41,7 +41,7 @@ export const LoginForm = ({onSubmit}: LoginFormProps) => {
 
                         rightAddon={
                             <button 
-                                type="submit"
+                                type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="flex h-5 w-5 items-center justify-center"
                                 aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 표시"}
