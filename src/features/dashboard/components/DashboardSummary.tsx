@@ -59,7 +59,7 @@ export const DashboardSummary = ({data}: {data: SummaryData}) => {
                         <ArrowRight className="h-4 w-4 text-primary-500" strokeWidth={2.5} />
                     </span>
                 }
-                onClick={() => navigate('/chat')}
+                onClick={() => navigate('/messenger')}
             />
         </div>
 
