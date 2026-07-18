@@ -153,7 +153,7 @@ export const ChoreRepeat = () => {
               className="absolute inset-0 cursor-pointer opacity-0"
               onChange={e => {
                 if (e.target.value) {
-                  setStartDate(e.target.value.replace(/-/g, '/'));
+                  setEndDate(e.target.value.replace(/-/g, '/'));
                 }
               }}
             />
