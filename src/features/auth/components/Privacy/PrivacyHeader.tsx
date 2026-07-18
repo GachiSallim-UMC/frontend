@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom"
 import ChevronLeft from "@/assets/icons/login/chevron-left.svg?react"
 
 interface PrivacyHeaderProps {
@@ -6,7 +5,6 @@ interface PrivacyHeaderProps {
 }
 
 export const PrivacyHeader = ({onBack}: PrivacyHeaderProps) => {
-    const navigate = useNavigate();
 
     return (
         <header className="flex flex-shrink-0 items-center justify-between border-b border-gray-100 bg-white px-7 py-7">

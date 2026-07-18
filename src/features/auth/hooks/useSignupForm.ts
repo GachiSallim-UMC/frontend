@@ -29,7 +29,7 @@ export const useSignupForm = () => {
         }
 
         navigate(location.pathname, { replace: true, state: null });
-    }, [location.state]);
+    }, [location.state, location.pathname, navigate]);
 
     return {
         formData,
