@@ -1,4 +1,4 @@
-import { TERMS_DATA } from "@/features/auth"
+import { TERMS_DATA } from "@/features/auth/constants/Terms";
 
 export const TermsContent = () => {
     return (

@@ -6,12 +6,14 @@ import { AppLayout } from './AppLayout';
 import { ExpenseListPage } from '@/pages/expense';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
+import { TermsPage } from '@/pages/auth/TermsPage';
 
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
+  { path: '/terms', element:<TermsPage />},
   {
     element: <AppLayout />,
     children: [

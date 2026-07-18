@@ -1,26 +1,40 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { FormInput } from '@/shared/components/form';
 import { Button } from '@/shared/components/ui';
 import { CheckboxGroup } from '@/shared/components/form';
+import type { SignupFormData } from '@/features/auth/types/auth.type'
 
 
 interface SignupFormProps {
+    formData: SignupFormData
+    onFormDataChange: (data: SignupFormData) => void;
+    agreedTerms: string[];
+    onAgreedTermsChange: (value: string[]) => void;
     onSubmit?: (e: FormEvent) => void;
 }
 
-export const SignupForm = ({onSubmit}: SignupFormProps) => {
-    // 약관 동의 상태 관리
-    const [agreedTerms, setAgreedTerms] = useState<string[]>([]);
+export const SignupForm = ({
+    formData,
+    onFormDataChange,
+    agreedTerms,
+    onAgreedTermsChange,
+    onSubmit,
+}: SignupFormProps) => {
+
     const isAgree = agreedTerms.includes('terms');
+
+    const handleChange = 
+        (field: keyof SignupFormData) => (e: ChangeEvent<HTMLInputElement>) => {
+            onFormDataChange({...formData, [field]: e.target.value});
+        };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (onSubmit) {
             onSubmit(e);
         }
-    };
+    }
 
     return (
         <div className="flex w-full flex-col">
@@ -32,6 +46,8 @@ export const SignupForm = ({onSubmit}: SignupFormProps) => {
                         <FormInput
                             type="text"
                             placeholder="이름을 입력해주세요"
+                            value={formData.name}
+                            onChange={handleChange('name')}
                         />    
                     </div>
                     <div>
@@ -39,6 +55,8 @@ export const SignupForm = ({onSubmit}: SignupFormProps) => {
                         <FormInput
                             type="text"
                             placeholder="닉네임을 입력해주세요"
+                            value={formData.nickname}
+                            onChange={handleChange('nickname')}
                         />    
                     </div>
                 </div>
@@ -49,6 +67,8 @@ export const SignupForm = ({onSubmit}: SignupFormProps) => {
                     <FormInput
                         type="email"
                         placeholder="이메일 주소를 입력해주세요"
+                        value={formData.email}
+                        onChange={handleChange('email')}
                     />
                 </div>
 
@@ -58,6 +78,8 @@ export const SignupForm = ({onSubmit}: SignupFormProps) => {
                     <FormInput
                         type="password"
                         placeholder="비밀번호를 입력해주세요"
+                        value={formData.password}
+                        onChange={handleChange('password')}
                     />
                 </div>
 
@@ -67,6 +89,8 @@ export const SignupForm = ({onSubmit}: SignupFormProps) => {
                     <FormInput
                         type="password"
                         placeholder="비밀번호를 다시 입력해주세요"
+                        value={formData.passwordConfirm}
+                        onChange={handleChange('passwordConfirm')}
                     />
                 </div>
 
@@ -74,13 +98,13 @@ export const SignupForm = ({onSubmit}: SignupFormProps) => {
                 <div className="mb-5 flex items-center gap-2">
                     <CheckboxGroup
                         value={agreedTerms}
-                        onChange={setAgreedTerms}
+                        onChange={onAgreedTermsChange}
                         options={[
                             {
                             value: 'terms',
                             label: (
                                 <span className="text-base text-gray-500 font-medium select-none">
-                                    <Link to="/terms" className="text-primary-500 hover:underline">이용약관</Link>
+                                    <Link to="/terms" state={{formData}} className="text-primary-500 hover:underline">이용약관</Link>
                                     {' '}및{' '}
                                     <Link to="/privacy" className="text-primary-500 hover:underline">개인정보처리방침</Link>
                                     에 동의합니다.
