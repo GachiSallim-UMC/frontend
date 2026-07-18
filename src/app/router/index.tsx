@@ -6,8 +6,8 @@ import { AppLayout } from './AppLayout';
 import { ExpenseListPage } from '@/pages/expense';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
-import { SendingEmailPage } from '@/pages/login/SendingEmailPage';
-import { EmailSentPage } from '@/pages/login/EmailSentPage';
+import { SendingEmailPage } from '@/pages/auth/SendingEmailPage'
+import { EmailSentPage } from '@/pages/auth/EmailSentPage'
 
 
 export const router = createBrowserRouter([
