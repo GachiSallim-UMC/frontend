@@ -7,6 +7,7 @@ import { ExpenseListPage } from '@/pages/expense';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
 import { TermsPage } from '@/pages/auth/TermsPage';
+import { PrivacyPage } from '@/pages/auth/PrivacyPage';
 
 
 export const router = createBrowserRouter([
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
   { path: '/terms', element:<TermsPage />},
+  { path: '/privacy', element:<PrivacyPage />},
   {
     element: <AppLayout />,
     children: [

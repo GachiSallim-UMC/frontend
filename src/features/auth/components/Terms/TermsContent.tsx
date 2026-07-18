@@ -17,6 +17,7 @@ export const TermsContent = () => {
                             {term.title}
                         </h3>
 
+                        {/* 일반 텍스트 */}
                         {term.content && (
                             <p className="break-keep-all text-gray-600 text-sm font-medium leading-snug">
                                 {term.content}
