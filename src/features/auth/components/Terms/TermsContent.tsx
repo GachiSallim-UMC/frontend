@@ -25,7 +25,7 @@ export const TermsContent = () => {
                         )}
 
                         {term.list && (
-                            <ol className="list-decimal break-keep-all text-sm leading-snug font-medium text-gray-600">
+                            <ol className="list-decimal list-inside break-keep-all text-sm leading-snug font-medium text-gray-600">
                                 {term.list.map((item, i) => (
                                     <li key={i}>
                                         {item}
@@ -35,7 +35,7 @@ export const TermsContent = () => {
                         )}
 
                         {term.bullets && (
-                            <ul className="list-disc break-keep-all leading-snug font-medium text-sm text-gray-600">
+                            <ul className="list-disc list-inside break-keep-all leading-snug font-medium text-sm text-gray-600">
                                 {term.bullets.map((item, i) => (
                                     <li key={i}>
                                         {item}

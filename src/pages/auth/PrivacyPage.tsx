@@ -23,7 +23,7 @@ export const PrivacyPage = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
             <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
-                <PrivacyHeader />
+                <PrivacyHeader onBack={handleCancel}/>
                 <PrivacyContent />
                 <PrivacyButtonGroup 
                     onAgree={handleAgree} 

@@ -26,7 +26,7 @@ export const PrivacyContent = () => {
 
                         {/* 테이블 */}
                         {section.table && (
-                            <div className="overflow-hidden border-gray-100">
+                            <div className="overflow-hidden border border-gray-100">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-primary-100 border-b border-gray-100 text-gray-900">
                                         <tr>
@@ -54,7 +54,7 @@ export const PrivacyContent = () => {
 
                         {/* 리스트 */}
                         {section.bullets && (
-                            <ul className="list-disc break-keep-all leading-snug font-medium text-sm text-gray-600">
+                            <ul className="list-disc list-inside break-keep-all leading-snug font-medium text-sm text-gray-600">
                                 {section.bullets.map((item, i) => (
                                     <li key={i}>
                                         {item}

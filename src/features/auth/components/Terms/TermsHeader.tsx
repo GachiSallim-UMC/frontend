@@ -1,7 +1,11 @@
 import { useNavigate } from "react-router-dom"
-import { ChevronLeft } from "lucide-react";
+import ChevronLeft from "@/assets/icons/login/chevron-left.svg?react"
 
-export const TermsHeader = () => {
+interface TermsHeaderProps {
+    onBack: () => void;
+}
+
+export const TermsHeader = ({onBack}: TermsHeaderProps) => {
     const navigate = useNavigate();
 
     return (
@@ -9,12 +13,12 @@ export const TermsHeader = () => {
             <div className="flex items-center">
                 <button 
                     type="button"
-                    onClick={() =>navigate(-1)}
-                    className="mr-2 py-1 px-2"
+                    onClick={onBack}
+                    className="mr-1 py-1 px-2"
                 >
-                    <ChevronLeft className="h-4 w-2 text-gray-800" />
+                    <ChevronLeft className="h-6 w-6 text-gray-800" />
                 </button>
-                <h1 className="text-xl font-bold text-gray-900">이용약관</h1>
+                <h1 className="tracking-wider text-xl font-bold text-gray-900">이용약관</h1>
             </div>
             <span className="text-sm font-medium text-gray-500">시행일 2026.01.01</span>
         </header>
