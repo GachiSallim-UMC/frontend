@@ -3,6 +3,7 @@ import type { Expense } from '@/features/expense';
 import type { Item } from '@/features/item';
 import type { Rule } from '@/features/rule';
 import type { User } from '@/shared/types';
+import type { Group } from '@/features/member';
 
 // ==================== 사용자 (Figma 기준: 홍길동·김영희·이철수) ====================
 
@@ -377,18 +378,34 @@ export const chatMessages: ChatMessage[] = [
 
 // ==================== 그룹 정보 (Figma 03 · 그룹 선택 / 04 · 그룹 생성) ====================
 
-export const group = {
-  id: 'g1',
-  name: '우리집 룸메이트',
-  type: '룸메이트' as const,
-  address: '서울특별시 마포구 연남동 123-45',
-  inviteCode: 'ABCDEF',
-  createdAt: '2026.04.01',
-  maxMemberCount: 5,
-  memberCount: 3,
-  members: users,
-  ownerId: 'u1', // 홍길동
-};
+export const groups: Group[] = [
+  {
+    id: 'g1',
+    name: '우리집 룸메이트',
+    type: 'house',
+    address: '서울특별시 마포구 연남동 123-45',
+    inviteCode: 'ABCDEF',
+    createdAt: '2026.04.01',
+    maxMemberCount: 5,
+    memberCount: 3,
+    members: users,
+    ownerId: 'u1', // 홍길동
+  },
+  {
+    id: 'g2',
+    name: '대학원 쉐어하우스',
+    type: 'school',
+    address: '서울특별시 마포구 연남동 123-45',
+    inviteCode: 'ABCDEF',
+    createdAt: '2026.04.01',
+    maxMemberCount: 5,
+    memberCount: 5,
+    members: users,
+    ownerId: 'u1', // 홍길동
+  }
+]
+
+
 
 // ==================== 마이페이지 (Figma 18 · 마이페이지) ====================
 

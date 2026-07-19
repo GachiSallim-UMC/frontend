@@ -6,12 +6,14 @@ import { AppLayout } from './AppLayout';
 import { ExpenseListPage } from '@/pages/expense';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
+import { GroupSelectPage } from '@/pages/member/GroupSelectPage';
 
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
+  { path: '/group', element: <GroupSelectPage />},
   {
     element: <AppLayout />,
     children: [
