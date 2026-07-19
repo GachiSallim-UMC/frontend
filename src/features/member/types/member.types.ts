@@ -3,7 +3,8 @@ import type { User } from '@/shared/types';
 export interface Group {
   id: string;
   name: string;
-  type: 'house' | 'school' | 'store' | 'company';
+  description: string;
+  type: 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
   address: string;
   inviteCode?: string;
   createdAt?: string;
@@ -12,3 +13,11 @@ export interface Group {
   members: User[],
   ownerId: string;
 }
+
+export interface AddGroupDto {
+    name: string;
+    description: string;
+    type: 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
+    maxMemberCount: number;
+}
+

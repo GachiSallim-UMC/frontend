@@ -382,7 +382,8 @@ export const groups: Group[] = [
   {
     id: 'g1',
     name: '우리집 룸메이트',
-    type: 'house',
+    description: "룸메이트",
+    type: 'roommate',
     address: '서울특별시 마포구 연남동 123-45',
     inviteCode: 'ABCDEF',
     createdAt: '2026.04.01',
@@ -394,7 +395,8 @@ export const groups: Group[] = [
   {
     id: 'g2',
     name: '대학원 쉐어하우스',
-    type: 'school',
+    description: "쉐어하우스",
+    type: 'share',
     address: '서울특별시 마포구 연남동 123-45',
     inviteCode: 'ABCDEF',
     createdAt: '2026.04.01',

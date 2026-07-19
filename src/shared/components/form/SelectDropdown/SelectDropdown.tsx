@@ -12,7 +12,7 @@ interface SelectDropdownProps<T extends string> extends Omit<
   'value' | 'onChange'
 > {
   label?: string;
-  options: SelectOption<T>[];
+  options: readonly SelectOption<T>[];
   value: T | '';
   onChange: (value: T) => void;
   placeholder?: string;

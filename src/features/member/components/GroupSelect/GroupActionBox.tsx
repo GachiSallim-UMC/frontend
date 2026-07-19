@@ -1,8 +1,15 @@
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/shared/components"
 import CircleIcon from "@/assets/icons/member/circle.svg?react"
 import PlusIcon from "@/assets/icons/member/plus.svg?react"
 
 export const GroupActionBox = () => {
+    const navigate = useNavigate()
+
+    const handleCreateGroup = () => {
+        navigate("/group/add")
+    }
+
     return (
         <div className="flex items-center justify-center rounded-lg border border-dashed border-primary-300 bg-primary-50 px-22 py-5">
             <div className="relative mr-5 items-center justify-center">
@@ -20,6 +27,7 @@ export const GroupActionBox = () => {
                     <Button
                         variant="primary" 
                         size="sm" 
+                        onClick={handleCreateGroup}
                         className="flex-1 text-xs font-bold"
                     >
                         그룹 생성
