@@ -39,10 +39,10 @@ export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
 
       <span className="flex items-center gap-1 text-gray-500">
         <Link to={`/rules/${rule.id}`} aria-label="수정" className="p-2 hover:text-primary-600">
-          <EditIcon className="h-5 w-5" />
+          <EditIcon className="h-6 w-6" />
         </Link>
         <button type="button" aria-label="공유" className="p-2 hover:text-primary-600">
-          <ShareIcon className="h-5 w-5" />
+          <ShareIcon className="h-6 w-6" />
         </button>
       </span>
     </div>
