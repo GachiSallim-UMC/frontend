@@ -46,3 +46,10 @@ export interface ChatMessageGroup {
   timestamp: string;
   items: ChatMessage[];
 }
+
+/** 공유 항목 선택 모달에 표시되는, 도메인에 무관한 선택지 한 줄 */
+export interface ShareableOption {
+  id: string;
+  title: string;
+  subtitle?: string;
+}

@@ -1,5 +1,11 @@
 import { useMemo, useState } from 'react';
-import type { ChatMessage, ChatMessageGroup, ChatRoom } from '@/features/messenger/types';
+import type {
+  ChatMessage,
+  ChatMessageGroup,
+  ChatRoom,
+  ChatShareCard,
+  ShareCardType,
+} from '@/features/messenger/types';
 
 const groupMessagesBySender = (messages: ChatMessage[]): ChatMessageGroup[] => {
   const groups: ChatMessageGroup[] = [];
@@ -31,6 +37,7 @@ export const useChatRoom = (
   const [activeRoomId, setActiveRoomId] = useState(initialRooms[0]?.id ?? '');
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState('');
+  const [activeShareType, setActiveShareType] = useState<ShareCardType | null>(null);
 
   const activeRoom = initialRooms.find(room => room.id === activeRoomId) ?? initialRooms[0];
 
@@ -58,6 +65,24 @@ export const useChatRoom = (
     setDraft('');
   };
 
+  const shareItem = (shareCard: ChatShareCard) => {
+    if (!activeRoom) return;
+
+    setMessages(prev => [
+      ...prev,
+      {
+        id: `local-${Date.now()}`,
+        roomId: activeRoom.id,
+        senderId: 'me',
+        senderName: currentUserName,
+        timestamp: '방금',
+        isMine: true,
+        shareCard,
+      },
+    ]);
+    setActiveShareType(null);
+  };
+
   return {
     rooms: initialRooms,
     activeRoom,
@@ -67,5 +92,9 @@ export const useChatRoom = (
     draft,
     setDraft,
     sendMessage,
+    activeShareType,
+    openSharePicker: setActiveShareType,
+    closeSharePicker: () => setActiveShareType(null),
+    shareItem,
   };
 };

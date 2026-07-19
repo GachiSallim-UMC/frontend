@@ -1,9 +1,37 @@
-import { ChatBubble, ChatHeader, ChatInputBar, ChatRoomListPanel, useChatRoom } from '@/features/messenger';
-import { chatRooms, chatMessages, currentUser, users } from '@/pages/_shared/mockData';
+import {
+  ChatBubble,
+  ChatHeader,
+  ChatInputBar,
+  ChatRoomListPanel,
+  ShareItemPickerModal,
+  useChatRoom,
+} from '@/features/messenger';
+import { chores, expenses, items, rules, chatRooms, chatMessages, currentUser, users } from '@/pages/_shared/mockData';
+import { buildShareCard, getShareOptions } from '@/pages/messenger/shareOptions';
 
 export const MessengerPage = () => {
-  const { rooms, activeRoom, activeRoomId, setActiveRoomId, messageGroups, draft, setDraft, sendMessage } =
-    useChatRoom(chatRooms, chatMessages, currentUser.name);
+  const {
+    rooms,
+    activeRoom,
+    activeRoomId,
+    setActiveRoomId,
+    messageGroups,
+    draft,
+    setDraft,
+    sendMessage,
+    activeShareType,
+    openSharePicker,
+    closeSharePicker,
+    shareItem,
+  } = useChatRoom(chatRooms, chatMessages, currentUser.name);
+
+  const shareSourceData = { chores, expenses, items, rules };
+
+  const handleSelectShareOption = (optionId: string) => {
+    if (!activeShareType) return;
+    const shareCard = buildShareCard(activeShareType, optionId, shareSourceData);
+    if (shareCard) shareItem(shareCard);
+  };
 
   return (
     <div className="flex w-full flex-1 min-h-0 justify-center bg-gray-50">
@@ -38,16 +66,18 @@ export const MessengerPage = () => {
                 )}
               </div>
 
-              <ChatInputBar
-                value={draft}
-                onChange={setDraft}
-                onSend={sendMessage}
-                onSelectShareType={type => console.log('공유 타입 선택:', type)}
-              />
+              <ChatInputBar value={draft} onChange={setDraft} onSend={sendMessage} onSelectShareType={openSharePicker} />
             </div>
           )}
         </div>
       </div>
+
+      <ShareItemPickerModal
+        type={activeShareType}
+        options={activeShareType ? getShareOptions(activeShareType, shareSourceData) : []}
+        onSelect={handleSelectShareOption}
+        onClose={closeSharePicker}
+      />
     </div>
   );
 };

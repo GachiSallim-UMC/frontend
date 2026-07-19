@@ -5,4 +5,5 @@ export * from './ChatRoomItem';
 export * from './ChatRoomListPanel';
 export * from './ConnectionStatusBadge';
 export * from './ShareCard';
+export * from './ShareItemPickerModal';
 export * from './ShareTypeBar';

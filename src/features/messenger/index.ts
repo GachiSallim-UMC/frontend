@@ -10,6 +10,7 @@ export { ChatRoomItem } from './components/ChatRoomItem';
 export { ChatRoomListPanel } from './components/ChatRoomListPanel';
 export { ConnectionStatusBadge } from './components/ConnectionStatusBadge';
 export { ShareCard } from './components/ShareCard';
+export { ShareItemPickerModal } from './components/ShareItemPickerModal';
 export { ShareTypeBar } from './components/ShareTypeBar';
 export { useChatRoom } from './hooks/useChatRoom';
 export type {
@@ -18,5 +19,6 @@ export type {
   ChatRoom,
   ChatShareCard,
   ChatShareCardDetail,
+  ShareableOption,
   ShareCardType,
 } from './types';
