@@ -1,29 +1,70 @@
-import { UserAvatar } from '@/shared/components/ui/UserAvatar';
+import { UserAvatar } from '@/shared/components';
+import { cn, formatRelativeTime } from '@/shared/lib';
 
 interface TimelineItemProps {
   actorName: string;
   actorAvatarUrl?: string;
   description: string;
   timestamp: string;
+  isFirst?: boolean;
   isLast?: boolean;
 }
+
+const renderTimelineText = (actorName: string, description: string) => {
+  const parts = description.split(/('[^']*')/g).map((part, i) =>
+    part.startsWith("'") && part.endsWith("'") ? (
+      <b key={i} className="font-bold text-gray-900">
+        {part.slice(1, -1)}
+      </b>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
+
+  return (
+    <>
+      <b className="font-bold text-gray-900">{actorName}</b>
+      <span> 님이 </span>
+      {parts}
+    </>
+  );
+};
 
 export const TimelineItem = ({
   actorName,
   actorAvatarUrl,
   description,
   timestamp,
+  isFirst = false,
   isLast = false,
 }: TimelineItemProps) => {
   return (
-    <div className="flex gap-3">
-      <div className="flex flex-col items-center">
-        <UserAvatar name={actorName} avatarUrl={actorAvatarUrl} size="sm" />
-        {!isLast && <div className="mt-1 flex-1 w-px bg-gray-100" />}
+    <div className={cn('flex items-stretch gap-4')}>
+      <div className="flex w-3 shrink-0 flex-col items-center">
+        <div className={cn('w-px flex-1', isFirst ? 'invisible' : 'bg-primary-400')} />
+        <span
+          className={cn(
+            'z-10 h-3 w-3 shrink-0 rounded-full border border-primary-400',
+            isFirst ? 'bg-primary-500' : 'bg-white',
+          )}
+        />
+        <div className={cn('w-px flex-1', isLast ? 'invisible' : 'bg-primary-400')} />
       </div>
-      <div className="pb-4 min-w-0">
-        <p className="text-caption text-gray-500">{timestamp}</p>
-        <p className="mt-0.5 text-caption text-gray-900">{description}</p>
+
+      <div className="flex flex-1 items-center gap-4">
+        <p className="w-20 shrink-0 text-caption text-gray-400">{formatRelativeTime(timestamp)}</p>
+        <div
+          className={cn(
+            'flex flex-1 items-center gap-4',
+            !isFirst && 'pt-5',
+            !isLast && 'pb-5 border-b border-gray-100',
+          )}
+        >
+          <UserAvatar name={actorName} avatarUrl={actorAvatarUrl} size="lg" />
+          <p className="min-w-0 flex-1 text-body text-gray-900">
+            {renderTimelineText(actorName, description)}
+          </p>
+        </div>
       </div>
     </div>
   );
