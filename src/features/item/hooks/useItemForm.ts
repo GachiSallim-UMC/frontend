@@ -12,7 +12,7 @@ export const ITEM_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
 export const useItemForm = (editingItem?: Item) => {
   const [name, setName] = useState(editingItem?.name ?? '');
   const [category, setCategory] = useState<ItemCategory | ''>(editingItem?.category ?? '');
-  const [status, setStatus] = useState<ItemStatus | ''>(editingItem?.status ?? 'enough');
+  const [status, setStatus] = useState<ItemStatus | ''>(editingItem?.status ?? '');
   const [buyerId, setBuyerId] = useState(editingItem?.buyer?.id ?? '');
   const [memo, setMemo] = useState(editingItem?.memo ?? '');
 

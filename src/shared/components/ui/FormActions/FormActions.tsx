@@ -24,8 +24,10 @@ export const FormActions = ({
 }: FormActionsProps) => (
   <div className={cn('flex items-center justify-between', className)}>
     <div className="flex gap-2">
-      <Button onClick={onSave}>{saveLabel}</Button>
-      <Button variant="secondary" onClick={onCancel}>
+      <Button type="button" onClick={onSave}>
+        {saveLabel}
+      </Button>
+      <Button type="button" variant="secondary" onClick={onCancel}>
         {cancelLabel}
       </Button>
     </div>

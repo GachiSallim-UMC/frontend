@@ -88,6 +88,7 @@ export const ItemFormPage = () => {
               value={status}
               onChange={setStatus}
               options={ITEM_STATUS_OPTIONS}
+              placeholder="상태 선택"
               error={errors.status}
             />
           </div>
