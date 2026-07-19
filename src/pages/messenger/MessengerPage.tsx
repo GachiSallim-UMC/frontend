@@ -23,7 +23,7 @@ export const MessengerPage = () => {
     openSharePicker,
     closeSharePicker,
     shareItem,
-  } = useChatRoom(chatRooms, chatMessages, currentUser.name);
+  } = useChatRoom(chatRooms, chatMessages, currentUser.id, currentUser.name);
 
   const shareSourceData = { chores, expenses, items, rules };
 

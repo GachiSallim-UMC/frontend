@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type {
   ChatMessage,
   ChatMessageGroup,
@@ -32,19 +32,31 @@ const groupMessagesBySender = (messages: ChatMessage[]): ChatMessageGroup[] => {
 export const useChatRoom = (
   initialRooms: ChatRoom[],
   initialMessages: ChatMessage[],
+  currentUserId: string,
   currentUserName: string,
 ) => {
+  const [rooms, setRooms] = useState(initialRooms);
   const [activeRoomId, setActiveRoomId] = useState(initialRooms[0]?.id ?? '');
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState('');
   const [activeShareType, setActiveShareType] = useState<ShareCardType | null>(null);
 
-  const activeRoom = initialRooms.find(room => room.id === activeRoomId) ?? initialRooms[0];
+  const activeRoom = rooms.find(room => room.id === activeRoomId) ?? rooms[0];
+
+  // 채팅방을 열람 중이면 안읽음 배지를 지운다 (최초 진입한 방 포함)
+  useEffect(() => {
+    setRooms(prev => prev.map(room => (room.id === activeRoomId ? { ...room, unreadCount: 0 } : room)));
+  }, [activeRoomId]);
 
   const messageGroups = useMemo(() => {
     const roomMessages = messages.filter(message => message.roomId === activeRoomId);
     return groupMessagesBySender(roomMessages);
   }, [messages, activeRoomId]);
+
+  const selectRoom = (roomId: string) => {
+    setActiveRoomId(roomId);
+    setDraft('');
+  };
 
   const sendMessage = () => {
     const content = draft.trim();
@@ -55,7 +67,7 @@ export const useChatRoom = (
       {
         id: `local-${Date.now()}`,
         roomId: activeRoom.id,
-        senderId: 'me',
+        senderId: currentUserId,
         senderName: currentUserName,
         timestamp: '방금',
         isMine: true,
@@ -73,7 +85,7 @@ export const useChatRoom = (
       {
         id: `local-${Date.now()}`,
         roomId: activeRoom.id,
-        senderId: 'me',
+        senderId: currentUserId,
         senderName: currentUserName,
         timestamp: '방금',
         isMine: true,
@@ -84,10 +96,10 @@ export const useChatRoom = (
   };
 
   return {
-    rooms: initialRooms,
+    rooms,
     activeRoom,
     activeRoomId,
-    setActiveRoomId,
+    setActiveRoomId: selectRoom,
     messageGroups,
     draft,
     setDraft,
