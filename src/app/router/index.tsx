@@ -6,6 +6,7 @@ import { AppLayout } from './AppLayout';
 import { ExpenseListPage } from '@/pages/expense';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
+import { MessengerPage } from '@/pages/messenger';
 
 
 export const router = createBrowserRouter([
@@ -28,7 +29,7 @@ export const router = createBrowserRouter([
       { path: '/rules', element: <PlaceholderPage title="생활 규칙" /> },
       { path: '/rules/new', element: <PlaceholderPage title="규칙 등록" /> },
       { path: '/rules/:id', element: <PlaceholderPage title="규칙 상세" /> },
-      { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
+      { path: '/messenger', element: <MessengerPage /> },
       { path: '/notifications', element: <NotificationPage /> },
       { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },
       { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },

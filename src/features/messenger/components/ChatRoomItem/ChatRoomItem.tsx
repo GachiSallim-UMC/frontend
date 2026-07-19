@@ -19,27 +19,35 @@ export const ChatRoomItem = ({
 }: ChatRoomItemProps) => {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={cn(
-        'flex w-full items-start gap-3 rounded-lg px-3 py-3 text-left transition-colors',
-        isActive ? 'bg-primary-200' : 'hover:bg-gray-100',
+        'relative flex h-20 w-full flex-col items-start gap-1.5 border-b border-gray-100 py-[18px] pl-[25px] pr-4 text-left transition-colors',
+        isActive ? 'bg-primary-200' : 'hover:bg-gray-50',
       )}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600 font-semibold text-sm">
-        {name.charAt(0)}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-gray-900">{name}</span>
-          <span className="text-[10px] text-gray-400">{timestamp}</span>
-        </div>
-        <p className="mt-0.5 truncate text-xs text-gray-500">{lastMessage}</p>
-      </div>
-      {unreadCount > 0 && (
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-700 px-1 text-[10px] text-white">
-          {unreadCount}
+      {isActive && <span className="absolute left-0 top-0 h-full w-[3px] bg-primary-700" />}
+      <div className="flex items-end gap-2.5">
+        <span
+          className={cn(
+            'text-[18px] font-semibold leading-[normal]',
+            isActive ? 'text-primary-700' : 'text-gray-900',
+          )}
+        >
+          {name}
         </span>
-      )}
+        {unreadCount > 0 && (
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-500 text-xs text-white">
+            {unreadCount}
+          </span>
+        )}
+      </div>
+      <div className="flex w-full items-end justify-between gap-2">
+        <span className="truncate text-[14px] font-normal leading-[normal] text-gray-900">{lastMessage}</span>
+        <span className="shrink-0 text-right text-[12px] font-normal leading-[normal] text-gray-500">
+          {timestamp}
+        </span>
+      </div>
     </button>
   );
 };
