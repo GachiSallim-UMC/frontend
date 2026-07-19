@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ComponentType } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Check, Circle } from 'lucide-react';
 import {
@@ -6,6 +6,7 @@ import {
   RULE_STATUS_OPTIONS,
   useRuleAgreement,
   useRuleForm,
+  type Rule,
   type RuleHistoryType,
 } from '@/features/rule';
 import { FormActions, StatusBadge, UserAvatar } from '@/shared/components/ui';
@@ -23,7 +24,7 @@ const HistoryAgreeIcon = ({ className }: { className?: string }) => (
   </span>
 );
 
-const HISTORY_ICON: Record<RuleHistoryType, typeof HistoryRegisterIcon> = {
+const HISTORY_ICON: Record<RuleHistoryType, ComponentType<{ className?: string }>> = {
   register: HistoryRegisterIcon,
   agree: HistoryAgreeIcon,
   edit: HistoryEditIcon,
@@ -39,21 +40,26 @@ type FormErrors = Partial<Record<'title' | 'category' | 'status', string>>;
 
 export const RuleDetailPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const rule = rules.find(item => item.id === id);
-
-  const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
-    useRuleForm(rule);
-  const { myAgreement, setMyAgreement, memberStatuses, historyEntries } = useRuleAgreement(
-    rule ?? rules[0],
-    currentUser,
-    users,
-  );
-  const [errors, setErrors] = useState<FormErrors>({});
 
   if (!rule) {
     return <Navigate to="/rules" replace />;
   }
+
+  return <RuleDetailContent rule={rule} />;
+};
+
+/** rule 존재가 보장된 뒤에만 훅을 실행하도록 RuleDetailPage에서 분리 */
+const RuleDetailContent = ({ rule }: { rule: Rule }) => {
+  const navigate = useNavigate();
+  const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
+    useRuleForm(rule);
+  const { myAgreement, setMyAgreement, memberStatuses, historyEntries } = useRuleAgreement(
+    rule,
+    currentUser,
+    users,
+  );
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const handleSave = () => {
     const nextErrors: FormErrors = {};
