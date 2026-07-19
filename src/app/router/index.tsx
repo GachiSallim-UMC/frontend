@@ -6,6 +6,7 @@ import { AppLayout } from './AppLayout';
 import { ExpenseListPage } from '@/pages/expense';
 import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
+import { MyPage } from '@/pages/mypage/MyPage';
 
 
 export const router = createBrowserRouter([
@@ -31,7 +32,7 @@ export const router = createBrowserRouter([
       { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
       { path: '/notifications', element: <NotificationPage /> },
       { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },
-      { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
+      { path: '/mypage', element: <MyPage /> },
       { path: '/group/settings', element: <PlaceholderPage title="그룹 설정" /> },
       { path: '/group/change', element: <PlaceholderPage title="그룹 변경" /> },
     ],
