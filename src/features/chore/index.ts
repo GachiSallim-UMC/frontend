@@ -7,9 +7,17 @@ export { ChoreTable } from './components/ChoreTable';
 export { ChoreCalendarView } from './components/ChoreCalendarView';
 export { ChoreFilterBar } from './components/ChoreFilterBar';
 
+export { ChoreBasicInfo } from './components/ChoreBasicInfo';
+export { ChoreRepeat } from './components/ChoreRepeat';
+export { ChoreMemo } from './components/ChoreMemo';
+export { ChoreFormActions } from './components/ChoreFormActions';
+
 export { useChores, useChoreDetail, useCreateChore } from './hooks/useChores';
 export { useWeekCalendar } from './hooks/useWeekCalendar';
+export { useChoreRepeat } from './hooks/useChoreRepeat';
+
 export { choreApi } from './api/chore.api';
+
 export type {
   Chore,
   ChoreCategory,
@@ -18,4 +26,14 @@ export type {
   UpdateChoreDto,
   RepeatType,
   DayOfWeek,
+  CustomOption,
 } from './types/chore.types';
+
+export {
+  CATEGORY_OPTIONS,
+  REPEAT_TYPE_OPTIONS,
+  CUSTOM_OPTIONS,
+  WEEK_OPTIONS,
+  MONTH_OPTIONS,
+  DAYS,
+} from './constants/chore.constants';
