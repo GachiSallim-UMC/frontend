@@ -4,7 +4,7 @@ import type { ExpenseStatus, User } from '@/shared/types';
 export type SplitType = 'equal' | 'ratio';
 
 /** 생활비 카테고리 */
-export type ExpenseCategory = 'food' | 'utility' | 'supplies' | 'etc';
+export type ExpenseCategory = 'finance' | 'food' | 'shopping' | 'education' | 'grocery' | 'transport' | 'leisure' | 'cafe' | 'living' | 'etc';
 
 /** 멤버별 부담금 */
 export interface MemberShare {

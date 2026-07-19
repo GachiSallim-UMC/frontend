@@ -120,7 +120,7 @@ export const expenses: Expense[] = [
     payer: users[0], // 홍길동 선지불
     date: '2026.06.25',
     splitType: 'equal',
-    category: 'utility',
+    category: 'finance',
     status: 'unpaid',
     shares: [
       { user: users[0], amount: 10000, isPaid: true }, // 홍길동 선지불
@@ -135,7 +135,7 @@ export const expenses: Expense[] = [
     payer: users[2], // 이철수 선지불
     date: '2026.06.20',
     splitType: 'equal',
-    category: 'utility',
+    category: 'finance',
     status: 'paid',
     shares: [
       { user: users[0], amount: 18000, isPaid: true },
@@ -150,7 +150,7 @@ export const expenses: Expense[] = [
     payer: users[0], // 홍길동 선지불
     date: '2026.06.15',
     splitType: 'ratio',
-    category: 'supplies',
+    category: 'living',
     status: 'unpaid',
     shares: [
       { user: users[0], amount: 4000, isPaid: true }, // 홍길동 선지불
