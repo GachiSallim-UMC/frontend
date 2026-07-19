@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FormInput } from '@/shared/components/form';
 import { Button } from '@/shared/components/ui';
 import EyeOnIcon from '@/assets/icons/login/eye-on.svg?react';
@@ -10,6 +11,8 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({onSubmit}: LoginFormProps) => {
+    const navigate = useNavigate();
+
     const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = (e: FormEvent) => {
@@ -19,6 +22,10 @@ export const LoginForm = ({onSubmit}: LoginFormProps) => {
             onSubmit(e);
         }
     };
+
+    const handleEnter = () => {
+        navigate('/group')
+    }
 
     return  (
         <div className="flex w-full flex-col">
@@ -54,6 +61,7 @@ export const LoginForm = ({onSubmit}: LoginFormProps) => {
                     type="submit"
                     variant="primary"
                     size="md"
+                    onClick={handleEnter}
                     className="mt-5 mb-5 w-full h-14 font-bold"
                 >
                     로그인

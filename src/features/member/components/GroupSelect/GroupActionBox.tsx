@@ -9,6 +9,10 @@ export const GroupActionBox = () => {
     const handleCreateGroup = () => {
         navigate("/group/add")
     }
+    
+    const handleJoinGroup = () => {
+        navigate("/group/join")
+    }
 
     return (
         <div className="flex items-center justify-center rounded-lg border border-dashed border-primary-300 bg-primary-50 px-22 py-5">
@@ -36,6 +40,7 @@ export const GroupActionBox = () => {
                     <Button
                         variant="outline" 
                         size="sm" 
+                        onClick={handleJoinGroup}
                         className="flex-1 text-xs font-bold"
                     >
                         코드 입력

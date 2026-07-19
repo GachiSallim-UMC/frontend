@@ -8,6 +8,7 @@ import { NotificationPage } from '@/pages/notification';
 import { ChorePage } from '@/pages/chore/ChorePage';
 import { GroupSelectPage } from '@/pages/member/GroupSelectPage';
 import { AddGroupPage } from '@/pages/member/AddGroupPage';
+import { JoinGroupPage } from '@/pages/member/JoinGroupPage';
 
 
 export const router = createBrowserRouter([
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
   { path: '/signup', element: <SignupPage /> },
   { path: '/group', element: <GroupSelectPage />},
   { path: '/group/add', element: <AddGroupPage />},
+  { path: '/group/join', element: <JoinGroupPage />},
   {
     element: <AppLayout />,
     children: [
