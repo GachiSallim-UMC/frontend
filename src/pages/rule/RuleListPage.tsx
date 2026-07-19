@@ -1,66 +1,17 @@
 import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
-import EditIcon from '@/assets/icons/action/edit.svg?react';
-import ShareIcon from '@/assets/icons/action/share.svg?react';
 import {
-  RULE_CATEGORY_LABEL,
   RULE_CATEGORY_OPTIONS,
   RULE_STATUS_OPTIONS,
+  RuleListRow,
   useRuleFilters,
-  type Rule,
 } from '@/features/rule';
-import { DataTable, StatusBadge, type Column } from '@/shared/components/ui';
 import { SelectDropdown } from '@/shared/components/form';
 import { rules } from '@/pages/_shared/mockData';
 
 export const RuleListPage = () => {
   const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } =
     useRuleFilters(rules);
-
-  const columns: Column<Rule>[] = [
-    {
-      key: 'category',
-      header: '카테고리',
-      render: rule => (
-        <span className="whitespace-nowrap font-bold text-primary-700">
-          {RULE_CATEGORY_LABEL[rule.category]}
-        </span>
-      ),
-    },
-    {
-      key: 'title',
-      header: '규칙',
-      render: rule => (
-        <Link to={`/rules/${rule.id}`} className="block min-w-0">
-          <p className="truncate font-bold text-gray-900">{rule.title}</p>
-          <p className="mt-1 truncate text-caption text-gray-600">
-            등록: {rule.registeredBy.name} | {rule.registeredAt} | 동의:{' '}
-            {rule.agreement.agreedCount}/{rule.agreement.totalCount}
-          </p>
-        </Link>
-      ),
-    },
-    { key: 'status', header: '상태', render: rule => <StatusBadge variant={rule.status} /> },
-    {
-      key: 'actions',
-      header: '',
-      align: 'right',
-      render: rule => (
-        <span className="flex justify-end gap-1 text-gray-500">
-          <Link
-            to={`/rules/${rule.id}`}
-            aria-label="수정"
-            className="p-2 hover:text-primary-600"
-          >
-            <EditIcon className="h-5 w-5" />
-          </Link>
-          <button type="button" aria-label="공유" className="p-2 hover:text-primary-600">
-            <ShareIcon className="h-5 w-5" />
-          </button>
-        </span>
-      ),
-    },
-  ];
 
   return (
     <section className="mt-7 rounded-[20px] bg-white p-[30px] shadow-card">
@@ -90,7 +41,15 @@ export const RuleListPage = () => {
         </Link>
       </div>
 
-      <DataTable columns={columns} data={filteredRules} emptyMessage="등록된 생활 규칙이 없습니다." />
+      <div className="rounded-[10px] border border-gray-100">
+        {filteredRules.length === 0 ? (
+          <p className="py-16 text-center text-gray-400">등록된 생활 규칙이 없습니다.</p>
+        ) : (
+          filteredRules.map((rule, index) => (
+            <RuleListRow key={rule.id} rule={rule} isLast={index === filteredRules.length - 1} />
+          ))
+        )}
+      </div>
     </section>
   );
 };

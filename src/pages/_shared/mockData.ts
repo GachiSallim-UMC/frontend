@@ -200,7 +200,7 @@ export const rules: Rule[] = [
   },
   {
     id: 'r3',
-    category: 'cleanliness',
+    category: 'cleaning',
     title: '주방 사용 후 즉시 정리',
     content: '요리 후 가스레인지·조리대를 닦고 설거지는 당일 완료해요.',
     registeredBy: users[2], // 이철수
@@ -210,7 +210,7 @@ export const rules: Rule[] = [
   },
   {
     id: 'r4',
-    category: 'trash',
+    category: 'cleaning',
     title: '음식물 쓰레기는 당일 배출',
     content: '냄새 방지를 위해 음식물 쓰레기는 당일 저녁에 버려요.',
     registeredBy: users[0], // 홍길동
