@@ -248,13 +248,14 @@ export const ExpenseAddForm = ({
             >
               <option value='tax'>세금/기타 금융</option>
               <option value='food'>식비</option>
-              <option value='shopping'>쇼핑 (주로 전자상거래, 인터넷 쇼핑)</option>
+              <option value='shopping'>쇼핑</option>
               <option value='education'>교육</option>
               <option value='mart'>편의점/마트/잡화</option>
               <option value='transport'>교통/자동차</option>
               <option value='hobby'>취미/여가</option>
               <option value='cafe'>카페/간식</option>
               <option value='living'>생활</option>
+              <option value='others'>기타</option>
             </select>
             <img
               src={arrowIcon}
