@@ -16,6 +16,7 @@ const REPEAT_LABEL: Record<Chore['repeatType'], string> = {
   daily: '매일',
   weekly: '매주',
   monthly: '매월',
+  custom: '사용자 지정',
 };
 
 const ITEM_STATUS_LABEL: Record<Item['status'], string> = {
