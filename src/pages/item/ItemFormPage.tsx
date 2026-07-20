@@ -61,9 +61,14 @@ export const ItemFormPage = () => {
   };
 
   return (
-    <>
-      <Panel title="물품 정보" className="mt-7 rounded-[18px]">
-        <div className="grid gap-4">
+    <div className="mx-auto mt-16 w-full max-w-[1114px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
+      <Panel
+        title="물품 정보"
+        className="h-[500px] overflow-hidden rounded-[18px] p-[30px] shadow-none"
+        headerClassName="mb-5"
+        titleClassName="text-gray-800"
+      >
+        <div className="grid gap-5">
           <FormInput
             label="물품명"
             required
@@ -71,8 +76,11 @@ export const ItemFormPage = () => {
             value={name}
             onChange={e => setName(e.target.value)}
             error={errors.name}
+            containerClassName="gap-1"
+            labelClassName="leading-[17px] text-gray-800"
+            className="px-4"
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-5">
             <SelectDropdown
               label="카테고리"
               required
@@ -81,6 +89,8 @@ export const ItemFormPage = () => {
               options={ITEM_CATEGORY_OPTIONS}
               placeholder="카테고리 선택"
               error={errors.category}
+              containerClassName="gap-1"
+              labelClassName="leading-[17px] text-gray-800"
             />
             <SelectDropdown
               label="현재 상태"
@@ -90,15 +100,19 @@ export const ItemFormPage = () => {
               options={ITEM_STATUS_OPTIONS}
               placeholder="상태 선택"
               error={errors.status}
+              containerClassName="gap-1"
+              labelClassName="leading-[17px] text-gray-800"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-5">
             <SelectDropdown
               label="구매 담당자"
               value={buyerId}
               onChange={setBuyerId}
               options={users.map(user => ({ value: user.id, label: user.name }))}
               placeholder="미지정"
+              containerClassName="gap-1"
+              labelClassName="leading-[17px] text-gray-800"
             />
           </div>
           <TextArea
@@ -107,41 +121,45 @@ export const ItemFormPage = () => {
             rows={3}
             value={memo}
             onChange={e => setMemo(e.target.value)}
+            containerClassName="gap-1"
+            labelClassName="leading-[17px] text-gray-800"
+            className="block h-[100px] px-4 py-4"
           />
         </div>
       </Panel>
 
-      <FormActions className="mt-4" onSave={handleSave} onCancel={() => navigate(-1)} />
+      <FormActions className="mt-[30px]" onSave={handleSave} onCancel={() => navigate(-1)} />
 
       <Panel
         title="빠른 상태 변경"
         description="목록에서 물품 선택 후 상태만 빠르게 변경할 수 있습니다."
-        className="mt-4 rounded-[18px]"
+        className="mt-[30px] h-[167px] overflow-hidden rounded-[18px] p-[30px] shadow-none"
+        headerClassName="mb-2.5"
+        titleClassName="text-gray-800"
+        descriptionClassName="leading-[17px]"
       >
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid w-[calc(100%-clamp(0px,calc(60.625vw-776px),97px))] grid-cols-[minmax(0,1fr)_minmax(0,1fr)_117px] items-center gap-5">
           <SelectDropdown
             value={quickItemId}
             onChange={setQuickItemId}
             options={items.map(item => ({ value: item.id, label: item.name }))}
             placeholder="물품 선택"
-            className="w-[300px]"
           />
           <SelectDropdown
             value={quickStatus}
             onChange={setQuickStatus}
             options={ITEM_STATUS_OPTIONS}
             placeholder="상태 선택"
-            className="w-[300px]"
           />
           <Button
             variant="secondary"
-            className="border-primary-500 bg-primary-100 text-primary-600 hover:bg-primary-200"
+            className="h-[50px] w-[117px] border-primary-500 bg-primary-100 font-bold text-primary-500 hover:bg-primary-200"
             onClick={handleQuickStatusChange}
           >
             변경
           </Button>
         </div>
       </Panel>
-    </>
+    </div>
   );
 };

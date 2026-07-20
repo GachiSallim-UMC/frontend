@@ -12,4 +12,5 @@ export {
 export type { ItemStatusFilter } from './hooks/useItemFilters';
 export { useItemForm, ITEM_STATUS_OPTIONS } from './hooks/useItemForm';
 export { useQuickItemStatus } from './hooks/useQuickItemStatus';
+export { ItemTable } from './components/ItemTable';
 export type { Item, ItemCategory, CreateItemDto } from './types/item.types';

@@ -1,26 +1,15 @@
 import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
-import EditIcon from '@/assets/icons/action/edit.svg?react';
-import ShareIcon from '@/assets/icons/action/share.svg?react';
 import AllItemsIcon from '@/assets/icons/item/all-items.svg?react';
 import ShortItemIcon from '@/assets/icons/item/short.svg?react';
 import EmptyItemIcon from '@/assets/icons/item/empty.svg?react';
 import {
-  ITEM_CATEGORY_LABEL,
   ITEM_CATEGORY_OPTIONS,
   ITEM_STATUS_FILTER_TABS,
+  ItemTable,
   useItemFilters,
-  type Item,
 } from '@/features/item';
-import {
-  DataTable,
-  FilterTabGroup,
-  SearchInput,
-  StatusBadge,
-  SummaryCard,
-  UserAvatar,
-  type Column,
-} from '@/shared/components/ui';
+import { FilterTabGroup, SearchInput, SummaryCard } from '@/shared/components/ui';
 import { SelectDropdown } from '@/shared/components/form';
 import { items } from '@/pages/_shared/mockData';
 
@@ -37,88 +26,65 @@ export const ItemListPage = () => {
     emptyCount,
   } = useItemFilters(items);
 
-  const columns: Column<Item>[] = [
-    { key: 'name', header: '물품명' },
-    { key: 'category', header: '카테고리', render: item => ITEM_CATEGORY_LABEL[item.category] },
-    {
-      key: 'buyer',
-      header: '구매 담당',
-      render: item =>
-        item.buyer ? (
-          <span className="flex items-center gap-2">
-            <UserAvatar name={item.buyer.name} size="xs" />
-            {item.buyer.name}
-          </span>
-        ) : (
-          <span className="text-gray-400">미지정</span>
-        ),
-    },
-    { key: 'updatedAt', header: '마지막 변경' },
-    { key: 'status', header: '현재 상태', render: item => <StatusBadge variant={item.status} /> },
-    {
-      key: 'actions',
-      header: '',
-      align: 'right',
-      render: item => (
-        <span className="flex justify-end gap-1 text-gray-500">
-          <Link
-            to={`/items/${item.id}/edit`}
-            aria-label="수정"
-            className="p-2 hover:text-primary-600"
-          >
-            <EditIcon className="h-5 w-5" />
-          </Link>
-          <button type="button" aria-label="공유" className="p-2 hover:text-primary-600">
-            <ShareIcon className="h-5 w-5" />
-          </button>
-        </span>
-      ),
-    },
-  ];
-
   return (
-    <>
-      <div className="mb-4 mt-7 grid grid-cols-3 gap-4">
+    <div className="mx-auto mt-16 w-full max-w-[1114px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
+      <div className="mb-[30px] grid grid-cols-3 gap-[17px]">
         <SummaryCard
           icon={<AllItemsIcon className="h-12 w-12" />}
-          iconBg="bg-gray-100"
+          iconBg="bg-green-100"
+          iconClassName="size-[77px]"
           label="전체 물품"
           value={`${items.length}종`}
           subText="등록된 공용 물품"
+          className="h-[147px] px-6 py-0 shadow-none"
+          labelClassName="leading-[19px] tracking-[0.62px] text-gray-600"
+          valueClassName="leading-[37px]"
+          subTextClassName="leading-[19px]"
         />
         <SummaryCard
           icon={<ShortItemIcon className="h-12 w-12" />}
-          iconBg="bg-gray-100"
+          iconBg="bg-green-100"
+          iconClassName="size-[77px]"
           label="부족"
           value={`${shortCount}종`}
           subText="구매 확인 필요"
+          className="h-[147px] px-6 py-0 shadow-none"
+          labelClassName="leading-[19px] tracking-[0.62px] text-gray-600"
+          valueClassName="leading-[37px]"
+          subTextClassName="leading-[19px]"
         />
         <SummaryCard
           icon={<EmptyItemIcon className="h-12 w-12" />}
-          iconBg="bg-gray-100"
+          iconBg="bg-green-100"
+          iconClassName="size-[77px]"
           label="소진"
           value={`${emptyCount}종`}
           subText="즉시 구매 필요"
+          className="h-[147px] px-6 py-0 shadow-none"
+          labelClassName="leading-[19px] tracking-[0.62px] text-gray-600"
+          valueClassName="leading-[37px]"
+          subTextClassName="leading-[19px]"
         />
       </div>
 
-      <section className="rounded-[20px] bg-white p-[30px] shadow-card">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-3">
+      <section className="h-[558px] rounded-[20px] bg-white p-[30px]">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 min-[1200px]:flex-nowrap">
+          <div className="flex min-w-0 flex-wrap items-center gap-3 min-[1200px]:flex-nowrap">
             <FilterTabGroup
               tabs={ITEM_STATUS_FILTER_TABS}
               value={statusFilter}
               onChange={setStatusFilter}
+              className="gap-3 [&>button]:justify-center [&>button]:px-0 [&>button:first-child]:w-[148px] [&>button:not(:first-child)]:w-[106px]"
             />
             <SelectDropdown
               value={categoryFilter}
               onChange={setCategoryFilter}
               options={ITEM_CATEGORY_OPTIONS}
               placeholder="전체 카테고리"
-              className="w-[191px]"
+              className="w-[clamp(165px,calc(16.25vw-43px),191px)]"
             />
             <SearchInput
-              className="w-[191px]"
+              className="w-[clamp(165px,calc(16.25vw-43px),191px)]"
               placeholder="물품 검색"
               value={keyword}
               onChange={e => setKeyword(e.target.value)}
@@ -126,19 +92,15 @@ export const ItemListPage = () => {
           </div>
           <Link
             to="/items/new"
-            className="inline-flex h-[50px] items-center gap-1 rounded-lg bg-primary-600 px-4 text-button text-white transition-colors hover:bg-primary-700"
+            className="inline-flex h-[50px] w-[152px] shrink-0 items-center justify-center gap-1 rounded-lg bg-primary-600 text-button text-white transition-colors hover:bg-primary-700"
           >
-            <Plus size={20} />
+            <Plus size={24} />
             물품 등록
           </Link>
         </div>
 
-        <DataTable
-          columns={columns}
-          data={filteredItems}
-          emptyMessage="등록된 공용 물품이 없습니다."
-        />
+        <ItemTable items={filteredItems} />
       </section>
-    </>
+    </div>
   );
 };
