@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib/cn';
 import ChevronDownIcon from '@/assets/icons/activity/chevron-down.svg';
 
@@ -6,16 +6,37 @@ interface ActivityFilterDropdownProps {
   value: string;
   options: string[];
   onChange: (value: string) => void;
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
 }
 
-export const ActivityFilterDropdown = ({ value, options, onChange }: ActivityFilterDropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const ActivityFilterDropdown = ({
+  value,
+  options,
+  onChange,
+  isOpen,
+  onOpenChange,
+}: ActivityFilterDropdownProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        onOpenChange(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, onOpenChange]);
 
   return (
-    <div className="relative h-[50px] w-full sm:w-[191px]">
+    <div ref={containerRef} className="relative h-[50px] w-full sm:w-[191px]">
       <button
         type="button"
-        onClick={() => setIsOpen(prev => !prev)}
+        onClick={() => onOpenChange(!isOpen)}
         className="inline-flex h-full w-full items-center justify-between rounded-lg border border-gray-100 bg-white py-[13px] pl-[24px] pr-[14px]"
       >
         <span className="whitespace-nowrap text-[16px] font-normal text-gray-600">{value}</span>
@@ -33,7 +54,7 @@ export const ActivityFilterDropdown = ({ value, options, onChange }: ActivityFil
               type="button"
               onClick={() => {
                 onChange(option);
-                setIsOpen(false);
+                onOpenChange(false);
               }}
               className="w-full px-6 py-2 text-left text-[16px] font-normal text-gray-600 transition-colors hover:bg-gray-100"
             >
