@@ -39,7 +39,7 @@ export const ItemListPage = () => {
           className="h-[147px] px-6 py-0 shadow-none"
           labelClassName="leading-[19px] tracking-[0.62px] text-gray-600"
           valueClassName="leading-[37px]"
-          subTextClassName="leading-[19px]"
+          subTextClassName="mt-0.5 leading-[19px]"
         />
         <SummaryCard
           icon={<ShortItemIcon className="h-12 w-12" />}
@@ -51,7 +51,7 @@ export const ItemListPage = () => {
           className="h-[147px] px-6 py-0 shadow-none"
           labelClassName="leading-[19px] tracking-[0.62px] text-gray-600"
           valueClassName="leading-[37px]"
-          subTextClassName="leading-[19px]"
+          subTextClassName="mt-0.5 leading-[19px]"
         />
         <SummaryCard
           icon={<EmptyItemIcon className="h-12 w-12" />}
@@ -63,7 +63,7 @@ export const ItemListPage = () => {
           className="h-[147px] px-6 py-0 shadow-none"
           labelClassName="leading-[19px] tracking-[0.62px] text-gray-600"
           valueClassName="leading-[37px]"
-          subTextClassName="leading-[19px]"
+          subTextClassName="mt-0.5 leading-[19px]"
         />
       </div>
 
