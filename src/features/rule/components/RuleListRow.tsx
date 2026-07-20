@@ -18,7 +18,7 @@ export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
 
   return (
     <div
-      className={`flex items-center gap-5 px-[34px] py-[23px] ${isLast ? '' : 'border-b border-gray-100'}`}
+      className={`flex h-[84px] items-center gap-5 px-[34px] ${isLast ? '' : 'border-b border-gray-100'}`}
     >
       <div className="flex shrink-0 items-center gap-3">
         <span className="h-[30px] w-1 rounded-full bg-primary-500" />

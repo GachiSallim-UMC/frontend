@@ -34,9 +34,9 @@ export const RuleListPage = () => {
         </div>
         <Link
           to="/rules/new"
-          className="inline-flex h-[50px] items-center gap-1 rounded-lg bg-primary-600 px-4 text-button text-white transition-colors hover:bg-primary-700"
+          className="inline-flex h-[50px] w-[152px] items-center justify-center gap-1 rounded-lg bg-primary-600 text-button text-white transition-colors hover:bg-primary-700"
         >
-          <Plus size={20} />
+          <Plus size={24} />
           규칙 등록
         </Link>
       </div>
