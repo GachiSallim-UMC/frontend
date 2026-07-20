@@ -4,7 +4,8 @@ import calendarIcon from '@/assets/icons/expense/calendar.svg';
 import { mockExpenses } from '@/features/expense/mocks/expense.mock';
 import { CustomButton, IconTextButton } from '@/features/expense'; 
 import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react'; 
-import { useSettlementAmounts, SettlementMethod } from '@/features/expense/hooks/useSettlementAmounts';
+import { useSettlementAmounts } from '@/features/expense/hooks/useSettlementAmounts';
+import type { SettlementMethod } from '@/features/expense/hooks/useSettlementAmounts';
 import type { Expense } from '@/features/expense/types/expense.types';
 
 const inputClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button placeholder:text-gray-400 bg-white';
@@ -47,7 +48,7 @@ export const ExpenseAddForm = ({
     initialExpense ? initialExpense.shares.map((s) => s.user.id) : MOCK_USERS.map((u) => u.id)
   );
   const [settlementMethod, setSettlementMethod] = React.useState<SettlementMethod>('균등 분할 (n/n)');
-  const [category, setCategory] = React.useState<any>(initialExpense?.category || 'food');
+  const [category, setCategory] = React.useState<string>(initialExpense?.category || 'food');
   const [memo, setMemo] = React.useState(initialExpense?.memo || '');
   const [expenseDate, setExpenseDate] = React.useState(initialExpense?.date || '');
   const [payerId, setPayerId] = React.useState(initialExpense?.payer.id || selectedPayerId);
@@ -123,7 +124,7 @@ export const ExpenseAddForm = ({
       date: expenseDate,
       payer: MOCK_USERS.find((u) => u.id === payerId) || MOCK_USERS[0],
       splitType: settlementMethod === '직접입력' ? 'ratio' : 'equal',
-      category: category,
+      category: category as any,
       status: 'unpaid',
       shares: checkedMembers.map((memberId) => {
         const user = MOCK_USERS.find((u) => u.id === memberId)!;
