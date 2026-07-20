@@ -3,9 +3,14 @@ import { toSelectOptions } from '@/shared/lib';
 import type { Item, ItemCategory } from '../types/item.types';
 
 export const ITEM_CATEGORY_LABEL: Record<ItemCategory, string> = {
+  daily: '생활용품',
   kitchen: '주방',
   bathroom: '욕실',
   cleaning: '청소',
+  grocery: '식료품',
+  medicine: '의약품',
+  pet: '반려동물',
+  tool: '공구',
   etc: '기타',
 };
 
