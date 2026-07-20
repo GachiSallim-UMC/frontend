@@ -24,7 +24,7 @@ export const RuleFormPage = () => {
   };
 
   return (
-    <div className="mx-auto mt-16 w-full">
+    <div className="mx-auto mt-16 w-full max-w-[1114px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
       <div className="flex min-w-0 flex-col gap-5">
         <Panel
           title="기본 정보"

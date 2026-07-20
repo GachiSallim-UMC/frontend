@@ -23,7 +23,7 @@ export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
       className={`relative ${
         isLast
           ? 'h-[84px]'
-          : 'h-[86px] after:absolute after:bottom-0 after:left-[27px] after:right-[29px] after:h-px after:bg-gray-100'
+          : 'h-[85px] after:absolute after:bottom-0 after:left-[27px] after:right-[29px] after:h-px after:bg-gray-100'
       }`}
     >
       <div className="flex h-[84px] items-center pl-[34px] pr-[25px]">
@@ -46,18 +46,18 @@ export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
 
         <StatusBadge variant={rule.status} className="w-[68px] shrink-0 px-0 leading-normal" />
 
-        <span className="ml-[30px] flex w-[78px] shrink-0 items-center text-gray-500">
+        <span className="ml-[30px] flex w-[78px] shrink-0 items-center text-gray-400">
           <Link
             to={`/rules/${rule.id}`}
             aria-label="수정"
-            className="flex size-[39px] items-center justify-center hover:text-primary-600"
+            className="flex size-[39px] items-center justify-center transition-colors hover:text-gray-500"
           >
             <EditIcon className="size-[39px]" />
           </Link>
           <button
             type="button"
             aria-label="공유"
-            className="flex size-[39px] items-center justify-center hover:text-primary-600"
+            className="flex size-[39px] items-center justify-center transition-colors hover:text-gray-500"
           >
             <ShareIcon className="size-[39px]" />
           </button>

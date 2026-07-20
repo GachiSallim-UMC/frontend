@@ -14,7 +14,7 @@ export const RuleListPage = () => {
     useRuleFilters(rules);
 
   return (
-    <section className="mx-auto mt-16 w-full max-w-[1114px] rounded-[20px] bg-white p-[30px] 2xl:max-w-none">
+    <section className="mx-auto mt-16 h-[472px] w-full max-w-[1114px] rounded-[20px] bg-white p-[30px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <SelectDropdown
@@ -41,13 +41,13 @@ export const RuleListPage = () => {
         </Link>
       </div>
 
-      <div className="h-[342px] overflow-hidden rounded-[10px] border border-gray-100">
+      <div className="flex h-[342px] w-full flex-col overflow-hidden rounded-[10px] border border-gray-100 bg-white">
         {filteredRules.length === 0 ? (
           <p className="flex h-full items-center justify-center text-gray-400">
             등록된 생활 규칙이 없습니다.
           </p>
         ) : (
-          <div className="-m-px w-[calc(100%+2px)]">
+          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto [&::-webkit-scrollbar]:w-[5px]">
             {filteredRules.map((rule, index) => (
               <RuleListRow key={rule.id} rule={rule} isLast={index === filteredRules.length - 1} />
             ))}

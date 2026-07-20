@@ -64,7 +64,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   };
 
   return (
-    <div className="mx-auto mt-16 grid w-full max-w-[1114px] grid-cols-1 gap-5 xl:grid-cols-2 2xl:max-w-none">
+    <div className="mx-auto mt-16 grid w-full max-w-[1114px] grid-cols-1 gap-5 xl:grid-cols-2 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
       <div className="flex min-w-0 flex-col gap-5">
         <Panel
           title="기본 정보"
