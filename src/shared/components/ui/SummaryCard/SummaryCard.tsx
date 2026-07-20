@@ -28,14 +28,14 @@ export const SummaryCard = ({
       onClick={onClick}
       onKeyDown={onClick ? e => e.key === 'Enter' && onClick() : undefined}
       className={cn(
-        'flex items-center gap-4 rounded-[18px] bg-white p-5 shadow-card',
+        'flex items-center gap-4 rounded-[18px] bg-white px-6 py-7 shadow-card',
         onClick && 'cursor-pointer transition-shadow hover:shadow-md',
         className,
       )}
     >
       <div
         className={cn(
-          'flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-primary-600',
+          'flex h-20 w-20 shrink-0 items-center justify-center rounded-full text-primary-600',
           iconBg ?? 'bg-primary-50',
         )}
       >
@@ -44,7 +44,7 @@ export const SummaryCard = ({
       <div className="min-w-0">
         <p className="text-caption font-bold text-gray-500">{label}</p>
         <p className="mt-0.5 text-key-number font-bold text-gray-900">{value}</p>
-        {subText && <p className="mt-0.5 text-caption text-gray-500">{subText}</p>}
+        {subText && <p className="mt-6 text-caption text-gray-500">{subText}</p>}
       </div>
     </div>
   );

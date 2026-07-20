@@ -27,7 +27,6 @@ export const ChoreFilterBar = ({ filter, onFilterChange }: ChoreFilterBarProps) 
           value={activeTab}
           onChange={val => {
             if (activeTab === val) {
-              //이미 눌린 버튼 취소
               setActiveTab('');
 
               if (val === 'status') {
@@ -48,6 +47,7 @@ export const ChoreFilterBar = ({ filter, onFilterChange }: ChoreFilterBarProps) 
         />
         <SearchInput
           placeholder="집안일 검색"
+          className="w-[230px]"
           value={filter?.keyword || ''}
           onChange={e => onFilterChange({ ...(filter || {}), keyword: e.target.value })}
         />

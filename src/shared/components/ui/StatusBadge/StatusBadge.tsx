@@ -44,7 +44,7 @@ export const StatusBadge = ({ variant, label, className }: StatusBadgeProps) => 
   return (
     <span
       className={cn(
-        'inline-flex h-[34px] items-center justify-center rounded-full px-[21px] text-caption font-bold',
+        'inline-flex h-[34px] w-[68px] items-center justify-center rounded-full text-caption font-bold',
         config.className,
         className,
       )}
