@@ -22,7 +22,7 @@ export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
     >
       <div className="flex shrink-0 items-center gap-3">
         <span className="h-[30px] w-1 rounded-full bg-primary-500" />
-        <span className="whitespace-nowrap text-button font-bold text-primary-700">
+        <span className="whitespace-nowrap text-body font-bold text-primary-700">
           {RULE_CATEGORY_LABEL[rule.category]}
         </span>
       </div>
@@ -37,12 +37,20 @@ export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
 
       <StatusBadge variant={rule.status} />
 
-      <span className="flex items-center gap-1 text-gray-500">
-        <Link to={`/rules/${rule.id}`} aria-label="수정" className="p-2 hover:text-primary-600">
-          <EditIcon className="h-6 w-6" />
+      <span className="flex items-center text-gray-500">
+        <Link
+          to={`/rules/${rule.id}`}
+          aria-label="수정"
+          className="flex size-[39px] items-center justify-center hover:text-primary-600"
+        >
+          <EditIcon className="h-5 w-5" />
         </Link>
-        <button type="button" aria-label="공유" className="p-2 hover:text-primary-600">
-          <ShareIcon className="h-6 w-6" />
+        <button
+          type="button"
+          aria-label="공유"
+          className="flex size-[39px] items-center justify-center hover:text-primary-600"
+        >
+          <ShareIcon className="h-5 w-5" />
         </button>
       </span>
     </div>
