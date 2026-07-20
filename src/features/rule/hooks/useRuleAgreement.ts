@@ -3,7 +3,7 @@ import type { User } from '@/shared/types';
 import { RULE_CATEGORY_LABEL } from './useRuleFilters';
 import type { Rule } from '../types/rule.types';
 
-type MyAgreement = 'agree' | 'disagree' | 'pending';
+export type MyAgreement = 'agree' | 'disagree' | 'pending';
 
 export type RuleHistoryType = 'register' | 'agree' | 'edit';
 
@@ -17,7 +17,10 @@ interface RuleHistoryEntry {
 
 /** 동의 현황 멤버별 상태, 나의 동의 토글, 규칙 히스토리 파생 */
 export const useRuleAgreement = (rule: Rule, currentUser: User, members: User[]) => {
-  const iAlreadyAgreed = rule.agreement.agreedMembers.some(member => member.id === currentUser.id);
+  // 등록자는 규칙에 동의한 것으로 간주한다.
+  const iAlreadyAgreed =
+    rule.registeredBy.id === currentUser.id ||
+    rule.agreement.agreedMembers.some(member => member.id === currentUser.id);
   const [myAgreement, setMyAgreement] = useState<MyAgreement>(iAlreadyAgreed ? 'agree' : 'pending');
 
   const memberStatuses = useMemo(
@@ -25,10 +28,13 @@ export const useRuleAgreement = (rule: Rule, currentUser: User, members: User[])
       members.map(member => {
         const isMe = member.id === currentUser.id;
         const isRegistrant = member.id === rule.registeredBy.id;
-        const isAgreed = rule.agreement.agreedMembers.some(agreed => agreed.id === member.id);
-        return { member, isMe, isRegistrant, isAgreed };
+        const agreedInRule =
+          isRegistrant || rule.agreement.agreedMembers.some(agreed => agreed.id === member.id);
+        // 내 행은 '나의 동의 상태' 토글 값을 즉시 반영하고, 나머지 멤버는 규칙의 동의 현황을 따른다.
+        const agreement: MyAgreement = isMe ? myAgreement : agreedInRule ? 'agree' : 'pending';
+        return { member, isMe, isRegistrant, agreement };
       }),
-    [members, currentUser.id, rule.registeredBy.id, rule.agreement.agreedMembers],
+    [members, currentUser.id, rule.registeredBy.id, rule.agreement.agreedMembers, myAgreement],
   );
 
   const historyEntries = useMemo<RuleHistoryEntry[]>(() => {

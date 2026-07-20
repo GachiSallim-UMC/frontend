@@ -1,10 +1,11 @@
-import { useState, type ComponentType } from 'react';
+import { useState, type ComponentProps, type ComponentType } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   RULE_CATEGORY_OPTIONS,
   RULE_STATUS_OPTIONS,
   useRuleAgreement,
   useRuleForm,
+  type MyAgreement,
   type Rule,
   type RuleHistoryType,
 } from '@/features/rule';
@@ -27,6 +28,19 @@ const AGREEMENT_TOGGLE_OPTIONS = [
   { value: 'disagree', label: '반대' },
   { value: 'pending', label: '보류' },
 ] as const;
+
+/** 동의 현황 목록의 멤버별 배지 — 토글의 동의/반대/보류 3단계와 1:1 대응 */
+const AGREEMENT_BADGE: Record<MyAgreement, ComponentProps<typeof StatusBadge>> = {
+  agree: { variant: 'active', label: '동의' },
+  disagree: { variant: 'disagree', label: '반대' },
+  pending: { variant: 'inactive', label: '보류' },
+};
+
+const AGREEMENT_SUBLABEL: Record<MyAgreement, string> = {
+  agree: '동의함',
+  disagree: '반대함',
+  pending: '미응답',
+};
 
 type FormErrors = Partial<Record<'title' | 'category' | 'status', string>>;
 
@@ -131,7 +145,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           descriptionClassName="leading-[17px]"
         >
           <div className="divide-y divide-gray-100">
-            {memberStatuses.map(({ member, isMe, isRegistrant, isAgreed }) => (
+            {memberStatuses.map(({ member, isMe, isRegistrant, agreement }) => (
               <div key={member.id} className="flex h-[72px] items-center justify-between px-[10px]">
                 <span className="flex items-center gap-[9px]">
                   <UserAvatar name={member.name} size="sm" className="h-10 w-10" />
@@ -141,13 +155,12 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                       {isMe && ' (나)'}
                     </p>
                     <p className="text-caption leading-normal text-gray-900">
-                      {isRegistrant ? '등록자' : isAgreed ? '동의함' : '미응답'}
+                      {isRegistrant ? '등록자' : AGREEMENT_SUBLABEL[agreement]}
                     </p>
                   </span>
                 </span>
                 <StatusBadge
-                  variant={isAgreed || isRegistrant ? 'active' : 'inactive'}
-                  label={isAgreed || isRegistrant ? '동의' : '보류'}
+                  {...AGREEMENT_BADGE[agreement]}
                   className="w-[68px] shrink-0 px-0 leading-normal"
                 />
               </div>
