@@ -26,7 +26,7 @@ const config: Config = {
           100: '#F1FFF3',
           300: '#CDEFD1',
           500: '#94E89E',
-          700: '#008F62',
+          700: '#21906D',
         },
         // Figma: Orange (미정산/부족 등 경고 계열 — 실제 톤은 옐로우에 가까움)
         orange: {

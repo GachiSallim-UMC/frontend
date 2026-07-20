@@ -14,22 +14,22 @@ export const RuleListPage = () => {
     useRuleFilters(rules);
 
   return (
-    <section className="mt-7 rounded-[20px] bg-white p-[30px] shadow-card">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <section className="mx-auto mt-16 w-full max-w-[1114px] rounded-[20px] bg-white p-[30px] 2xl:max-w-none">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <SelectDropdown
             value={categoryFilter}
             onChange={setCategoryFilter}
             options={RULE_CATEGORY_OPTIONS}
             placeholder="전체 카테고리"
-            className="w-[150px]"
+            className="w-[150px] text-gray-500"
           />
           <SelectDropdown
             value={statusFilter}
             onChange={setStatusFilter}
             options={RULE_STATUS_OPTIONS}
             placeholder="전체 상태"
-            className="w-[150px]"
+            className="w-[150px] text-gray-500"
           />
         </div>
         <Link
@@ -41,13 +41,17 @@ export const RuleListPage = () => {
         </Link>
       </div>
 
-      <div className="rounded-[10px] border border-gray-100">
+      <div className="h-[342px] overflow-hidden rounded-[10px] border border-gray-100">
         {filteredRules.length === 0 ? (
-          <p className="py-16 text-center text-gray-400">등록된 생활 규칙이 없습니다.</p>
+          <p className="flex h-full items-center justify-center text-gray-400">
+            등록된 생활 규칙이 없습니다.
+          </p>
         ) : (
-          filteredRules.map((rule, index) => (
-            <RuleListRow key={rule.id} rule={rule} isLast={index === filteredRules.length - 1} />
-          ))
+          <div className="-m-px w-[calc(100%+2px)]">
+            {filteredRules.map((rule, index) => (
+              <RuleListRow key={rule.id} rule={rule} isLast={index === filteredRules.length - 1} />
+            ))}
+          </div>
         )}
       </div>
     </section>

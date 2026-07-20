@@ -5,7 +5,8 @@ import type { Rule, RuleCategory } from '../types/rule.types';
 
 export const RULE_CATEGORY_LABEL: Record<RuleCategory, string> = {
   noise: '소음',
-  cleaning: '청소/위생',
+  cleaning: '청결',
+  trash: '쓰레기',
   kitchen: '주방/식사',
   bathroom: '화장실/욕실',
   visitor: '방문객',

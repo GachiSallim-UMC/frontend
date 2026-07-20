@@ -4,6 +4,7 @@ import type { RuleStatus, User } from '@/shared/types';
 export type RuleCategory =
   | 'noise'
   | 'cleaning'
+  | 'trash'
   | 'kitchen'
   | 'bathroom'
   | 'visitor'
