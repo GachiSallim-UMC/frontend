@@ -4,12 +4,10 @@ import type { RuleStatus, User } from '@/shared/types';
 export type RuleCategory =
   | 'noise'
   | 'cleaning'
-  | 'trash'
   | 'kitchen'
   | 'bathroom'
   | 'visitor'
-  | 'safety'
-  | 'etc';
+  | 'safety';
 
 /** 동의 현황 */
 export interface RuleAgreement {

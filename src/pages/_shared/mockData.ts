@@ -210,7 +210,7 @@ export const rules: Rule[] = [
   },
   {
     id: 'r4',
-    category: 'trash',
+    category: 'cleaning',
     title: '음식물 쓰레기는 당일 배출',
     content: '냄새 방지를 위해 음식물 쓰레기는 당일 저녁에 버려요.',
     registeredBy: users[0], // 홍길동

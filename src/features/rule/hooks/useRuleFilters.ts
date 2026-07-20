@@ -5,13 +5,11 @@ import type { Rule, RuleCategory } from '../types/rule.types';
 
 export const RULE_CATEGORY_LABEL: Record<RuleCategory, string> = {
   noise: '소음',
-  cleaning: '청결',
-  trash: '쓰레기',
+  cleaning: '청소/위생',
   kitchen: '주방/식사',
   bathroom: '화장실/욕실',
   visitor: '방문객',
   safety: '안전/보안',
-  etc: '기타',
 };
 
 export const RULE_CATEGORY_OPTIONS = toSelectOptions(RULE_CATEGORY_LABEL);
