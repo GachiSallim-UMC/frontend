@@ -1,21 +1,25 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
-import { LoginPage } from '@/pages/login/LoginPage';
+import { LoginPage } from '@/pages/auth/LoginPage';
+import { SignupPage } from '@/pages/auth/SignupPage';
 import { AppLayout } from './AppLayout';
 import { NotificationPage } from '@/pages/notification';
-import { ChorePage } from '@/pages/chore/ChorePage';
+import { ChoreListPage } from '@/pages/chore/ChoreListPage';
+import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
+import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
 import { ActivityPage } from '@/pages/activity';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/signup', element: <SignupPage /> },
   {
     element: <AppLayout />,
     children: [
       { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
-      { path: '/chores', element: <ChorePage /> },
-      { path: '/chores/new', element: <PlaceholderPage title="집안일 등록" /> },
-      { path: '/chores/:id/edit', element: <PlaceholderPage title="집안일 수정" /> },
+      { path: '/chores', element: <ChoreListPage /> },
+      { path: '/chores/new', element: <ChoreCreatePage /> },
+      { path: '/chores/:id/edit', element: <ChoreEditPage /> },
       { path: '/expenses', element: <PlaceholderPage title="생활비 정산" /> },
       { path: '/expenses/new', element: <PlaceholderPage title="생활비 등록" /> },
       { path: '/expenses/:id', element: <PlaceholderPage title="정산 상세" /> },
