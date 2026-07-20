@@ -109,8 +109,8 @@ export const expenses: Expense[] = [
     status: 'unpaid',
     shares: [
       { user: users[0], amount: 10666, isPaid: false }, // 홍길동 미납
-      { user: users[1], amount: 10666, isPaid: true },  // 김영희 선지불
-      { user: users[2], amount: 10668, isPaid: true },  // 이철수 납부완료
+      { user: users[1], amount: 10666, isPaid: true }, // 김영희 선지불
+      { user: users[2], amount: 10668, isPaid: true }, // 이철수 납부완료
     ],
     memo: '쌀 10KG, 계란 1판 외 식재료',
   },
@@ -121,10 +121,10 @@ export const expenses: Expense[] = [
     payer: users[0], // 홍길동 선지불
     date: '2026.06.25',
     splitType: 'equal',
-    category: 'utility',
+    category: 'finance',
     status: 'unpaid',
     shares: [
-      { user: users[0], amount: 10000, isPaid: true },  // 홍길동 선지불
+      { user: users[0], amount: 10000, isPaid: true }, // 홍길동 선지불
       { user: users[1], amount: 10000, isPaid: false }, // 김영희 미납
       { user: users[2], amount: 10000, isPaid: false }, // 이철수 미납
     ],
@@ -136,7 +136,7 @@ export const expenses: Expense[] = [
     payer: users[2], // 이철수 선지불
     date: '2026.06.20',
     splitType: 'equal',
-    category: 'utility',
+    category: 'finance',
     status: 'paid',
     shares: [
       { user: users[0], amount: 18000, isPaid: true },
@@ -151,12 +151,12 @@ export const expenses: Expense[] = [
     payer: users[0], // 홍길동 선지불
     date: '2026.06.15',
     splitType: 'ratio',
-    category: 'supplies',
+    category: 'living',
     status: 'unpaid',
     shares: [
-      { user: users[0], amount: 4000,  isPaid: true },  // 홍길동 선지불
+      { user: users[0], amount: 4000, isPaid: true }, // 홍길동 선지불
       { user: users[1], amount: 10000, isPaid: false }, // 김영희 미납
-      { user: users[2], amount: 8000,  isPaid: false }, // 이철수 미납
+      { user: users[2], amount: 8000, isPaid: false }, // 이철수 미납
     ],
     memo: '샴푸, 바디워시, 치약 외',
   },
@@ -166,14 +166,69 @@ export const expenses: Expense[] = [
 // 부족+소진 = 2종 → 대시보드 "2종" 일치
 
 export const items: Item[] = [
-  { id: 'i1', name: '세제',            category: 'kitchen',  buyer: users[2], status: 'short',  updatedAt: '2026.06.29' },
-  { id: 'i2', name: '두루마리 화장지', category: 'bathroom',                  status: 'empty',  updatedAt: '2026.06.28' },
-  { id: 'i3', name: '샴푸',            category: 'bathroom', buyer: users[0], status: 'enough', updatedAt: '2026.06.15' },
-  { id: 'i4', name: '주방 세척제',     category: 'kitchen',  buyer: users[1], status: 'enough', updatedAt: '2026.06.20' },
-  { id: 'i5', name: '청소기 먼지봉투', category: 'cleaning', buyer: users[0], status: 'enough', updatedAt: '2026.06.17' },
-  { id: 'i6', name: '세탁 세제',       category: 'cleaning', buyer: users[1], status: 'enough', updatedAt: '2026.06.10' },
-  { id: 'i7', name: '바디워시',        category: 'bathroom', buyer: users[2], status: 'enough', updatedAt: '2026.06.15' },
-  { id: 'i8', name: '종량제 봉투',     category: 'kitchen',  buyer: users[2], status: 'enough', updatedAt: '2026.06.12' },
+  {
+    id: 'i1',
+    name: '세제',
+    category: 'kitchen',
+    buyer: users[2],
+    status: 'short',
+    updatedAt: '2026.06.29',
+  },
+  {
+    id: 'i2',
+    name: '두루마리 화장지',
+    category: 'bathroom',
+    status: 'empty',
+    updatedAt: '2026.06.28',
+  },
+  {
+    id: 'i3',
+    name: '샴푸',
+    category: 'bathroom',
+    buyer: users[0],
+    status: 'enough',
+    updatedAt: '2026.06.15',
+  },
+  {
+    id: 'i4',
+    name: '주방 세척제',
+    category: 'kitchen',
+    buyer: users[1],
+    status: 'enough',
+    updatedAt: '2026.06.20',
+  },
+  {
+    id: 'i5',
+    name: '청소기 먼지봉투',
+    category: 'cleaning',
+    buyer: users[0],
+    status: 'enough',
+    updatedAt: '2026.06.17',
+  },
+  {
+    id: 'i6',
+    name: '세탁 세제',
+    category: 'cleaning',
+    buyer: users[1],
+    status: 'enough',
+    updatedAt: '2026.06.10',
+  },
+  {
+    id: 'i7',
+    name: '바디워시',
+    category: 'bathroom',
+    buyer: users[2],
+    status: 'enough',
+    updatedAt: '2026.06.15',
+  },
+  {
+    id: 'i8',
+    name: '종량제 봉투',
+    category: 'kitchen',
+    buyer: users[2],
+    status: 'enough',
+    updatedAt: '2026.06.12',
+  },
 ];
 
 // ==================== 생활 규칙 (Figma 13 · 생활 규칙 목록) ====================
@@ -262,7 +317,7 @@ export const notifications = [
   {
     id: 'n6',
     title: '그룹 알림',
-    message: '김영희 님이 그룹 \'우리집 룸메이트\'에 참여했습니다.',
+    message: "김영희 님이 그룹 '우리집 룸메이트'에 참여했습니다.",
     time: '3일 전',
     status: 'done' as const,
   },
@@ -271,15 +326,60 @@ export const notifications = [
 // ==================== 활동 내역 (Figma 17 · 활동 내역) ====================
 
 export const activities = [
-  { id: 'a1', actorName: '김영희', description: '집안일 \'설거지\'를 완료 처리했습니다.', timestamp: '오늘 10:30' },
-  { id: 'a2', actorName: '홍길동', description: '생활비 \'인터넷 요금 30,000원\'을 등록했습니다.', timestamp: '오늘 09:15' },
-  { id: 'a3', actorName: '이철수', description: '\'세제\' 상태를 \'부족\'으로 변경했습니다.', timestamp: '어제 22:10' },
-  { id: 'a4', actorName: '홍길동', description: '생활 규칙 \'밤 11시 이후 조용히 하기\'를 메신저에 공유했습니다.', timestamp: '어제 19:40' },
-  { id: 'a5', actorName: '이철수', description: '집안일 \'분리수거\'를 완료 처리했습니다.', timestamp: '어제 11:05' },
-  { id: 'a6', actorName: '홍길동', description: '공용 물품 \'두루마리 화장지\'를 \'소진\' 상태로 변경했습니다.', timestamp: '2일 전 15:20' },
-  { id: 'a7', actorName: '김영희', description: '생활비 \'마트 장보기 32,000원\'을 등록했습니다.', timestamp: '2일 전 14:00' },
-  { id: 'a8', actorName: '이철수', description: '생활 규칙 \'주방 사용 후 즉시 정리\'에 동의했습니다.', timestamp: '2일 전 13:30' },
-  { id: 'a9', actorName: '김영희', description: '그룹 \'우리집 룸메이트\'에 참여했습니다.', timestamp: '3일 전 15:20' },
+  {
+    id: 'a1',
+    actorName: '김영희',
+    description: "집안일 '설거지'를 완료 처리했습니다.",
+    timestamp: '오늘 10:30',
+  },
+  {
+    id: 'a2',
+    actorName: '홍길동',
+    description: "생활비 '인터넷 요금 30,000원'을 등록했습니다.",
+    timestamp: '오늘 09:15',
+  },
+  {
+    id: 'a3',
+    actorName: '이철수',
+    description: "'세제' 상태를 '부족'으로 변경했습니다.",
+    timestamp: '어제 22:10',
+  },
+  {
+    id: 'a4',
+    actorName: '홍길동',
+    description: "생활 규칙 '밤 11시 이후 조용히 하기'를 메신저에 공유했습니다.",
+    timestamp: '어제 19:40',
+  },
+  {
+    id: 'a5',
+    actorName: '이철수',
+    description: "집안일 '분리수거'를 완료 처리했습니다.",
+    timestamp: '어제 11:05',
+  },
+  {
+    id: 'a6',
+    actorName: '홍길동',
+    description: "공용 물품 '두루마리 화장지'를 '소진' 상태로 변경했습니다.",
+    timestamp: '2일 전 15:20',
+  },
+  {
+    id: 'a7',
+    actorName: '김영희',
+    description: "생활비 '마트 장보기 32,000원'을 등록했습니다.",
+    timestamp: '2일 전 14:00',
+  },
+  {
+    id: 'a8',
+    actorName: '이철수',
+    description: "생활 규칙 '주방 사용 후 즉시 정리'에 동의했습니다.",
+    timestamp: '2일 전 13:30',
+  },
+  {
+    id: 'a9',
+    actorName: '김영희',
+    description: "그룹 '우리집 룸메이트'에 참여했습니다.",
+    timestamp: '3일 전 15:20',
+  },
 ];
 
 // ==================== 메신저 (Figma 15 · 그룹 내 실시간 메신저) ====================
@@ -425,7 +525,7 @@ export const mypage = {
     pending: 6,
   },
   expenseStats: {
-    totalPaid: 52000,    // 홍길동이 선지불한 총액 (인터넷 30,000 + 욕실 용품 22,000)
+    totalPaid: 52000, // 홍길동이 선지불한 총액 (인터넷 30,000 + 욕실 용품 22,000)
     totalReceived: 24000, // 받은 금액 (전기요금 18,000 + 욕실 용품 기납부분)
   },
 };
