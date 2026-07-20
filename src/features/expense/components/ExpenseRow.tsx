@@ -19,10 +19,12 @@ const ExpenseRow = ({ expense }: ExpenseRowProps) => {
   const handleRowClick = () => {
     navigate(`/expenses/${expense.id}`); 
   };
+
   return (
     <div
-    onClick={handleRowClick}
-    className={`grid ${GRID_COLS} items-center w-full min-w-[720px] h-[72px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-white border-b border-gray-100 last:border-b-0`}>
+      onClick={handleRowClick}
+      className={`grid ${GRID_COLS} items-center w-full min-w-[720px] h-[72px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-white border-b border-gray-100 last:border-b-0 cursor-pointer`}
+    >
       <span className='font-sans font-normal text-button text-gray-900 whitespace-nowrap'>
         {expense.date}
       </span>
@@ -47,7 +49,7 @@ const ExpenseRow = ({ expense }: ExpenseRowProps) => {
       </span>
 
       <span className='font-sans font-normal text-button text-gray-900 whitespace-nowrap'>
-        {expense.splitType === 'equal' ? 'n/n 균등' : '비율 지정'}
+        균등 분할 (n/n)
       </span>
 
       <div className={`w-[68px] h-[34px] rounded-[100px] flex items-center justify-center whitespace-nowrap ${statusStyle}`}>

@@ -4,11 +4,11 @@ import calendarIcon from '@/assets/icons/expense/calendar.svg';
 import { mockExpenses } from '@/features/expense/mocks/expense.mock';
 import { CustomButton, IconTextButton } from '@/features/expense'; 
 import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react'; 
+import { useSettlementAmounts, SettlementMethod } from '@/features/expense/hooks/useSettlementAmounts';
+import type { Expense } from '@/features/expense/types/expense.types';
 
-const inputClass =
-  'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button placeholder:text-gray-400 bg-white';
-const selectClass =
-  'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button bg-white appearance-none cursor-pointer';
+const inputClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button placeholder:text-gray-400 bg-white';
+const selectClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button bg-white appearance-none cursor-pointer';
 const labelClass = 'font-sans text-caption font-bold text-gray-800';
 const cardClass = 'w-full bg-white p-[16px] rounded-[18px] flex flex-col gap-5';
 
@@ -20,47 +20,6 @@ const MOCK_USERS = Array.from(
 
 const MEMO_MAX_LENGTH = 200;
 
-export type SettlementMethod = '균등 분할 (n/n)' | '비율 지정' | '직접입력';
-
-function calculateEqualSplit(totalAmount: number, memberIds: string[]): Record<string, number> {
-  if (memberIds.length === 0) return {};
-
-  const perPerson = Math.floor(totalAmount / memberIds.length);
-  const remainder = totalAmount - perPerson * memberIds.length;
-
-  return memberIds.reduce<Record<string, number>>((acc, id, index) => {
-    acc[id] = index === memberIds.length - 1 ? perPerson + remainder : perPerson;
-    return acc;
-  }, {});
-}
-
-interface UseSettlementAmountsParams {
-  amount: string;
-  memberIds: string[];
-  settlementMethod: SettlementMethod;
-  memberAmounts?: Record<string, number>;
-}
-
-function useSettlementAmounts({
-  amount,
-  memberIds,
-  settlementMethod,
-  memberAmounts,
-}: UseSettlementAmountsParams): Record<string, number> {
-  return React.useMemo(() => {
-    if (memberAmounts) return memberAmounts;
-
-    const numericAmount = Number(amount.replace(/,/g, '')) || 0;
-
-    switch (settlementMethod) {
-      case '균등 분할 (n/n)':
-        return calculateEqualSplit(numericAmount, memberIds);
-      default:
-        return calculateEqualSplit(numericAmount, memberIds);
-    }
-  }, [amount, memberIds, settlementMethod, memberAmounts]);
-}
-
 function formatWon(value: number): string {
   return `${value.toLocaleString()}원`;
 }
@@ -69,30 +28,54 @@ interface ExpenseAddFormProps {
   selectedPayerId?: string;
   onPayerChange?: (id: string) => void;
   memberAmounts?: Record<string, number>;
+  initialExpense?: Expense;
+  onSave?: (newExpense: Expense) => void;
+  onCancel?: () => void;
 }
 
 export const ExpenseAddForm = ({
   selectedPayerId = '',
   onPayerChange,
   memberAmounts,
+  initialExpense,
+  onSave,
+  onCancel,
 }: ExpenseAddFormProps) => {
-  const [title, setTitle] = React.useState('');
-  const [amount, setAmount] = React.useState('0');
-  const [checkedMembers, setCheckedMembers] = React.useState<string[]>([]);
-  const [settlementMethod, setSettlementMethod] = React.useState<SettlementMethod>(
-    '균등 분할 (n/n)'
+  const [title, setTitle] = React.useState(initialExpense?.title || '');
+  const [amount, setAmount] = React.useState(initialExpense ? initialExpense.amount.toLocaleString() : '');
+  const [checkedMembers, setCheckedMembers] = React.useState<string[]>(
+    initialExpense ? initialExpense.shares.map((s) => s.user.id) : MOCK_USERS.map((u) => u.id)
   );
-  const [memo, setMemo] = React.useState('');
-  const [expenseDate, setExpenseDate] = React.useState('');
-  const [payerId, setPayerId] = React.useState(selectedPayerId);
+  const [settlementMethod, setSettlementMethod] = React.useState<SettlementMethod>('균등 분할 (n/n)');
+  const [category, setCategory] = React.useState<any>(initialExpense?.category || 'food');
+  const [memo, setMemo] = React.useState(initialExpense?.memo || '');
+  const [expenseDate, setExpenseDate] = React.useState(initialExpense?.date || '');
+  const [payerId, setPayerId] = React.useState(initialExpense?.payer.id || selectedPayerId);
+
+  const [customMemberAmounts, setCustomMemberAmounts] = React.useState<Record<string, number>>(() => {
+    if (!initialExpense) return {};
+    return initialExpense.shares.reduce<Record<string, number>>((acc, s) => {
+      acc[s.user.id] = s.amount;
+      return acc;
+    }, {});
+  });
+  
+  const [isDirectInputCompleted, setIsDirectInputCompleted] = React.useState(!!initialExpense);
+  const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
 
   const dateInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleMethodChange = (newMethod: SettlementMethod) => {
+    setSettlementMethod(newMethod);
+    setIsDirectInputCompleted(false);
+    setWarningMessage(null);
+  };
 
   const settlementAmounts = useSettlementAmounts({
     amount,
     memberIds: checkedMembers,
     settlementMethod,
-    memberAmounts,
+    memberAmounts: memberAmounts || customMemberAmounts,
   });
 
   const toggleMember = (id: string) => {
@@ -109,6 +92,53 @@ export const ExpenseAddForm = ({
     const value = e.target.value;
     setPayerId(value);
     onPayerChange?.(value);
+  };
+
+  const numericTotalAmount = Number(amount.replace(/,/g, '')) || 0;
+  const totalCustomSum = Object.values(customMemberAmounts).reduce((acc, cur) => acc + cur, 0);
+
+  const handleCompleteDirectInput = () => {
+    if (totalCustomSum > numericTotalAmount) {
+      setWarningMessage('입력된 금액이 총액을 초과했습니다.');
+      return;
+    }
+    if (totalCustomSum < numericTotalAmount) {
+      setWarningMessage('입력된 금액이 총액보다 부족합니다.');
+      return;
+    }
+    setWarningMessage(null);
+    setIsDirectInputCompleted(true);
+  };
+
+  const handleSaveClick = () => {
+    if (!title || !numericTotalAmount || !payerId || !expenseDate) {
+      alert('필수 정보를 모두 입력해주세요.');
+      return;
+    }
+
+    const newExpense: Expense = {
+      id: String(Date.now()),
+      title,
+      amount: numericTotalAmount,
+      date: expenseDate,
+      payer: MOCK_USERS.find((u) => u.id === payerId) || MOCK_USERS[0],
+      splitType: settlementMethod === '직접입력' ? 'ratio' : 'equal',
+      category: category,
+      status: 'unpaid',
+      shares: checkedMembers.map((memberId) => {
+        const user = MOCK_USERS.find((u) => u.id === memberId)!;
+        return {
+          user,
+          amount: settlementMethod === '직접입력' 
+            ? (customMemberAmounts[memberId] || 0) 
+            : Math.floor(numericTotalAmount / checkedMembers.length),
+          isPaid: false,
+        };
+      }),
+      memo,
+    };
+
+    onSave?.(newExpense);
   };
 
   return (
@@ -140,6 +170,7 @@ export const ExpenseAddForm = ({
               type='text'
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              placeholder='0'
               className={`${inputClass} text-gray-800`}
             />
           </div>
@@ -155,7 +186,7 @@ export const ExpenseAddForm = ({
                 value={expenseDate}
                 onChange={(e) => setExpenseDate(e.target.value)}
                 placeholder='yyyy/mm/dd'
-                className={`${inputClass} placeholder:text-gray-800`}
+                className={`${inputClass} placeholder:text-gray-400 text-gray-800`}
               />
 
               <div
@@ -208,11 +239,21 @@ export const ExpenseAddForm = ({
             카테고리 <RequiredMark />
           </label>
           <div className='relative'>
-            <select id='expense-category' className={`${selectClass} text-gray-800`}>
+            <select 
+              id='expense-category' 
+              className={`${selectClass} text-gray-800`}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value='tax'>세금/기타 금융</option>
               <option value='food'>식비</option>
-              <option value='utility'>공과금/통신비</option>
-              <option value='supplies'>생활용품</option>
-              <option value='etc'>기타</option>
+              <option value='shopping'>쇼핑 (주로 전자상거래, 인터넷 쇼핑)</option>
+              <option value='education'>교육</option>
+              <option value='mart'>편의점/마트/잡화</option>
+              <option value='transport'>교통/자동차</option>
+              <option value='hobby'>취미/여가</option>
+              <option value='cafe'>카페/간식</option>
+              <option value='living'>생활</option>
             </select>
             <img
               src={arrowIcon}
@@ -235,10 +276,9 @@ export const ExpenseAddForm = ({
               id='settlement-method'
               className={`${selectClass} text-gray-800`}
               value={settlementMethod}
-              onChange={(e) => setSettlementMethod(e.target.value as SettlementMethod)}
+              onChange={(e) => handleMethodChange(e.target.value as SettlementMethod)}
             >
               <option value='균등 분할 (n/n)'>균등 분할 (n/n)</option>
-              <option value='비율 지정'>비율 지정</option>
               <option value='직접입력'>직접 입력</option>
             </select>
             <img
@@ -247,28 +287,52 @@ export const ExpenseAddForm = ({
               className='absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none'
             />
           </div>
-
-          {settlementMethod === '직접입력' && (
-            <input
-              type='text'
-              placeholder='직접 입력'
-              className='w-full h-[50px] px-4 rounded-[8px] border border-gray-100 outline-none text-caption placeholder:text-gray-400 bg-white text-gray-800'
-            />
-          )}
         </div>
 
         <div className='flex flex-col gap-2'>
-          <label className={labelClass}>
-            정산 대상 멤버 <RequiredMark />
-          </label>
+          <div className='flex items-center justify-between'>
+            <label className={labelClass}>
+              정산 대상 멤버 <RequiredMark />
+            </label>
+            {settlementMethod === '직접입력' && !isDirectInputCompleted && (
+              <div className='flex items-center gap-3'>
+                <span className='text-caption text-gray-600'>
+                  합계: <strong className='text-gray-800'>{formatWon(totalCustomSum)}</strong> / 총액: {formatWon(numericTotalAmount)}
+                </span>
+                <button
+                  type='button'
+                  onClick={handleCompleteDirectInput}
+                  className='px-3 py-1 bg-gray-800 text-white rounded text-caption font-bold hover:bg-gray-700'
+                >
+                  완료
+                </button>
+              </div>
+            )}
+            {settlementMethod === '직접입력' && isDirectInputCompleted && (
+              <button
+                type='button'
+                onClick={() => setIsDirectInputCompleted(false)}
+                className='px-3 py-1 border border-gray-300 text-gray-700 rounded text-caption hover:bg-gray-50'
+              >
+                수정하기
+              </button>
+            )}
+          </div>
+
+          {warningMessage && (
+            <div className='w-full px-4 py-2 text-orange-700 text-caption font-bold flex items-center justify-between'>
+              <span>{warningMessage}</span>
+              <button onClick={() => setWarningMessage(null)} className='text-orange-700 font-bold'>✕</button>
+            </div>
+          )}
+
           <div className='flex flex-col gap-3'>
             {MOCK_USERS.map((user) => (
-              <label
-                key={user.id}
-                htmlFor={`member-${user.id}`}
-                className='flex items-center justify-between text-caption text-gray-800 cursor-pointer'
-              >
-                <span className='flex items-center gap-2'>
+              <div key={user.id} className='flex items-center justify-between text-caption text-gray-800'>
+                <label
+                  htmlFor={`member-${user.id}`}
+                  className='flex items-center gap-2 cursor-pointer'
+                >
                   <input
                     id={`member-${user.id}`}
                     type='checkbox'
@@ -276,9 +340,25 @@ export const ExpenseAddForm = ({
                     onChange={() => toggleMember(user.id)}
                     className='w-4 h-4 rounded border-gray-100 accent-gray-800'
                   />
-                  {user.name} - {formatWon(settlementAmounts[user.id] ?? 0)}
-                </span>
-              </label>
+                  {user.name}
+                </label>
+
+                <div className='flex items-center gap-2'>
+                  {settlementMethod === '직접입력' && checkedMembers.includes(user.id) && !isDirectInputCompleted && (
+                    <input
+                      type='number'
+                      placeholder='금액'
+                      value={customMemberAmounts[user.id] || ''}
+                      onChange={(e) => {
+                        const val = Number(e.target.value) || 0;
+                        setCustomMemberAmounts((prev) => ({ ...prev, [user.id]: val }));
+                      }}
+                      className='w-[100px] h-[36px] px-2 rounded border border-gray-200 text-right text-caption'
+                    />
+                  )}
+                  <span>{formatWon(settlementAmounts[user.id] ?? 0)}</span>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -302,37 +382,32 @@ export const ExpenseAddForm = ({
             </span>
           </div>
         </div>
-
-        
-       
-
       </div> 
+
       <div className='flex flex-row items-center justify-between w-full pt-4 pb-8 mt-2'>
-  
         <div className='flex items-center gap-3'>
           <CustomButton 
             label="저장" 
             variant="primary" 
-            onClick={() => {}} 
+            onClick={handleSaveClick} 
             className="w-[150px]"
           />
           <CustomButton 
             label="취소" 
             variant="secondary" 
-            onClick={() => {}} 
+            onClick={onCancel} 
             className="w-[150px]"
           />
         </div>
 
-
-          <IconTextButton 
-            label="메신저에 공유"
-            variant="message"
-            iconComponent={MessengerIcon}
-            onClick={() => {}} 
-            className="w-[189px]"
-          />
-        </div>
+        <IconTextButton 
+          label="메신저에 공유"
+          variant="message"
+          iconComponent={MessengerIcon}
+          onClick={() => {}} 
+          className="w-[189px]"
+        />
+      </div>
     </div>
   );
 };

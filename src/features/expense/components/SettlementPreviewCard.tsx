@@ -2,9 +2,8 @@ import TossIcon from '@/assets/icons/expense/toss.svg?react';
 import { CustomButton, IconTextButton } from '@/features/expense';
 import type { Expense } from '@/features/expense/types/expense.types';
 
-
 interface SettlementPreviewCardProps {
-  expense: Expense;
+  expense?: Expense;
   onTossClick?: () => void;
   onSettleClick?: () => void;
 }
@@ -14,7 +13,15 @@ export const SettlementPreviewCard = ({
   onTossClick,
   onSettleClick,
 }: SettlementPreviewCardProps) => {
-  const memberCount = expense.shares.length;
+  if (!expense) {
+    return (
+      <div className='w-full bg-white p-[24px] rounded-[18px] flex items-center justify-center text-gray-500 border border-gray-100'>
+        입력된 내역의 정산 미리보기가 없습니다.
+      </div>
+    );
+  }
+
+  const memberCount = expense.shares.length || 1;
 
   return (
     <div className='w-full bg-white p-[24px] rounded-[18px] flex flex-col gap-5 border border-primary-600'>
@@ -25,7 +32,7 @@ export const SettlementPreviewCard = ({
         
         <div className='flex flex-col gap-2 text-button text-gray-900'>
           <div className='flex justify-between items-center'>
-            <span>{expense.title}</span>
+            <span>{expense.title || '항목명 미입력'}</span>
             <span className='text-gray-900'>
               {expense.amount.toLocaleString()} / {memberCount} = {Math.floor(expense.amount / memberCount).toLocaleString()}원
             </span>
@@ -38,7 +45,7 @@ export const SettlementPreviewCard = ({
       <div className='flex justify-between items-center font-bold text-button'>
         <span className='text-gray-800'>1인당 부담 금액</span>
         <span className='text-primary-700 text-lg'>
-          {(expense.shares[0]?.amount ?? 0).toLocaleString()}원
+          {(expense.shares[0]?.amount ?? Math.floor(expense.amount / memberCount)).toLocaleString()}원
         </span>
       </div>
 
