@@ -172,6 +172,7 @@ export const items: Item[] = [
     buyer: users[2],
     status: 'short',
     updatedAt: '2026.06.29',
+    memo: '매달 구매, 마트에서 대용량으로 구입',
   },
   {
     id: 'i2',

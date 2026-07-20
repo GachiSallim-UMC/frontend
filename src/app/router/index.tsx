@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
 import { RuleListPage, RuleDetailRoute, RuleFormPage } from '@/pages/rule';
+import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
 import { AppLayout } from './AppLayout';
@@ -23,9 +24,9 @@ export const router = createBrowserRouter([
       { path: '/expenses', element: <PlaceholderPage title="생활비 정산" /> },
       { path: '/expenses/new', element: <PlaceholderPage title="생활비 등록" /> },
       { path: '/expenses/:id', element: <PlaceholderPage title="정산 상세" /> },
-      { path: '/items', element: <PlaceholderPage title="공용 물품" /> },
-      { path: '/items/new', element: <PlaceholderPage title="물품 등록" /> },
-      { path: '/items/:id/edit', element: <PlaceholderPage title="물품 수정" /> },
+      { path: '/items', element: <ItemListPage /> },
+      { path: '/items/new', element: <ItemFormPage /> },
+      { path: '/items/:id/edit', element: <ItemEditRoute /> },
       { path: '/rules', element: <RuleListPage /> },
       { path: '/rules/new', element: <RuleFormPage /> },
       { path: '/rules/:id', element: <RuleDetailRoute /> },

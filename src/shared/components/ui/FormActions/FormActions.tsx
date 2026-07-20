@@ -8,6 +8,7 @@ interface FormActionsProps {
   onCancel: () => void;
   saveLabel?: string;
   cancelLabel?: string;
+  /** 우측 슬롯 — 기본은 메신저 공유 버튼, null이면 아예 렌더링하지 않음 */
   rightSlot?: ReactNode;
   className?: string;
 }
@@ -35,6 +36,6 @@ export const FormActions = ({
         {cancelLabel}
       </Button>
     </div>
-    <div className="w-[189px] min-w-0 shrink">{rightSlot}</div>
+    {rightSlot && <div className="w-[189px] min-w-0 shrink">{rightSlot}</div>}
   </div>
 );

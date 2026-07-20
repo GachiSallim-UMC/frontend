@@ -37,7 +37,7 @@ const config: Config = {
         },
         // Figma: Red
         red: {
-          100: '#F9DADA',
+          100: '#FFE7E7',
           300: '#FFC5C5',
           500: '#FF7978',
           700: '#EF4452',
