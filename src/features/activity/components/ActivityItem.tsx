@@ -2,18 +2,14 @@ import type { FC } from 'react';
 import type { ActivityLog } from '@/features/activity/types';
 import { cn } from '@/shared/lib/cn';
 
-interface ActivityItemProps extends Pick<ActivityLog, 'actorName' | 'description' | 'time'> {
-  isFirst?: boolean;
-  isLast?: boolean;
-}
+type ActivityItemProps = Pick<ActivityLog, 'actorName' | 'description' | 'time'>;
 
-export const ActivityItem: FC<ActivityItemProps> = ({ actorName, description, time, isFirst, isLast }) => {
+export const ActivityItem: FC<ActivityItemProps> = ({ actorName, description, time }) => {
   return (
     <div
       className={cn(
         'flex min-h-[69px] w-full flex-col justify-center gap-[5px] border-t border-gray-100 bg-white px-[29px]',
-        isFirst && 'border-t-0',
-        isLast && 'border-b',
+        'first:border-t-0 last:border-b',
       )}
     >
       <p className="text-caption text-gray-900">

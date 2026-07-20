@@ -14,14 +14,12 @@ export const ActivityDateGroup: FC<ActivityDateGroupProps> = ({ dateLabel, logs 
         <p className="text-caption font-bold text-primary-600">{dateLabel}</p>
       </div>
       <div className="w-full border-x border-gray-100">
-        {logs.map((log, index) => (
+        {logs.map(log => (
           <ActivityItem
             key={log.id}
             actorName={log.actorName}
             description={log.description}
             time={log.time}
-            isFirst={index === 0}
-            isLast={index === logs.length - 1}
           />
         ))}
       </div>
