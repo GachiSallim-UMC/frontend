@@ -59,7 +59,7 @@ export const SelectDropdown = <T extends string>({
             'text-button text-gray-900 transition-colors',
             'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
             error ? 'border-red-500' : 'border-gray-100',
-            !value && 'text-gray-400',
+            !value && 'text-gray-500',
             className,
           )}
           {...props}

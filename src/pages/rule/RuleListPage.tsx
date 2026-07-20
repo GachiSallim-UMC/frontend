@@ -22,14 +22,14 @@ export const RuleListPage = () => {
             onChange={setCategoryFilter}
             options={RULE_CATEGORY_OPTIONS}
             placeholder="전체 카테고리"
-            className="w-[150px] text-gray-500"
+            className="w-[150px]"
           />
           <SelectDropdown
             value={statusFilter}
             onChange={setStatusFilter}
             options={RULE_STATUS_OPTIONS}
             placeholder="전체 상태"
-            className="w-[150px] text-gray-500"
+            className="w-[150px]"
           />
         </div>
         <Link
