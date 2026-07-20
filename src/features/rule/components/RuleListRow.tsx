@@ -20,9 +20,9 @@ export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
     <div
       className={`flex h-[84px] items-center gap-5 px-[34px] ${isLast ? '' : 'border-b border-gray-100'}`}
     >
-      <div className="flex shrink-0 items-center gap-3">
-        <span className="h-[30px] w-1 rounded-full bg-primary-500" />
-        <span className="whitespace-nowrap text-body font-bold text-primary-700">
+      <div className="flex w-[140px] shrink-0 items-center gap-3">
+        <span className="h-[30px] w-1 shrink-0 rounded-full bg-primary-500" />
+        <span className="truncate text-body font-bold text-primary-700">
           {RULE_CATEGORY_LABEL[rule.category]}
         </span>
       </div>
@@ -35,7 +35,7 @@ export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
         </p>
       </Link>
 
-      <StatusBadge variant={rule.status} />
+      <StatusBadge variant={rule.status} className="w-[78px]" />
 
       <span className="flex items-center text-gray-500">
         <Link
