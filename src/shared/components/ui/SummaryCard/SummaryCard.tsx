@@ -5,21 +5,31 @@ interface SummaryCardProps {
   icon: ReactNode;
   /** 아이콘 원형 배경 색 클래스 (Figma 카드별 색, 기본 primary-50) */
   iconBg?: string;
+  iconClassName?: string;
   label: string;
   value: ReactNode;
   subText?: ReactNode;
   onClick?: () => void;
   className?: string;
+  contentClassName?: string;
+  labelClassName?: string;
+  valueClassName?: string;
+  subTextClassName?: string;
 }
 
 export const SummaryCard = ({
   icon,
   iconBg,
+  iconClassName,
   label,
   value,
   subText,
   onClick,
   className,
+  contentClassName,
+  labelClassName,
+  valueClassName,
+  subTextClassName,
 }: SummaryCardProps) => {
   return (
     <div
@@ -37,14 +47,19 @@ export const SummaryCard = ({
         className={cn(
           'flex h-20 w-20 shrink-0 items-center justify-center rounded-full text-primary-600',
           iconBg ?? 'bg-primary-50',
+          iconClassName,
         )}
       >
         {icon}
       </div>
-      <div className="min-w-0">
-        <p className="text-caption font-bold text-gray-500">{label}</p>
-        <p className="mt-0.5 text-key-number font-bold text-gray-900">{value}</p>
-        {subText && <p className="mt-6 text-caption text-gray-500">{subText}</p>}
+      <div className={cn('min-w-0', contentClassName)}>
+        <p className={cn('text-caption font-bold text-gray-500', labelClassName)}>{label}</p>
+        <p className={cn('mt-0.5 text-key-number font-bold text-gray-900', valueClassName)}>
+          {value}
+        </p>
+        {subText && (
+          <p className={cn('mt-6 text-caption text-gray-500', subTextClassName)}>{subText}</p>
+        )}
       </div>
     </div>
   );
