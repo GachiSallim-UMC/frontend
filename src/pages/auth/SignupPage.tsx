@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
-import { SignupForm } from '@/features/auth';
+import { SignupForm, useSignupForm } from '@/features/auth';
 
 export const SignupPage = () => {
+    const { formData, onFormDataChange, agreedTerms, onAgreedTermsChange } = useSignupForm();
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
             {/* 흰 색 카드 */}
@@ -16,7 +18,12 @@ export const SignupPage = () => {
                     </p>
                 </div>
 
-                <SignupForm />
+                <SignupForm 
+                    formData={formData}
+                    onFormDataChange={onFormDataChange}
+                    agreedTerms={agreedTerms}
+                    onAgreedTermsChange={onAgreedTermsChange}
+                />
 
                 { /* 로그인 페이지 이동 링크 */}
                 <div className="mt-5 flex justify-center text-base text-gray-500">

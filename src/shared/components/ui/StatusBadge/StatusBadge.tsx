@@ -9,7 +9,8 @@ type BadgeVariant =
   | 'inactive'
   | 'short'
   | 'empty'
-  | 'enough';
+  | 'enough'
+  | 'disagree';
 
 interface StatusBadgeProps {
   variant: BadgeVariant;
@@ -20,6 +21,9 @@ interface StatusBadgeProps {
 /**
  * 색상은 Figma 디자인 시스템 > Component > 상태버튼 정의를 따릅니다.
  * 완료=Green, 미완료=Blue, 예정=Purple, 미정산=Orange, 비활성=Gray
+ *
+ * 반대(disagree)는 디자인 시스템 상태버튼에 정의가 없어, 팔레트의 Red 토큰으로 추가했습니다.
+ * (규칙 동의 현황의 동의/반대/보류 3단계 표시에 사용)
  */
 const variantConfig: Record<BadgeVariant, { label: string; className: string }> = {
   done: { label: '완료', className: 'bg-green-300 text-green-700' },
@@ -31,6 +35,7 @@ const variantConfig: Record<BadgeVariant, { label: string; className: string }> 
   short: { label: '부족', className: 'bg-orange-100 text-orange-700' },
   empty: { label: '소진', className: 'bg-red-100 text-red-700' },
   enough: { label: '충분', className: 'bg-green-300 text-green-700' },
+  disagree: { label: '반대', className: 'bg-red-100 text-red-700' },
 };
 
 export const StatusBadge = ({ variant, label, className }: StatusBadgeProps) => {
