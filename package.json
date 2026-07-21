@@ -10,7 +10,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc -b --noEmit"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.7",

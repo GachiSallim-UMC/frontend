@@ -8,6 +8,8 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   required?: boolean;
   showCount?: boolean;
   maxLength?: number;
+  containerClassName?: string;
+  labelClassName?: string;
 }
 
 export const TextArea = ({
@@ -17,6 +19,8 @@ export const TextArea = ({
   required,
   showCount,
   maxLength,
+  containerClassName,
+  labelClassName,
   value,
   className,
   id,
@@ -27,9 +31,12 @@ export const TextArea = ({
   const currentLength = typeof value === 'string' ? value.length : 0;
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className={cn('flex flex-col gap-1.5', containerClassName)}>
       {label && (
-        <label htmlFor={inputId} className="text-caption font-bold text-gray-900">
+        <label
+          htmlFor={inputId}
+          className={cn('text-caption font-bold text-gray-900', labelClassName)}
+        >
           {label}
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </label>
