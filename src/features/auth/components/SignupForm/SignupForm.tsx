@@ -106,7 +106,7 @@ export const SignupForm = ({
                                 <span className="text-base text-gray-500 font-medium select-none">
                                     <Link to="/terms" state={{formData}} className="text-primary-500 hover:underline">이용약관</Link>
                                     {' '}및{' '}
-                                    <Link to="/privacy" className="text-primary-500 hover:underline">개인정보처리방침</Link>
+                                    <Link to="/privacy" state={{formData}} className="text-primary-500 hover:underline">개인정보처리방침</Link>
                                     에 동의합니다.
                                 </span>
                             ),

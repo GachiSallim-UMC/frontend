@@ -1,12 +1,12 @@
-export {LoginForm} from './components/LoginForm/LoginForm';
-export {SocialLoginForm} from './components/LoginForm/SocialLoginForm';
-export {SignupForm} from './components/SignupForm/SignupForm';
-export {TermsButtonGroup} from './components/Terms/TermsButtonGroup'
-export {TermsContent} from './components/Terms/TermsContent'
-export {TermsHeader} from './components/Terms/TermsHeader'
-export {PrivacyButtonGroup} from './components/Privacy/PrivacyButtonGroup'
-export {PrivacyContent} from './components/Privacy/PrivacyContent'
-export {PrivacyHeader} from './components/Privacy/PrivacyHeader'
+export {LoginForm} from './components/LoginForm'
+export {SocialLoginForm} from './components/LoginForm';
+export {SignupForm} from './components/SignupForm';
+export {TermsButtonGroup} from './components/Terms'
+export {TermsContent} from './components/Terms'
+export {TermsHeader} from './components/Terms'
+export {PrivacyButtonGroup} from './components/Privacy'
+export {PrivacyContent} from './components/Privacy'
+export {PrivacyHeader} from './components/Privacy'
 
 export { TERMS_DATA } from './constants/Terms'
 export {PRIVACY_DATA} from './constants/Privacy'

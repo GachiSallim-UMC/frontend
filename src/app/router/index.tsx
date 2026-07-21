@@ -5,10 +5,8 @@ import { SignupPage } from '@/pages/auth/SignupPage';
 import { AppLayout } from './AppLayout';
 import { ExpenseListPage } from '@/pages/expense';
 import { NotificationPage } from '@/pages/notification';
-import { ChorePage } from '@/pages/chore/ChorePage';
 import { TermsPage } from '@/pages/auth/TermsPage';
 import { PrivacyPage } from '@/pages/auth/PrivacyPage';
-
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -20,7 +18,6 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
-      { path: '/chores', element: <ChorePage /> },
       { path: '/chores/new', element: <PlaceholderPage title="집안일 등록" /> },
       { path: '/chores/:id/edit', element: <PlaceholderPage title="집안일 수정" /> },
       { path: '/expenses', element: <ExpenseListPage title="생활비 정산" /> },

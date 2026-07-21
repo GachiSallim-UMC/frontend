@@ -23,13 +23,14 @@ export const FilterTabGroup = <T extends string>({
       {tabs.map(tab => (
         <button
           key={tab.value}
+          type="button"
           onClick={() => onChange(tab.value)}
           className={cn(
             'flex h-[50px] items-center rounded-lg border px-[34px] text-button font-normal transition-colors',
             // Figma 디자인 시스템 필터 탭: Active=연파랑+파란테두리+파란글씨
             value === tab.value
-              ? 'border-primary-400 bg-primary-200 text-primary-700'
-              : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-100',
+              ? 'border-primary-500 bg-primary-100 text-primary-500'
+              : 'border-gray-100 bg-white text-gray-500 hover:bg-gray-100',
           )}
         >
           {tab.label}
