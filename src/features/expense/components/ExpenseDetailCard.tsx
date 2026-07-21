@@ -1,6 +1,6 @@
 import { CustomButton } from '@/features/expense';
 import { StatusBadge } from '@/shared/components/ui/StatusBadge';
-import type { Expense } from '@/features/expense/types/expense.types';
+import type { Expense } from '@/features/expense';
 
 interface ExpenseDetailCardProps {
   expense?: Expense;

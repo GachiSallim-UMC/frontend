@@ -1,4 +1,4 @@
-import type { Expense } from '@/features/expense/types/expense.types';
+import type { Expense } from '@/features/expense';
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
 import { useNavigate } from 'react-router-dom';

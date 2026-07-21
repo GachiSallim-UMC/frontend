@@ -10,9 +10,15 @@ export type {
   SplitType,
 } from './types/expense.types';
 
+//hooks
+export { useExpenseForm } from './hooks/useExpenseForm';
+export { useExpenseSummary } from './hooks/useExpenseSummary';
+export { useSettlementAmounts } from './hooks/useSettlementAmounts';
 
+//component
 export { default as AddExpense } from './components/AddExpense';
 export { default as ExpenseTable } from './components/ExpenseTable';
+export { default as ExpenseRow} from './components/ExpenseRow';
 export { default as ExpenseSummaryCard } from './components/ExpenseSummaryCard';
 export { default as TabButton } from './components/TabButton';
 export { default as CustomButton } from './components/CustomButton';

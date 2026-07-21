@@ -1,6 +1,6 @@
 import TossIcon from '@/assets/icons/expense/toss.svg?react';
 import { CustomButton, IconTextButton } from '@/features/expense';
-import type { Expense } from '@/features/expense/types/expense.types';
+import type { Expense } from '@/features/expense';
 
 interface SettlementPreviewCardProps {
   expense?: Expense;
@@ -22,7 +22,7 @@ export const SettlementPreviewCard = ({
   }
 
   const memberCount = expense.shares.length || 1;
-  const isDirectSplit = expense.splitType === 'ratio'; // 'ratio'가 직접 입력(비율/개별입력)에 해당
+  const isDirectSplit = expense.splitType === 'ratio'; // 'ratio'가 직접 입력에 해당
 
 
   const equalPerPerson = Math.floor(expense.amount / memberCount);

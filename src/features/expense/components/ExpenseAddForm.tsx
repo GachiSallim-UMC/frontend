@@ -4,10 +4,9 @@ import calendarIcon from '@/assets/icons/expense/calendar.svg';
 import { mockExpenses } from '@/features/expense/mocks/expense.mock';
 import { CustomButton, IconTextButton } from '@/features/expense'; 
 import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react'; 
-import { useSettlementAmounts } from '@/features/expense/hooks/useSettlementAmounts';
-import { useExpenseForm } from '@/features/expense/hooks/useExpenseForm';
+import { useSettlementAmounts, useExpenseForm  } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense/hooks/useSettlementAmounts';
-import type { Expense, ExpenseCategory } from '@/features/expense/types/expense.types';
+import type { Expense, ExpenseCategory } from '@/features/expense';
 
 const inputClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button placeholder:text-gray-400 bg-white focus:bg-white focus:border-gray-300';
 const selectClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button bg-white appearance-none cursor-pointer';

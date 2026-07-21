@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ExpenseTable, TabButton, AddExpense, ExpenseSummaryCard } from '@/features/expense'; 
 import type { ExpenseFilter } from '@/features/expense/components/TabButton';
-import type { Expense } from '@/features/expense/types/expense.types';
+import type { Expense } from '@/features/expense';
 import { mockExpenses } from '@/features/expense/mocks/expense.mock';
 import { useExpenseSummary } from '@/features/expense/hooks/useExpenseSummary';
 import totalExpenseIcon from '@/assets/icons/expense/totalexpense.svg';

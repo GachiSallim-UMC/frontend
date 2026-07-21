@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ExpenseAddForm, ExpenseDetailCard, Receipt, SettlementPreviewCard } from '@/features/expense';
 import { mockExpenses } from '@/features/expense/mocks/expense.mock';
-import type { Expense } from '@/features/expense/types/expense.types';
+import type { Expense } from '@/features/expense';
 
 interface ExpenseDetailPageProps {
   title?: string;
