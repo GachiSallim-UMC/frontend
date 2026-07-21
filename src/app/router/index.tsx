@@ -7,6 +7,10 @@ import { ExpenseListPage, ExpenseAddPage } from '@/pages/expense';
 import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { RuleListPage, RuleFormPage, RuleDetailRoute } from '@/pages/rule';
 import { NotificationPage } from '@/pages/notification';
+import { ChoreListPage } from '@/pages/chore/ChoreListPage';
+import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
+import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
+import { MyPage } from '@/pages/mypage/MyPage';
 import { SendingEmailPage } from '@/pages/auth/SendingEmailPage'
 import { EmailSentPage } from '@/pages/auth/EmailSentPage'
 import { GroupSelectPage } from '@/pages/member/GroupSelectPage';
@@ -15,9 +19,6 @@ import { JoinGroupPage } from '@/pages/member/JoinGroupPage';
 
 import { TermsPage } from '@/pages/auth/TermsPage';
 import { PrivacyPage } from '@/pages/auth/PrivacyPage';
-import { ChoreListPage } from '@/pages/chore/ChoreListPage';
-import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
-import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
 import { MemberSettingPage } from '@/pages/member/MemberSettingPage';
 import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
@@ -52,6 +53,8 @@ export const router = createBrowserRouter([
       { path: '/rules/:id', element: <RuleDetailRoute /> },
       { path: '/messenger', element: <MessengerPage /> },
       { path: '/notifications', element: <NotificationPage /> },
+      { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },
+      { path: '/mypage', element: <MyPage /> },
       { path: '/activity', element: <ActivityPage /> },
       { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
       { path: '/group/settings', element: <MemberSettingPage /> },

@@ -9,3 +9,4 @@ export * from './StatusBadge';
 export * from './SummaryCard';
 export * from './TimelineItem';
 export * from './UserAvatar';
+export * from './Switch'
