@@ -1,7 +1,13 @@
 import type { RuleStatus, User } from '@/shared/types';
 
 /** 생활 규칙 카테고리 */
-export type RuleCategory = 'noise' | 'visitor' | 'cleanliness' | 'trash' | 'etc';
+export type RuleCategory =
+  | 'noise'
+  | 'cleaning'
+  | 'kitchen'
+  | 'bathroom'
+  | 'visitor'
+  | 'safety';
 
 /** 동의 현황 */
 export interface RuleAgreement {

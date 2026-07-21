@@ -14,8 +14,8 @@ export const ShareMessengerButton = ({
   return (
     <button
       className={cn(
-        'inline-flex h-[50px] items-center justify-center gap-[9px] rounded-lg border border-dashed border-primary-500',
-        'px-4 text-button text-primary-600 transition-colors',
+        'inline-flex h-[50px] min-w-0 items-center justify-center gap-[9px] overflow-hidden rounded-lg border border-dashed border-primary-500 bg-white',
+        'w-full px-4 text-button text-primary-600 transition-colors',
         'hover:bg-primary-50',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
         'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -23,8 +23,8 @@ export const ShareMessengerButton = ({
       )}
       {...props}
     >
-      <MessengerIcon className="h-4 w-4" />
-      {label}
+      <MessengerIcon className="size-6 shrink-0" />
+      <span className="min-w-0 truncate">{label}</span>
     </button>
   );
 };
