@@ -32,6 +32,7 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
+      { path: '/chores', element: <ChoreListPage /> },
       { path: '/chores/new', element: <ChoreCreatePage /> },
       { path: '/chores/:id/edit', element: <ChoreEditPage /> },  
       { path: '/expenses', element: <ExpenseListPage title="생활비 정산" /> },
