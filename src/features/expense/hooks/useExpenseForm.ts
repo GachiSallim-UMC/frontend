@@ -1,7 +1,8 @@
 import React from 'react';
-import type { Expense } from '@/features/expense/types/expense.types';
+import type { Expense, ExpenseCategory } from '@/features/expense/types/expense.types';
 import type { SettlementMethod } from '@/features/expense/hooks/useSettlementAmounts';
-import { User } from '@/shared/types';
+import type { User } from '@/shared/types';
+
 
 interface UseExpenseFormProps {
   initialExpense?: Expense;
@@ -22,7 +23,7 @@ export function useExpenseForm({
     initialExpense ? initialExpense.shares.map((s) => s.user.id) : mockUsers.map((u) => u.id)
   );
   const [settlementMethod, setSettlementMethod] = React.useState<SettlementMethod>('균등 분할 (n/n)');
-  const [category, setCategory] = React.useState<string>(initialExpense?.category || 'food');
+  const [category, setCategory] = React.useState<ExpenseCategory>(initialExpense?.category || 'food');
   const [memo, setMemo] = React.useState(initialExpense?.memo || '');
   const [expenseDate, setExpenseDate] = React.useState(initialExpense?.date || '');
   const [payerId, setPayerId] = React.useState(initialExpense?.payer.id || selectedPayerId);
@@ -85,7 +86,7 @@ export function useExpenseForm({
       date: expenseDate,
       payer: (mockUsers.find((u) => u.id === payerId) || mockUsers[0]) as User,
       splitType: settlementMethod === '직접입력' ? 'ratio' : 'equal',
-      category: category as any,
+      category,
       status: 'unpaid',
       shares: checkedMembers.map((memberId) => {
         const user = mockUsers.find((u) => u.id === memberId)!;

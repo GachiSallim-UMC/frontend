@@ -7,7 +7,7 @@ import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react';
 import { useSettlementAmounts } from '@/features/expense/hooks/useSettlementAmounts';
 import { useExpenseForm } from '@/features/expense/hooks/useExpenseForm';
 import type { SettlementMethod } from '@/features/expense/hooks/useSettlementAmounts';
-import type { Expense } from '@/features/expense/types/expense.types';
+import type { Expense, ExpenseCategory } from '@/features/expense/types/expense.types';
 
 const inputClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button placeholder:text-gray-400 bg-white focus:bg-white focus:border-gray-300';
 const selectClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button bg-white appearance-none cursor-pointer';
@@ -194,7 +194,7 @@ export const ExpenseAddForm = ({
               id='expense-category' 
               className={`${selectClass} text-gray-800`}
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
             >
               <option value='tax'>세금/기타 금융</option>
               <option value='food'>식비</option>
