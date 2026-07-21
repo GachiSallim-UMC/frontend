@@ -328,37 +328,47 @@ export const ExpenseAddForm = ({
             </div>
           )}
 
-          <div className='flex flex-col gap-3'>
+          <div className='flex flex-col gap-1.5'>
             {MOCK_USERS.map((user) => (
-              <div key={user.id} className='flex items-center justify-between text-caption text-gray-800'>
-                <label
-                  htmlFor={`member-${user.id}`}
-                  className='flex items-center gap-2 cursor-pointer'
-                >
-                  <input
-                    id={`member-${user.id}`}
-                    type='checkbox'
-                    checked={checkedMembers.includes(user.id)}
-                    onChange={() => toggleMember(user.id)}
-                    className='w-4 h-4 rounded border-gray-100 accent-gray-800'
-                  />
-                  {user.name}
-                </label>
-
-                <div className='flex items-center gap-2'>
-                  {settlementMethod === '직접입력' && checkedMembers.includes(user.id) && !isDirectInputCompleted && (
+              <div key={user.id} className='flex items-center justify-between text-button text-gray-800 h-[28px]'>
+                <div className='flex items-center gap-2 w-full'>
+                  <label
+                    htmlFor={`member-${user.id}`}
+                    className='flex items-center gap-2 cursor-pointer font-normal text-button text-gray-800'
+                  >
                     <input
-                      type='number'
-                      placeholder='금액'
-                      value={customMemberAmounts[user.id] || ''}
-                      onChange={(e) => {
+                      id={`member-${user.id}`}
+                      type='checkbox'
+                      checked={checkedMembers.includes(user.id)}
+                      onChange={() => toggleMember(user.id)}
+                      className='w-4 h-4 rounded border-gray-100 accent-gray-800'
+                    />
+                    <span>{user.name}</span>
+                  </label>
+
+                  {settlementMethod === '균등 분할 (n/n)' && (
+                    <span className='text-gray-800 font-normal text-button'>- {formatWon(settlementAmounts[user.id] ?? 0)}</span>
+                  )}
+
+                  {settlementMethod === '직접입력' && checkedMembers.includes(user.id) && !isDirectInputCompleted && (
+                    <div className='flex items-center gap-2 ml-2'>
+                      <span className='text-gray-800 font-normal text-button'>-</span>
+                      <input
+                        type='number'
+                        placeholder='금액'
+                        value={customMemberAmounts[user.id] || ''}
+                        onChange={(e) => {
                         const val = Number(e.target.value) || 0;
                         setCustomMemberAmounts((prev) => ({ ...prev, [user.id]: val }));
-                      }}
-                      className='w-[100px] h-[36px] px-2 rounded border border-gray-200 text-right text-caption'
-                    />
+                        }}
+                        className='w-[80px] h-[26px] px-2 rounded border border-gray-200 text-right text-caption text-gray-800 font-normal bg-white outline-none focus:border-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                      />
+                    </div>
                   )}
-                  <span>{formatWon(settlementAmounts[user.id] ?? 0)}</span>
+
+                  {settlementMethod === '직접입력' && (isDirectInputCompleted || !checkedMembers.includes(user.id)) && (
+                    <span className='text-gray-800 font-normal text-button'>- {formatWon(settlementAmounts[user.id] ?? 0)}</span>
+                  )}
                 </div>
               </div>
             ))}
