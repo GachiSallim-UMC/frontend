@@ -16,6 +16,7 @@ import { PrivacyPage } from '@/pages/auth/PrivacyPage';
 import { ChoreListPage } from '@/pages/chore/ChoreListPage';
 import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
 import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
+import { MemberSettingPage } from '@/pages/member/MemberSettingPage';
 import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
 
@@ -48,8 +49,7 @@ export const router = createBrowserRouter([
       { path: '/notifications', element: <NotificationPage /> },
       { path: '/activity', element: <ActivityPage /> },
       { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
-      { path: '/group/settings', element: <PlaceholderPage title="그룹 설정" /> },
-      { path: '/group/change', element: <PlaceholderPage title="그룹 변경" /> },
+      { path: '/group/settings', element: <MemberSettingPage /> },
     ],
   },
 ]);
