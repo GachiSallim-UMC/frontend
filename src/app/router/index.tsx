@@ -1,12 +1,14 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
-import { RuleListPage, RuleDetailRoute, RuleFormPage } from '@/pages/rule';
-import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
 import { AppLayout } from './AppLayout';
 import { ExpenseListPage, ExpenseAddPage } from '@/pages/expense';
+import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
+import { RuleListPage, RuleFormPage, RuleDetailRoute } from '@/pages/rule';
 import { NotificationPage } from '@/pages/notification';
+import { TermsPage } from '@/pages/auth/TermsPage';
+import { PrivacyPage } from '@/pages/auth/PrivacyPage';
 import { ChoreListPage } from '@/pages/chore/ChoreListPage';
 import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
 import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
@@ -17,6 +19,8 @@ export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
+  { path: '/terms', element:<TermsPage />},
+  { path: '/privacy', element:<PrivacyPage />},
   {
     element: <AppLayout />,
     children: [
