@@ -1,3 +1,4 @@
+import type { ActivityLog } from '@/features/activity';
 import type { Chore } from '@/features/chore';
 import type { Expense } from '@/features/expense';
 import type { Item } from '@/features/item';
@@ -323,62 +324,105 @@ export const notifications = [
   },
 ];
 
-// ==================== 활동 내역 (Figma 17 · 활동 내역) ====================
+// ==================== 최근 활동 (대시보드 요약 위젯 · TimelineItem/RecentActivityPanel용) ====================
+// 활동 내역 전체 페이지(Figma 17)는 아래 activityLogs를 사용합니다. 이건 대시보드 미니 위젯 전용 축약 데이터입니다.
 
 export const activities = [
+  { id: 'a1', actorName: '김영희', description: "집안일 '설거지'를 완료 처리했습니다.", timestamp: '오늘 10:30' },
+  { id: 'a2', actorName: '홍길동', description: "생활비 '인터넷 요금 30,000원'을 등록했습니다.", timestamp: '오늘 09:15' },
+  { id: 'a3', actorName: '이철수', description: "'세제' 상태를 '부족'으로 변경했습니다.", timestamp: '어제 22:10' },
+  { id: 'a4', actorName: '홍길동', description: "생활 규칙 '밤 11시 이후 조용히 하기'를 메신저에 공유했습니다.", timestamp: '어제 19:40' },
+  { id: 'a5', actorName: '이철수', description: "집안일 '분리수거'를 완료 처리했습니다.", timestamp: '어제 11:05' },
+  { id: 'a6', actorName: '홍길동', description: "공용 물품 '두루마리 화장지'를 '소진' 상태로 변경했습니다.", timestamp: '2일 전 15:20' },
+  { id: 'a7', actorName: '김영희', description: "생활비 '마트 장보기 32,000원'을 등록했습니다.", timestamp: '2일 전 14:00' },
+  { id: 'a8', actorName: '이철수', description: "생활 규칙 '주방 사용 후 즉시 정리'에 동의했습니다.", timestamp: '2일 전 13:30' },
+  { id: 'a9', actorName: '김영희', description: "그룹 '우리집 룸메이트'에 참여했습니다.", timestamp: '3일 전 15:20' },
+];
+
+// ==================== 활동 내역 (Figma 17 · 최근 활동 내역) ====================
+// 데모 기준 '오늘' = 2026.06.25
+
+export const activityLogs: ActivityLog[] = [
   {
     id: 'a1',
     actorName: '김영희',
-    description: "집안일 '설거지'를 완료 처리했습니다.",
-    timestamp: '오늘 10:30',
+    description: "생활비 '마트 장보기 32,000원'을 등록했습니다.",
+    category: 'expense',
+    date: '2026-06-25',
+    dateLabel: '2026.06.25 (오늘)',
+    time: '오전 10:30',
   },
   {
     id: 'a2',
-    actorName: '홍길동',
-    description: "생활비 '인터넷 요금 30,000원'을 등록했습니다.",
-    timestamp: '오늘 09:15',
+    actorName: '김영희',
+    description: "집안일 '설거지'를 완료 처리했습니다.",
+    category: 'chore',
+    date: '2026-06-25',
+    dateLabel: '2026.06.25 (오늘)',
+    time: '오전 9:15',
   },
   {
     id: 'a3',
     actorName: '이철수',
-    description: "'세제' 상태를 '부족'으로 변경했습니다.",
-    timestamp: '어제 22:10',
+    description: "공용 물품 '세제' 상태를 '부족'으로 변경했습니다.",
+    category: 'item',
+    date: '2026-06-25',
+    dateLabel: '2026.06.25 (오늘)',
+    time: '오전 08:50',
   },
   {
     id: 'a4',
     actorName: '홍길동',
     description: "생활 규칙 '밤 11시 이후 조용히 하기'를 메신저에 공유했습니다.",
-    timestamp: '어제 19:40',
+    category: 'rule',
+    date: '2026-06-24',
+    dateLabel: '2026.06.24 (어제)',
+    time: '오후 22:10',
   },
   {
     id: 'a5',
     actorName: '이철수',
     description: "집안일 '분리수거'를 완료 처리했습니다.",
-    timestamp: '어제 11:05',
+    category: 'chore',
+    date: '2026-06-24',
+    dateLabel: '2026.06.24 (어제)',
+    time: '오후 19:40',
   },
   {
     id: 'a6',
     actorName: '홍길동',
     description: "공용 물품 '두루마리 화장지'를 '소진' 상태로 변경했습니다.",
-    timestamp: '2일 전 15:20',
+    category: 'item',
+    date: '2026-06-24',
+    dateLabel: '2026.06.24 (어제)',
+    time: '오후 15:20',
   },
   {
     id: 'a7',
-    actorName: '김영희',
-    description: "생활비 '마트 장보기 32,000원'을 등록했습니다.",
-    timestamp: '2일 전 14:00',
+    actorName: '홍길동',
+    description: "생활비 '인터넷 요금 30,000원'을 등록했습니다",
+    category: 'expense',
+    date: '2026-06-24',
+    dateLabel: '2026.06.24 (어제)',
+    time: '오전 11:05',
   },
   {
     id: 'a8',
-    actorName: '이철수',
-    description: "생활 규칙 '주방 사용 후 즉시 정리'에 동의했습니다.",
-    timestamp: '2일 전 13:30',
+    actorName: '김영희',
+    description: '그룹에 참여했습니다',
+    category: 'group',
+    date: '2026-06-23',
+    dateLabel: '2026.06.23',
+    time: '오후 14:00',
   },
   {
     id: 'a9',
-    actorName: '김영희',
-    description: "그룹 '우리집 룸메이트'에 참여했습니다.",
-    timestamp: '3일 전 15:20',
+    actorName: '이철수',
+    description: "생활 규칙 '주방 사용 후 즉시 정리'에 동의했습니다",
+    category: 'rule',
+    date: '2026-06-23',
+    dateLabel: '2026.06.23',
+    time: '오후 13:10',
   },
 ];
 

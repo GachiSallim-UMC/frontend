@@ -9,6 +9,7 @@ import { NotificationPage } from '@/pages/notification';
 import { ChoreListPage } from '@/pages/chore/ChoreListPage';
 import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
 import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
+import { ActivityPage } from '@/pages/activity';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -32,7 +33,7 @@ export const router = createBrowserRouter([
       { path: '/rules/:id', element: <RuleDetailRoute /> },
       { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
       { path: '/notifications', element: <NotificationPage /> },
-      { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },
+      { path: '/activity', element: <ActivityPage /> },
       { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
       { path: '/group/settings', element: <PlaceholderPage title="그룹 설정" /> },
       { path: '/group/change', element: <PlaceholderPage title="그룹 변경" /> },
