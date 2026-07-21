@@ -17,9 +17,6 @@ import { JoinGroupPage } from '@/pages/member/JoinGroupPage';
 
 import { TermsPage } from '@/pages/auth/TermsPage';
 import { PrivacyPage } from '@/pages/auth/PrivacyPage';
-import { ChoreListPage } from '@/pages/chore/ChoreListPage';
-import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
-import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
 import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
 
