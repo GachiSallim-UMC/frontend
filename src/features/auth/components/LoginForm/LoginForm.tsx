@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { FormInput } from '@/shared/components/form/FormInput/FormInput';
-import { Button } from '@/shared/components/ui/Button/Button';
+import { FormInput } from '@/shared/components/form';
+import { Button } from '@/shared/components/ui';
 import EyeOnIcon from '@/assets/icons/login/eye-on.svg?react';
 import EyeOffIcon from '@/assets/icons/login/eye-off.svg?react';
 
@@ -29,7 +29,6 @@ export const LoginForm = ({onSubmit}: LoginFormProps) => {
                     <FormInput
                         type="email"
                         placeholder="이메일 주소를 입력해주세요"
-                        className="text-base text-gray-500"
                     />
                 </div>
                 <div>
@@ -37,7 +36,6 @@ export const LoginForm = ({onSubmit}: LoginFormProps) => {
                     <FormInput
                         type={showPassword ? "text" : "password"}
                         placeholder="비밀번호를 입력해주세요"
-                        className="text-base text-gray-500"
 
                         rightAddon={
                             <button 

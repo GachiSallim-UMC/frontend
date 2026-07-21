@@ -7,11 +7,11 @@ import {
 } from '@/features/chore/index';
 import { chores as mockChores } from '@/pages/_shared/mockData';
 
-export const ChorePage = () => {
+export const ChoreListPage = () => {
   const [filter, setFilter] = useState<ChoreFilter>({});
 
   return (
-    <div className="mt-[92px] flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
+    <div className="mt-[28px] flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
       <ChoreFilterBar filter={filter} onFilterChange={setFilter} />
       <div className="w-full">
         <ChoreCalendarView />

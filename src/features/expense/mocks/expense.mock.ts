@@ -51,7 +51,7 @@ export const mockExpenses: Expense[] = [
     payer: hong,
     date: '07/25',
     splitType: 'equal',
-    category: 'utility',
+    category: 'finance',
     status: 'unpaid',
     shares: [
       { user: hong, amount: 10000, isPaid: true },
@@ -66,7 +66,7 @@ export const mockExpenses: Expense[] = [
     payer: lee,
     date: '07/20',
     splitType: 'equal',
-    category: 'utility',
+    category: 'finance',
     status: 'paid',
     shares: [
       { user: hong, amount: 18000, isPaid: true },
@@ -81,7 +81,7 @@ export const mockExpenses: Expense[] = [
     payer: kim,
     date: '07/15',
     splitType: 'ratio',
-    category: 'supplies',
+    category: 'living',
     status: 'paid',
     shares: [
       { user: hong, amount: 7000, isPaid: true },
