@@ -1,5 +1,5 @@
-import ExpenseRow from './ExpenseRow';
-import type { Expense } from '@/features/expense/types/expense.types';
+import { ExpenseRow } from '@/features/expense'; 
+import type { Expense } from '@/features/expense';
 
 interface ExpenseTableProps {
   expenses: Expense[];

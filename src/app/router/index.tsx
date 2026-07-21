@@ -1,15 +1,26 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
-import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
 import { AppLayout } from './AppLayout';
+import { ExpenseListPage, ExpenseAddPage } from '@/pages/expense';
+import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
+import { RuleListPage, RuleFormPage, RuleDetailRoute } from '@/pages/rule';
 import { NotificationPage } from '@/pages/notification';
 import { SendingEmailPage } from '@/pages/auth/SendingEmailPage'
 import { EmailSentPage } from '@/pages/auth/EmailSentPage'
+import { GroupSelectPage } from '@/pages/member/GroupSelectPage';
+import { AddGroupPage } from '@/pages/member/AddGroupPage';
+import { JoinGroupPage } from '@/pages/member/JoinGroupPage';
+
+import { TermsPage } from '@/pages/auth/TermsPage';
+import { PrivacyPage } from '@/pages/auth/PrivacyPage';
 import { ChoreListPage } from '@/pages/chore/ChoreListPage';
 import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
 import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
+import { MemberSettingPage } from '@/pages/member/MemberSettingPage';
+import { MessengerPage } from '@/pages/messenger';
+import { ActivityPage } from '@/pages/activity';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -18,28 +29,32 @@ export const router = createBrowserRouter([
   { path: '/find-password/sent', element:<EmailSentPage />},
 
   { path: '/signup', element: <SignupPage /> },
+  { path: '/group', element: <GroupSelectPage />},
+  { path: '/group/add', element: <AddGroupPage />},
+  { path: '/group/join', element: <JoinGroupPage />},
+  { path: '/terms', element:<TermsPage />},
+  { path: '/privacy', element:<PrivacyPage />},
   {
     element: <AppLayout />,
     children: [
       { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
       { path: '/chores', element: <ChoreListPage /> },
       { path: '/chores/new', element: <ChoreCreatePage /> },
-      { path: '/chores/:id/edit', element: <ChoreEditPage /> },
-      { path: '/expenses', element: <PlaceholderPage title="생활비 정산" /> },
-      { path: '/expenses/new', element: <PlaceholderPage title="생활비 등록" /> },
-      { path: '/expenses/:id', element: <PlaceholderPage title="정산 상세" /> },
+      { path: '/chores/:id/edit', element: <ChoreEditPage /> },  
+      { path: '/expenses', element: <ExpenseListPage title="생활비 정산" /> },
+      { path: '/expenses/new', element: <ExpenseAddPage title="생활비 등록" /> },
+      { path: '/expenses/:id', element: <ExpenseAddPage title="정산 상세" /> },
       { path: '/items', element: <ItemListPage /> },
       { path: '/items/new', element: <ItemFormPage /> },
       { path: '/items/:id/edit', element: <ItemEditRoute /> },
-      { path: '/rules', element: <PlaceholderPage title="생활 규칙" /> },
-      { path: '/rules/new', element: <PlaceholderPage title="규칙 등록" /> },
-      { path: '/rules/:id', element: <PlaceholderPage title="규칙 상세" /> },
-      { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
+      { path: '/rules', element: <RuleListPage /> },
+      { path: '/rules/new', element: <RuleFormPage /> },
+      { path: '/rules/:id', element: <RuleDetailRoute /> },
+      { path: '/messenger', element: <MessengerPage /> },
       { path: '/notifications', element: <NotificationPage /> },
-      { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },
+      { path: '/activity', element: <ActivityPage /> },
       { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
-      { path: '/group/settings', element: <PlaceholderPage title="그룹 설정" /> },
-      { path: '/group/change', element: <PlaceholderPage title="그룹 변경" /> },
+      { path: '/group/settings', element: <MemberSettingPage /> },
     ],
   },
 ]);
