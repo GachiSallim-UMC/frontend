@@ -1,0 +1,36 @@
+import type { FormEvent } from 'react';
+import { Button } from '@/shared/components/ui/Button';
+import { ShareTypeBar } from '@/features/messenger/components/ShareTypeBar';
+import type { ShareCardType } from '@/features/messenger/types';
+
+interface ChatInputBarProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSend: () => void;
+  onSelectShareType?: (type: ShareCardType) => void;
+}
+
+export const ChatInputBar = ({ value, onChange, onSend, onSelectShareType }: ChatInputBarProps) => {
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    onSend();
+  };
+
+  return (
+    <div className="flex shrink-0 flex-col gap-[14px] border-t border-gray-100 bg-white px-[30px] pb-[30px] pt-[30px]">
+      <ShareTypeBar onSelect={type => onSelectShareType?.(type)} />
+      <form onSubmit={handleSubmit} className="flex items-center gap-3">
+        <input
+          type="text"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder="메시지를 입력하세요... (WebSocket 실시간 전송)"
+          className="h-[42px] flex-1 rounded-lg border border-gray-100 bg-white px-4 text-caption text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        />
+        <Button type="submit" variant="primary" size="md" className="h-[42px] w-[116px] font-bold">
+          전송
+        </Button>
+      </form>
+    </div>
+  );
+};

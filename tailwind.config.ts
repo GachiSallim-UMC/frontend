@@ -28,6 +28,13 @@ const config: Config = {
           500: '#94E89E',
           700: '#21906D',
         },
+        // Figma: Green (메신저 SCREEN 15 · 물품 공유 카드 — 위 green과 톤이 달라 별도 토큰으로 추가)
+        mint: {
+          100: '#EDFBEF',
+          300: '#CDEFD1',
+          500: '#A6E5AE',
+          700: '#21906D',
+        },
         // Figma: Orange (미정산/부족 등 경고 계열 — 실제 톤은 옐로우에 가까움)
         orange: {
           100: '#FFF8D7',
