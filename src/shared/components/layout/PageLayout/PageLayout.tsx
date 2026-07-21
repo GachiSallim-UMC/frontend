@@ -23,16 +23,14 @@ export const PageLayout = ({
   return (
     <div className="flex h-screen w-full overflow-hidden bg-primary-50">
       <Sidebar />
-      <div className="flex flex-1 flex-col h-screen overflow-hidden">
+      <div className="flex h-screen flex-1 flex-col overflow-hidden">
         <Header
           groupName={groupName}
           memberCount={memberCount}
           user={user}
           unreadMessageCount={unreadMessageCount}
         />
-        <main className={cn('flex flex-1 flex-col overflow-y-auto px-6 pb-6', className)}>
-          {children}
-        </main>
+        <main className={cn('flex flex-1 flex-col overflow-y-auto px-6 pb-6', className)}>{children}</main>
       </div>
     </div>
   );
