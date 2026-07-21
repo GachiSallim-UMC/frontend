@@ -7,7 +7,6 @@ import { ExpenseListPage, ExpenseAddPage } from '@/pages/expense';
 import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { RuleListPage, RuleFormPage, RuleDetailRoute } from '@/pages/rule';
 import { NotificationPage } from '@/pages/notification';
-import { ChorePage } from '@/pages/chore/ChorePage';
 import { GroupSelectPage } from '@/pages/member/GroupSelectPage';
 import { AddGroupPage } from '@/pages/member/AddGroupPage';
 import { JoinGroupPage } from '@/pages/member/JoinGroupPage';
@@ -33,7 +32,6 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
-      { path: '/chores', element: <ChoreListPage /> },
       { path: '/chores/new', element: <ChoreCreatePage /> },
       { path: '/chores/:id/edit', element: <ChoreEditPage /> },  
       { path: '/expenses', element: <ExpenseListPage title="생활비 정산" /> },
