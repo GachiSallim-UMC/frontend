@@ -1,8 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {LoginForm, SocialLoginForm} from "@/features/auth";
 import Logo from "@/assets/logo.svg?react";
 
 export const LoginPage =() => {
+    const navigate = useNavigate();
+
+    const handleSubmit = () => {
+        navigate('/dashboard');
+    }
+
     return (
         // 배경
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
@@ -17,7 +23,7 @@ export const LoginPage =() => {
                     <p className="text-sm text-gray-600 font-medium">같이 사는 사람들의 생활 운영 서비스</p>
                 </div>
 
-                <LoginForm />
+                <LoginForm onSubmit={handleSubmit} />
                 <SocialLoginForm />
 
                 <div className="mt-8 flex gap-6 text-base font-bold text-primary-500 justify-center">

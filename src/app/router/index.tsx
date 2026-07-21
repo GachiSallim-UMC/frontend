@@ -7,6 +7,8 @@ import { ExpenseListPage, ExpenseAddPage } from '@/pages/expense';
 import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { RuleListPage, RuleFormPage, RuleDetailRoute } from '@/pages/rule';
 import { NotificationPage } from '@/pages/notification';
+import { SendingEmailPage } from '@/pages/auth/SendingEmailPage'
+import { EmailSentPage } from '@/pages/auth/EmailSentPage'
 import { GroupSelectPage } from '@/pages/member/GroupSelectPage';
 import { AddGroupPage } from '@/pages/member/AddGroupPage';
 import { JoinGroupPage } from '@/pages/member/JoinGroupPage';
@@ -23,6 +25,9 @@ import { ActivityPage } from '@/pages/activity';
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/find-password', element:<SendingEmailPage />},
+  { path: '/find-password/sent', element:<EmailSentPage />},
+
   { path: '/signup', element: <SignupPage /> },
   { path: '/group', element: <GroupSelectPage />},
   { path: '/group/add', element: <AddGroupPage />},
