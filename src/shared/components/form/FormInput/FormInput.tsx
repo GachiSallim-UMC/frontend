@@ -8,6 +8,8 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   required?: boolean;
   leftAddon?: ReactNode;
   rightAddon?: ReactNode;
+  containerClassName?: string;
+  labelClassName?: string;
 }
 
 export const FormInput = ({
@@ -17,6 +19,8 @@ export const FormInput = ({
   required,
   leftAddon,
   rightAddon,
+  containerClassName,
+  labelClassName,
   className,
   id,
   ...props
@@ -24,9 +28,12 @@ export const FormInput = ({
   const inputId = id ?? label?.replace(/\s/g, '-').toLowerCase();
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className={cn('flex flex-col gap-1.5', containerClassName)}>
       {label && (
-        <label htmlFor={inputId} className="text-caption font-bold text-gray-900">
+        <label
+          htmlFor={inputId}
+          className={cn('text-caption font-bold text-gray-900', labelClassName)}
+        >
           {label}
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </label>
