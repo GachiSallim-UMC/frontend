@@ -11,18 +11,24 @@ import { ChoreListPage } from '@/pages/chore/ChoreListPage';
 import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
 import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
 import { MyPage } from '@/pages/mypage/MyPage';
+import { SendingEmailPage } from '@/pages/auth/SendingEmailPage'
+import { EmailSentPage } from '@/pages/auth/EmailSentPage'
 import { GroupSelectPage } from '@/pages/member/GroupSelectPage';
 import { AddGroupPage } from '@/pages/member/AddGroupPage';
 import { JoinGroupPage } from '@/pages/member/JoinGroupPage';
 
 import { TermsPage } from '@/pages/auth/TermsPage';
 import { PrivacyPage } from '@/pages/auth/PrivacyPage';
+import { MemberSettingPage } from '@/pages/member/MemberSettingPage';
 import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/find-password', element:<SendingEmailPage />},
+  { path: '/find-password/sent', element:<EmailSentPage />},
+
   { path: '/signup', element: <SignupPage /> },
   { path: '/group', element: <GroupSelectPage />},
   { path: '/group/add', element: <AddGroupPage />},
@@ -51,8 +57,7 @@ export const router = createBrowserRouter([
       { path: '/mypage', element: <MyPage /> },
       { path: '/activity', element: <ActivityPage /> },
       { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
-      { path: '/group/settings', element: <PlaceholderPage title="그룹 설정" /> },
-      { path: '/group/change', element: <PlaceholderPage title="그룹 변경" /> },
+      { path: '/group/settings', element: <MemberSettingPage /> },
     ],
   },
 ]);
