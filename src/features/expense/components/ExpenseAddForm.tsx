@@ -5,10 +5,11 @@ import { mockExpenses } from '@/features/expense/mocks/expense.mock';
 import { CustomButton, IconTextButton } from '@/features/expense'; 
 import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react'; 
 import { useSettlementAmounts } from '@/features/expense/hooks/useSettlementAmounts';
+import { useExpenseForm } from '@/features/expense/hooks/useExpenseForm';
 import type { SettlementMethod } from '@/features/expense/hooks/useSettlementAmounts';
 import type { Expense } from '@/features/expense/types/expense.types';
 
-const inputClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button placeholder:text-gray-400 bg-white';
+const inputClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button placeholder:text-gray-400 bg-white focus:bg-white focus:border-gray-300';
 const selectClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button bg-white appearance-none cursor-pointer';
 const labelClass = 'font-sans text-caption font-bold text-gray-800';
 const cardClass = 'w-full bg-white p-[16px] rounded-[18px] flex flex-col gap-5';
@@ -42,35 +43,41 @@ export const ExpenseAddForm = ({
   onSave,
   onCancel,
 }: ExpenseAddFormProps) => {
-  const [title, setTitle] = React.useState(initialExpense?.title || '');
-  const [amount, setAmount] = React.useState(initialExpense ? initialExpense.amount.toLocaleString() : '');
-  const [checkedMembers, setCheckedMembers] = React.useState<string[]>(
-    initialExpense ? initialExpense.shares.map((s) => s.user.id) : MOCK_USERS.map((u) => u.id)
-  );
-  const [settlementMethod, setSettlementMethod] = React.useState<SettlementMethod>('균등 분할 (n/n)');
-  const [category, setCategory] = React.useState<string>(initialExpense?.category || 'food');
-  const [memo, setMemo] = React.useState(initialExpense?.memo || '');
-  const [expenseDate, setExpenseDate] = React.useState(initialExpense?.date || '');
-  const [payerId, setPayerId] = React.useState(initialExpense?.payer.id || selectedPayerId);
-
-  const [customMemberAmounts, setCustomMemberAmounts] = React.useState<Record<string, number>>(() => {
-    if (!initialExpense) return {};
-    return initialExpense.shares.reduce<Record<string, number>>((acc, s) => {
-      acc[s.user.id] = s.amount;
-      return acc;
-    }, {});
+  const {
+    title,
+    setTitle,
+    amount,
+    setAmount,
+    checkedMembers,
+    toggleMember,
+    settlementMethod,
+    handleMethodChange,
+    category,
+    setCategory,
+    memo,
+    setMemo,
+    expenseDate,
+    setExpenseDate,
+    payerId,
+    setPayerId,
+    customMemberAmounts,
+    setCustomMemberAmounts,
+    isDirectInputCompleted,
+    setIsDirectInputCompleted,
+    warningMessage,
+    setWarningMessage,
+    dateInputRef,
+    handleIconClick,
+    numericTotalAmount,
+    totalCustomSum,
+    handleCompleteDirectInput,
+    handleSaveClick,
+  } = useExpenseForm({
+    initialExpense,
+    selectedPayerId,
+    mockUsers: MOCK_USERS,
+    onSave,
   });
-  
-  const [isDirectInputCompleted, setIsDirectInputCompleted] = React.useState(!!initialExpense);
-  const [warningMessage, setWarningMessage] = React.useState<string | null>(null);
-
-  const dateInputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleMethodChange = (newMethod: SettlementMethod) => {
-    setSettlementMethod(newMethod);
-    setIsDirectInputCompleted(false);
-    setWarningMessage(null);
-  };
 
   const settlementAmounts = useSettlementAmounts({
     amount,
@@ -79,67 +86,10 @@ export const ExpenseAddForm = ({
     memberAmounts: memberAmounts || customMemberAmounts,
   });
 
-  const toggleMember = (id: string) => {
-    setCheckedMembers((prev) =>
-      prev.includes(id) ? prev.filter((memberId) => memberId !== id) : [...prev, id]
-    );
-  };
-
-  const handleIconClick = () => {
-    dateInputRef.current?.showPicker?.();
-  };
-
   const handlePayerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setPayerId(value);
     onPayerChange?.(value);
-  };
-
-  const numericTotalAmount = Number(amount.replace(/,/g, '')) || 0;
-  const totalCustomSum = Object.values(customMemberAmounts).reduce((acc, cur) => acc + cur, 0);
-
-  const handleCompleteDirectInput = () => {
-    if (totalCustomSum > numericTotalAmount) {
-      setWarningMessage('입력된 금액이 총액을 초과했습니다.');
-      return;
-    }
-    if (totalCustomSum < numericTotalAmount) {
-      setWarningMessage('입력된 금액이 총액보다 부족합니다.');
-      return;
-    }
-    setWarningMessage(null);
-    setIsDirectInputCompleted(true);
-  };
-
-  const handleSaveClick = () => {
-    if (!title || !numericTotalAmount || !payerId || !expenseDate) {
-      alert('필수 정보를 모두 입력해주세요.');
-      return;
-    }
-
-    const newExpense: Expense = {
-      id: String(Date.now()),
-      title,
-      amount: numericTotalAmount,
-      date: expenseDate,
-      payer: MOCK_USERS.find((u) => u.id === payerId) || MOCK_USERS[0],
-      splitType: settlementMethod === '직접입력' ? 'ratio' : 'equal',
-      category: category as any,
-      status: 'unpaid',
-      shares: checkedMembers.map((memberId) => {
-        const user = MOCK_USERS.find((u) => u.id === memberId)!;
-        return {
-          user,
-          amount: settlementMethod === '직접입력' 
-            ? (customMemberAmounts[memberId] || 0) 
-            : Math.floor(numericTotalAmount / checkedMembers.length),
-          isPaid: false,
-        };
-      }),
-      memo,
-    };
-
-    onSave?.(newExpense);
   };
 
   return (
@@ -358,8 +308,8 @@ export const ExpenseAddForm = ({
                         placeholder='금액'
                         value={customMemberAmounts[user.id] || ''}
                         onChange={(e) => {
-                        const val = Number(e.target.value) || 0;
-                        setCustomMemberAmounts((prev) => ({ ...prev, [user.id]: val }));
+                          const val = Number(e.target.value) || 0;
+                          setCustomMemberAmounts((prev) => ({ ...prev, [user.id]: val }));
                         }}
                         className='w-[80px] h-[26px] px-2 rounded border border-gray-200 text-right text-caption text-gray-800 font-normal bg-white outline-none focus:border-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                       />

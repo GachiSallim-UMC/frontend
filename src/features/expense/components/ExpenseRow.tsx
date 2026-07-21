@@ -16,14 +16,14 @@ const ExpenseRow = ({ expense }: ExpenseRowProps) => {
     ? 'bg-green-100 text-green-700'
     : 'bg-orange-100 text-orange-700';
 
-  const handleRowClick = () => {
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); 
     navigate(`/expenses/${expense.id}`); 
   };
 
   return (
     <div
-      onClick={handleRowClick}
-      className={`grid ${GRID_COLS} items-center w-full min-w-[720px] h-[72px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-white border-b border-gray-100 last:border-b-0 cursor-pointer`}
+      className={`grid ${GRID_COLS} items-center w-full min-w-[720px] h-[72px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-white border-b border-gray-100 last:border-b-0`}
     >
       <span className='font-sans font-normal text-button text-gray-900 whitespace-nowrap'>
         {expense.date}
@@ -57,10 +57,13 @@ const ExpenseRow = ({ expense }: ExpenseRowProps) => {
       </div>
 
       <div className='flex items-center'>
-        <button className='w-[39px] h-[39px] flex items-center justify-center text-gray-400'>
+        <button 
+          onClick={handleEditClick}
+          className='w-[39px] h-[39px] flex items-center justify-center text-gray-400 cursor-pointer hover:text-gray-600'
+        >
           <EditIcon />
         </button>
-        <button className='w-[39px] h-[39px] flex items-center justify-center text-gray-400'>
+        <button className='w-[39px] h-[39px] flex items-center justify-center text-gray-400 cursor-pointer hover:text-gray-600'>
           <ShareIcon />
         </button>
       </div>
