@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Expense } from '@/features/expense/types/expense.types';
 import type { SettlementMethod } from '@/features/expense/hooks/useSettlementAmounts';
+import { User } from '@/shared/types';
 
 interface UseExpenseFormProps {
   initialExpense?: Expense;
@@ -82,14 +83,14 @@ export function useExpenseForm({
       title,
       amount: numericTotalAmount,
       date: expenseDate,
-      payer: mockUsers.find((u) => u.id === payerId) || mockUsers[0],
+      payer: (mockUsers.find((u) => u.id === payerId) || mockUsers[0]) as User,
       splitType: settlementMethod === '직접입력' ? 'ratio' : 'equal',
       category: category as any,
       status: 'unpaid',
       shares: checkedMembers.map((memberId) => {
         const user = mockUsers.find((u) => u.id === memberId)!;
         return {
-          user: user as any,
+          user: user as User,
           amount: settlementMethod === '직접입력' 
             ? (customMemberAmounts[memberId] || 0) 
             : Math.floor(numericTotalAmount / checkedMembers.length),
