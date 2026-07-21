@@ -95,7 +95,7 @@ export const ProfileBasicInfo = () => {
                     </div>
 
                     <div className='flex flex-col'>
-                        <label htmlFor="name" className='mb-1 text-sm font-bold text-gray-900'>닉네임</label>
+                        <label htmlFor="nickname" className='mb-1 text-sm font-bold text-gray-900'>닉네임</label>
                         <FormInput
                             id="nickname"
                             value={nickname}
@@ -108,7 +108,7 @@ export const ProfileBasicInfo = () => {
                 {/* 이메일 & 저장 버튼 */}
                 <div className='flex items-end gap-5'>
                     <div className='flex flex-1 flex-col'>
-                        <label htmlFor="name" className='mb-1 text-sm font-bold text-gray-900'>
+                        <label htmlFor="email" className='mb-1 text-sm font-bold text-gray-900'>
                             이메일(변경 불가)
                         </label>
                         <FormInput
