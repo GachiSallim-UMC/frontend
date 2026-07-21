@@ -1,5 +1,6 @@
 export * from './Button';
 export * from './DataTable';
+export * from './ErrorModal';
 export * from './FilterTabGroup';
 export * from './FormActions';
 export * from './MetricList';

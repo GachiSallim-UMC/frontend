@@ -3,6 +3,8 @@ import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
 import { AppLayout } from './AppLayout';
+import { RequireAuth } from './RequireAuth';
+import { RequireGroup } from './RequireGroup';
 import { ExpenseListPage, ExpenseAddPage } from '@/pages/expense';
 import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { RuleListPage, RuleFormPage, RuleDetailRoute } from '@/pages/rule';
@@ -24,32 +26,42 @@ export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
-  { path: '/group', element: <GroupSelectPage />},
-  { path: '/group/add', element: <AddGroupPage />},
-  { path: '/group/join', element: <JoinGroupPage />},
-  { path: '/terms', element:<TermsPage />},
-  { path: '/privacy', element:<PrivacyPage />},
+  { path: '/terms', element: <TermsPage /> },
+  { path: '/privacy', element: <PrivacyPage /> },
   {
-    element: <AppLayout />,
+    element: <RequireAuth />,
     children: [
-      { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
-      { path: '/chores', element: <ChoreListPage /> },
-      { path: '/chores/new', element: <ChoreCreatePage /> },
-      { path: '/chores/:id/edit', element: <ChoreEditPage /> },  
-      { path: '/expenses', element: <ExpenseListPage title="생활비 정산" /> },
-      { path: '/expenses/new', element: <ExpenseAddPage title="생활비 등록" /> },
-      { path: '/expenses/:id', element: <ExpenseAddPage title="정산 상세" /> },
-      { path: '/items', element: <ItemListPage /> },
-      { path: '/items/new', element: <ItemFormPage /> },
-      { path: '/items/:id/edit', element: <ItemEditRoute /> },
-      { path: '/rules', element: <RuleListPage /> },
-      { path: '/rules/new', element: <RuleFormPage /> },
-      { path: '/rules/:id', element: <RuleDetailRoute /> },
-      { path: '/messenger', element: <MessengerPage /> },
-      { path: '/notifications', element: <NotificationPage /> },
-      { path: '/activity', element: <ActivityPage /> },
-      { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
-      { path: '/group/settings', element: <MemberSettingPage /> },
+      { path: '/group', element: <GroupSelectPage /> },
+      { path: '/group/add', element: <AddGroupPage /> },
+      { path: '/group/join', element: <JoinGroupPage /> },
+      {
+        element: <RequireGroup />,
+        children: [
+          {
+            element: <AppLayout />,
+            children: [
+              { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
+              { path: '/chores', element: <ChoreListPage /> },
+              { path: '/chores/new', element: <ChoreCreatePage /> },
+              { path: '/chores/:id/edit', element: <ChoreEditPage /> },
+              { path: '/expenses', element: <ExpenseListPage title="생활비 정산" /> },
+              { path: '/expenses/new', element: <ExpenseAddPage title="생활비 등록" /> },
+              { path: '/expenses/:id', element: <ExpenseAddPage title="정산 상세" /> },
+              { path: '/items', element: <ItemListPage /> },
+              { path: '/items/new', element: <ItemFormPage /> },
+              { path: '/items/:id/edit', element: <ItemEditRoute /> },
+              { path: '/rules', element: <RuleListPage /> },
+              { path: '/rules/new', element: <RuleFormPage /> },
+              { path: '/rules/:id', element: <RuleDetailRoute /> },
+              { path: '/messenger', element: <MessengerPage /> },
+              { path: '/notifications', element: <NotificationPage /> },
+              { path: '/activity', element: <ActivityPage /> },
+              { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },
+              { path: '/group/settings', element: <MemberSettingPage /> },
+            ],
+          },
+        ],
+      },
     ],
   },
 ]);

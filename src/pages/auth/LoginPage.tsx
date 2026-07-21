@@ -1,8 +1,17 @@
-import { Link } from 'react-router-dom';
-import {LoginForm, SocialLoginForm} from "@/features/auth";
+import { Link, Navigate } from 'react-router-dom';
+import {LoginForm, SocialLoginForm, useLogin} from "@/features/auth";
+import { ApiError } from "@/shared/api";
+import { useAuthStore } from '@/shared/store';
 import Logo from "@/assets/logo.svg?react";
 
 export const LoginPage =() => {
+    const isAuthenticated = useAuthStore(s => Boolean(s.accessToken && s.userId));
+    const { mutate: login, isPending, error } = useLogin();
+
+    if (isAuthenticated) {
+        return <Navigate to="/group" replace />;
+    }
+
     return (
         // 배경
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
@@ -17,7 +26,11 @@ export const LoginPage =() => {
                     <p className="text-sm text-gray-600 font-medium">같이 사는 사람들의 생활 운영 서비스</p>
                 </div>
 
-                <LoginForm />
+                <LoginForm
+                    onSubmit={credentials => login(credentials)}
+                    isSubmitting={isPending}
+                    errorMessage={error instanceof ApiError ? error.message : undefined}
+                />
                 <SocialLoginForm />
 
                 <div className="mt-8 flex gap-6 text-base font-bold text-primary-500 justify-center">

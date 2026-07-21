@@ -23,12 +23,20 @@ export interface ErrorDetail {
   reason: string;
 }
 
-export interface ApiResponse<T> {
+export interface ApiSuccessResponse<T> {
   statusCode: number;
   data: T;
+  error: null;
+}
+
+export interface ApiErrorResponse {
+  statusCode: number;
+  data: null;
   error: {
     code: string;
     message: string;
     errors?: ErrorDetail[];
-  } | null;
+  };
 }
+
+export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
