@@ -9,6 +9,7 @@ import { NotificationPage } from '@/pages/notification';
 import { ChoreListPage } from '@/pages/chore/ChoreListPage';
 import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
 import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
+import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
 
 export const router = createBrowserRouter([
@@ -31,7 +32,7 @@ export const router = createBrowserRouter([
       { path: '/rules', element: <RuleListPage /> },
       { path: '/rules/new', element: <RuleFormPage /> },
       { path: '/rules/:id', element: <RuleDetailRoute /> },
-      { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
+      { path: '/messenger', element: <MessengerPage /> },
       { path: '/notifications', element: <NotificationPage /> },
       { path: '/activity', element: <ActivityPage /> },
       { path: '/mypage', element: <PlaceholderPage title="마이페이지" /> },

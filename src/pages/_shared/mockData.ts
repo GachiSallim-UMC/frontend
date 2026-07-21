@@ -2,6 +2,7 @@ import type { ActivityLog } from '@/features/activity';
 import type { Chore } from '@/features/chore';
 import type { Expense } from '@/features/expense';
 import type { Item } from '@/features/item';
+import type { ChatMessage, ChatRoom } from '@/features/messenger';
 import type { Rule } from '@/features/rule';
 import type { User } from '@/shared/types';
 
@@ -426,42 +427,24 @@ export const activityLogs: ActivityLog[] = [
   },
 ];
 
-// ==================== 메신저 (Figma 15 · 실시간 메신저) ====================
+// ==================== 메신저 (Figma 15 · 그룹 내 실시간 메신저) ====================
 
-export const chatRooms = [
+export const chatRooms: ChatRoom[] = [
   {
     id: 'room-main',
     name: '우리집 룸메이트',
-    lastMessage: '세제 샀어요!',
-    timestamp: '10:30',
-    unreadCount: 5,
+    lastMessage: '김영희: 세제 샀어요!',
+    timestamp: '오전 11:06',
+    unreadCount: 2,
   },
   {
     id: 'room-notice',
     name: '공지 / 규칙 채널',
     lastMessage: '새 규칙이 등록되었습니다.',
-    timestamp: '어제',
+    timestamp: '05.21',
     unreadCount: 0,
   },
 ];
-
-export interface ChatShareCard {
-  type: 'expense' | 'chore' | 'item' | 'rule';
-  title: string;
-  description: string;
-  actionLabel: string;
-}
-
-export interface ChatMessage {
-  id: string;
-  roomId: string;
-  senderId: string;
-  senderName: string;
-  timestamp: string;
-  isMine: boolean;
-  content?: string;
-  shareCard?: ChatShareCard;
-}
 
 export const chatMessages: ChatMessage[] = [
   {
@@ -483,8 +466,13 @@ export const chatMessages: ChatMessage[] = [
     shareCard: {
       type: 'expense',
       title: '마트 장보기',
-      description: '32,000원 · 균등 · 1인당 10,666원',
-      actionLabel: '정산 보기',
+      headline: ' 정산을 공유했어요',
+      details: [
+        { label: '총액', value: '32,000원' },
+        { label: '분담 방식', value: '균등 분할' },
+        { label: '1인당 금액', value: '10,666원' },
+      ],
+      actionLabel: '정산하기',
     },
   },
   {
@@ -506,8 +494,9 @@ export const chatMessages: ChatMessage[] = [
     shareCard: {
       type: 'item',
       title: '세제',
-      description: '부족 · 담당: 이철수',
-      actionLabel: '물품 보기',
+      headline: '가 부족해요',
+      details: [{ label: '구매 담당', value: '이철수' }],
+      actionLabel: '구매 완료',
     },
   },
   {
@@ -524,13 +513,32 @@ export const chatMessages: ChatMessage[] = [
     roomId: 'room-main',
     senderId: 'u1',
     senderName: '홍길동',
+    timestamp: '오전 10:31',
+    isMine: true,
+    shareCard: {
+      type: 'chore',
+      title: '화장실 청소',
+      headline: '가 등록됐어요',
+      details: [
+        { label: '담당자', value: '홍길동' },
+        { label: '반복', value: '매주 월요일' },
+      ],
+      actionLabel: '완료 처리',
+    },
+  },
+  {
+    id: 'm7',
+    roomId: 'room-main',
+    senderId: 'u1',
+    senderName: '홍길동',
     timestamp: '오전 10:32',
     isMine: true,
     shareCard: {
       type: 'rule',
       title: '밤 11시 이후 조용히 하기',
-      description: '동의 2/3 · 카테고리: 소음',
-      actionLabel: '규칙 보기',
+      headline: ' 규칙 동의를 요청했어요',
+      details: [{ label: '동의 현황', value: '2/3명 동의' }],
+      actionLabel: '동의하기',
     },
   },
 ];

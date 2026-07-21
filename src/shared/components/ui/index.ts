@@ -3,6 +3,7 @@ export * from './DataTable';
 export * from './FilterTabGroup';
 export * from './FormActions';
 export * from './MetricList';
+export * from './Modal';
 export * from './SearchInput';
 export * from './StatusBadge';
 export * from './SummaryCard';
