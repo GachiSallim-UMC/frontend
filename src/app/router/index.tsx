@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
+import { RuleListPage, RuleDetailRoute, RuleFormPage } from '@/pages/rule';
 import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
@@ -26,9 +27,9 @@ export const router = createBrowserRouter([
       { path: '/items', element: <ItemListPage /> },
       { path: '/items/new', element: <ItemFormPage /> },
       { path: '/items/:id/edit', element: <ItemEditRoute /> },
-      { path: '/rules', element: <PlaceholderPage title="생활 규칙" /> },
-      { path: '/rules/new', element: <PlaceholderPage title="규칙 등록" /> },
-      { path: '/rules/:id', element: <PlaceholderPage title="규칙 상세" /> },
+      { path: '/rules', element: <RuleListPage /> },
+      { path: '/rules/new', element: <RuleFormPage /> },
+      { path: '/rules/:id', element: <RuleDetailRoute /> },
       { path: '/messenger', element: <PlaceholderPage title="메신저" /> },
       { path: '/notifications', element: <NotificationPage /> },
       { path: '/activity', element: <PlaceholderPage title="활동 내역" /> },

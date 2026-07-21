@@ -240,7 +240,7 @@ export const rules: Rule[] = [
     title: '밤 11시 이후 조용히 하기',
     content: '통화와 음악은 이어폰을 사용하고 세탁기는 다음 날 사용해요.',
     registeredBy: users[0], // 홍길동
-    registeredAt: '2026.06.25',
+    registeredAt: '2025-07-01',
     agreement: { agreedCount: 3, totalCount: 3, agreedMembers: users },
     status: 'active',
   },
@@ -250,27 +250,27 @@ export const rules: Rule[] = [
     title: '방문객은 사전에 공유하기',
     content: '하루 전 메신저로 공유하고, 숙박이 필요한 경우 전원 동의를 받아요.',
     registeredBy: users[1], // 김영희
-    registeredAt: '2026.06.28',
+    registeredAt: '2025-07-05',
     agreement: { agreedCount: 2, totalCount: 3, agreedMembers: [users[0], users[1]] },
     status: 'active',
   },
   {
     id: 'r3',
-    category: 'cleanliness',
+    category: 'cleaning',
     title: '주방 사용 후 즉시 정리',
     content: '요리 후 가스레인지·조리대를 닦고 설거지는 당일 완료해요.',
     registeredBy: users[2], // 이철수
-    registeredAt: '2026.07.01',
+    registeredAt: '2025-07-10',
     agreement: { agreedCount: 3, totalCount: 3, agreedMembers: users },
     status: 'active',
   },
   {
     id: 'r4',
-    category: 'trash',
+    category: 'cleaning',
     title: '음식물 쓰레기는 당일 배출',
     content: '냄새 방지를 위해 음식물 쓰레기는 당일 저녁에 버려요.',
     registeredBy: users[0], // 홍길동
-    registeredAt: '2026.05.20',
+    registeredAt: '2025-06-20',
     agreement: { agreedCount: 1, totalCount: 3, agreedMembers: [users[0]] },
     status: 'inactive',
   },
