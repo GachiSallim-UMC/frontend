@@ -17,7 +17,18 @@ export interface PaginationMeta {
   total: number;
 }
 
+export interface ErrorDetail {
+  field: string;
+  value: unknown;
+  reason: string;
+}
+
 export interface ApiResponse<T> {
+  statusCode: number;
   data: T;
-  message: string;
+  error: {
+    code: string;
+    message: string;
+    errors?: ErrorDetail[];
+  } | null;
 }
