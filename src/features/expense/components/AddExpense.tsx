@@ -1,4 +1,3 @@
-
 import plusIcon from '@/assets/icons/expense/plus.svg';
 
 interface AddExpenseProps {
