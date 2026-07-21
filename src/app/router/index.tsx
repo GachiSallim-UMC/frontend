@@ -7,6 +7,10 @@ import { ExpenseListPage, ExpenseAddPage } from '@/pages/expense';
 import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { RuleListPage, RuleFormPage, RuleDetailRoute } from '@/pages/rule';
 import { NotificationPage } from '@/pages/notification';
+import { GroupSelectPage } from '@/pages/member/GroupSelectPage';
+import { AddGroupPage } from '@/pages/member/AddGroupPage';
+import { JoinGroupPage } from '@/pages/member/JoinGroupPage';
+
 import { TermsPage } from '@/pages/auth/TermsPage';
 import { PrivacyPage } from '@/pages/auth/PrivacyPage';
 import { ChoreListPage } from '@/pages/chore/ChoreListPage';
@@ -19,6 +23,9 @@ export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
+  { path: '/group', element: <GroupSelectPage />},
+  { path: '/group/add', element: <AddGroupPage />},
+  { path: '/group/join', element: <JoinGroupPage />},
   { path: '/terms', element:<TermsPage />},
   { path: '/privacy', element:<PrivacyPage />},
   {
