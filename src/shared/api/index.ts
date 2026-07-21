@@ -10,4 +10,9 @@ export {
 } from './errorCodes';
 export type { BackendErrorCode, ClientErrorCode, KnownApiErrorCode } from './errorCodes';
 export { isApiResponse, unwrapApiResponse } from './response';
-export { requireSelectedGroupId, withSelectedGroupBody, withSelectedGroupParams } from './groupContext';
+export {
+  requireSelectedGroupId,
+  withSelectedGroupBody,
+  withSelectedGroupParams,
+  withSelectedNumericGroupBody,
+} from './groupContext';

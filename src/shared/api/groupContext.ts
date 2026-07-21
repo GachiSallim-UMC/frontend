@@ -17,6 +17,11 @@ export const withSelectedGroupParams = <T extends Record<string, unknown>>(param
 });
 
 export const withSelectedGroupBody = <T extends Record<string, unknown>>(body: T) => {
+  return { ...body, groupId: requireSelectedGroupId() };
+};
+
+/** 숫자 groupId를 요구하는 DTO(집안일·규칙 등)에서 사용합니다. */
+export const withSelectedNumericGroupBody = <T extends Record<string, unknown>>(body: T) => {
   const groupId = requireSelectedGroupId();
   const numericGroupId = Number(groupId);
 
