@@ -1,15 +1,13 @@
-import { useNavigate } from "react-router-dom"
 import LogoIcon from "@/assets/logo.svg?react"
 import { Button } from "@/shared/components";
 
-export const GroupSelectHeader = () => {
-    const navigate = useNavigate();
+interface GroupSelectHeaderProps {
+    userName: string;
+    onLogout: () => void;
+    isLoggingOut?: boolean;
+}
 
-    // 로그아웃 처리
-    const handleLogout = () => {
-        navigate("/login");
-    };
-
+export const GroupSelectHeader = ({ userName, onLogout, isLoggingOut = false }: GroupSelectHeaderProps) => {
     return (
         <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-100 bg-white px-7 py-6">
             <div className="flex items-center gap-2">
@@ -18,12 +16,13 @@ export const GroupSelectHeader = () => {
             </div>
 
             <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-600">홍길동 님</span>
+                <span className="text-sm font-medium text-gray-600">{userName} 님</span>
                 <div className="h-4 border-l border-gray-300" />
                 <Button 
                     variant="secondary"
                     size="sm"
-                    onClick={handleLogout}
+                    onClick={onLogout}
+                    isLoading={isLoggingOut}
                 >
                     로그아웃
                 </Button>

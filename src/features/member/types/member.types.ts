@@ -37,3 +37,17 @@ export interface AddGroupDto {
     maxMemberCount: number;
 }
 
+export interface MemberGroupResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  inviteCode: string | null;
+  inviteExpiredAt: string;
+  currentMembers: number;
+  maxMembers: number;
+  createdBy: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+

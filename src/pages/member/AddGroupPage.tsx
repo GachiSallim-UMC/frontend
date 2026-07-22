@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import type { AddGroupDto } from '@/features/member';
-import { AddGroupActions, AddGroupInput, InvitationCodeBox, GroupSelectHeader } from '@/features/member'
+import { AddGroupActions, AddGroupInput, InvitationCodeBox } from '@/features/member'
+import { GroupPageHeader } from './GroupPageHeader';
 
 export const AddGroupPage = () => {
     const navigate = useNavigate();
@@ -12,8 +13,8 @@ export const AddGroupPage = () => {
     const [formData, setFormData] = useState<AddGroupDto>({
         name: '',
         description: '',
-        type: 'roommate', 
-        maxMemberCount: 1, 
+        type: 'roommate',
+        maxMemberCount: 1,
     });
 
     const handleFormChange = (field: keyof AddGroupDto, value: string | number) => {
@@ -48,7 +49,7 @@ export const AddGroupPage = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
             <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
-                <GroupSelectHeader />
+                <GroupPageHeader />
                 <div className='px-10 py-7'>
                     <h2 className="mb-5 text-2xl font-bold text-gray-900">
                         새 그룹 만들기
@@ -76,4 +77,3 @@ export const AddGroupPage = () => {
         </div>
     );
 };
-
