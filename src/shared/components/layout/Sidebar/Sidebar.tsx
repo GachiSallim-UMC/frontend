@@ -68,7 +68,7 @@ const NAV_GROUPS: NavGroup[] = [
 const BOTTOM_NAV: NavItem[] = [
   { to: '/mypage', Icon: MypageIcon, ActiveIcon: MypageActiveIcon, label: '마이페이지' },
   { to: '/group/settings', Icon: GroupSettingsIcon, ActiveIcon: GroupSettingsActiveIcon, label: '그룹 설정' },
-  { to: '/group/change', Icon: GroupChangeIcon, label: '그룹 변경' },
+  { to: '/group', Icon: GroupChangeIcon, label: '그룹 변경' },
 ];
 
 const NavItemLink = ({ item }: { item: NavItem }) => (

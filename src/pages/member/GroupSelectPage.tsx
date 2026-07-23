@@ -1,16 +1,16 @@
 import {
-    GroupSelectHeader,
     GroupList,
-    GroupActionBox
+    GroupActionBox,
 } from "@/features/member"
+import { GroupPageHeader } from './GroupPageHeader';
 
 export const GroupSelectPage = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
             <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
-                <GroupSelectHeader />
+                <GroupPageHeader />
 
-                <div className="flex-1 pt-5 pb-18 px-10">
+                <div className="flex-1 overflow-y-auto pt-5 pb-18 px-10">
                     {/*타이틀 영역*/}
                     <div className="mb-5">
                         <h1 className="mb-1 text-2xl font-bold text-gray-900">

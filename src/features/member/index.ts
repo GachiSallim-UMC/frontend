@@ -13,7 +13,11 @@ export {JoinGroupInput} from './components/JoinGroup/JoinGroupInput'
 export {JoinGroupAction} from './components/JoinGroup/JoinGroupAction'
 export {WarningModal} from './components/WarningModal'
 
+export {useMyGroups} from './hooks/useMyGroups'
+export {memberApi} from './api/member.api'
+
 export type {Member} from './types/member.types'
 export type {PermissionType} from './types/member.types'
 export type { Group } from './types/member.types'
 export type { AddGroupDto} from './types/member.types'
+export type { MemberGroupResponse } from './types/member.types'

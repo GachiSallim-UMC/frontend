@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { GroupSelectHeader, JoinGroupInput, GroupPreviewCard, JoinGroupAction } from '@/features/member';
+import { JoinGroupInput, GroupPreviewCard, JoinGroupAction } from '@/features/member';
 import { groups } from '@/pages/_shared/mockData'
 import type { Group } from '@/features/member'
+import { useGroupStore } from '@/shared/store'
+import { GroupPageHeader } from './GroupPageHeader';
 
 export const JoinGroupPage = () => {
     const navigate = useNavigate();
+    const setSelectedGroupId = useGroupStore(s => s.setSelectedGroupId);
 
     const [inviteCode, setInviteCode] = useState<string>('');
     const [showPreview, setShowPreview] = useState<boolean>(false);
@@ -31,6 +34,8 @@ export const JoinGroupPage = () => {
     };
 
     const handleJoinGroup = () => {
+        if (!foundGroup) return;
+        setSelectedGroupId(foundGroup.id);
         navigate('/dashboard');
     };
 
@@ -42,7 +47,7 @@ export const JoinGroupPage = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
             <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
-                <GroupSelectHeader />
+                <GroupPageHeader />
 
                 <div className="flex-1 pt-5 pb-18 px-10">
                     <div className="mb-5">
