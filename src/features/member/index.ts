@@ -11,6 +11,7 @@ export {InvitationCodeBox} from './components/AddGroup/InvitationCodeBox'
 export {GroupPreviewCard} from './components/JoinGroup/GroupPreviewCard'
 export {JoinGroupInput} from './components/JoinGroup/JoinGroupInput'
 export {JoinGroupAction} from './components/JoinGroup/JoinGroupAction'
+export {WarningModal} from './components/WarningModal'
 
 export type {Member} from './types/member.types'
 export type {PermissionType} from './types/member.types'
