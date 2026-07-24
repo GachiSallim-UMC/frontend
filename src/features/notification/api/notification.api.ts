@@ -3,11 +3,17 @@ import type { Notification, NotificationResponse } from '../types/notification.t
 
 const BASE = '/notifications';
 
-/**
- * 백엔드 schema.prisma의 NotificationType enum과 1:1로 대응합니다.
- * getRoute는 refId가 있으면 상세(수정) 화면으로, 없으면 목록 화면으로 이동합니다.
- */
-const NOTIFICATION_TYPE_META: Record<string, { category: string; getRoute: (refId: number | null) => string }> = {
+type NotificationType =
+  | 'CHORE_DUE'
+  | 'EXPENSE_REQUEST'
+  | 'EXPENSE_DONE'
+  | 'SUPPLY_LOW'
+  | 'RULE_CHANGED'
+  | 'NEW_MESSAGE'
+  | 'GROUP_INVITE';
+
+/** getRoute는 refId가 있으면 상세 화면으로, 없으면 목록 화면으로 이동합니다. */
+const NOTIFICATION_TYPE_META: Record<NotificationType, { category: string; getRoute: (refId: number | null) => string }> = {
   CHORE_DUE: {
     category: '집안일',
     getRoute: () => '/chores',
@@ -46,7 +52,10 @@ export const NOTIFICATION_CATEGORIES = Array.from(
 /** 목록에 없는(구버전 프론트가 모르는 새 enum 값) type을 위한 안전한 기본값 */
 const DEFAULT_TYPE_META = { category: '기타', getRoute: (): string | null => null };
 
-const getTypeMeta = (type: string) => NOTIFICATION_TYPE_META[type] ?? DEFAULT_TYPE_META;
+const isNotificationType = (type: string): type is NotificationType => type in NOTIFICATION_TYPE_META;
+
+const getTypeMeta = (type: string) =>
+  isNotificationType(type) ? NOTIFICATION_TYPE_META[type] : DEFAULT_TYPE_META;
 
 const getCategory = (type: string): string => getTypeMeta(type).category;
 
