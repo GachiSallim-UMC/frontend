@@ -15,7 +15,12 @@ export const ActivityDateGroup: FC<ActivityDateGroupProps> = ({ dateLabel, logs 
       </div>
       <div className="w-full border-x border-gray-100">
         {logs.map(log => (
-          <ActivityItem key={log.id} description={log.description} createdAt={log.createdAt} />
+          <ActivityItem
+            key={log.id}
+            description={log.description}
+            createdAt={log.createdAt}
+            route={log.route}
+          />
         ))}
       </div>
     </div>

@@ -12,7 +12,7 @@ export const ACTIVITY_CATEGORIES = [
 
 export type ActivityCategory = (typeof ACTIVITY_CATEGORIES)[number];
 
-/** GET /api/v1/activities 응답 항목 */
+/** GET /api/v1/activities 응답 항목 (route는 type/refId 기반으로 클라이언트에서 계산해 추가) */
 export interface ActivityLog {
   id: number;
   type: ActivityCategory;
@@ -22,6 +22,8 @@ export interface ActivityLog {
     id: number;
     nickname: string;
   };
+  /** 클릭 시 이동할 경로 */
+  route: string;
 }
 
 export interface ActivityLogGroup {
