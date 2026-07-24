@@ -25,11 +25,11 @@ export const NotificationPage = () => {
 
   return (
     <div className="flex justify-center w-full flex-1 min-h-0 bg-gray-50">
-      <div className="flex flex-col items-center w-full max-w-[1180px] h-full pt-[28px] pb-[28px] gap-[28px] px-4">
+      <div className="flex flex-col items-center w-full h-full pt-[28px] pb-[28px] gap-[28px] px-4 lg:max-w-[1180px]">
 
-        <div className="w-full max-w-[1114px] flex-1 min-h-0 max-h-[720px] bg-white rounded-[20px] flex flex-col items-center py-6 shadow-card overflow-hidden">
-          <div className="flex justify-between items-center w-full px-[30px] mb-[14px]">
-            <div className="flex gap-4 z-20">
+        <div className="w-full flex-1 min-h-0 bg-white rounded-[20px] flex flex-col items-center py-4 shadow-card overflow-hidden lg:max-w-[1114px] lg:max-h-[720px] lg:py-[30px]">
+          <div className="flex flex-wrap justify-between items-center w-full px-4 mb-[14px] lg:px-[30px]">
+            <div className="flex flex-wrap gap-4 z-20">
               <FilterDropdown
                 value={statusFilter}
                 options={statusOptions}
@@ -55,7 +55,7 @@ export const NotificationPage = () => {
             </Button>
           </div>
 
-          <div className="flex-1 min-h-0 flex flex-col items-start w-full px-[30px] overflow-y-auto">
+          <div className="flex-1 min-h-0 flex flex-col items-start w-full px-4 overflow-y-auto lg:px-[30px]">
             {isLoading ? (
               <div className="flex w-full flex-1 items-center justify-center">
                 <span className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
