@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityFilterDropdown, ActivityList, useActivityLog } from '@/features/activity';
 
 type ActivityFilterKey = 'type' | 'member' | 'period';
@@ -25,6 +25,9 @@ export const ActivityPage = () => {
   } = useActivityLog();
 
   const [openFilter, setOpenFilter] = useState<ActivityFilterKey | null>(null);
+  const handleLoadMore = useCallback(() => {
+    void fetchNextPage();
+  }, [fetchNextPage]);
 
   return (
     <div className="flex w-full flex-1 min-h-0 justify-center bg-gray-50">
@@ -62,7 +65,7 @@ export const ActivityPage = () => {
               onRetry={() => void refetch()}
               hasNextPage={hasNextPage}
               isFetchingNextPage={isFetchingNextPage}
-              onLoadMore={() => void fetchNextPage()}
+              onLoadMore={handleLoadMore}
             />
           </div>
         </div>

@@ -36,12 +36,24 @@ const ACTIVITY_LOG_KEYS = {
     [...ACTIVITY_LOG_KEYS.all, 'list', type, userId] as const,
 };
 
+/** 닉네임은 유일하지 않을 수 있어(동명이인) 필터 매칭용 라벨을 id 기준으로 유일하게 만듦 */
 const getMemberOptions = (logs: ActivityLog[]): ActivityMemberOption[] => {
   const seen = new Map<number, string>();
   logs.forEach(log => {
     if (!seen.has(log.user.id)) seen.set(log.user.id, log.user.nickname);
   });
-  return Array.from(seen, ([id, nickname]) => ({ id, nickname }));
+
+  const nicknameCounts = new Map<string, number>();
+  seen.forEach(nickname => nicknameCounts.set(nickname, (nicknameCounts.get(nickname) ?? 0) + 1));
+
+  const occurrences = new Map<string, number>();
+  return Array.from(seen, ([id, nickname]) => {
+    if ((nicknameCounts.get(nickname) ?? 0) <= 1) return { id, nickname };
+
+    const occurrence = (occurrences.get(nickname) ?? 0) + 1;
+    occurrences.set(nickname, occurrence);
+    return { id, nickname: `${nickname} (${occurrence})` };
+  });
 };
 
 export const useActivityLog = () => {

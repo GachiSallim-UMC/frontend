@@ -48,7 +48,7 @@ export const ActivityList: FC<ActivityListProps> = ({
     );
   }
 
-  if (isError) {
+  if (isError && groups.length === 0) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-lg border border-red-300 bg-red-100 px-4 text-center">
         <p className="text-caption font-medium text-red-700">
@@ -75,9 +75,17 @@ export const ActivityList: FC<ActivityListProps> = ({
         <ActivityDateGroup key={group.date} dateLabel={group.dateLabel} logs={group.logs} />
       ))}
       {hasNextPage && (
-        <div ref={sentinelRef} className="flex w-full items-center justify-center py-4">
+        <div ref={sentinelRef} className="flex w-full flex-col items-center justify-center gap-2 py-4">
           {isFetchingNextPage && (
             <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+          )}
+          {isError && !isFetchingNextPage && (
+            <>
+              <p className="text-caption text-red-700">다음 활동 내역을 불러오지 못했습니다.</p>
+              <Button type="button" variant="outline" size="sm" onClick={onLoadMore}>
+                다시 시도
+              </Button>
+            </>
           )}
         </div>
       )}
