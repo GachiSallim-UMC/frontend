@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Circle, X } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import type { Notification } from '@/features/notification/types';
@@ -6,6 +7,7 @@ import ArrowGoIcon from '@/assets/icons/notification/arrow-go.svg';
 
 interface NotificationItemProps extends Notification {
   onHide?: (id: string) => void;
+  onMarkAsRead?: (id: string) => void;
 }
 
 export const NotificationItem: FC<NotificationItemProps> = ({
@@ -14,15 +16,32 @@ export const NotificationItem: FC<NotificationItemProps> = ({
   message,
   time,
   isRead = false,
+  route,
   onHide,
+  onMarkAsRead,
 }) => {
+  const navigate = useNavigate();
+
   const handleHide = (e: React.MouseEvent) => {
     e.stopPropagation();
     onHide?.(id);
   };
 
+  const handleMarkAsRead = () => {
+    if (!isRead) onMarkAsRead?.(id);
+  };
+
+  const handleGo = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleMarkAsRead();
+    if (route) navigate(route);
+  };
+
   return (
-    <div className="relative w-full h-[100px] bg-white border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors">
+    <div
+      onClick={handleMarkAsRead}
+      className="relative w-full h-[100px] bg-white border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors"
+    >
       <div className="absolute left-[30px] top-[22px] w-[12px] h-[12px] flex items-center justify-center">
         <Circle
           className={cn('w-3 h-3', isRead ? 'text-gray-100' : 'text-primary-600')}
@@ -53,9 +72,18 @@ export const NotificationItem: FC<NotificationItemProps> = ({
         <X className="w-5 h-5" />
       </button>
 
-      <div className="absolute right-[30px] top-[27px] flex items-center justify-center w-[42px] h-[42px] rounded-full border border-gray-100 bg-white">
-        <img src={ArrowGoIcon} alt="이동" className="w-6 h-6" />
-      </div>
+      <button
+        type="button"
+        onClick={handleGo}
+        disabled={!route}
+        aria-label="상세 페이지로 이동"
+        className={cn(
+          'absolute right-[30px] top-[27px] flex items-center justify-center w-[42px] h-[42px] rounded-full border border-gray-100 bg-white',
+          !route && 'cursor-not-allowed opacity-40',
+        )}
+      >
+        <img src={ArrowGoIcon} alt="" className="w-6 h-6" />
+      </button>
     </div>
   );
 };
