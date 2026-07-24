@@ -1,10 +1,11 @@
 import type { FC } from 'react';
 import type { ActivityLog } from '@/features/activity/types';
+import { toTimeLabel } from '@/features/activity/lib/activityDate';
 import { cn } from '@/shared/lib/cn';
 
-type ActivityItemProps = Pick<ActivityLog, 'actorName' | 'description' | 'time'>;
+type ActivityItemProps = Pick<ActivityLog, 'description' | 'createdAt'>;
 
-export const ActivityItem: FC<ActivityItemProps> = ({ actorName, description, time }) => {
+export const ActivityItem: FC<ActivityItemProps> = ({ description, createdAt }) => {
   return (
     <div
       className={cn(
@@ -12,10 +13,8 @@ export const ActivityItem: FC<ActivityItemProps> = ({ actorName, description, ti
         'first:border-t-0 last:border-b',
       )}
     >
-      <p className="text-caption text-gray-900">
-        <span className="font-bold">{actorName}</span> {description}
-      </p>
-      <p className="text-xs text-gray-400">{time}</p>
+      <p className="text-caption text-gray-900">{description ?? '새로운 활동이 있습니다.'}</p>
+      <p className="text-xs text-gray-400">{toTimeLabel(createdAt)}</p>
     </div>
   );
 };
