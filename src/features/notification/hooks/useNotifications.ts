@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { notificationApi } from '@/features/notification/api/notification.api';
+import { NOTIFICATION_CATEGORIES, notificationApi } from '@/features/notification/api/notification.api';
 
 export const NOTIFICATION_QUERY_KEYS = {
   all: ['notifications'] as const,
@@ -24,7 +24,7 @@ export const useNotifications = () => {
   });
 
   const statusOptions = ['전체', '읽지 않음', '읽음'];
-  const categoryOptions = ['전체', '집안일', '정산', '물품', '규칙', '메신저', '그룹'];
+  const categoryOptions = ['전체', ...NOTIFICATION_CATEGORIES];
 
   const filteredNotifications = useMemo(() => {
     return notifications.filter((n) => {

@@ -38,6 +38,11 @@ const NOTIFICATION_TYPE_META: Record<string, { category: string; getRoute: (refI
   },
 };
 
+/** 카테고리 필터 옵션 — NOTIFICATION_TYPE_META에서 자동 추출되므로 여기서 따로 관리하지 않습니다. */
+export const NOTIFICATION_CATEGORIES = Array.from(
+  new Set(Object.values(NOTIFICATION_TYPE_META).map(meta => meta.category)),
+);
+
 /** 목록에 없는(구버전 프론트가 모르는 새 enum 값) type을 위한 안전한 기본값 */
 const DEFAULT_TYPE_META = { category: '기타', getRoute: (): string | null => null };
 
