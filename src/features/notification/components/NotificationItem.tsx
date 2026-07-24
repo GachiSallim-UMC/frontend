@@ -1,8 +1,7 @@
 import type { FC } from 'react';
-import { X } from 'lucide-react';
+import { Circle, X } from 'lucide-react';
+import { cn } from '@/shared/lib/cn';
 import type { Notification } from '@/features/notification/types';
-import UnreadIcon from '@/assets/icons/notification/status-unread.svg';
-import ReadIcon from '@/assets/icons/notification/status-read.svg';
 import ArrowGoIcon from '@/assets/icons/notification/arrow-go.svg';
 
 interface NotificationItemProps extends Notification {
@@ -25,7 +24,12 @@ export const NotificationItem: FC<NotificationItemProps> = ({
   return (
     <div className="relative w-full h-[100px] bg-white border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors">
       <div className="absolute left-[30px] top-[22px] w-[12px] h-[12px] flex items-center justify-center">
-        <img src={isRead ? ReadIcon : UnreadIcon} alt={isRead ? '읽음' : '읽지 않음'} className="w-full h-full" />
+        <Circle
+          className={cn('w-3 h-3', isRead ? 'text-gray-100' : 'text-primary-600')}
+          fill="currentColor"
+          stroke="none"
+          aria-label={isRead ? '읽음' : '읽지 않음'}
+        />
       </div>
 
       <div className="absolute left-[70px] right-[136px] top-[20px] h-[19px] text-[16px] font-bold text-gray-800 leading-none truncate">
