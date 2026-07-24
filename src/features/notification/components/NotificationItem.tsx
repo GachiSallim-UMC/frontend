@@ -47,6 +47,7 @@ export const NotificationItem: FC<NotificationItemProps> = ({
           className={cn('w-3 h-3', isRead ? 'text-gray-100' : 'text-primary-600')}
           fill="currentColor"
           stroke="none"
+          role="img"
           aria-label={isRead ? '읽음' : '읽지 않음'}
         />
       </div>
