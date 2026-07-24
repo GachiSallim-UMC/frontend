@@ -1,4 +1,5 @@
 import { apiClient, withSelectedGroupParams } from '@/shared/api';
+import { ACTIVITY_CATEGORIES } from '../types/activity.type';
 import type { ActivityCategory, ActivityLog } from '../types/activity.type';
 
 const BASE = '/activities';
@@ -40,13 +41,19 @@ const ACTIVITY_TYPE_ROUTES: Record<ActivityCategory, (refId: number | null) => s
   MEMBER_JOINED: () => '/group/settings',
 };
 
+/** 응답의 type이 프론트가 아는 8개 유형에 없을 수 있어(신규 enum 값 등) 런타임에도 확인 */
+const isKnownActivityCategory = (type: string): type is ActivityCategory =>
+  (ACTIVITY_CATEGORIES as readonly string[]).includes(type);
+
 const toActivityLog = (item: ActivityLogResponseItem): ActivityLog => ({
   id: item.id,
   type: item.type,
   description: item.description,
   createdAt: item.createdAt,
   user: item.user,
-  route: ACTIVITY_TYPE_ROUTES[item.type](item.refId ?? null),
+  route: isKnownActivityCategory(item.type)
+    ? ACTIVITY_TYPE_ROUTES[item.type](item.refId ?? null)
+    : null,
 });
 
 type ActivityLogRawResponse =

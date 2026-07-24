@@ -22,8 +22,8 @@ export interface ActivityLog {
     id: number;
     nickname: string;
   };
-  /** 클릭 시 이동할 경로 */
-  route: string;
+  /** 클릭 시 이동할 경로. 백엔드가 내려준 type이 알려진 유형이 아니면 null(이동 불가) */
+  route: string | null;
 }
 
 export interface ActivityLogGroup {
