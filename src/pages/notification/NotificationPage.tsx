@@ -15,6 +15,7 @@ export const NotificationPage = () => {
     categoryOptions,
     filteredNotifications,
     markAllAsRead,
+    hideNotification,
   } = useNotifications(notifications as any);
 
   const [openFilter, setOpenFilter] = useState<NotificationFilterKey | null>(null);
@@ -52,7 +53,7 @@ export const NotificationPage = () => {
           </div>
 
           <div className="flex-1 min-h-0 flex flex-col items-start w-full px-[30px] overflow-y-auto">
-            <NotificationList notifications={filteredNotifications} />
+            <NotificationList notifications={filteredNotifications} onHide={hideNotification} />
           </div>
         </div>
       </div>

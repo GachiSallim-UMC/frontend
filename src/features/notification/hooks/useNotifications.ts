@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import type { Notification } from '@/features/notification/types';
+import { notificationApi } from '@/features/notification/api/notification.api';
 
 export const useNotifications = (initialData: Notification[]) => {
   const [statusFilter, setStatusFilter] = useState('전체');
@@ -37,6 +39,13 @@ export const useNotifications = (initialData: Notification[]) => {
     );
   };
 
+  const hideMutation = useMutation({
+    mutationFn: (id: string) => notificationApi.hide(id),
+    onSuccess: (_data, id) => {
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    },
+  });
+
   return {
     statusFilter,
     setStatusFilter,
@@ -46,5 +55,6 @@ export const useNotifications = (initialData: Notification[]) => {
     categoryOptions,
     filteredNotifications,
     markAllAsRead,
+    hideNotification: hideMutation.mutate,
   };
 };
