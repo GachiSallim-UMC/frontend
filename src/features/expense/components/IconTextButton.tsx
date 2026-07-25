@@ -9,7 +9,7 @@ export interface IconTextButtonProps extends React.ButtonHTMLAttributes<HTMLButt
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export default function IconTextButton({
+export  function IconTextButton({
   label,
   iconComponent: Icon,
   iconSrc,
