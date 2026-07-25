@@ -1,6 +1,6 @@
 export type Status = 'done' | 'pending' | 'scheduled';
 export type ExpenseStatus = 'paid' | 'unpaid';
-export type ItemStatus = 'enough' | 'short' | 'empty';
+export type ItemStatus = 'enough' | 'short' | 'empty' | 'purchased';
 export type RuleStatus = 'active' | 'inactive';
 
 export interface User {

@@ -10,6 +10,7 @@ type BadgeVariant =
   | 'short'
   | 'empty'
   | 'enough'
+  | 'purchased'
   | 'disagree';
 
 interface StatusBadgeProps {
@@ -35,6 +36,7 @@ const variantConfig: Record<BadgeVariant, { label: string; className: string }> 
   short: { label: '부족', className: 'bg-orange-100 text-orange-700' },
   empty: { label: '소진', className: 'bg-red-100 text-red-700' },
   enough: { label: '충분', className: 'bg-green-300 text-green-700' },
+  purchased: { label: '구매완료', className: 'bg-green-300 text-green-700' },
   disagree: { label: '반대', className: 'bg-red-100 text-red-700' },
 };
 

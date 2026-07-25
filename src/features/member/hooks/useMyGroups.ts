@@ -20,6 +20,8 @@ const toGroup = (group: MemberGroupResponse): Group => ({
 export const MEMBER_QUERY_KEYS = {
   all: ['member'] as const,
   myGroups: (userId: string | null) => [...MEMBER_QUERY_KEYS.all, 'my-groups', userId] as const,
+  groupMembers: (groupId: string | null) =>
+    [...MEMBER_QUERY_KEYS.all, 'group-members', groupId] as const,
 };
 
 /** 로그인한 사용자가 실제로 속한 그룹 목록 */

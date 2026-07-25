@@ -51,3 +51,14 @@ export interface MemberGroupResponse {
   updatedAt: string;
 }
 
+export interface GroupMemberResponse {
+  id: string;
+  userId: string;
+  groupId: string;
+  role: MemberRole;
+  joinedAt: string;
+  leftAt: string | null;
+  name: string;
+  nickname: string;
+  profileImage: string | null;
+}

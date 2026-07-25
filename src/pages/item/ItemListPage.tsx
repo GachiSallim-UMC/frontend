@@ -8,12 +8,31 @@ import {
   ITEM_STATUS_FILTER_TABS,
   ItemTable,
   useItemFilters,
+  useItems,
 } from '@/features/item';
-import { FilterTabGroup, SearchInput, SummaryCard } from '@/shared/components/ui';
+import { useGroupMembers } from '@/features/member';
 import { SelectDropdown } from '@/shared/components/form';
-import { items } from '@/pages/_shared/mockData';
+import { FilterTabGroup, SearchInput, SummaryCard } from '@/shared/components/ui';
 
 export const ItemListPage = () => {
+  const { data = [], isLoading, error, refetch } = useItems();
+  const { data: groupMembers } = useGroupMembers();
+  const items = data.map(item => {
+    if (!item.buyer) return item;
+
+    const member = groupMembers.find(entry => entry.userId === item.buyer?.id);
+    if (!member) return item;
+
+    return {
+      ...item,
+      buyer: {
+        ...item.buyer,
+        name: member.name,
+        nickname: member.nickname,
+        avatarUrl: member.profileImage ?? undefined,
+      },
+    };
+  });
   const {
     statusFilter,
     setStatusFilter,
@@ -99,7 +118,24 @@ export const ItemListPage = () => {
           </Link>
         </div>
 
-        <ItemTable items={filteredItems} />
+        {isLoading ? (
+          <p className="flex h-[428px] items-center justify-center text-gray-500">
+            공용물품을 불러오는 중입니다.
+          </p>
+        ) : error ? (
+          <div className="flex h-[428px] flex-col items-center justify-center gap-3 text-gray-500">
+            <p>{error instanceof Error ? error.message : '공용물품을 불러오지 못했습니다.'}</p>
+            <button
+              type="button"
+              className="text-button font-bold text-primary-600"
+              onClick={() => void refetch()}
+            >
+              다시 시도
+            </button>
+          </div>
+        ) : (
+          <ItemTable items={filteredItems} />
+        )}
       </section>
     </div>
   );
