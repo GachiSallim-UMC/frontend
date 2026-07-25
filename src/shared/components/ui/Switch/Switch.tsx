@@ -25,7 +25,7 @@ export const Switch = ({
       onClick={() => onChange(!checked)}
       className={cn(
         'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full transition-opacity',
-        'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',
         disabled && 'cursor-not-allowed opacity-50',
         className
       )}
