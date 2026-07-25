@@ -5,13 +5,21 @@ import {
   RULE_STATUS_OPTIONS,
   RuleListRow,
   useRuleFilters,
+  useRules,
+  useShareRule,
 } from '@/features/rule';
 import { SelectDropdown } from '@/shared/components/form';
-import { rules } from '@/pages/_shared/mockData';
 
 export const RuleListPage = () => {
+  const { data = [] } = useRules();
+  const shareRule = useShareRule();
   const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } =
-    useRuleFilters(rules);
+    useRuleFilters(data);
+
+  const handleShare = (id: string) => {
+    if (shareRule.isPending) return;
+    shareRule.mutate(id);
+  };
 
   return (
     <section className="mx-auto mt-16 h-[472px] w-full max-w-[1114px] rounded-[20px] bg-white p-[30px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
@@ -49,7 +57,12 @@ export const RuleListPage = () => {
         ) : (
           <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto [&::-webkit-scrollbar]:w-[5px]">
             {filteredRules.map((rule, index) => (
-              <RuleListRow key={rule.id} rule={rule} isLast={index === filteredRules.length - 1} />
+              <RuleListRow
+                key={rule.id}
+                rule={rule}
+                isLast={index === filteredRules.length - 1}
+                onShare={handleShare}
+              />
             ))}
           </div>
         )}

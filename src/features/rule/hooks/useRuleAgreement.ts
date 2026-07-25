@@ -1,13 +1,10 @@
-import { useMemo, useState } from 'react';
-import type { User } from '@/shared/types';
-import { RULE_CATEGORY_LABEL } from './useRuleFilters';
-import type { Rule } from '../types/rule.types';
+import { useMemo } from 'react';
+import type { Rule, RuleAgreementApiStatus, RuleUser } from '../types/rule.types';
 
 export type MyAgreement = 'agree' | 'disagree' | 'pending';
-
 export type RuleHistoryType = 'register' | 'agree' | 'edit';
 
-interface RuleHistoryEntry {
+export interface RuleHistoryEntry {
   id: string;
   type: RuleHistoryType;
   title: string;
@@ -15,63 +12,65 @@ interface RuleHistoryEntry {
   time: string | null;
 }
 
-/** 동의 현황 멤버별 상태, 나의 동의 토글, 규칙 히스토리 파생 */
-export const useRuleAgreement = (rule: Rule, currentUser: User, members: User[]) => {
-  // 등록자는 규칙에 동의한 것으로 간주한다.
-  const iAlreadyAgreed =
-    rule.registeredBy.id === currentUser.id ||
-    rule.agreement.agreedMembers.some(member => member.id === currentUser.id);
-  const [myAgreement, setMyAgreement] = useState<MyAgreement>(iAlreadyAgreed ? 'agree' : 'pending');
+const AGREEMENT_FROM_API: Record<RuleAgreementApiStatus, MyAgreement> = {
+  AGREED: 'agree',
+  DISAGREED: 'disagree',
+  PENDING: 'pending',
+};
+
+const getHistoryType = (action: string): RuleHistoryType => {
+  const normalized = action.toUpperCase();
+  if (normalized.includes('CREATE') || normalized.includes('REGISTER')) return 'register';
+  if (normalized.includes('AGREE')) return 'agree';
+  return 'edit';
+};
+
+const formatHistoryTime = (value: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('ko-KR', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+};
+
+/** 상세 응답의 멤버별 동의 상태와 히스토리를 화면 모델로 변환합니다. */
+export const useRuleAgreement = (rule: Rule, currentUserId?: string | null) => {
+  const myAgreement = rule.myAgreementStatus
+    ? AGREEMENT_FROM_API[rule.myAgreementStatus]
+    : 'pending';
 
   const memberStatuses = useMemo(
     () =>
-      members.map(member => {
-        const isMe = member.id === currentUser.id;
-        const isRegistrant = member.id === rule.registeredBy.id;
-        const agreedInRule =
-          isRegistrant || rule.agreement.agreedMembers.some(agreed => agreed.id === member.id);
-        // 내 행은 '나의 동의 상태' 토글 값을 즉시 반영하고, 나머지 멤버는 규칙의 동의 현황을 따른다.
-        const agreement: MyAgreement = isMe ? myAgreement : agreedInRule ? 'agree' : 'pending';
-        return { member, isMe, isRegistrant, agreement };
+      (rule.agreements ?? []).map(agreement => {
+        const member: RuleUser = {
+          id: agreement.userId,
+          name: agreement.nickname,
+          nickname: agreement.nickname,
+        };
+        return {
+          member,
+          isMe: agreement.userId === currentUserId,
+          isRegistrant: agreement.userId === rule.registeredBy.id,
+          agreement: AGREEMENT_FROM_API[agreement.status],
+        };
       }),
-    [members, currentUser.id, rule.registeredBy.id, rule.agreement.agreedMembers, myAgreement],
+    [currentUserId, rule.agreements, rule.registeredBy.id],
   );
 
-  const historyEntries = useMemo<RuleHistoryEntry[]>(() => {
-    const agreeingMember = rule.agreement.agreedMembers.find(
-      member => member.id !== rule.registeredBy.id,
-    );
-
-    const entries: RuleHistoryEntry[] = [
-      {
-        id: 'h-edited',
-        type: 'edit',
-        title: `${rule.registeredBy.name} 님이 규칙을 수정했습니다.`,
-        subtitle: `${RULE_CATEGORY_LABEL[rule.category]} 카테고리 변경, 상세 설명 수정`,
-        time: '1일 전',
-      },
-    ];
-
-    if (agreeingMember) {
-      entries.push({
-        id: 'h-agreed',
-        type: 'agree',
-        title: `${agreeingMember.name} 님이 동의했습니다.`,
+  const historyEntries = useMemo<RuleHistoryEntry[]>(
+    () =>
+      (rule.histories ?? []).map(history => ({
+        id: history.id,
+        type: getHistoryType(history.action),
+        title: history.message,
         subtitle: rule.title,
-        time: '2일 전',
-      });
-    }
+        time: formatHistoryTime(history.createdAt),
+      })),
+    [rule.histories, rule.title],
+  );
 
-    entries.push({
-      id: 'h-created',
-      type: 'register',
-      title: `${rule.registeredBy.name} 님이 규칙을 등록했습니다.`,
-      subtitle: `새 규칙: ${rule.title}`,
-      time: '4일 전',
-    });
-
-    return entries;
-  }, [rule]);
-
-  return { myAgreement, setMyAgreement, memberStatuses, historyEntries };
+  return { myAgreement, memberStatuses, historyEntries };
 };

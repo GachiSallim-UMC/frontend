@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RULE_CATEGORY_OPTIONS, RULE_STATUS_OPTIONS, useRuleForm } from '@/features/rule';
-import { FormActions } from '@/shared/components/ui';
+import {
+  RULE_CATEGORY_OPTIONS,
+  RULE_STATUS_OPTIONS,
+  useCreateRule,
+  useRuleForm,
+  useShareRule,
+  useUpdateRule,
+} from '@/features/rule';
+import { FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 
@@ -11,16 +18,50 @@ export const RuleFormPage = () => {
   const navigate = useNavigate();
   const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
     useRuleForm();
+  const createRule = useCreateRule();
+  const updateRule = useUpdateRule();
+  const shareRule = useShareRule();
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const handleSave = () => {
+  const handleSubmit = async (shareAfterSave: boolean) => {
+    if (createRule.isPending || updateRule.isPending || shareRule.isPending) return;
+
     const nextErrors: FormErrors = {};
     if (!title.trim()) nextErrors.title = '규칙 제목을 입력해 주세요.';
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-    navigate('/rules');
+    if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+
+    try {
+      const created = await createRule.mutateAsync({
+        title: title.trim(),
+        category,
+        content: content.trim(),
+      });
+      if (status !== 'active') {
+        await updateRule.mutateAsync({
+          id: String(created.ruleId),
+          dto: {
+            title: title.trim(),
+            category,
+            content: content.trim(),
+            status,
+          },
+        });
+      }
+      if (shareAfterSave) {
+        try {
+          await shareRule.mutateAsync(String(created.ruleId));
+        } finally {
+          navigate('/rules');
+        }
+        return;
+      }
+      navigate('/rules');
+    } catch {
+      // 공통 API 오류 처리에 위임한다.
+    }
   };
 
   return (
@@ -80,7 +121,11 @@ export const RuleFormPage = () => {
           </div>
         </Panel>
 
-        <FormActions onSave={handleSave} onCancel={() => navigate(-1)} />
+        <FormActions
+          onSave={() => void handleSubmit(false)}
+          onCancel={() => navigate(-1)}
+          rightSlot={<ShareMessengerButton onClick={() => void handleSubmit(true)} />}
+        />
       </div>
     </div>
   );

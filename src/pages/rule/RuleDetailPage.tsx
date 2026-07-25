@@ -4,15 +4,20 @@ import {
   RULE_CATEGORY_OPTIONS,
   RULE_STATUS_OPTIONS,
   useRuleAgreement,
+  useRuleDetail,
   useRuleForm,
+  useShareRule,
+  useUpdateRule,
+  useUpdateRuleAgreement,
   type MyAgreement,
   type Rule,
+  type RuleAgreementApiStatus,
   type RuleHistoryType,
 } from '@/features/rule';
-import { FormActions, StatusBadge, UserAvatar } from '@/shared/components/ui';
+import { FormActions, ShareMessengerButton, StatusBadge, UserAvatar } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
-import { currentUser, rules, users } from '@/pages/_shared/mockData';
+import { useAuthStore } from '@/shared/store';
 import HistoryRegisterIcon from '@/assets/icons/rule/history-register.svg?react';
 import HistoryEditIcon from '@/assets/icons/rule/history-edit.svg?react';
 import HistoryAgreeIcon from '@/assets/icons/rule/history-agree.svg?react';
@@ -23,13 +28,16 @@ const HISTORY_ICON: Record<RuleHistoryType, ComponentType<{ className?: string }
   edit: HistoryEditIcon,
 };
 
-const AGREEMENT_TOGGLE_OPTIONS = [
-  { value: 'agree', label: '동의' },
-  { value: 'disagree', label: '반대' },
-  { value: 'pending', label: '보류' },
-] as const;
+const AGREEMENT_TOGGLE_OPTIONS: ReadonlyArray<{
+  value: MyAgreement;
+  apiStatus: RuleAgreementApiStatus;
+  label: string;
+}> = [
+  { value: 'agree', apiStatus: 'AGREED', label: '동의' },
+  { value: 'disagree', apiStatus: 'DISAGREED', label: '반대' },
+  { value: 'pending', apiStatus: 'PENDING', label: '보류' },
+];
 
-/** 동의 현황 목록의 멤버별 배지 — 토글의 동의/반대/보류 3단계와 1:1 대응 */
 const AGREEMENT_BADGE: Record<MyAgreement, ComponentProps<typeof StatusBadge>> = {
   agree: { variant: 'active', label: '동의' },
   disagree: { variant: 'disagree', label: '반대' },
@@ -45,36 +53,70 @@ const AGREEMENT_SUBLABEL: Record<MyAgreement, string> = {
 type FormErrors = Partial<Record<'title' | 'category' | 'status', string>>;
 
 export const RuleDetailPage = () => {
-  const { id } = useParams();
-  const rule = rules.find(item => item.id === id);
+  const { id = '' } = useParams();
+  const { data: rule, isLoading } = useRuleDetail(id);
 
-  if (!rule) {
-    return <Navigate to="/rules" replace />;
-  }
+  if (!id) return <Navigate to="/rules" replace />;
+  if (isLoading) return null;
+  if (!rule) return <Navigate to="/rules" replace />;
 
   return <RuleDetailContent rule={rule} />;
 };
 
-/** rule 존재가 보장된 뒤에만 훅을 실행하도록 RuleDetailPage에서 분리 */
 const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const navigate = useNavigate();
+  const currentUserId = useAuthStore(state => state.userId);
   const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
     useRuleForm(rule);
-  const { myAgreement, setMyAgreement, memberStatuses, historyEntries } = useRuleAgreement(
-    rule,
-    currentUser,
-    users,
-  );
+  const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
+  const updateRule = useUpdateRule();
+  const updateAgreement = useUpdateRuleAgreement();
+  const shareRule = useShareRule();
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const handleSave = () => {
+  const isPending = updateRule.isPending || updateAgreement.isPending;
+
+  const handleSave = async () => {
+    if (isPending) return;
+
     const nextErrors: FormErrors = {};
     if (!title.trim()) nextErrors.title = '규칙 제목을 입력해 주세요.';
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-    navigate('/rules');
+    if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+
+    try {
+      await updateRule.mutateAsync({
+        id: rule.id,
+        dto: {
+          title: title.trim(),
+          category,
+          content: content.trim(),
+          status,
+        },
+      });
+      navigate('/rules');
+    } catch {
+      // 공통 API 오류 처리에 위임한다.
+    }
+  };
+
+  const handleAgreement = async (agreementStatus: RuleAgreementApiStatus) => {
+    if (isPending) return;
+    try {
+      await updateAgreement.mutateAsync({
+        id: rule.id,
+        dto: { status: agreementStatus },
+      });
+    } catch {
+      // 공통 API 오류 처리에 위임한다.
+    }
+  };
+
+  const handleShare = () => {
+    if (shareRule.isPending) return;
+    shareRule.mutate(rule.id);
   };
 
   return (
@@ -132,12 +174,16 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           </div>
         </Panel>
 
-        <FormActions onSave={handleSave} onCancel={() => navigate(-1)} />
+        <FormActions
+          onSave={() => void handleSave()}
+          onCancel={() => navigate(-1)}
+          rightSlot={<ShareMessengerButton onClick={handleShare} />}
+        />
       </div>
 
       <div className="flex min-w-0 flex-col gap-[30px]">
         <Panel
-          title="동의 현황 (등록 후 표시)"
+          title="동의 현황"
           description="멤버들이 규칙에 동의하면 상태가 업데이트 됩니다."
           className="h-[435px] rounded-[18px] p-[30px] shadow-none"
           headerClassName="mb-2.5"
@@ -174,7 +220,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => setMyAgreement(option.value)}
+                  onClick={() => void handleAgreement(option.apiStatus)}
                   className={
                     myAgreement === option.value
                       ? 'h-[45px] w-[92px] shrink-0 rounded bg-gray-900 text-button font-normal text-white'
