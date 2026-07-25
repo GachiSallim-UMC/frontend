@@ -28,12 +28,33 @@ export interface ChatMessage {
   shareCard?: ChatShareCard;
 }
 
+export type ChatRoomCategory = 'group' | 'notice' | 'dm';
+
+export type ChatFilter = 'all' | 'group' | 'notice' | 'unread';
+
+export interface ChatRoomMember {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  /** 방장 여부 */
+  isOwner?: boolean;
+  /** 멤버 목록에 표시되는 가입/활동일 (예: '2026.03.02') */
+  joinedDateLabel?: string;
+}
+
 export interface ChatRoom {
   id: string;
   name: string;
   lastMessage: string;
   timestamp: string;
   unreadCount: number;
+  category: ChatRoomCategory;
+  members: ChatRoomMember[];
+  avatarUrl?: string;
+  /** 메시지 알림 on/off */
+  notificationEnabled: boolean;
+  /** 상단 고정 여부 */
+  isPinned: boolean;
 }
 
 /** 같은 발신자가 연속으로 보낸 메시지를 하나로 묶은 단위 */
@@ -43,7 +64,6 @@ export interface ChatMessageGroup {
   senderName: string;
   senderAvatarUrl?: string;
   isMine: boolean;
-  timestamp: string;
   items: ChatMessage[];
 }
 
