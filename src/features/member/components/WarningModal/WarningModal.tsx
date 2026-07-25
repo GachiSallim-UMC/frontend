@@ -8,7 +8,7 @@ interface WarningModalProps {
     onConfirm: () => void;
 }
 
-const WITHDRAWAL_AGREE_OPTIONS = [
+const GROUP_DELETE_AGREE_OPTIONS = [
   {
     value: 'agree1',
     label: <span className="text-base text-gray-600">삭제 후에는 그룹을 복구할 수 없습니다.</span>,
@@ -69,7 +69,7 @@ export const WarningModal = ({isOpen, onClose, onConfirm}: WarningModalProps) =>
                 <label className="mb-1 text-lg text-gray-800 font-bold">확인을 위해 체크해주세요.</label>
                 <CheckboxGroup
                     direction="col"
-                    options={WITHDRAWAL_AGREE_OPTIONS}
+                    options={GROUP_DELETE_AGREE_OPTIONS}
                     value={checkedValues}
                     onChange={setCheckedValues}
                     className="[&_input]:!h-5 [&_input]:!w-5 [&_label]:gap-3" 
