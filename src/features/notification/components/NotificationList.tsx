@@ -4,13 +4,24 @@ import { NotificationItem } from '@/features/notification/components/Notificatio
 
 interface NotificationListProps {
   notifications: Notification[];
+  onHide?: (id: string) => void;
+  onMarkAsRead?: (id: string) => void;
 }
 
-export const NotificationList: FC<NotificationListProps> = ({ notifications }) => {
+export const NotificationList: FC<NotificationListProps> = ({
+  notifications,
+  onHide,
+  onMarkAsRead,
+}) => {
   return (
     <div className="flex flex-col items-start w-full">
       {notifications.map((notification) => (
-        <NotificationItem key={notification.id} {...notification} />
+        <NotificationItem
+          key={notification.id}
+          {...notification}
+          onHide={onHide}
+          onMarkAsRead={onMarkAsRead}
+        />
       ))}
     </div>
   );

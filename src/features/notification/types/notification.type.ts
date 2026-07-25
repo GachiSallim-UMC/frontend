@@ -1,8 +1,19 @@
+export interface NotificationResponse {
+  notificationId: number;
+  groupId: number | null;
+  type: string;
+  refId: number | null;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 export interface Notification {
   id: string;
   title: string;
   message: string;
   time: string;
-  status: string;
-  isRead?: boolean;
+  category: string;
+  isRead: boolean;
+  route: string | null;
 }
