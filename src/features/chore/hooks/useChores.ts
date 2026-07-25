@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { choreApi } from '../api/chore.api';
-import type { ChoreFilter, CreateChoreDto } from '../types/chore.types';
+import type { ChoreFilter, CreateChoreDto, UpdateChoreDto } from '../types/chore.types';
 
 const CHORE_KEYS = {
   all: ['chores'] as const,
@@ -12,7 +12,7 @@ const CHORE_KEYS = {
 export const useChores = (filter?: ChoreFilter) =>
   useQuery({
     queryKey: CHORE_KEYS.list(filter),
-    queryFn: () => choreApi.getList(filter),
+    queryFn: () => choreApi.getList((filter || {}) as any),
   });
 
 /** 집안일 상세 조회 훅 */
@@ -30,6 +30,19 @@ export const useCreateChore = () => {
     mutationFn: (dto: CreateChoreDto) => choreApi.create(dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all });
+    },
+  });
+};
+
+/**집안일 수정 훅 */
+export const useUpdateChore = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateChoreDto }) => choreApi.update(id, dto),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: CHORE_KEYS.detail(variables.id) });
     },
   });
 };

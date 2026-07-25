@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { FilterTabGroup, type FilterTab } from '@/shared/components/ui/FilterTabGroup';
 import { SearchInput } from '@/shared/components/ui/SearchInput';
@@ -17,29 +18,34 @@ const FILTER_TABS: FilterTab<string>[] = [
 ];
 
 export const ChoreFilterBar = ({ filter, onFilterChange }: ChoreFilterBarProps) => {
-  const [activeTab, setActiveTab] = useState<string>('');
+  const [activeTabs, setActiveTabs] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center gap-[12px]">
         <FilterTabGroup
           tabs={FILTER_TABS}
-          value={activeTab}
+          value={activeTabs}
           onChange={val => {
-            if (activeTab === val) {
-              setActiveTab('');
+            if (activeTabs.includes(val)) {
+              setActiveTabs(prev => prev.filter(tab => tab !== val));
 
-              if (val === 'status') {
-                onFilterChange({ ...filter, status: undefined });
-              }
+              if (val === 'status') onFilterChange({ ...filter, status: undefined });
+              if (val === 'assignee') onFilterChange({ ...filter, assigneeId: undefined });
+              if (val === 'cycle') onFilterChange({ ...filter, repeatType: undefined });
             } else {
-              setActiveTab(val);
+              setActiveTabs(prev => [...prev, val]);
 
+              // 임시 로직: 임의의 값 1개로만 필터링 되도록 설정
               if (val === 'status') {
-                onFilterChange({
-                  ...filter,
-                  status: filter.status ? undefined : 'pending',
-                });
+                onFilterChange({ ...filter, status: 'PENDING' }); // 버튼 켜지면 '미완료'로 세팅
+              }
+              if (val === 'assignee') {
+                onFilterChange({ ...filter, assigneeId: 5 }); // 버튼 켜지면 특정 담당자(예: 5번)로 세팅
+              }
+              if (val === 'cycle') {
+                onFilterChange({ ...filter, repeatType: 'DAILY' }); // 버튼 켜지면 '매일'로 세팅
               }
             }
           }}
@@ -52,7 +58,9 @@ export const ChoreFilterBar = ({ filter, onFilterChange }: ChoreFilterBarProps) 
           onChange={e => onFilterChange({ ...(filter || {}), keyword: e.target.value })}
         />
       </div>
-      <Button leftIcon={<Plus size={24} />}>집안일 등록</Button>
+      <Button leftIcon={<Plus size={24} />} onClick={() => navigate('/chores/new')}>
+        집안일 등록
+      </Button>
     </div>
   );
 };

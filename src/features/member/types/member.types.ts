@@ -1,12 +1,13 @@
 export type MemberRole = 'ADMIN' | 'MEMBER';
 
 export interface Member {
-    id: string;
-    name: string;
-    role: MemberRole;
-    joinedAt?: string;
-    avatarUrl?: string;
-    avatarId?: number;
+  id: string;
+  userId: string;
+  name: string;
+  role: MemberRole;
+  joinedAt?: string;
+  avatarUrl?: string;
+  avatarId?: number;
 }
 
 export type PermissionType =
@@ -26,15 +27,15 @@ export interface Group {
   createdAt?: string;
   maxMemberCount?: number;
   memberCount: number;
-  members: User[],
+  members: User[];
   ownerId: string;
 }
 
 export interface AddGroupDto {
-    name: string;
-    description: string;
-    type: 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
-    maxMemberCount: number;
+  name: string;
+  description: string;
+  type: 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
+  maxMemberCount: number;
 }
 
 export interface MemberGroupResponse {
@@ -50,4 +51,3 @@ export interface MemberGroupResponse {
   createdAt: string;
   updatedAt: string;
 }
-

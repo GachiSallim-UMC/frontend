@@ -1,5 +1,5 @@
 import { ApiError, apiClient } from '@/shared/api';
-import type { MemberGroupResponse } from '../types/member.types';
+import type { MemberGroupResponse, Member } from '../types/member.types';
 
 const BASE = '/groups';
 
@@ -31,5 +31,11 @@ export const memberApi = {
       throw new ApiError(502, 'INVALID_API_RESPONSE', '그룹 목록 응답 형식이 올바르지 않습니다.');
     }
     return data;
+  },
+  //멤버 조회 API
+  getGroupMembers: async (groupId: string | number): Promise<Member[]> => {
+    const { data } = await apiClient.get<Member[]>(`${BASE}/${groupId}/members`);
+    // axios 응답 형태에 맞게 반환 (data 안에 배열이 바로 있는지, data.data 안에 있는지 방어 코드)
+    return Array.isArray(data) ? data : (data as any).data || [];
   },
 };
