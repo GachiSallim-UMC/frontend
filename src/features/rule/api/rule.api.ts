@@ -109,6 +109,25 @@ const isRuleDetail = (value: unknown): value is RuleDetailResponse => {
   );
 };
 
+const formatRuleDate = (value: string): string => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find(candidate => candidate.type === type)?.value;
+  const year = part('year');
+  const month = part('month');
+  const day = part('day');
+
+  return year && month && day ? `${year}-${month}-${day}` : value;
+};
+
 const toRule = (response: RuleListItemResponse | RuleDetailResponse): Rule => {
   const createdBy = {
     id: String(response.createdBy.userId),
@@ -141,7 +160,7 @@ const toRule = (response: RuleListItemResponse | RuleDetailResponse): Rule => {
     title: response.title,
     content: response.description ?? '',
     registeredBy: createdBy,
-    registeredAt: response.createdAt,
+    registeredAt: formatRuleDate(response.createdAt),
     updatedAt: response.updatedAt,
     agreement: {
       ...response.agreementSummary,

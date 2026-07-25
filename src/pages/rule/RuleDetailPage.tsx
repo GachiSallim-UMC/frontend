@@ -80,7 +80,12 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
     if (isPending) return;
 
     const nextErrors: FormErrors = {};
-    if (!title.trim()) nextErrors.title = '규칙 제목을 입력해 주세요.';
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      nextErrors.title = '규칙 제목을 입력해 주세요.';
+    } else if (trimmedTitle.length > 30) {
+      nextErrors.title = '규칙 제목은 30자 이하로 입력해 주세요.';
+    }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
@@ -90,7 +95,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
       await updateRule.mutateAsync({
         id: rule.id,
         dto: {
-          title: title.trim(),
+          title: trimmedTitle,
           category,
           content: content.trim(),
           status,
@@ -132,6 +137,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
             <FormInput
               label="규칙 제목"
               required
+              maxLength={30}
               value={title}
               onChange={e => setTitle(e.target.value)}
               error={errors.title}

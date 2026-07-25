@@ -21,7 +21,7 @@ const AGREEMENT_FROM_API: Record<RuleAgreementApiStatus, MyAgreement> = {
 const getHistoryType = (action: string): RuleHistoryType => {
   const normalized = action.toUpperCase();
   if (normalized.includes('CREATE') || normalized.includes('REGISTER')) return 'register';
-  if (normalized.includes('AGREE')) return 'agree';
+  if (normalized.includes('AGREE') || normalized === 'PENDING') return 'agree';
   return 'edit';
 };
 

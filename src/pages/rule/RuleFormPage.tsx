@@ -27,7 +27,12 @@ export const RuleFormPage = () => {
     if (createRule.isPending || updateRule.isPending || shareRule.isPending) return;
 
     const nextErrors: FormErrors = {};
-    if (!title.trim()) nextErrors.title = '규칙 제목을 입력해 주세요.';
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      nextErrors.title = '규칙 제목을 입력해 주세요.';
+    } else if (trimmedTitle.length > 30) {
+      nextErrors.title = '규칙 제목은 30자 이하로 입력해 주세요.';
+    }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
@@ -35,7 +40,7 @@ export const RuleFormPage = () => {
 
     try {
       const created = await createRule.mutateAsync({
-        title: title.trim(),
+        title: trimmedTitle,
         category,
         content: content.trim(),
       });
@@ -43,7 +48,7 @@ export const RuleFormPage = () => {
         await updateRule.mutateAsync({
           id: String(created.ruleId),
           dto: {
-            title: title.trim(),
+            title: trimmedTitle,
             category,
             content: content.trim(),
             status,
@@ -77,6 +82,7 @@ export const RuleFormPage = () => {
             <FormInput
               label="규칙 제목"
               required
+              maxLength={30}
               placeholder="예: 밤 11시 이후 조용히 하기"
               value={title}
               onChange={e => setTitle(e.target.value)}
