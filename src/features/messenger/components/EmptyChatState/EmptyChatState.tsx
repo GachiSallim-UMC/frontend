@@ -27,7 +27,7 @@ export const EmptyChatState = ({ onCreateRoom, isConnected = true }: EmptyChatSt
         </div>
         <button
           type="button"
-          onClick={onCreateRoom}
+          onClick={() => onCreateRoom()}
           className="flex h-[50px] w-[240px] items-center justify-center gap-1 rounded-lg bg-primary-600 text-[16px] font-normal leading-[normal] text-white transition-colors hover:bg-primary-700"
         >
           <Plus className="h-6 w-6" />
