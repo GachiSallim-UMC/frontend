@@ -14,7 +14,6 @@ const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
 const isPushSupported = () =>
   'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 
-/** 로그인/로그아웃 시점에 맞춰 웹 푸시 구독을 등록·해제하는 훅입니다. */
 export const usePushSubscription = () => {
   const subscribe = useCallback(async () => {
     if (!isPushSupported() || !VAPID_PUBLIC_KEY) return;
@@ -41,16 +40,11 @@ export const usePushSubscription = () => {
 
       localStorage.setItem(SUBSCRIPTION_ID_STORAGE_KEY, String(subscriptionId));
     } catch {
-      // 미지원 브라우저·권한 거부 등은 사용자 흐름을 막지 않도록 조용히 무시합니다.
+      // 미지원 브라우저 등은 조용히 무시
     }
   }, []);
 
-  /**
-   * 브라우저 알림 권한 팝업은 사용자 제스처(클릭) 컨텍스트에서 동기적으로 호출해야 뜹니다.
-   * 로그인 버튼의 onClick/onSubmit 핸들러에서 await 없이 바로 호출하세요.
-   * 권한이 허용되면 이어서 subscribe를 시도합니다(로그인 완료 전이면 실패하고,
-   * 로그인 완료 후 PushSubscriptionSync가 다시 시도해 성공합니다).
-   */
+  // 권한 팝업은 사용자 제스처 안에서 동기 호출해야 뜬다 — 로그인 버튼 핸들러에서 await 없이 호출
   const requestPermission = useCallback(() => {
     if (!isPushSupported() || Notification.permission !== 'default') return;
     Notification.requestPermission().then(permission => {
@@ -58,16 +52,17 @@ export const usePushSubscription = () => {
     });
   }, [subscribe]);
 
-  const unsubscribe = useCallback(async () => {
+  // 로그아웃 후엔 accessToken이 이미 비어 apiClient가 헤더를 못 붙이므로, 호출부에서 직전 토큰을 넘겨받는다
+  const unsubscribe = useCallback(async (accessToken?: string) => {
     const storedId = localStorage.getItem(SUBSCRIPTION_ID_STORAGE_KEY);
     if (!storedId) return;
 
     localStorage.removeItem(SUBSCRIPTION_ID_STORAGE_KEY);
 
     try {
-      await pushSubscriptionApi.unsubscribe(Number(storedId));
+      await pushSubscriptionApi.unsubscribe(Number(storedId), accessToken);
     } catch {
-      // 로그아웃 흐름을 막지 않도록 실패는 무시합니다.
+      // 실패해도 로그아웃 흐름은 막지 않음
     }
 
     try {

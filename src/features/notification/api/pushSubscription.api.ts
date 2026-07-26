@@ -9,7 +9,9 @@ export const pushSubscriptionApi = {
     return data;
   },
 
-  unsubscribe: async (subscriptionId: number): Promise<void> => {
-    await apiClient.delete(`${BASE}/${subscriptionId}`);
+  unsubscribe: async (subscriptionId: number, accessToken?: string): Promise<void> => {
+    await apiClient.delete(`${BASE}/${subscriptionId}`, {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    });
   },
 };
