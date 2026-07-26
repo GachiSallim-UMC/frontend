@@ -49,7 +49,7 @@ export const SettlementPreviewCard = ({
               </span>
             ) : (
               <span className='text-gray-900'>
-                {displayAmount.toLocaleString()}원 (직접입력)
+                {displayAmount.toLocaleString()}원 ({splitTypeLabel(expense)})
               </span>
             )}
           </div>
@@ -106,6 +106,12 @@ export const SettlementPreviewCard = ({
     </div>
   );
 };
+
+function splitTypeLabel(expense: Expense): string {
+  if (expense.splitType === 'RATIO') return '비율 분할';
+  if (expense.splitType === 'CUSTOM') return '직접 입력';
+  return '균등 분할';
+}
 
 function isDirectInputSummaryLabel(expense: Expense): string {
   return expense.splitType === 'CUSTOM' || expense.splitType === 'RATIO' ? '멤버별 부담 금액' : '1인당 부담 금액';
