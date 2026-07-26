@@ -1,5 +1,5 @@
 import { ApiError, apiClient } from '@/shared/api';
-import type { MemberGroupResponse, GroupMemberResponse } from '../types/member.types';
+import type { GroupMemberResponse, MemberGroupResponse } from '../types/member.types';
 
 const BASE = '/groups';
 
@@ -50,8 +50,9 @@ export const memberApi = {
   getGroupMembers: async (groupId: string): Promise<GroupMemberResponse[]> => {
     const { data } = await apiClient.get<GroupMemberResponse[]>(`${BASE}/${groupId}/members`);
     if (!Array.isArray(data) || !data.every(isGroupMemberResponse)) {
-      throw new ApiError(502, 'INVALID_API_RESPONSE', '그룹 멤버 응답 형식이 올바르지 않습니다.');
+      throw new ApiError(502, 'INVALID_API_RESPONSE', '그룹 멤버 목록 응답 형식이 올바르지 않습니다.');
     }
     return data;
   },
 };
+
