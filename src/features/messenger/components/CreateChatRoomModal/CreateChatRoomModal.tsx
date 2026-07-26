@@ -48,7 +48,7 @@ export const CreateChatRoomModal = ({
   };
 
   const handleCreate = () => {
-    if (!name.trim() || memberIds.length === 0) return;
+    if (!name.trim()) return;
     onCreate({ name: name.trim(), category, memberIds });
   };
 
@@ -114,7 +114,7 @@ export const CreateChatRoomModal = ({
         <button
           type="button"
           onClick={handleCreate}
-          disabled={!name.trim() || memberIds.length === 0}
+          disabled={!name.trim()}
           className="h-[58px] flex-1 rounded-lg bg-primary-600 text-[16px] font-bold leading-[normal] text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           채팅방 만들기
