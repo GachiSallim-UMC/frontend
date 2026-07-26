@@ -4,3 +4,13 @@ export { RecentActivityPanel } from './components/RecentActivityPanel';
 export { UnpaidExpensesPanel } from './components/UnpaidExpensesPanel';
 export { ShortageItemsPanel } from './components/ShortageItemsPanel';
 export { useDashboardData } from './hooks/useDashboardData'
+
+export type {
+    DashboardSummaryDto,
+    DashboardChoreDto,
+    DashboardExpenseDto,
+    DashboardSupplyDto,
+    DashboardActivityDto,
+    DashboardResponsePayloadDto,
+    DashboardApiResponse
+} from './types/dashboard.types'

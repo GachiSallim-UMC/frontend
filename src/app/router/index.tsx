@@ -45,7 +45,7 @@ export const router = createBrowserRouter([
           {
             element: <AppLayout />,
             children: [
-              { path: '/dashboard', element: <DashboardPage /> },
+              { path: '/dashboard/:groupId', element: <DashboardPage /> },
               { path: '/chores', element: <ChoreListPage /> },
               { path: '/chores/new', element: <ChoreCreatePage /> },
               { path: '/chores/:id/edit', element: <ChoreEditPage /> },

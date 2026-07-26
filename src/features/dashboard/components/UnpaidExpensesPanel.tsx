@@ -1,4 +1,5 @@
 import { Panel, StatusBadge } from "@/shared/components";
+import type { DashboardExpenseDto } from '@/features/dashboard/types/dashboard.types'
 
 import BasketIcon from "@/assets/icons/dashboard/unPaid/basket.svg?react"
 import BookIcon from "@/assets/icons/dashboard/unPaid/book.svg?react"
@@ -11,22 +12,7 @@ import HouseIcon from "@/assets/icons/dashboard/unPaid/house.svg?react"
 import ShoppingIcon from "@/assets/icons/dashboard/unPaid/shopping.svg?react"
 import SpoonIcon from "@/assets/icons/dashboard/unPaid/spoon.svg?react"
 
-export interface MemberShare {
-  amount: number;
-  isPaid: boolean;
-}
-
-interface Expense {
-  id: string;
-  title: string;
-  amount: number;
-  status: 'unpaid' | 'paid' | string;
-  payer: { name: string };
-  shares: MemberShare[];
-  category: string;
-}
-
-const getExpenseIcon = (category: string) => {
+const getExpenseIcon = (category?: string) => {
     switch (category) {
         case 'grocery':
             return <BasketIcon className="h-7 w-7" />;
@@ -51,14 +37,25 @@ const getExpenseIcon = (category: string) => {
     }
 }
 
-export const UnpaidExpensesPanel = ({expenses}: { expenses: Expense[] }) => {
+interface UnpaidExpensesPanelProps {
+    expenses: DashboardExpenseDto[];
+}
+
+export const UnpaidExpensesPanel = ({ expenses }: UnpaidExpensesPanelProps) => {
+    if (expenses.length === 0) {
+        return (
+            <Panel>
+                <p className="text-sm text-gray-500 pb-5">미정산된 내역이 없습니다.</p>
+            </Panel>
+        );
+    }
+
     return (
         <Panel>
             <ul className="flex flex-col gap-5">
                 {expenses.map((expense) => {
-                    const perPerson = Math.floor(expense.amount / expense.shares.length);
                     return (
-                        <li key={expense.id} className="flex items-center justify-between border-b border-gray-100 pb-5 last:border-0 last:pb-0">
+                        <li key={expense.expenseId} className="flex items-center justify-between border-b border-gray-100 pb-5 last:border-0 last:pb-0">
                             <div className="flex items-center">
                                 <div className="mr-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-100">
                                     {getExpenseIcon(expense.category)}
@@ -67,11 +64,12 @@ export const UnpaidExpensesPanel = ({expenses}: { expenses: Expense[] }) => {
                                 <div>
                                     <p className="font-bold text-gray-900">{expense.title}</p>
                                     <p className="mt-1 text-sm text-gray-600">
-                                        {expense.payer.name} {expense.status === 'unpaid' ? '미수' : '선지불'} | 1인당 {perPerson.toLocaleString()}원
+                                        {expense.payerName} 선지불 | 1인당 {expense.amountPerPerson.toLocaleString()}원
                                     </p>
                                 </div>
                             </div>
-                            <StatusBadge variant={expense.status === 'paid' ? 'done' : 'unpaid'} />
+                            {/* API 명세 기준 상태값(SETTLED 등)으로 분기 처리 */}
+                            <StatusBadge variant={expense.status === 'SETTLED' ? 'done' : 'unpaid'} />
                         </li>
                     );
                 })}
