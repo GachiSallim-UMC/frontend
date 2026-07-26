@@ -22,6 +22,7 @@ export const RuleFormPage = () => {
   const updateRule = useUpdateRule();
   const shareRule = useShareRule();
   const [errors, setErrors] = useState<FormErrors>({});
+  const mutationError = createRule.error ?? updateRule.error ?? shareRule.error;
 
   const handleSubmit = async (shareAfterSave: boolean) => {
     if (createRule.isPending || updateRule.isPending || shareRule.isPending) return;
@@ -65,7 +66,7 @@ export const RuleFormPage = () => {
       }
       navigate('/rules');
     } catch {
-      // 공통 API 오류 처리에 위임한다.
+      // mutationError를 폼 하단에 표시한다.
     }
   };
 
@@ -126,6 +127,14 @@ export const RuleFormPage = () => {
             />
           </div>
         </Panel>
+
+        {mutationError && (
+          <p className="text-caption text-red-500">
+            {mutationError instanceof Error
+              ? mutationError.message
+              : '생활규칙 요청을 처리하지 못했습니다.'}
+          </p>
+        )}
 
         <FormActions
           onSave={() => void handleSubmit(false)}

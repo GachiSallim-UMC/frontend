@@ -11,7 +11,7 @@ import {
 import { SelectDropdown } from '@/shared/components/form';
 
 export const RuleListPage = () => {
-  const { data = [] } = useRules();
+  const { data = [], isLoading, error, refetch } = useRules();
   const shareRule = useShareRule();
   const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } =
     useRuleFilters(data);
@@ -50,7 +50,22 @@ export const RuleListPage = () => {
       </div>
 
       <div className="flex h-[342px] w-full flex-col overflow-hidden rounded-[10px] border border-gray-100 bg-white">
-        {filteredRules.length === 0 ? (
+        {isLoading ? (
+          <p className="flex h-full items-center justify-center text-gray-500">
+            생활규칙을 불러오는 중입니다.
+          </p>
+        ) : error ? (
+          <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-500">
+            <p>{error instanceof Error ? error.message : '생활규칙을 불러오지 못했습니다.'}</p>
+            <button
+              type="button"
+              className="text-button font-bold text-primary-600"
+              onClick={() => void refetch()}
+            >
+              다시 시도
+            </button>
+          </div>
+        ) : filteredRules.length === 0 ? (
           <p className="flex h-full items-center justify-center text-gray-400">
             등록된 생활 규칙이 없습니다.
           </p>

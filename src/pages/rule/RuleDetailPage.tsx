@@ -54,10 +54,26 @@ type FormErrors = Partial<Record<'title' | 'category' | 'status', string>>;
 
 export const RuleDetailPage = () => {
   const { id = '' } = useParams();
-  const { data: rule, isLoading } = useRuleDetail(id);
+  const { data: rule, isLoading, error, refetch } = useRuleDetail(id);
 
   if (!id) return <Navigate to="/rules" replace />;
-  if (isLoading) return null;
+  if (isLoading) {
+    return <p className="mt-16 text-center text-gray-500">생활규칙을 불러오는 중입니다.</p>;
+  }
+  if (error) {
+    return (
+      <div className="mt-16 flex flex-col items-center justify-center gap-3 text-gray-500">
+        <p>{error instanceof Error ? error.message : '생활규칙을 불러오지 못했습니다.'}</p>
+        <button
+          type="button"
+          className="text-button font-bold text-primary-600"
+          onClick={() => void refetch()}
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
   if (!rule) return <Navigate to="/rules" replace />;
 
   return <RuleDetailContent rule={rule} />;
@@ -75,6 +91,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const isPending = updateRule.isPending || updateAgreement.isPending;
+  const mutationError = updateRule.error ?? updateAgreement.error ?? shareRule.error;
 
   const handleSave = async () => {
     if (isPending) return;
@@ -103,7 +120,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
       });
       navigate('/rules');
     } catch {
-      // 공통 API 오류 처리에 위임한다.
+      // mutationError를 폼 하단에 표시한다.
     }
   };
 
@@ -115,7 +132,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         dto: { status: agreementStatus },
       });
     } catch {
-      // 공통 API 오류 처리에 위임한다.
+      // mutationError를 폼 하단에 표시한다.
     }
   };
 
@@ -179,6 +196,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
             />
           </div>
         </Panel>
+
+        {mutationError && (
+          <p className="text-caption text-red-500">
+            {mutationError instanceof Error
+              ? mutationError.message
+              : '생활규칙 요청을 처리하지 못했습니다.'}
+          </p>
+        )}
 
         <FormActions
           onSave={() => void handleSave()}
