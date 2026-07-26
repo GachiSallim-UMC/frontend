@@ -13,9 +13,9 @@ interface ChatBubbleProps {
 
 export const ChatBubble = ({ senderName, senderAvatarUrl, isMine = false, items, onViewShareDetail }: ChatBubbleProps) => {
   return (
-    <div className={cn('flex w-full items-start gap-2.5', isMine && 'flex-row-reverse')}>
+    <div className={cn('flex w-full max-w-[50%] min-w-0 items-start gap-2.5', isMine && 'ml-auto flex-row-reverse')}>
       <UserAvatar name={senderName} avatarUrl={senderAvatarUrl} size="lg" className="h-11 w-11 shrink-0" />
-      <div className={cn('flex flex-col gap-2', isMine ? 'items-end' : 'items-start')}>
+      <div className={cn('flex min-w-0 flex-col gap-2', isMine ? 'items-end' : 'items-start')}>
         <span className="text-[16px] font-bold leading-[normal] text-gray-900">{senderName}</span>
         {items.map((item, index) => {
           const { shareCard } = item;
@@ -23,14 +23,14 @@ export const ChatBubble = ({ senderName, senderAvatarUrl, isMine = false, items,
           const showTimestamp = items[index + 1]?.timestamp !== item.timestamp;
 
           return (
-            <div key={item.id} className={cn('flex items-end gap-3', isMine && 'flex-row-reverse')}>
+            <div key={item.id} className={cn('flex min-w-0 items-end gap-3', isMine && 'flex-row-reverse')}>
               {shareCard ? (
                 <ShareCard {...shareCard} onViewDetail={() => onViewShareDetail?.(shareCard)} />
               ) : (
                 <div
                   className={cn(
-                    'flex h-12 max-w-[420px] items-center rounded-[10px] border border-gray-100 bg-white px-4 text-[16px] font-normal leading-[normal] text-gray-900',
-                    isMine && 'justify-end text-right',
+                    'min-h-12 max-w-[420px] min-w-0 whitespace-pre-wrap break-words rounded-[10px] border border-gray-100 bg-white px-4 py-3 text-[16px] font-normal leading-[normal] text-gray-900',
+                    isMine && 'text-right',
                   )}
                 >
                   {item.content}
