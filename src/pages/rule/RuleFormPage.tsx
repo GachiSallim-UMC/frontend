@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RULE_CATEGORY_OPTIONS, RULE_STATUS_OPTIONS, useRuleForm } from '@/features/rule';
-import { FormActions } from '@/shared/components/ui';
+import {
+  RULE_CATEGORY_OPTIONS,
+  RULE_STATUS_OPTIONS,
+  useCreateRule,
+  useRuleForm,
+  useShareRule,
+  useUpdateRule,
+} from '@/features/rule';
+import { FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 
@@ -11,16 +18,56 @@ export const RuleFormPage = () => {
   const navigate = useNavigate();
   const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
     useRuleForm();
+  const createRule = useCreateRule();
+  const updateRule = useUpdateRule();
+  const shareRule = useShareRule();
   const [errors, setErrors] = useState<FormErrors>({});
+  const mutationError = createRule.error ?? updateRule.error ?? shareRule.error;
 
-  const handleSave = () => {
+  const handleSubmit = async (shareAfterSave: boolean) => {
+    if (createRule.isPending || updateRule.isPending || shareRule.isPending) return;
+
     const nextErrors: FormErrors = {};
-    if (!title.trim()) nextErrors.title = '규칙 제목을 입력해 주세요.';
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      nextErrors.title = '규칙 제목을 입력해 주세요.';
+    } else if (trimmedTitle.length > 30) {
+      nextErrors.title = '규칙 제목은 30자 이하로 입력해 주세요.';
+    }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-    navigate('/rules');
+    if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+
+    try {
+      const created = await createRule.mutateAsync({
+        title: trimmedTitle,
+        category,
+        content: content.trim(),
+      });
+      if (status !== 'active') {
+        await updateRule.mutateAsync({
+          id: String(created.ruleId),
+          dto: {
+            title: trimmedTitle,
+            category,
+            content: content.trim(),
+            status,
+          },
+        });
+      }
+      if (shareAfterSave) {
+        try {
+          await shareRule.mutateAsync(String(created.ruleId));
+        } finally {
+          navigate('/rules');
+        }
+        return;
+      }
+      navigate('/rules');
+    } catch {
+      // mutationError를 폼 하단에 표시한다.
+    }
   };
 
   return (
@@ -36,6 +83,7 @@ export const RuleFormPage = () => {
             <FormInput
               label="규칙 제목"
               required
+              maxLength={30}
               placeholder="예: 밤 11시 이후 조용히 하기"
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -80,7 +128,19 @@ export const RuleFormPage = () => {
           </div>
         </Panel>
 
-        <FormActions onSave={handleSave} onCancel={() => navigate(-1)} />
+        {mutationError && (
+          <p className="text-caption text-red-500">
+            {mutationError instanceof Error
+              ? mutationError.message
+              : '생활규칙 요청을 처리하지 못했습니다.'}
+          </p>
+        )}
+
+        <FormActions
+          onSave={() => void handleSubmit(false)}
+          onCancel={() => navigate(-1)}
+          rightSlot={<ShareMessengerButton onClick={() => void handleSubmit(true)} />}
+        />
       </div>
     </div>
   );
