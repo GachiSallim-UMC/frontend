@@ -35,6 +35,7 @@ export const LoginForm = ({ onSubmit, isSubmitting = false, errorMessage }: Logi
                         required
                     />
                 </div>
+                
                 <div>
                     <label className="mt-4 mb-2 block text-base font-bold text-gray-800">비밀번호</label>
                     <FormInput
