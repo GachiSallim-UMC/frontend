@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import type { ItemStatus } from '@/shared/types';
-import type { Item, ItemCategory } from '../types/item.types';
+import type { EditableItemStatus, Item, ItemCategory } from '../types/item.types';
 
-export const ITEM_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
+export const ITEM_STATUS_OPTIONS: { value: EditableItemStatus; label: string }[] = [
   { value: 'enough', label: '충분' },
   { value: 'short', label: '부족' },
   { value: 'empty', label: '소진' },
@@ -12,7 +11,9 @@ export const ITEM_STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
 export const useItemForm = (editingItem?: Item) => {
   const [name, setName] = useState(editingItem?.name ?? '');
   const [category, setCategory] = useState<ItemCategory | ''>(editingItem?.category ?? '');
-  const [status, setStatus] = useState<ItemStatus | ''>(editingItem?.status ?? '');
+  // PURCHASED는 구매 API에서만 만드는 상태다. 빈 값은 정보 수정 시 현재 상태 유지를 뜻한다.
+  const initialStatus = editingItem?.status === 'purchased' ? '' : editingItem?.status;
+  const [status, setStatus] = useState<EditableItemStatus | ''>(initialStatus ?? '');
   const [buyerId, setBuyerId] = useState(editingItem?.buyer?.id ?? '');
   const [memo, setMemo] = useState(editingItem?.memo ?? '');
 

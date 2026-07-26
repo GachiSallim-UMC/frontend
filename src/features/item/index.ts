@@ -12,5 +12,28 @@ export {
 export type { ItemStatusFilter } from './hooks/useItemFilters';
 export { useItemForm, ITEM_STATUS_OPTIONS } from './hooks/useItemForm';
 export { useQuickItemStatus } from './hooks/useQuickItemStatus';
+export {
+  useCreateItem,
+  useDeleteItem,
+  useItems,
+  usePurchaseItem,
+  useShareItem,
+  useUpdateItem,
+  useUpdateItemStatus,
+} from './hooks/useItems';
 export { ItemTable } from './components/ItemTable';
-export type { Item, ItemCategory, CreateItemDto } from './types/item.types';
+export { itemApi } from './api/item.api';
+export type {
+  CreateItemDto,
+  EditableItemStatus,
+  Item,
+  ItemCategory,
+  ItemUser,
+  PurchaseItemDto,
+  ShareItemDto,
+  SupplyCategory,
+  SupplyPurchaseCategory,
+  SupplyStatus,
+  UpdateItemDto,
+  UpdateItemStatusDto,
+} from './types/item.types';

@@ -11,6 +11,12 @@ interface ItemTableProps {
 
 const GRID_COLUMNS = 'grid-cols-[1.24fr_1.15fr_1.58fr_1.25fr_1.71fr_1fr]';
 
+const formatUpdatedAt = (value: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(date);
+};
+
 export const ItemTable = ({ items }: ItemTableProps) => (
   <div className="flex h-[428px] w-full flex-col overflow-hidden rounded-[10px] border border-gray-100 bg-white">
     <div
@@ -52,14 +58,18 @@ export const ItemTable = ({ items }: ItemTableProps) => (
                   <span className="flex min-w-0 items-center gap-3 pl-[30px]">
                     {item.buyer ? (
                       <>
-                        <UserAvatar name={item.buyer.name} className="size-[34px]" />
+                        <UserAvatar
+                          name={item.buyer.name}
+                          avatarUrl={item.buyer.avatarUrl}
+                          className="size-[34px]"
+                        />
                         <span className="truncate">{item.buyer.name}</span>
                       </>
                     ) : (
                       <span className="text-gray-400">미지정</span>
                     )}
                   </span>
-                  <span className="truncate pl-[30px]">{item.updatedAt}</span>
+                  <span className="truncate pl-[30px]">{formatUpdatedAt(item.updatedAt)}</span>
                   <span className="pl-[30px]">
                     <StatusBadge variant={item.status} className="w-[68px] px-0 leading-normal" />
                   </span>
