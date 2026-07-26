@@ -1,5 +1,4 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { PlaceholderPage } from '@/pages/_shared/PlaceholderPage';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
 import { AppLayout } from './AppLayout';
@@ -24,6 +23,7 @@ import { PrivacyPage } from '@/pages/auth/PrivacyPage';
 import { MemberSettingPage } from '@/pages/member/MemberSettingPage';
 import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
+import { DashboardPage } from '@/pages/dashboard/DashboardPage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
@@ -45,7 +45,7 @@ export const router = createBrowserRouter([
           {
             element: <AppLayout />,
             children: [
-              { path: '/dashboard', element: <PlaceholderPage title="대시보드" /> },
+              { path: '/dashboard/:groupId', element: <DashboardPage /> },
               { path: '/chores', element: <ChoreListPage /> },
               { path: '/chores/new', element: <ChoreCreatePage /> },
               { path: '/chores/:id/edit', element: <ChoreEditPage /> },
