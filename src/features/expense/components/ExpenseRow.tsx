@@ -92,7 +92,7 @@ export const ExpenseRow = ({ expense, onDeleteSuccess }: ExpenseRowProps) => {
           <div className='w-[34px] h-[34px] rounded-full bg-gray-300' />
         )}
         <span className='font-sans font-normal text-button text-gray-900 whitespace-nowrap'>
-          {expense.payer?.name ?? '알 수 없음'}
+          {expense.payer?.nickname ?? '알 수 없음'}
         </span>
       </div>
 

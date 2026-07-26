@@ -1,12 +1,28 @@
 export type MemberRole = 'ADMIN' | 'MEMBER';
 
 export interface Member {
+  id: string;
+  userId: string;
+  name: string;
+  role: MemberRole;
+  joinedAt?: string;
+  avatarUrl?: string;
+  avatarId?: number;
+}
+
+/** GET /groups/:groupId/members 응답 (닉네임/프로필사진 포함) */
+export interface GroupMemberResponse {
+  userId: string;
+  groupId: string;
+  role: MemberRole;
+  joinedAt: string;
+  leftAt: string | null;
+  user: {
     id: string;
     name: string;
-    role: MemberRole;
-    joinedAt?: string;
-    avatarUrl?: string;
-    avatarId?: number;
+    nickname: string;
+    profileImage: string | null;
+  };
 }
 
 export type PermissionType =
@@ -14,6 +30,7 @@ export type PermissionType =
   | 'ALLOW_SETTLEMENT'
   | 'ALLOW_ITEM_STATUS'
   | 'AUTO_APPROVE';
+
 import type { User } from '@/shared/types';
 
 export interface Group {
@@ -50,4 +67,3 @@ export interface MemberGroupResponse {
   createdAt: string;
   updatedAt: string;
 }
-

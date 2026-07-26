@@ -1,4 +1,3 @@
-import type { ActivityLog } from '@/features/activity';
 import type { Chore } from '@/features/chore';
 import type { Expense } from '@/features/expense';
 import type { Item } from '@/features/item';
@@ -99,7 +98,7 @@ export const chores: Chore[] = [
 // ==================== 생활비 (Figma 09 · 정산 목록) ====================
 // 이번 달 총 지출 138,000원 = 32,000 + 30,000 + 54,000 + 22,000
 
-export const expenses: Expense[] = [
+export const expenses: Expense[] =[] /*[
   {
     id: 'e1',
     title: '마트 장보기',
@@ -163,6 +162,8 @@ export const expenses: Expense[] = [
     memo: '샴푸, 바디워시, 치약 외',
   },
 ];
+
+*/
 
 // ==================== 공용 물품 (Figma 11 · 공용 물품 목록) ====================
 // 부족+소진 = 2종 → 대시보드 "2종" 일치
@@ -344,7 +345,7 @@ export const activities = [
 // ==================== 활동 내역 (Figma 17 · 최근 활동 내역) ====================
 // 데모 기준 '오늘' = 2026.06.25
 
-export const activityLogs: ActivityLog[] = [
+export const activityLogs = [
   {
     id: 'a1',
     actorName: '김영희',

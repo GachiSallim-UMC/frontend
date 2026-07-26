@@ -43,11 +43,11 @@ export const ExpenseListPage = () => {
         const groupId = requireSelectedGroupId();
         const rawMembers = await memberApi.getGroupMembers(groupId);
         const mapped: User[] = rawMembers.map((m) => ({
-          id: m.userId,
-          name: m.name,
-          nickname: '',
+          id: m.user.id,
+          name: m.user.name,
+          nickname: m.user.nickname,
           email: '',
-          avatarUrl: m.avatarUrl ?? '',
+          avatarUrl: m.user.profileImage ?? '',
         }));
         if (isMounted) setMembers(mapped);
       } catch (err) {

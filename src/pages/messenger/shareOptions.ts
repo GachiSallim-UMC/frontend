@@ -88,7 +88,7 @@ export const buildShareCard = (
         headline: ' 정산을 공유했어요',
         details: [
           { label: '총액', value: `${expense.amount.toLocaleString()}원` },
-          { label: '분담 방식', value: expense.splitType === 'equal' ? '균등 분할' : '비율 분할' },
+         //{ label: '분담 방식', value: expense.splitType === 'equal' ? '균등 분할' : '비율 분할' },
           { label: '1인당 금액', value: `${perPerson.toLocaleString()}원` },
         ],
         actionLabel: '정산하기',

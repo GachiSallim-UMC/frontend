@@ -26,7 +26,7 @@ export interface MemberShare {
 
 /** 생활비 도메인 모델 */
 export interface Expense {
-  id: string | number;
+  id: string;
   title: string;
   amount: number;
   payer: User;
@@ -34,7 +34,7 @@ export interface Expense {
   splitType: SplitType;
   category: ExpenseCategory;
   status: ExpenseStatus;
-  shares?: MemberShare[];
+  shares: MemberShare[];
   memo?: string;
 }
 

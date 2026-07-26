@@ -4,6 +4,7 @@ import { router } from '@/app/router';
 import { ApiError, getApiErrorTitle, isUnexpectedApiError } from '@/shared/api';
 import { useErrorStore } from '@/shared/store';
 import { ErrorModal } from '@/shared/components/ui/ErrorModal';
+import { PushSubscriptionSync } from './PushSubscriptionSync';
 
 const shouldSkipGlobalError = (meta: unknown) =>
   (meta as { skipGlobalError?: boolean } | undefined)?.skipGlobalError === true;
@@ -41,6 +42,7 @@ const queryClient = new QueryClient({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <RouterProvider router={router} />
+    <PushSubscriptionSync />
     <ErrorModal />
   </QueryClientProvider>
 );
