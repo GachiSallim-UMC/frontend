@@ -51,3 +51,18 @@ export interface MemberGroupResponse {
   updatedAt: string;
 }
 
+/** GET /groups/:groupId/members 응답 (닉네임/프로필사진 포함) */
+export interface GroupMemberResponse {
+  userId: string;
+  groupId: string;
+  role: MemberRole;
+  joinedAt: string;
+  leftAt: string | null;
+  user: {
+    id: string;
+    name: string;
+    nickname: string;
+    profileImage: string | null;
+  };
+}
+

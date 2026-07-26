@@ -429,6 +429,12 @@ export const activityLogs = [
 
 // ==================== 메신저 (Figma 15 · 그룹 내 실시간 메신저) ====================
 
+const roommateMembers: ChatRoom['members'] = [
+  { id: 'u1', name: '홍길동', isOwner: true, joinedDateLabel: '2026.03.02' },
+  { id: 'u2', name: '김영희', joinedDateLabel: '2026.03.02' },
+  { id: 'u3', name: '이철수', joinedDateLabel: '2026.02.28' },
+];
+
 export const chatRooms: ChatRoom[] = [
   {
     id: 'room-main',
@@ -436,6 +442,10 @@ export const chatRooms: ChatRoom[] = [
     lastMessage: '김영희: 세제 샀어요!',
     timestamp: '오전 11:06',
     unreadCount: 2,
+    category: 'group',
+    members: roommateMembers,
+    notificationEnabled: true,
+    isPinned: false,
   },
   {
     id: 'room-notice',
@@ -443,6 +453,32 @@ export const chatRooms: ChatRoom[] = [
     lastMessage: '새 규칙이 등록되었습니다.',
     timestamp: '05.21',
     unreadCount: 0,
+    category: 'notice',
+    members: roommateMembers,
+    notificationEnabled: true,
+    isPinned: false,
+  },
+  {
+    id: 'room-dm-u2',
+    name: '김영희',
+    lastMessage: '정산 요청 보냈어요~...',
+    timestamp: '오전 10:32',
+    unreadCount: 1,
+    category: 'dm',
+    members: [roommateMembers[0], roommateMembers[1]],
+    notificationEnabled: true,
+    isPinned: false,
+  },
+  {
+    id: 'room-dm-u3',
+    name: '이철수',
+    lastMessage: '넵 분리수거 제가 할게요',
+    timestamp: '어제',
+    unreadCount: 0,
+    category: 'dm',
+    members: [roommateMembers[0], roommateMembers[2]],
+    notificationEnabled: true,
+    isPinned: false,
   },
 ];
 

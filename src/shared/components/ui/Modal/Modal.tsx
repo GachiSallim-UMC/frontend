@@ -8,17 +8,29 @@ interface ModalProps {
   title?: string;
   children: ReactNode;
   className?: string;
-  /** false면 배경 클릭/X 버튼으로 닫히지 않음 (기본 true) */
+  /** false면 헤더의 X 버튼을 숨김 (기본 true) */
   dismissible?: boolean;
+  /** 배경 클릭으로 닫을지 여부. 지정하지 않으면 dismissible 값을 따름 */
+  closeOnOverlayClick?: boolean;
 }
 
-export const Modal = ({ isOpen, onClose, title, children, className, dismissible = true }: ModalProps) => {
+export const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  className,
+  dismissible = true,
+  closeOnOverlayClick,
+}: ModalProps) => {
   if (!isOpen) return null;
+
+  const overlayClosable = closeOnOverlayClick ?? dismissible;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      onClick={dismissible ? onClose : undefined}
+      onClick={overlayClosable ? onClose : undefined}
     >
       <div
         className={cn('w-full max-w-md rounded-[20px] bg-white p-6 shadow-dropdown', className)}
