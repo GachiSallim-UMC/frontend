@@ -2,9 +2,9 @@ import { UserAvatar } from '@/shared/components';
 import type { Member } from '@/features/member'
 
 const mockMembers: Member[] = [
-  { id: '1', name: '홍길동', role: 'ADMIN' },
-  { id: '2', name: '김영희', role: 'MEMBER', joinedAt: '2026.03.02', avatarId: 2 },
-  { id: '3', name: '이철수', role: 'MEMBER', joinedAt: '2025.02.31', avatarId: 2 },
+  { id: '1', userId:'1', name: '홍길동', role: 'ADMIN' },
+  { id: '2', userId:'2', name: '김영희', role: 'MEMBER', joinedAt: '2026.03.02', avatarId: 2 },
+  { id: '3', userId:'3', name: '이철수', role: 'MEMBER', joinedAt: '2025.02.31', avatarId: 2 },
 ];
 
 export const MemberManagement = () => {

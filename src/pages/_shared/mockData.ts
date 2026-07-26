@@ -98,7 +98,7 @@ export const chores: Chore[] = [
 // ==================== 생활비 (Figma 09 · 정산 목록) ====================
 // 이번 달 총 지출 138,000원 = 32,000 + 30,000 + 54,000 + 22,000
 
-export const expenses: Expense[] = [
+export const expenses: Expense[] =[] /*[
   {
     id: 'e1',
     title: '마트 장보기',
@@ -162,6 +162,8 @@ export const expenses: Expense[] = [
     memo: '샴푸, 바디워시, 치약 외',
   },
 ];
+
+*/
 
 // ==================== 공용 물품 (Figma 11 · 공용 물품 목록) ====================
 // 부족+소진 = 2종 → 대시보드 "2종" 일치
