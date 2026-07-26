@@ -67,3 +67,5 @@ export interface MemberGroupResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+
