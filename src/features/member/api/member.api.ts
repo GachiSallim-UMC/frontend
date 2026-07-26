@@ -1,5 +1,5 @@
 import { ApiError, apiClient } from '@/shared/api';
-import type { MemberGroupResponse, Member, GroupMemberResponse } from '../types/member.types';
+import type { MemberGroupResponse, GroupMemberResponse } from '../types/member.types';
 
 const BASE = '/groups';
 
