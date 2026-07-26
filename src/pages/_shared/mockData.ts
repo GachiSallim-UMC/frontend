@@ -1,4 +1,3 @@
-import type { ActivityLog } from '@/features/activity';
 import type { Chore } from '@/features/chore';
 import type { Expense } from '@/features/expense';
 import type { Item } from '@/features/item';
@@ -344,7 +343,7 @@ export const activities = [
 // ==================== 활동 내역 (Figma 17 · 최근 활동 내역) ====================
 // 데모 기준 '오늘' = 2026.06.25
 
-export const activityLogs: ActivityLog[] = [
+export const activityLogs = [
   {
     id: 'a1',
     actorName: '김영희',

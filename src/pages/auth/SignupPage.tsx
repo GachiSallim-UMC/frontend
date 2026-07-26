@@ -2,27 +2,35 @@ import { Link } from 'react-router-dom';
 import { SignupForm, useSignupForm } from '@/features/auth';
 
 export const SignupPage = () => {
-    const { formData, onFormDataChange, agreedTerms, onAgreedTermsChange } = useSignupForm();
+    const { 
+        step,
+        formData, 
+        onFormDataChange, 
+        agreedTerms, 
+        onAgreedTermsChange,
+        handleConfirmEmail,
+        handleSubmitInfo,
+        isCodeError,
+        isVerified,
+        handleFinalSubmit,
+     } = useSignupForm();
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
             {/* 흰 색 카드 */}
-            <div className="w-full max-w-lg rounded-3xl bg-white px-10 pt-10 pb-8">
-                {/* 상단 타이틀 */}
-                <div className="mb-5 flex flex-col items-center">
-                    <h1 className="font-logo text-3xl font-medium tracking-wider text-gray-900">
-                        같이살림
-                    </h1>
-                    <p className="text-sm font-medium text-gray-600">
-                        새 계정 만들기
-                    </p>
-                </div>
+            <div className="h-[696px] w-full max-w-lg rounded-3xl bg-white px-10 pt-10 pb-8">
 
                 <SignupForm 
+                    step={step}
                     formData={formData}
                     onFormDataChange={onFormDataChange}
                     agreedTerms={agreedTerms}
                     onAgreedTermsChange={onAgreedTermsChange}
+                    onConfirmEmail={handleConfirmEmail}
+                    onSubmit={handleSubmitInfo}
+                    isCodeError={isCodeError}
+                    isVerified={isVerified}                
+                    onFinalSubmit={handleFinalSubmit}
                 />
 
                 { /* 로그인 페이지 이동 링크 */}

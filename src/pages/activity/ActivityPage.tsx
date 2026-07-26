@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityFilterDropdown, ActivityList, useActivityLog } from '@/features/activity';
-import { activityLogs } from '@/pages/_shared/mockData';
 
 type ActivityFilterKey = 'type' | 'member' | 'period';
 
@@ -16,9 +15,19 @@ export const ActivityPage = () => {
     setPeriodFilter,
     periodOptions,
     groupedLogs,
-  } = useActivityLog(activityLogs);
+    isLoading,
+    isError,
+    error,
+    refetch,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useActivityLog();
 
   const [openFilter, setOpenFilter] = useState<ActivityFilterKey | null>(null);
+  const handleLoadMore = useCallback(() => {
+    void fetchNextPage();
+  }, [fetchNextPage]);
 
   return (
     <div className="flex w-full flex-1 min-h-0 justify-center bg-gray-50">
@@ -48,7 +57,16 @@ export const ActivityPage = () => {
             />
           </div>
           <div className="mt-5 min-h-0 flex-1 overflow-y-auto px-4 lg:px-[30px]">
-            <ActivityList groups={groupedLogs} />
+            <ActivityList
+              groups={groupedLogs}
+              isLoading={isLoading}
+              isError={isError}
+              error={error}
+              onRetry={() => void refetch()}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              onLoadMore={handleLoadMore}
+            />
           </div>
         </div>
       </div>
