@@ -51,3 +51,16 @@ export interface MemberGroupResponse {
   updatedAt: string;
 }
 
+/**
+ * GET /groups/:groupId/members 응답 (2026-07-26 실제 dev-api로 확인).
+ * GroupMember 원본 필드만 오고 닉네임/프로필사진은 아직 없음 — 백엔드에 추가 요청해둔 상태.
+ */
+export interface GroupMemberResponse {
+  id: string;
+  userId: string;
+  groupId: string;
+  role: MemberRole;
+  joinedAt: string;
+  leftAt: string | null;
+}
+
