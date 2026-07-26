@@ -24,7 +24,6 @@ import { PrivacyPage } from '@/pages/auth/PrivacyPage';
 import { MemberSettingPage } from '@/pages/member/MemberSettingPage';
 import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
-import { DashboardPage } from '@/pages/dashboard/DashboardPage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/dashboard" replace /> },
