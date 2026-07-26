@@ -26,7 +26,6 @@ import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
 
 export const router = createBrowserRouter([
-  { path: '/', element: <Navigate to="/dashboard" replace /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/find-password', element: <SendingEmailPage /> },
   { path: '/find-password/sent', element: <EmailSentPage /> },
@@ -36,6 +35,7 @@ export const router = createBrowserRouter([
   {
     element: <RequireAuth />,
     children: [
+      { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: '/group', element: <GroupSelectPage /> },
       { path: '/group/add', element: <AddGroupPage /> },
       { path: '/group/join', element: <JoinGroupPage /> },
@@ -45,7 +45,7 @@ export const router = createBrowserRouter([
           {
             element: <AppLayout />,
             children: [
-              { path: '/dashboard/:groupId', element: <DashboardPage /> },
+              { path: '/dashboard', element: <DashboardPage /> },
               { path: '/chores', element: <ChoreListPage /> },
               { path: '/chores/new', element: <ChoreCreatePage /> },
               { path: '/chores/:id/edit', element: <ChoreEditPage /> },
