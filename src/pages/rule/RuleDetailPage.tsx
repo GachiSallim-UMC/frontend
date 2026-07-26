@@ -108,13 +108,25 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !category || !status) return;
 
+    const trimmedContent = content.trim();
+    const hasChanges =
+      trimmedTitle !== rule.title.trim() ||
+      category !== rule.category ||
+      trimmedContent !== (rule.content ?? '').trim() ||
+      status !== rule.status;
+
+    if (!hasChanges) {
+      navigate('/rules');
+      return;
+    }
+
     try {
       await updateRule.mutateAsync({
         id: rule.id,
         dto: {
           title: trimmedTitle,
           category,
-          content: content.trim(),
+          content: trimmedContent,
           status,
         },
       });
