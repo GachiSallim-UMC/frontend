@@ -55,4 +55,3 @@ export const memberApi = {
     return data;
   },
 };
-

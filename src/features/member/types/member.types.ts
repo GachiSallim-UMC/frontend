@@ -1,3 +1,5 @@
+import type { User } from '@/shared/types';
+
 export type MemberRole = 'ADMIN' | 'MEMBER';
 
 export interface Member {
@@ -31,8 +33,6 @@ export type PermissionType =
   | 'ALLOW_ITEM_STATUS'
   | 'AUTO_APPROVE';
 
-import type { User } from '@/shared/types';
-
 export interface Group {
   id: string;
   name: string;
@@ -43,15 +43,15 @@ export interface Group {
   createdAt?: string;
   maxMemberCount?: number;
   memberCount: number;
-  members: User[],
+  members: User[];
   ownerId: string;
 }
 
 export interface AddGroupDto {
-    name: string;
-    description: string;
-    type: 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
-    maxMemberCount: number;
+  name: string;
+  description: string;
+  type: 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
+  maxMemberCount: number;
 }
 
 export interface MemberGroupResponse {
@@ -67,5 +67,3 @@ export interface MemberGroupResponse {
   createdAt: string;
   updatedAt: string;
 }
-
-

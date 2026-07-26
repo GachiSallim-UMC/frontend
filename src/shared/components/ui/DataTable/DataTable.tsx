@@ -9,14 +9,14 @@ export interface Column<T> {
   render?: (row: T) => ReactNode;
 }
 
-interface DataTableProps<T extends { id: string | number }> {
+interface DataTableProps<T extends { id?: string | number; choreId?: string | number }> {
   columns: Column<T>[];
   data: T[];
   emptyMessage?: string;
   className?: string;
 }
 
-export const DataTable = <T extends { id: string | number }>({
+export const DataTable = <T extends { id?: string | number; choreId?: string | number }>({
   columns,
   data,
   emptyMessage = '데이터가 없습니다.',
@@ -53,7 +53,7 @@ export const DataTable = <T extends { id: string | number }>({
           ) : (
             data.map(row => (
               <tr
-                key={row.id}
+                key={row.id ?? row.choreId}
                 className="border-b border-gray-100 transition-colors hover:bg-gray-100"
               >
                 {columns.map(col => (

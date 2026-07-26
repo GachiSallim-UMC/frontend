@@ -12,14 +12,21 @@ export { ChoreRepeat } from './components/ChoreRepeat';
 export { ChoreMemo } from './components/ChoreMemo';
 export { ChoreFormActions } from './components/ChoreFormActions';
 
-export { useChores, useChoreDetail, useCreateChore } from './hooks/useChores';
+export { useChores, useChoreFromList, useCreateChore, useUpdateChore } from './hooks/useChores';
 export { useWeekCalendar } from './hooks/useWeekCalendar';
 export { useChoreRepeat } from './hooks/useChoreRepeat';
+export { useChoreForm } from './hooks/useChoreForm';
 
 export { choreApi } from './api/chore.api';
 
 export type {
   Chore,
+  ChoreApiCategory,
+  ChoreApiCustomOption,
+  ChoreApiDayOfWeek,
+  ChoreApiRepeatType,
+  ChoreApiStatus,
+  ChoreListItemResponse,
   ChoreCategory,
   ChoreFilter,
   CreateChoreDto,
@@ -27,6 +34,9 @@ export type {
   RepeatType,
   DayOfWeek,
   CustomOption,
+  GetChoresParams,
+  ShareChoreDto,
+  ShareChoreResponse,
 } from './types/chore.types';
 
 export {

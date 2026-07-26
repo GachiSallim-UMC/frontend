@@ -57,7 +57,11 @@ export const ChoreTable = ({ chores, onEdit, onShare }: ChoreTableProps) => {
     },
     { key: 'repeatType', header: '주기', render: chore => REPEAT_LABEL[chore.repeatType] },
     { key: 'startDate', header: '기한' },
-    { key: 'status', header: '상태', render: chore => <StatusBadge variant={chore.status} /> },
+    {
+      key: 'status',
+      header: '상태',
+      render: chore => <StatusBadge variant={chore.status} />,
+    },
     {
       key: 'actions',
       header: '',

@@ -1,6 +1,9 @@
 import { SelectDropdown, FormInput } from '@/shared/components';
-import { useChoreRepeat } from '../hooks/useChoreRepeat';
-import type { DayOfWeek, RepeatType, CustomOption } from '../types/chore.types';
+import type {
+  ChoreApiCustomOption as CustomOption,
+  ChoreApiDayOfWeek as DayOfWeek,
+  ChoreApiRepeatType as RepeatType,
+} from '../types/chore.types';
 import CalendarIcon from '@/assets/icons/chore/calendar.svg';
 import {
   CUSTOM_OPTIONS,
@@ -10,22 +13,35 @@ import {
   DAYS,
 } from '../constants/chore.constants';
 
-export const ChoreRepeat = () => {
-  const {
-    repeatType,
-    setRepeatType,
-    customOption,
-    setCustomOption,
-    repeatInterval,
-    setRepeatInterval,
-    repeatDays,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-    toggleDay,
-    isDaysEnabled,
-  } = useChoreRepeat();
+interface ChoreRepeatProps {
+  repeatType: RepeatType | '';
+  customOption: CustomOption | '';
+  repeatInterval: string;
+  repeatDays: DayOfWeek[];
+  startDate: string;
+  dueDate: string;
+  onChange: (updates: Partial<ChoreRepeatProps>) => void;
+}
+
+export const ChoreRepeat = ({
+  repeatType,
+  customOption,
+  repeatInterval,
+  repeatDays,
+  startDate,
+  dueDate,
+  onChange,
+}: ChoreRepeatProps) => {
+  const isDaysEnabled =
+    repeatType === 'WEEKLY' || (repeatType === 'CUSTOM' && customOption === 'SPECIFIC_DAYS');
+
+  const toggleDay = (day: DayOfWeek) => {
+    if (repeatDays.includes(day)) {
+      onChange({ repeatDays: repeatDays.filter(d => d !== day) });
+    } else {
+      onChange({ repeatDays: [...repeatDays, day] });
+    }
+  };
 
   return (
     <section className="flex w-full flex-col gap-[20px] rounded-[18px] bg-white p-[30px]">
@@ -33,24 +49,24 @@ export const ChoreRepeat = () => {
 
       <div className="flex w-full gap-[20px]">
         <div className="flex flex-1 flex-col gap-[20px]">
-          <SelectDropdown
+          <SelectDropdown<RepeatType | ''>
             label="반복 유형"
             required
-            options={REPEAT_TYPE_OPTIONS}
+            options={REPEAT_TYPE_OPTIONS as { label: string; value: RepeatType }[]}
             value={repeatType}
-            onChange={value => setRepeatType(value as RepeatType)}
+            onChange={value => onChange({ repeatType: value })}
           />
 
-          {repeatType === 'custom' && (
-            <SelectDropdown
+          {repeatType === 'CUSTOM' && (
+            <SelectDropdown<CustomOption>
               label="사용자 지정 옵션"
-              options={CUSTOM_OPTIONS}
+              options={CUSTOM_OPTIONS as { label: string; value: CustomOption }[]}
               value={customOption}
-              onChange={value => setCustomOption(value as CustomOption)}
+              onChange={value => onChange({ customOption: value })}
             />
           )}
 
-          {repeatType === 'custom' && customOption === 'every_n_days' && (
+          {repeatType === 'CUSTOM' && customOption === 'EVERY_N_DAYS' && (
             <FormInput
               type="number"
               min="1"
@@ -59,26 +75,26 @@ export const ChoreRepeat = () => {
               value={repeatInterval}
               onChange={e => {
                 const val = e.target.value;
-                if (val == '' || Number(val) >= 1) {
-                  setRepeatInterval(val);
+                if (val === '' || (Number(val) >= 1 && Number(val) <= 99)) {
+                  onChange({ repeatInterval: val });
                 }
               }}
             />
           )}
-          {repeatType === 'custom' && customOption === 'every_n_weeks' && (
+          {repeatType === 'CUSTOM' && customOption === 'EVERY_N_WEEKS' && (
             <SelectDropdown
               label="반복 주기 (N주마다)"
               options={WEEK_OPTIONS}
               value={repeatInterval}
-              onChange={setRepeatInterval}
+              onChange={value => onChange({ repeatInterval: value })}
             />
           )}
-          {repeatType === 'custom' && customOption === 'every_n_months' && (
+          {repeatType === 'CUSTOM' && customOption === 'EVERY_N_MONTHS' && (
             <SelectDropdown
               label="반복 월 (N개월마다)"
               options={MONTH_OPTIONS}
               value={repeatInterval}
-              onChange={setRepeatInterval}
+              onChange={value => onChange({ repeatInterval: value })}
             />
           )}
         </div>
@@ -123,7 +139,7 @@ export const ChoreRepeat = () => {
             placeholder="yyyy/mm/dd"
             required
             value={startDate}
-            onChange={e => setStartDate(e.target.value)}
+            onChange={e => onChange({ startDate: e.target.value })}
           />
           <div className="absolute right-[16px] bottom-[17px] h-[16px] w-[16px]">
             <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
@@ -132,7 +148,7 @@ export const ChoreRepeat = () => {
               className="absolute inset-0 cursor-pointer opacity-0"
               onChange={e => {
                 if (e.target.value) {
-                  setStartDate(e.target.value.replace(/-/g, '/'));
+                  onChange({ startDate: e.target.value.replace(/-/g, '/') });
                 }
               }}
             />
@@ -143,8 +159,8 @@ export const ChoreRepeat = () => {
             type="text"
             label="종료일 (선택)"
             placeholder="yyyy/mm/dd"
-            value={endDate}
-            onChange={e => setEndDate(e.target.value)}
+            value={dueDate}
+            onChange={e => onChange({ dueDate: e.target.value })}
           />
           <div className="absolute right-[16px] bottom-[17px] h-[16px] w-[16px]">
             <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
@@ -153,7 +169,7 @@ export const ChoreRepeat = () => {
               className="absolute inset-0 cursor-pointer opacity-0"
               onChange={e => {
                 if (e.target.value) {
-                  setEndDate(e.target.value.replace(/-/g, '/'));
+                  onChange({ dueDate: e.target.value.replace(/-/g, '/') });
                 }
               }}
             />

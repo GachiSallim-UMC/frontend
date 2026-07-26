@@ -1,12 +1,25 @@
 import { Button } from '@/shared/components';
 import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react';
 
-export const ChoreFormActions = () => {
+interface ChoreFormActionsProps {
+  onSave: () => void;
+  onCancel: () => void;
+  isSubmitting?: boolean;
+}
+
+export const ChoreFormActions = ({ onSave, onCancel, isSubmitting }: ChoreFormActionsProps) => {
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center gap-[12px]">
-        <Button className="w-[150px] font-bold">저장</Button>
-        <Button variant="secondary" className="w-[150px] font-bold">
+        <Button className="w-[150px] font-bold" onClick={onSave} disabled={isSubmitting}>
+          저장
+        </Button>
+        <Button
+          variant="secondary"
+          className="w-[150px] font-bold"
+          onClick={onCancel}
+          disabled={isSubmitting}
+        >
           취소
         </Button>
       </div>
