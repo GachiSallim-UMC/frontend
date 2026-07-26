@@ -11,6 +11,7 @@ export const ITEM_STATUS_OPTIONS: { value: EditableItemStatus; label: string }[]
 export const useItemForm = (editingItem?: Item) => {
   const [name, setName] = useState(editingItem?.name ?? '');
   const [category, setCategory] = useState<ItemCategory | ''>(editingItem?.category ?? '');
+  // PURCHASED는 구매 API에서만 만드는 상태다. 빈 값은 정보 수정 시 현재 상태 유지를 뜻한다.
   const initialStatus = editingItem?.status === 'purchased' ? '' : editingItem?.status;
   const [status, setStatus] = useState<EditableItemStatus | ''>(initialStatus ?? '');
   const [buyerId, setBuyerId] = useState(editingItem?.buyer?.id ?? '');

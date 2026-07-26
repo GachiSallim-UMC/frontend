@@ -91,12 +91,15 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const handleSave = async () => {
     if (isPending) return;
 
+    const canPreservePurchasedStatus = editingItem?.status === 'purchased';
     const nextErrors: FormErrors = {};
     if (!name.trim()) nextErrors.name = '물품명을 입력해 주세요.';
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
-    if (!status) nextErrors.status = '현재 상태를 선택해 주세요.';
+    if (!status && !canPreservePurchasedStatus) {
+      nextErrors.status = '현재 상태를 선택해 주세요.';
+    }
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+    if (Object.keys(nextErrors).length > 0 || !category) return;
 
     const numericAssigneeId = buyerId ? Number(buyerId) : undefined;
 
@@ -111,13 +114,14 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
             memo: memo.trim() || null,
           },
         });
-        if (status !== editingItem.status) {
+        if (status && status !== editingItem.status) {
           await updateStatus.mutateAsync({
             id: editingItem.id,
             dto: { status },
           });
         }
       } else {
+        if (!status) return;
         await createItem.mutateAsync({
           name: name.trim(),
           category,
@@ -180,11 +184,11 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
             />
             <SelectDropdown
               label="현재 상태"
-              required
+              required={editingItem?.status !== 'purchased'}
               value={status}
               onChange={setStatus}
               options={ITEM_STATUS_OPTIONS}
-              placeholder={editingItem?.status === 'purchased' ? '새 재고 상태 선택' : '상태 선택'}
+              placeholder={editingItem?.status === 'purchased' ? '구매완료 상태 유지' : '상태 선택'}
               error={errors.status}
               containerClassName="gap-1"
               labelClassName="leading-[17px] text-gray-800"
