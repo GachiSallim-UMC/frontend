@@ -115,6 +115,13 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   const markAsReadMutation = useMarkAsRead(groupId);
   const updateMemberSettingsMutation = useUpdateMemberSettings();
 
+  // 방을 전환할 때는 항상 읽음 처리도 같이 호출한다 (자동 첫 방 선택, 삭제/나가기 후 다음 방
+  // 전환 등 모든 경로에서 빠뜨리기 쉬워서 한 곳으로 모음).
+  const focusRoom = (roomId: string) => {
+    setActiveRoomIdState(roomId);
+    if (roomId) markAsReadMutation.mutate(roomId);
+  };
+
   // 최초 진입 시에만 첫 방을 자동 선택한다. 방 삭제/나가기 이후의 "다음 방 선택"은
   // 각 액션이 자체적으로 처리하므로, 목록 갱신 타이밍에 맞춰 여기서 다시 개입하지 않는다
   // (그렇지 않으면 삭제 직후 아직 갱신 전인 목록 때문에 방금 지운 방이 재선택되는 경쟁 상태가 생김).
@@ -122,8 +129,9 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   useEffect(() => {
     if (!hasAutoSelectedRef.current && !activeRoomId && rooms.length > 0) {
       hasAutoSelectedRef.current = true;
-      setActiveRoomIdState(rooms[0].id);
+      focusRoom(rooms[0].id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRoomId, rooms]);
 
   const filteredRooms = rooms
@@ -134,10 +142,9 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   const messageGroups = groupMessagesBySender(messageItems);
 
   const setActiveRoomId = (roomId: string) => {
-    setActiveRoomIdState(roomId);
+    focusRoom(roomId);
     setDraft('');
     setIsManagePanelOpen(false);
-    markAsReadMutation.mutate(roomId);
   };
 
   const sendMessage = () => {
@@ -158,7 +165,7 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
       { name, category },
       {
         onSuccess: room => {
-          setActiveRoomIdState(room.id);
+          focusRoom(room.id);
           setIsCreateRoomOpen(false);
         },
       },
@@ -170,7 +177,7 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
     const nextRoomId = rooms.find(room => room.id !== activeRoomId)?.id ?? '';
     deleteRoomMutation.mutate(activeRoomId, {
       onSuccess: () => {
-        setActiveRoomIdState(nextRoomId);
+        focusRoom(nextRoomId);
         setIsDeleteRoomOpen(false);
         setIsManagePanelOpen(false);
       },
@@ -192,7 +199,7 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
       { roomId: activeRoomId, userId: currentUserId },
       {
         onSuccess: () => {
-          setActiveRoomIdState(nextRoomId);
+          focusRoom(nextRoomId);
           setIsManagePanelOpen(false);
         },
       },
@@ -210,7 +217,7 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
             { roomId: activeRoomId, userId: currentUserId },
             {
               onSuccess: () => {
-                setActiveRoomIdState(nextRoomId);
+                focusRoom(nextRoomId);
                 setIsDelegateOpen(false);
                 setIsManagePanelOpen(false);
               },
