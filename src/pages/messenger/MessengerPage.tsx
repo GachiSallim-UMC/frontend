@@ -105,15 +105,13 @@ export const MessengerPage = () => {
     if (shareCard) shareItem(shareCard, optionId);
   };
 
-  // TODO: 그룹 멤버 목록 응답에 닉네임/프로필사진이 아직 없어 백엔드에 추가 요청해둔 상태 —
-  // 반영되기 전까지는 이미 채팅방에 있는 멤버(activeRoom.members, 닉네임 포함)에서 이름을 찾고,
-  // 못 찾으면 아이디를 그대로 표시한다.
-  const resolveMemberName = (userId: string) =>
-    activeRoom?.members.find(member => member.id === userId)?.name ?? `사용자 ${userId}`;
-
   const createRoomCandidates = groupMembers
     .filter(member => !member.leftAt && member.userId !== currentUserId)
-    .map(member => ({ id: member.userId, name: resolveMemberName(member.userId) }));
+    .map(member => ({
+      id: member.userId,
+      name: member.user.nickname,
+      avatarUrl: member.user.profileImage ?? undefined,
+    }));
 
   const inviteCandidates = activeRoom
     ? createRoomCandidates.filter(candidate => !activeRoom.members.some(member => member.id === candidate.id))
@@ -123,7 +121,8 @@ export const MessengerPage = () => {
     ? activeRoom.members.filter(member => member.id !== currentUserId)
     : [];
 
-  const currentUserName = me?.nickname ?? resolveMemberName(currentUserId);
+  const currentUserName =
+    me?.nickname ?? groupMembers.find(member => member.userId === currentUserId)?.user.nickname ?? '';
 
   return (
     <div className="flex w-full flex-1 min-h-0 justify-center bg-gray-50">

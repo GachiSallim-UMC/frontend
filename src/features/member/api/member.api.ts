@@ -26,12 +26,16 @@ const isMemberGroupResponse = (value: unknown): value is MemberGroupResponse =>
 
 const isGroupMemberResponse = (value: unknown): value is GroupMemberResponse =>
   isRecord(value) &&
-  typeof value.id === 'string' &&
   typeof value.userId === 'string' &&
   typeof value.groupId === 'string' &&
   (value.role === 'ADMIN' || value.role === 'MEMBER') &&
   typeof value.joinedAt === 'string' &&
-  isNullableString(value.leftAt);
+  isNullableString(value.leftAt) &&
+  isRecord(value.user) &&
+  typeof value.user.id === 'string' &&
+  typeof value.user.name === 'string' &&
+  typeof value.user.nickname === 'string' &&
+  isNullableString(value.user.profileImage);
 
 export const memberApi = {
   getMyGroups: async (): Promise<MemberGroupResponse[]> => {
@@ -42,7 +46,7 @@ export const memberApi = {
     return data;
   },
 
-  /** 그룹 멤버 목록 (2026-07-26 실제 dev-api 확인). 닉네임/프로필사진은 아직 안 옴 — 백엔드에 추가 요청해둔 상태 */
+  /** 그룹 멤버 목록 (닉네임/프로필사진 포함) */
   getGroupMembers: async (groupId: string): Promise<GroupMemberResponse[]> => {
     const { data } = await apiClient.get<GroupMemberResponse[]>(`${BASE}/${groupId}/members`);
     if (!Array.isArray(data) || !data.every(isGroupMemberResponse)) {
