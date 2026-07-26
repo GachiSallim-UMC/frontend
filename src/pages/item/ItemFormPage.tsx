@@ -15,6 +15,7 @@ import { useGroupMembers } from '@/features/member';
 import { Button, FormActions } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
+import { useGroupStore } from '@/shared/store';
 
 type FormErrors = Partial<Record<'name' | 'category' | 'status', string>>;
 
@@ -49,6 +50,7 @@ interface ItemFormContentProps {
 
 const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const navigate = useNavigate();
+  const groupId = useGroupStore(state => state.selectedGroupId);
   const {
     name,
     setName,
@@ -67,7 +69,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
     status: quickStatus,
     setStatus: setQuickStatus,
   } = useQuickItemStatus();
-  const { data: groupMembers, error: groupMembersError } = useGroupMembers();
+  const { data: groupMembers, error: groupMembersError } = useGroupMembers(groupId);
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const updateStatus = useUpdateItemStatus();
@@ -75,7 +77,10 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
 
   const buyerOptions = groupMembers.map(member => ({
     value: member.userId,
-    label: member.nickname === member.name ? member.name : `${member.name} (${member.nickname})`,
+    label:
+      member.user.nickname === member.user.name
+        ? member.user.name
+        : `${member.user.name} (${member.user.nickname})`,
   }));
 
   if (editingItem?.buyer && !buyerOptions.some(option => option.value === editingItem.buyer?.id)) {

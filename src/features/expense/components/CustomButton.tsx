@@ -38,4 +38,3 @@ export const CustomButton = ({
   );
 };
 
-export default CustomButton;

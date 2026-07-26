@@ -1,4 +1,3 @@
-import type { ActivityLog } from '@/features/activity';
 import type { Chore } from '@/features/chore';
 import type { Expense } from '@/features/expense';
 import type { Item } from '@/features/item';
@@ -99,7 +98,7 @@ export const chores: Chore[] = [
 // ==================== 생활비 (Figma 09 · 정산 목록) ====================
 // 이번 달 총 지출 138,000원 = 32,000 + 30,000 + 54,000 + 22,000
 
-export const expenses: Expense[] = [
+export const expenses: Expense[] =[] /*[
   {
     id: 'e1',
     title: '마트 장보기',
@@ -163,6 +162,8 @@ export const expenses: Expense[] = [
     memo: '샴푸, 바디워시, 치약 외',
   },
 ];
+
+*/
 
 // ==================== 공용 물품 (Figma 11 · 공용 물품 목록) ====================
 // 부족+소진 = 2종 → 대시보드 "2종" 일치
@@ -344,7 +345,7 @@ export const activities = [
 // ==================== 활동 내역 (Figma 17 · 최근 활동 내역) ====================
 // 데모 기준 '오늘' = 2026.06.25
 
-export const activityLogs: ActivityLog[] = [
+export const activityLogs = [
   {
     id: 'a1',
     actorName: '김영희',
@@ -430,6 +431,12 @@ export const activityLogs: ActivityLog[] = [
 
 // ==================== 메신저 (Figma 15 · 그룹 내 실시간 메신저) ====================
 
+const roommateMembers: ChatRoom['members'] = [
+  { id: 'u1', name: '홍길동', isOwner: true, joinedDateLabel: '2026.03.02' },
+  { id: 'u2', name: '김영희', joinedDateLabel: '2026.03.02' },
+  { id: 'u3', name: '이철수', joinedDateLabel: '2026.02.28' },
+];
+
 export const chatRooms: ChatRoom[] = [
   {
     id: 'room-main',
@@ -437,6 +444,10 @@ export const chatRooms: ChatRoom[] = [
     lastMessage: '김영희: 세제 샀어요!',
     timestamp: '오전 11:06',
     unreadCount: 2,
+    category: 'group',
+    members: roommateMembers,
+    notificationEnabled: true,
+    isPinned: false,
   },
   {
     id: 'room-notice',
@@ -444,6 +455,32 @@ export const chatRooms: ChatRoom[] = [
     lastMessage: '새 규칙이 등록되었습니다.',
     timestamp: '05.21',
     unreadCount: 0,
+    category: 'notice',
+    members: roommateMembers,
+    notificationEnabled: true,
+    isPinned: false,
+  },
+  {
+    id: 'room-dm-u2',
+    name: '김영희',
+    lastMessage: '정산 요청 보냈어요~...',
+    timestamp: '오전 10:32',
+    unreadCount: 1,
+    category: 'dm',
+    members: [roommateMembers[0], roommateMembers[1]],
+    notificationEnabled: true,
+    isPinned: false,
+  },
+  {
+    id: 'room-dm-u3',
+    name: '이철수',
+    lastMessage: '넵 분리수거 제가 할게요',
+    timestamp: '어제',
+    unreadCount: 0,
+    category: 'dm',
+    members: [roommateMembers[0], roommateMembers[2]],
+    notificationEnabled: true,
+    isPinned: false,
   },
 ];
 

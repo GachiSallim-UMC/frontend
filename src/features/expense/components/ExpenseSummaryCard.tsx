@@ -7,7 +7,7 @@ interface ExpenseSummaryCardProps {
   icon: React.ReactNode;
 }
 
-const ExpenseSummaryCard = ({ label, amount, subText, icon }: ExpenseSummaryCardProps) => {
+export const ExpenseSummaryCard = ({ label, amount, subText, icon }: ExpenseSummaryCardProps) => {
   return (
     <div className='w-full sm:w-[calc(50%-8px)] lg:w-[360px] lg:h-[147px] rounded-[18px] bg-white flex items-center pl-[24px] py-[20px] lg:py-0 gap-[16px]'>
       <div className='w-[76.08px] h-[77.33px] bg-orange-100 flex items-center justify-center shrink-0 rounded-full'>
@@ -29,4 +29,3 @@ const ExpenseSummaryCard = ({ label, amount, subText, icon }: ExpenseSummaryCard
   )
 }
 
-export default ExpenseSummaryCard

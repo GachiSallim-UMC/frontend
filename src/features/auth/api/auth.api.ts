@@ -1,5 +1,10 @@
 import { ApiError, apiClient } from '@/shared/api';
-import type { LoginDto, LoginResponsePayload, MeResponsePayload } from '../types/auth.type';
+import type { 
+  LoginDto, 
+  LoginResponsePayload, 
+  MeResponsePayload,
+  SignupDto,
+  SignupConfirmDto } from '../types/auth.type';
 
 const BASE = '/auth';
 
@@ -48,5 +53,11 @@ export const authApi = {
   },
   logout: async (): Promise<void> => {
     await apiClient.post(`${BASE}/logout`);
+  },
+  signup: async (dto: SignupDto): Promise<void> => {
+    await apiClient.post(`${BASE}/signup`, dto);
+  },
+  signupConfirm: async (dto: SignupConfirmDto): Promise<void> => {
+    await apiClient.post(`${BASE}/signup/confirm`, dto);
   },
 };

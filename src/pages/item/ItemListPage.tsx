@@ -13,10 +13,12 @@ import {
 import { useGroupMembers } from '@/features/member';
 import { SelectDropdown } from '@/shared/components/form';
 import { FilterTabGroup, SearchInput, SummaryCard } from '@/shared/components/ui';
+import { useGroupStore } from '@/shared/store';
 
 export const ItemListPage = () => {
   const { data = [], isLoading, error, refetch } = useItems();
-  const { data: groupMembers } = useGroupMembers();
+  const groupId = useGroupStore(state => state.selectedGroupId);
+  const { data: groupMembers } = useGroupMembers(groupId);
   const items = data.map(item => {
     if (!item.buyer) return item;
 
@@ -27,9 +29,9 @@ export const ItemListPage = () => {
       ...item,
       buyer: {
         ...item.buyer,
-        name: member.name,
-        nickname: member.nickname,
-        avatarUrl: member.profileImage ?? undefined,
+        name: member.user.name,
+        nickname: member.user.nickname,
+        avatarUrl: member.user.profileImage ?? undefined,
       },
     };
   });
