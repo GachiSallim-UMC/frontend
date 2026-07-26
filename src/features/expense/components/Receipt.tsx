@@ -6,4 +6,3 @@ export const Receipt = () => {
   )
 }
 
-export default Receipt

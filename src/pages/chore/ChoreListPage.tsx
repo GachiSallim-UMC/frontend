@@ -1,46 +1,56 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import {
-  ChoreTable,
-  ChoreCalendarView,
-  ChoreFilterBar,
-  type ChoreFilter,
-  choreApi,
-} from '@/features/chore/index';
-import { useMyGroups } from '@/features/member';
+import { ChoreCalendarView, ChoreFilterBar, ChoreTable, useChores } from '@/features/chore';
+import type { Chore, ChoreFilter, RepeatType } from '@/features/chore';
+import { useGroupStore } from '@/shared/store';
+
+const REPEAT_TYPE_FROM_FILTER: Record<NonNullable<ChoreFilter['repeatType']>, RepeatType> = {
+  NONE: 'once',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  MONTHLY: 'monthly',
+  CUSTOM: 'custom',
+};
 
 export const ChoreListPage = () => {
   const [filter, setFilter] = useState<ChoreFilter>({});
   const navigate = useNavigate();
+  const selectedGroupId = useGroupStore(state => state.selectedGroupId);
+  const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
+  const { data: chores = [] } = useChores(
+    groupId && Number.isSafeInteger(groupId)
+      ? {
+          groupId,
+          status: filter.status,
+          assigneeId: filter.assigneeId,
+        }
+      : undefined,
+  );
 
-  const { data: myGroups } = useMyGroups();
-  const currentGroupId = myGroups?.[0]?.id;
+  const filteredChores = useMemo(() => {
+    const keyword = filter.keyword?.trim().toLocaleLowerCase();
+    const repeatType = filter.repeatType ? REPEAT_TYPE_FROM_FILTER[filter.repeatType] : undefined;
 
-  const { data: choresData = [] } = useQuery({
-    queryKey: ['chores', currentGroupId, filter],
-    queryFn: () =>
-      choreApi.getList({
-        groupId: Number(currentGroupId),
-        status: filter.status ? (filter.status.toUpperCase() as 'PENDING' | 'DONE') : undefined,
-        assigneeId: filter.assigneeId ? Number(filter.assigneeId) : undefined,
-      }),
-    enabled: !!currentGroupId,
-  });
+    return chores.filter(
+      chore =>
+        (!keyword || chore.name.toLocaleLowerCase().includes(keyword)) &&
+        (!repeatType || chore.repeatType === repeatType),
+    );
+  }, [chores, filter.keyword, filter.repeatType]);
+
+  const handleEdit = (chore: Chore) => navigate(`/chores/${chore.id}/edit`);
 
   return (
     <div className="mt-[28px] flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
       <ChoreFilterBar filter={filter} onFilterChange={setFilter} />
       <div className="w-full">
-        <ChoreCalendarView chores={choresData} />
+        <ChoreCalendarView chores={filteredChores} />
       </div>
       <div className="w-full flex-1">
         <ChoreTable
-          chores={choresData}
-          onEdit={chore => {
-            navigate(`/chores/${chore.choreId}/edit`);
-          }}
-          onShare={chore => console.log('Share chore', chore.title)}
+          chores={filteredChores}
+          onEdit={handleEdit}
+          onShare={chore => console.log('Share chore', chore.name)}
         />
       </div>
     </div>

@@ -20,7 +20,6 @@ const toGroup = (group: MemberGroupResponse): Group => ({
 export const MEMBER_QUERY_KEYS = {
   all: ['member'] as const,
   myGroups: (userId: string | null) => [...MEMBER_QUERY_KEYS.all, 'my-groups', userId] as const,
-  members: (groupId: string | number) => [...MEMBER_QUERY_KEYS.all, 'members', groupId] as const,
 };
 
 /** 로그인한 사용자가 실제로 속한 그룹 목록 */
@@ -35,13 +34,4 @@ export const useMyGroups = () => {
   });
 
   return { ...query, data: query.data ?? [] };
-};
-
-/**집안일 담당자 지정을 위한 그룹 멤버 조회 훅 */
-export const useGroupMembers = (groupId?: string | number) => {
-  return useQuery({
-    queryKey: MEMBER_QUERY_KEYS.members(groupId!),
-    queryFn: () => memberApi.getGroupMembers(groupId!),
-    enabled: !!groupId,
-  });
 };

@@ -11,15 +11,18 @@ export { InvitationCodeBox } from './components/AddGroup/InvitationCodeBox';
 export { GroupPreviewCard } from './components/JoinGroup/GroupPreviewCard';
 export { JoinGroupInput } from './components/JoinGroup/JoinGroupInput';
 export { JoinGroupAction } from './components/JoinGroup/JoinGroupAction';
+export { WarningModal } from './components/WarningModal';
 
-export { useMyGroups, useGroupMembers } from './hooks/useMyGroups';
+export { useMyGroups } from './hooks/useMyGroups';
+export { useGroupMembers } from './hooks/useGroupMembers';
 
 export { memberApi } from './api/member.api';
 
 export type {
-  Member,
-  PermissionType,
-  Group,
   AddGroupDto,
+  Group,
+  GroupMemberResponse,
+  Member,
   MemberGroupResponse,
+  PermissionType,
 } from './types/member.types';

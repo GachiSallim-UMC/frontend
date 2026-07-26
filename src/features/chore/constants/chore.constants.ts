@@ -1,4 +1,9 @@
-import type { RepeatType, ChoreCategory, DayOfWeek, CustomOption } from '../types/chore.types';
+import type {
+  ChoreApiCategory as ChoreCategory,
+  ChoreApiCustomOption as CustomOption,
+  ChoreApiDayOfWeek as DayOfWeek,
+  ChoreApiRepeatType as RepeatType,
+} from '../types/chore.types';
 
 export const CATEGORY_OPTIONS: { value: ChoreCategory; label: string }[] = [
   { value: 'CLEANING', label: '청소' },

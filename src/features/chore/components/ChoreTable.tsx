@@ -10,11 +10,11 @@ interface ChoreTableProps {
 }
 
 const REPEAT_LABEL: Record<Chore['repeatType'], string> = {
-  NONE: '일회성',
-  DAILY: '매일',
-  WEEKLY: '매주',
-  MONTHLY: '매월',
-  CUSTOM: '사용자 지정',
+  once: '일회성',
+  daily: '매일',
+  weekly: '매주',
+  monthly: '매월',
+  custom: '사용자 지정',
 };
 
 /**
@@ -31,7 +31,7 @@ export const ChoreTable = ({ chores, onEdit, onShare }: ChoreTableProps) => {
         <div className="flex h-full items-center justify-center">
           <input
             type="checkbox"
-            checked={chore.status === 'DONE'}
+            checked={chore.status === 'done'}
             readOnly
             className="
               h-[24px] w-[24px] cursor-pointer appearance-none rounded-[3px] 
@@ -44,33 +44,23 @@ export const ChoreTable = ({ chores, onEdit, onShare }: ChoreTableProps) => {
         </div>
       ),
     },
-    { key: 'title', header: '집안일 명' },
+    { key: 'name', header: '집안일 명' },
     {
       key: 'assignee',
       header: '담당자',
       render: chore => (
         <span className="flex items-center gap-2">
-          {chore.assignee ? (
-            <>
-              <UserAvatar
-                name={chore.assignee.nickname}
-                avatarUrl={chore.assignee.avatarUrl}
-                size="xs"
-              />
-              {chore.assignee.nickname}
-            </>
-          ) : (
-            <span className="text-gray-400">미지정</span>
-          )}
+          <UserAvatar name={chore.assignee.name} avatarUrl={chore.assignee.avatarUrl} size="xs" />
+          {chore.assignee.name}
         </span>
       ),
     },
     { key: 'repeatType', header: '주기', render: chore => REPEAT_LABEL[chore.repeatType] },
-    { key: 'dueDate', header: '기한' },
+    { key: 'startDate', header: '기한' },
     {
       key: 'status',
       header: '상태',
-      render: chore => <StatusBadge variant={chore.status.toLowerCase() as any} />,
+      render: chore => <StatusBadge variant={chore.status} />,
     },
     {
       key: 'actions',
@@ -93,6 +83,7 @@ export const ChoreTable = ({ chores, onEdit, onShare }: ChoreTableProps) => {
     <DataTable
       columns={columns}
       data={chores}
+      emptyMessage="등록된 집안일이 없습니다."
       className="
         border border-gray-100 overflow-hidden
         !rounded-[10px] !shadow-none 

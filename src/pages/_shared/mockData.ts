@@ -1,4 +1,4 @@
-import type { ActivityLog } from '@/features/activity';
+import type { Chore } from '@/features/chore';
 import type { Expense } from '@/features/expense';
 import type { Item } from '@/features/item';
 import type { ChatMessage, ChatRoom } from '@/features/messenger';
@@ -17,10 +17,88 @@ export const users: User[] = [
 /** 현재 로그인 사용자 — Figma 기준 관리자(Admin) */
 export const currentUser: User = users[0]; // 홍길동
 
+// ==================== 집안일 (Figma 07 · 집안일 목록) ====================
+// todayChores(status !== 'done') = 3건 → 대시보드 "3건" 일치
+
+export const chores: Chore[] = [
+  {
+    id: 'c1',
+    name: '화장실 청소',
+    assignee: users[0],
+    category: 'cleaning',
+    repeatType: 'weekly',
+    repeatDays: ['mon'],
+    startDate: '2026.07.01',
+    status: 'pending',
+  },
+  {
+    id: 'c2',
+    name: '설거지',
+    assignee: users[1],
+    category: 'dishes',
+    repeatType: 'daily',
+    repeatDays: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+    startDate: '2026.07.01',
+    status: 'done',
+  },
+  {
+    id: 'c3',
+    name: '분리수거',
+    assignee: users[2],
+    category: 'trash',
+    repeatType: 'weekly',
+    repeatDays: ['wed'],
+    startDate: '2026.07.01',
+    status: 'pending',
+  },
+  {
+    id: 'c4',
+    name: '냉장고 정리',
+    assignee: users[0],
+    category: 'etc',
+    repeatType: 'monthly',
+    repeatDays: [],
+    startDate: '2026.08.01',
+    status: 'scheduled',
+    memo: '유통기한 지난 식품 확인 및 정리',
+  },
+  {
+    id: 'c5',
+    name: '거실 청소',
+    assignee: users[1],
+    category: 'cleaning',
+    repeatType: 'weekly',
+    repeatDays: ['sat'],
+    startDate: '2026.06.28',
+    status: 'done',
+  },
+  {
+    id: 'c6',
+    name: '세탁기 돌리기',
+    assignee: users[2],
+    category: 'laundry',
+    repeatType: 'weekly',
+    repeatDays: ['tue', 'fri'],
+    startDate: '2026.06.27',
+    status: 'done',
+    memo: '밤 10시 이전에 돌리기',
+  },
+  {
+    id: 'c7',
+    name: '음식물 쓰레기 버리기',
+    assignee: users[0],
+    category: 'trash',
+    repeatType: 'daily',
+    repeatDays: ['mon', 'wed', 'fri'],
+    startDate: '2026.06.30',
+    status: 'done',
+  },
+];
+
 // ==================== 생활비 (Figma 09 · 정산 목록) ====================
 // 이번 달 총 지출 138,000원 = 32,000 + 30,000 + 54,000 + 22,000
 
-export const expenses: Expense[] = [
+export const expenses: Expense[] =[] /*[
   {
     id: 'e1',
     title: '마트 장보기',
@@ -84,6 +162,8 @@ export const expenses: Expense[] = [
     memo: '샴푸, 바디워시, 치약 외',
   },
 ];
+
+*/
 
 // ==================== 공용 물품 (Figma 11 · 공용 물품 목록) ====================
 // 부족+소진 = 2종 → 대시보드 "2종" 일치
@@ -310,7 +390,7 @@ export const activities = [
 // ==================== 활동 내역 (Figma 17 · 최근 활동 내역) ====================
 // 데모 기준 '오늘' = 2026.06.25
 
-export const activityLogs: ActivityLog[] = [
+export const activityLogs = [
   {
     id: 'a1',
     actorName: '김영희',
@@ -396,6 +476,12 @@ export const activityLogs: ActivityLog[] = [
 
 // ==================== 메신저 (Figma 15 · 그룹 내 실시간 메신저) ====================
 
+const roommateMembers: ChatRoom['members'] = [
+  { id: 'u1', name: '홍길동', isOwner: true, joinedDateLabel: '2026.03.02' },
+  { id: 'u2', name: '김영희', joinedDateLabel: '2026.03.02' },
+  { id: 'u3', name: '이철수', joinedDateLabel: '2026.02.28' },
+];
+
 export const chatRooms: ChatRoom[] = [
   {
     id: 'room-main',
@@ -403,6 +489,10 @@ export const chatRooms: ChatRoom[] = [
     lastMessage: '김영희: 세제 샀어요!',
     timestamp: '오전 11:06',
     unreadCount: 2,
+    category: 'group',
+    members: roommateMembers,
+    notificationEnabled: true,
+    isPinned: false,
   },
   {
     id: 'room-notice',
@@ -410,6 +500,32 @@ export const chatRooms: ChatRoom[] = [
     lastMessage: '새 규칙이 등록되었습니다.',
     timestamp: '05.21',
     unreadCount: 0,
+    category: 'notice',
+    members: roommateMembers,
+    notificationEnabled: true,
+    isPinned: false,
+  },
+  {
+    id: 'room-dm-u2',
+    name: '김영희',
+    lastMessage: '정산 요청 보냈어요~...',
+    timestamp: '오전 10:32',
+    unreadCount: 1,
+    category: 'dm',
+    members: [roommateMembers[0], roommateMembers[1]],
+    notificationEnabled: true,
+    isPinned: false,
+  },
+  {
+    id: 'room-dm-u3',
+    name: '이철수',
+    lastMessage: '넵 분리수거 제가 할게요',
+    timestamp: '어제',
+    unreadCount: 0,
+    category: 'dm',
+    members: [roommateMembers[0], roommateMembers[2]],
+    notificationEnabled: true,
+    isPinned: false,
   },
 ];
 

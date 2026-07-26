@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import type { CustomOption, DayOfWeek, RepeatType } from '../types/chore.types';
+import type {
+  ChoreApiCustomOption as CustomOption,
+  ChoreApiDayOfWeek as DayOfWeek,
+  ChoreApiRepeatType as RepeatType,
+} from '../types/chore.types';
 
 export const useChoreRepeat = () => {
   const [repeatType, setRepeatType] = useState<RepeatType>('NONE');

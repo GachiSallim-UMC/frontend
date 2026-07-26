@@ -1,66 +1,58 @@
 import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   ChoreBasicInfo,
   ChoreFormActions,
   ChoreMemo,
   ChoreRepeat,
-  type CreateChoreDto,
   useChoreForm,
   useCreateChore,
 } from '@/features/chore';
-import { useGroupMembers, useMyGroups } from '@/features/member';
+import type { ChoreApiCategory } from '@/features/chore';
+import { useGroupMembers } from '@/features/member';
+import { useGroupStore } from '@/shared/store';
 
 export const ChoreCreatePage = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const createMutation = useCreateChore();
   const { formData, updateField, getCreateDto } = useChoreForm();
-
-  const { data: myGroups } = useMyGroups();
-  const currentGroupId = myGroups?.[0]?.id;
-
-  const { data: members } = useGroupMembers(currentGroupId);
+  const selectedGroupId = useGroupStore(state => state.selectedGroupId);
+  const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
+  const { data: members } = useGroupMembers(selectedGroupId);
 
   const userOptions =
     members?.map(member => ({
       value: String(member.userId),
-      label: member.name,
-    })) || [];
+      label: member.user.name || member.user.nickname || `멤버 ${member.userId}`,
+    })) ?? [];
+
+  const handleBasicInfoChange = (
+    updates: Partial<{
+      title: string;
+      assigneeId: string;
+      category: ChoreApiCategory | '';
+    }>,
+  ) => {
+    const { assigneeId, ...rest } = updates;
+    updateField({
+      ...rest,
+      ...(assigneeId !== undefined
+        ? { assigneeId: assigneeId === '' ? '' : Number(assigneeId) }
+        : {}),
+    });
+  };
 
   const handleSave = () => {
-    const rawDto = getCreateDto(Number(currentGroupId));
-    if (!rawDto) return;
-
-    console.log('현재 전송되는 assigneeId 값:', rawDto.assigneeId);
-    console.log('현재 선택된 폼 전체 데이터:', formData);
-
-    const isWeeklyCondition =
-      rawDto.repeatType === 'WEEKLY' ||
-      (rawDto.repeatType === 'CUSTOM' && formData.customOption === 'EVERY_N_WEEKS');
-
-    const submitDto = {
-      ...rawDto,
-
-      startDate: rawDto.startDate ? String(rawDto.startDate).replace(/\//g, '-') : '',
-      dueDate: rawDto.dueDate ? String(rawDto.dueDate).replace(/\//g, '-') : undefined,
-      repeatDays: isWeeklyCondition ? rawDto.repeatDays || [] : [],
-    };
-
-    if (!submitDto.title || !submitDto.category || !submitDto.repeatType || !submitDto.startDate) {
-      alert('제목, 카테고리, 반복 유형, 시작일을 모두 작성해주세요.');
+    if (!groupId || !Number.isSafeInteger(groupId)) {
+      alert('선택된 그룹을 확인해 주세요.');
       return;
     }
 
-    createMutation.mutate(submitDto as CreateChoreDto, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['chores'] });
-        navigate('/chores');
-      },
-      onError: error => {
-        console.error(error);
-        alert('등록에 실패했습니다. 다시 시도해 주세요.');
-      },
+    const dto = getCreateDto(groupId);
+    if (!dto) return;
+
+    createMutation.mutate(dto, {
+      onSuccess: () => navigate('/chores'),
+      onError: () => alert('등록에 실패했습니다. 다시 시도해 주세요.'),
     });
   };
 
@@ -73,22 +65,22 @@ export const ChoreCreatePage = () => {
   return (
     <div className="mt-[28px] h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
       <ChoreBasicInfo
-        title={formData.title || ''}
-        assigneeId={String(formData.assigneeId || '')}
-        category={formData.category || ''}
+        title={formData.title}
+        assigneeId={String(formData.assigneeId)}
+        category={formData.category}
         assigneeOptions={userOptions}
-        onChange={updateField as any}
+        onChange={handleBasicInfoChange}
       />
       <ChoreRepeat
-        repeatType={formData.repeatType || ''}
-        customOption={formData.customOption || ''}
-        repeatInterval={formData.repeatInterval || ''}
-        repeatDays={formData.repeatDays || []}
-        startDate={formData.startDate || ''}
-        dueDate={formData.dueDate || ''}
+        repeatType={formData.repeatType}
+        customOption={formData.customOption}
+        repeatInterval={formData.repeatInterval}
+        repeatDays={formData.repeatDays}
+        startDate={formData.startDate}
+        dueDate={formData.dueDate}
         onChange={updateField}
       />
-      <ChoreMemo value={formData.memo || ''} onChange={memo => updateField({ memo })} />
+      <ChoreMemo value={formData.memo} onChange={memo => updateField({ memo })} />
       <ChoreFormActions
         onSave={handleSave}
         onCancel={handleCancel}

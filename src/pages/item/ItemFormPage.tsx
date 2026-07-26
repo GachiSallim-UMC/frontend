@@ -3,22 +3,54 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   ITEM_CATEGORY_OPTIONS,
   ITEM_STATUS_OPTIONS,
+  useCreateItem,
   useItemForm,
+  useItems,
   useQuickItemStatus,
+  useUpdateItem,
+  useUpdateItemStatus,
+  type Item,
 } from '@/features/item';
+import { useGroupMembers } from '@/features/member';
 import { Button, FormActions } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
-import { items, users } from '@/pages/_shared/mockData';
+import { useGroupStore } from '@/shared/store';
 
 type FormErrors = Partial<Record<'name' | 'category' | 'status', string>>;
 
 export const ItemFormPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const { data: items = [], isLoading, error } = useItems();
   const editingItem = id ? items.find(item => item.id === id) : undefined;
-  const notFound = Boolean(id) && !editingItem;
 
+  if (id && isLoading) {
+    return <p className="mt-16 text-center text-gray-500">공용물품을 불러오는 중입니다.</p>;
+  }
+
+  if (id && error) {
+    return (
+      <p className="mt-16 text-center text-gray-500">
+        {error instanceof Error ? error.message : '공용물품을 불러오지 못했습니다.'}
+      </p>
+    );
+  }
+
+  if (id && !editingItem) {
+    return <Navigate to="/items" replace />;
+  }
+
+  return <ItemFormContent editingItem={editingItem} items={items} />;
+};
+
+interface ItemFormContentProps {
+  editingItem?: Item;
+  items: Item[];
+}
+
+const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
+  const navigate = useNavigate();
+  const groupId = useGroupStore(state => state.selectedGroupId);
   const {
     name,
     setName,
@@ -37,27 +69,90 @@ export const ItemFormPage = () => {
     status: quickStatus,
     setStatus: setQuickStatus,
   } = useQuickItemStatus();
+  const { data: groupMembers, error: groupMembersError } = useGroupMembers(groupId);
+  const createItem = useCreateItem();
+  const updateItem = useUpdateItem();
+  const updateStatus = useUpdateItemStatus();
   const [errors, setErrors] = useState<FormErrors>({});
 
-  if (notFound) {
-    return <Navigate to="/items" replace />;
+  const buyerOptions = groupMembers.map(member => ({
+    value: member.userId,
+    label:
+      member.user.nickname === member.user.name
+        ? member.user.name
+        : `${member.user.name} (${member.user.nickname})`,
+  }));
+
+  if (editingItem?.buyer && !buyerOptions.some(option => option.value === editingItem.buyer?.id)) {
+    buyerOptions.push({
+      value: editingItem.buyer.id,
+      label: editingItem.buyer.nickname,
+    });
   }
 
-  const handleSave = () => {
+  const isPending = createItem.isPending || updateItem.isPending || updateStatus.isPending;
+  const mutationError = createItem.error ?? updateItem.error ?? updateStatus.error;
+
+  const handleSave = async () => {
+    if (isPending) return;
+
+    const canPreservePurchasedStatus = editingItem?.status === 'purchased';
     const nextErrors: FormErrors = {};
     if (!name.trim()) nextErrors.name = '물품명을 입력해 주세요.';
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
-    if (!status) nextErrors.status = '현재 상태를 선택해 주세요.';
+    if (!status && !canPreservePurchasedStatus) {
+      nextErrors.status = '현재 상태를 선택해 주세요.';
+    }
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-    navigate('/items');
+    if (Object.keys(nextErrors).length > 0 || !category) return;
+
+    const numericAssigneeId = buyerId ? Number(buyerId) : undefined;
+
+    try {
+      if (editingItem) {
+        await updateItem.mutateAsync({
+          id: editingItem.id,
+          dto: {
+            name: name.trim(),
+            category,
+            assigneeId: numericAssigneeId ?? null,
+            memo: memo.trim() || null,
+          },
+        });
+        if (status && status !== editingItem.status) {
+          await updateStatus.mutateAsync({
+            id: editingItem.id,
+            dto: { status },
+          });
+        }
+      } else {
+        if (!status) return;
+        await createItem.mutateAsync({
+          name: name.trim(),
+          category,
+          status,
+          ...(numericAssigneeId === undefined ? {} : { assigneeId: numericAssigneeId }),
+          ...(memo.trim() ? { memo: memo.trim() } : {}),
+        });
+      }
+      navigate('/items');
+    } catch {
+      // mutationError를 폼 하단에 표시한다.
+    }
   };
 
-  const handleQuickStatusChange = () => {
-    if (!quickItemId || !quickStatus) return;
-    // 실제 상태 변경 API가 아직 없어 목데이터라 반영은 안 되지만, 선택값 검증 후
-    // 목록으로 돌아가는 흐름은 저장 버튼과 동일하게 맞춰둔다.
-    navigate('/items');
+  const handleQuickStatusChange = async () => {
+    if (!quickItemId || !quickStatus || isPending) return;
+
+    try {
+      await updateStatus.mutateAsync({
+        id: quickItemId,
+        dto: { status: quickStatus },
+      });
+      navigate('/items');
+    } catch {
+      // mutationError를 폼 하단에 표시한다.
+    }
   };
 
   return (
@@ -74,7 +169,7 @@ export const ItemFormPage = () => {
             required
             placeholder="예: 화장지"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={event => setName(event.target.value)}
             error={errors.name}
             containerClassName="gap-1"
             labelClassName="leading-[17px] text-gray-800"
@@ -94,11 +189,11 @@ export const ItemFormPage = () => {
             />
             <SelectDropdown
               label="현재 상태"
-              required
+              required={editingItem?.status !== 'purchased'}
               value={status}
               onChange={setStatus}
               options={ITEM_STATUS_OPTIONS}
-              placeholder="상태 선택"
+              placeholder={editingItem?.status === 'purchased' ? '구매완료 상태 유지' : '상태 선택'}
               error={errors.status}
               containerClassName="gap-1"
               labelClassName="leading-[17px] text-gray-800"
@@ -109,18 +204,25 @@ export const ItemFormPage = () => {
               label="구매 담당자"
               value={buyerId}
               onChange={setBuyerId}
-              options={users.map(user => ({ value: user.id, label: user.name }))}
+              options={buyerOptions}
               placeholder="미지정"
               containerClassName="gap-1"
               labelClassName="leading-[17px] text-gray-800"
             />
           </div>
+          {groupMembersError && (
+            <p className="-mt-3 text-xs text-red-500">
+              {groupMembersError instanceof Error
+                ? groupMembersError.message
+                : '구매 담당자 목록을 불러오지 못했습니다.'}
+            </p>
+          )}
           <TextArea
             label="메모"
             placeholder="예: 매달 구매, 마트에서 대용량으로 구입"
             rows={3}
             value={memo}
-            onChange={e => setMemo(e.target.value)}
+            onChange={event => setMemo(event.target.value)}
             containerClassName="gap-1"
             labelClassName="leading-[17px] text-gray-800"
             className="block h-[100px] px-4 py-4"
@@ -128,7 +230,18 @@ export const ItemFormPage = () => {
         </div>
       </Panel>
 
-      <FormActions className="mt-[30px]" onSave={handleSave} onCancel={() => navigate(-1)} />
+      {mutationError && (
+        <p className="mt-4 text-caption text-red-500">
+          {mutationError instanceof Error ? mutationError.message : '요청을 처리하지 못했습니다.'}
+        </p>
+      )}
+
+      <FormActions
+        className="mt-[30px]"
+        onSave={() => void handleSave()}
+        onCancel={() => navigate(-1)}
+        saveLabel={isPending ? '처리 중' : '저장'}
+      />
 
       <Panel
         title="빠른 상태 변경"
@@ -154,7 +267,8 @@ export const ItemFormPage = () => {
           <Button
             variant="secondary"
             className="h-[50px] w-[117px] border-primary-500 bg-primary-100 font-bold text-primary-500 hover:bg-primary-200"
-            onClick={handleQuickStatusChange}
+            isLoading={updateStatus.isPending}
+            onClick={() => void handleQuickStatusChange()}
           >
             변경
           </Button>

@@ -1,84 +1,76 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   ChoreBasicInfo,
   ChoreFormActions,
   ChoreMemo,
   ChoreRepeat,
-  useChoreDetail,
-  useUpdateChore,
+  useChoreFromList,
   useChoreForm,
+  useUpdateChore,
 } from '@/features/chore';
-
-import { useGroupMembers, useMyGroups } from '@/features/member';
+import type { ChoreApiCategory } from '@/features/chore';
+import { useGroupMembers } from '@/features/member';
+import { useGroupStore } from '@/shared/store';
 
 export const ChoreEditPage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { data: choreData, isLoading } = useChoreDetail(id || '');
+  const selectedGroupId = useGroupStore(state => state.selectedGroupId);
+  const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
+  const { data: choreData, isLoading, isError } = useChoreFromList(groupId, id);
+  const { data: members } = useGroupMembers(selectedGroupId);
   const updateMutation = useUpdateChore();
-
-  const { data: myGroups } = useMyGroups();
-  const currentGroupId = myGroups?.[0]?.id;
-  const { data: members } = useGroupMembers(currentGroupId);
+  const { formData, updateField, getUpdateDto } = useChoreForm();
 
   const userOptions =
     members?.map(member => ({
       value: String(member.userId),
-      label: member.name,
-    })) || [];
-
-  const { formData, updateField, getUpdateDto } = useChoreForm();
+      label: member.user.name || member.user.nickname || `멤버 ${member.userId}`,
+    })) ?? [];
 
   useEffect(() => {
-    if (choreData) {
-      updateField({
-        title: choreData.title,
-        assigneeId: choreData.assignee?.userId,
-        category: choreData.category,
-        repeatType: choreData.repeatType,
-        repeatDays: choreData.repeatDays,
-        startDate: choreData.startDate,
-        dueDate: choreData.dueDate,
-        memo: choreData.memo,
-      });
-    }
-  }, [choreData]);
+    if (!choreData) return;
+
+    updateField({
+      title: choreData.title,
+      assigneeId: choreData.assignee.userId,
+      category: choreData.category,
+      repeatType: choreData.repeatType,
+      customOption: choreData.customOption ?? '',
+      repeatInterval: choreData.repeatInterval === null ? '' : String(choreData.repeatInterval),
+      repeatDays: choreData.repeatDays,
+      startDate: choreData.startDate,
+      dueDate: choreData.dueDate ?? '',
+      memo: choreData.memo ?? '',
+    });
+  }, [choreData, updateField]);
+
+  const handleBasicInfoChange = (
+    updates: Partial<{
+      title: string;
+      assigneeId: string;
+      category: ChoreApiCategory | '';
+    }>,
+  ) => {
+    const { assigneeId, ...rest } = updates;
+    updateField({
+      ...rest,
+      ...(assigneeId !== undefined
+        ? { assigneeId: assigneeId === '' ? '' : Number(assigneeId) }
+        : {}),
+    });
+  };
 
   const handleSave = () => {
-    const rawDto = getUpdateDto();
-    if (!rawDto || !id) return;
-
-    const isWeeklyCondition =
-      rawDto.repeatType === 'WEEKLY' ||
-      (rawDto.repeatType === 'CUSTOM' && formData.customOption === 'EVERY_N_WEEKS');
-
-    const submitDto = {
-      ...rawDto,
-      startDate: rawDto.startDate ? String(rawDto.startDate).replace(/\//g, '-') : '',
-      dueDate: rawDto.dueDate ? String(rawDto.dueDate).replace(/\//g, '-') : undefined,
-      repeatDays: isWeeklyCondition ? rawDto.repeatDays || [] : [],
-    };
-
-    if (!submitDto.title || !submitDto.category || !submitDto.repeatType || !submitDto.startDate) {
-      alert('제목, 카테고리, 반복 유형, 시작일을 모두 작성해주세요.');
-      return;
-    }
+    const dto = getUpdateDto();
+    if (!dto || !id) return;
 
     updateMutation.mutate(
-      { id, dto: submitDto },
+      { id, dto },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ['chores'] });
-          alert('수정이 완료되었습니다!');
-          navigate('/chores');
-        },
-        onError: error => {
-          console.error(error);
-          alert('수정에 실패했습니다. 다시 시도해 주세요.');
-        },
+        onSuccess: () => navigate('/chores'),
+        onError: () => alert('수정에 실패했습니다. 다시 시도해 주세요.'),
       },
     );
   };
@@ -97,25 +89,33 @@ export const ChoreEditPage = () => {
     );
   }
 
+  if (isError || !choreData) {
+    return (
+      <div className="flex h-[300px] w-full items-center justify-center mt-[28px]">
+        <div className="text-gray-500 font-semibold">집안일 정보를 찾을 수 없습니다.</div>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-[28px] h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
       <ChoreBasicInfo
-        title={formData.title || ''}
-        assigneeId={String(formData.assigneeId || '')}
-        category={formData.category || ''}
+        title={formData.title}
+        assigneeId={String(formData.assigneeId)}
+        category={formData.category}
         assigneeOptions={userOptions}
-        onChange={updateField as any}
+        onChange={handleBasicInfoChange}
       />
       <ChoreRepeat
-        repeatType={formData.repeatType || ''}
-        customOption={formData.customOption || ''}
-        repeatInterval={formData.repeatInterval || ''}
-        repeatDays={formData.repeatDays || []}
-        startDate={formData.startDate || ''}
-        dueDate={formData.dueDate || ''}
+        repeatType={formData.repeatType}
+        customOption={formData.customOption}
+        repeatInterval={formData.repeatInterval}
+        repeatDays={formData.repeatDays}
+        startDate={formData.startDate}
+        dueDate={formData.dueDate}
         onChange={updateField}
       />
-      <ChoreMemo value={formData.memo || ''} onChange={memo => updateField({ memo })} />
+      <ChoreMemo value={formData.memo} onChange={memo => updateField({ memo })} />
       <ChoreFormActions
         onSave={handleSave}
         onCancel={handleCancel}

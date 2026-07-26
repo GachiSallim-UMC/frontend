@@ -1,5 +1,9 @@
 import { SelectDropdown, FormInput } from '@/shared/components';
-import type { DayOfWeek, RepeatType, CustomOption } from '../types/chore.types';
+import type {
+  ChoreApiCustomOption as CustomOption,
+  ChoreApiDayOfWeek as DayOfWeek,
+  ChoreApiRepeatType as RepeatType,
+} from '../types/chore.types';
 import CalendarIcon from '@/assets/icons/chore/calendar.svg';
 import {
   CUSTOM_OPTIONS,
@@ -29,7 +33,7 @@ export const ChoreRepeat = ({
   onChange,
 }: ChoreRepeatProps) => {
   const isDaysEnabled =
-    repeatType === 'WEEKLY' || (repeatType === 'CUSTOM' && customOption === 'EVERY_N_WEEKS');
+    repeatType === 'WEEKLY' || (repeatType === 'CUSTOM' && customOption === 'SPECIFIC_DAYS');
 
   const toggleDay = (day: DayOfWeek) => {
     if (repeatDays.includes(day)) {
@@ -71,7 +75,7 @@ export const ChoreRepeat = ({
               value={repeatInterval}
               onChange={e => {
                 const val = e.target.value;
-                if (val === '' || Number(val) >= 1) {
+                if (val === '' || (Number(val) >= 1 && Number(val) <= 99)) {
                   onChange({ repeatInterval: val });
                 }
               }}

@@ -1,3 +1,4 @@
+import { MoreVertical } from 'lucide-react';
 import { ConnectionStatusBadge } from '@/features/messenger/components/ConnectionStatusBadge';
 
 interface ChatHeaderProps {
@@ -5,9 +6,16 @@ interface ChatHeaderProps {
   memberCount: number;
   onlineMembers?: string[];
   isConnected?: boolean;
+  onOpenManage?: () => void;
 }
 
-export const ChatHeader = ({ roomName, memberCount, onlineMembers = [], isConnected = true }: ChatHeaderProps) => {
+export const ChatHeader = ({
+  roomName,
+  memberCount,
+  onlineMembers = [],
+  isConnected = true,
+  onOpenManage,
+}: ChatHeaderProps) => {
   return (
     <div className="flex h-[72px] shrink-0 items-center justify-between gap-5 border-b border-gray-100 bg-white px-6">
       <div className="flex min-w-0 items-center gap-5">
@@ -20,7 +28,17 @@ export const ChatHeader = ({ roomName, memberCount, onlineMembers = [], isConnec
           </p>
         )}
       </div>
-      <ConnectionStatusBadge isConnected={isConnected} />
+      <div className="flex shrink-0 items-center gap-4">
+        <ConnectionStatusBadge isConnected={isConnected} />
+        <button
+          type="button"
+          onClick={onOpenManage}
+          aria-label="채팅방 관리"
+          className="text-gray-500 transition-colors hover:text-gray-700"
+        >
+          <MoreVertical className="h-6 w-6" />
+        </button>
+      </div>
     </div>
   );
 };

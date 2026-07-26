@@ -2,16 +2,17 @@ import { Link } from 'react-router-dom';
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
 import { StatusBadge } from '@/shared/components/ui';
-import { RULE_CATEGORY_LABEL } from '../hooks/useRuleFilters';
+import { RULE_CATEGORY_LABEL } from '../constants/rule.constants';
 import type { Rule } from '../types/rule.types';
 
 interface RuleListRowProps {
   rule: Rule;
   isLast: boolean;
+  onShare: (id: string) => void;
 }
 
 /** 생활 규칙 목록의 한 행 — Figma 시안대로 헤더 없는 리스트 형태 (표가 아님) */
-export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
+export const RuleListRow = ({ rule, isLast, onShare }: RuleListRowProps) => {
   const { agreedCount, totalCount } = rule.agreement;
   const agreementText =
     agreedCount === totalCount
@@ -57,6 +58,7 @@ export const RuleListRow = ({ rule, isLast }: RuleListRowProps) => {
           <button
             type="button"
             aria-label="공유"
+            onClick={() => onShare(rule.id)}
             className="flex size-[39px] items-center justify-center transition-colors hover:text-gray-500"
           >
             <ShareIcon className="size-[39px]" />

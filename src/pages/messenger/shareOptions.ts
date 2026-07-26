@@ -23,6 +23,7 @@ const ITEM_STATUS_LABEL: Record<Item['status'], string> = {
   enough: '충분',
   short: '부족',
   empty: '소진',
+  purchased: '구매완료',
 };
 
 /** 공유 버튼으로 선택한 타입에 해당하는, 채팅방에 공유할 수 있는 항목 목록 */
@@ -88,7 +89,7 @@ export const buildShareCard = (
         headline: ' 정산을 공유했어요',
         details: [
           { label: '총액', value: `${expense.amount.toLocaleString()}원` },
-          { label: '분담 방식', value: expense.splitType === 'equal' ? '균등 분할' : '비율 분할' },
+         //{ label: '분담 방식', value: expense.splitType === 'equal' ? '균등 분할' : '비율 분할' },
           { label: '1인당 금액', value: `${perPerson.toLocaleString()}원` },
         ],
         actionLabel: '정산하기',

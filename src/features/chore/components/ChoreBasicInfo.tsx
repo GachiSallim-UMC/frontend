@@ -1,5 +1,5 @@
 import { FormInput, SelectDropdown } from '@/shared/components';
-import type { ChoreCategory } from '../types/chore.types';
+import type { ChoreApiCategory as ChoreCategory } from '../types/chore.types';
 import { CATEGORY_OPTIONS } from '../constants/chore.constants';
 
 interface ChoreBasicInfoProps {

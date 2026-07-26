@@ -1,5 +1,6 @@
 import { Link, Navigate } from 'react-router-dom';
 import {LoginForm, SocialLoginForm, useLogin} from "@/features/auth";
+import { usePushSubscription } from '@/features/notification';
 import { ApiError } from "@/shared/api";
 import { useAuthStore } from '@/shared/store';
 import Logo from "@/assets/logo.svg?react";
@@ -7,6 +8,7 @@ import Logo from "@/assets/logo.svg?react";
 export const LoginPage =() => {
     const isAuthenticated = useAuthStore(s => Boolean(s.accessToken && s.userId));
     const { mutate: login, isPending, error } = useLogin();
+    const { requestPermission } = usePushSubscription();
 
     if (isAuthenticated) {
         return <Navigate to="/group" replace />;
@@ -27,7 +29,10 @@ export const LoginPage =() => {
                 </div>
 
                 <LoginForm
-                    onSubmit={credentials => login(credentials)}
+                    onSubmit={credentials => {
+                        requestPermission();
+                        login(credentials);
+                    }}
                     isSubmitting={isPending}
                     errorMessage={error instanceof ApiError ? error.message : undefined}
                 />

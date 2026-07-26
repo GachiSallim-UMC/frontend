@@ -1,3 +1,5 @@
+import type { User } from '@/shared/types';
+
 export type MemberRole = 'ADMIN' | 'MEMBER';
 
 export interface Member {
@@ -10,12 +12,26 @@ export interface Member {
   avatarId?: number;
 }
 
+/** GET /groups/:groupId/members 응답 (닉네임/프로필사진 포함) */
+export interface GroupMemberResponse {
+  userId: string;
+  groupId: string;
+  role: MemberRole;
+  joinedAt: string;
+  leftAt: string | null;
+  user: {
+    id: string;
+    name: string;
+    nickname: string;
+    profileImage: string | null;
+  };
+}
+
 export type PermissionType =
   | 'ALLOW_CHORE'
   | 'ALLOW_SETTLEMENT'
   | 'ALLOW_ITEM_STATUS'
   | 'AUTO_APPROVE';
-import type { User } from '@/shared/types';
 
 export interface Group {
   id: string;
