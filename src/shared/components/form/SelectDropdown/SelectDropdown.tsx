@@ -12,12 +12,14 @@ interface SelectDropdownProps<T extends string> extends Omit<
   'value' | 'onChange'
 > {
   label?: string;
-  options: SelectOption<T>[];
+  options: readonly SelectOption<T>[];
   value: T | '';
   onChange: (value: T) => void;
   placeholder?: string;
   error?: string;
   required?: boolean;
+  containerClassName?: string;
+  labelClassName?: string;
 }
 
 export const SelectDropdown = <T extends string>({
@@ -28,6 +30,8 @@ export const SelectDropdown = <T extends string>({
   placeholder = '선택',
   error,
   required,
+  containerClassName,
+  labelClassName,
   className,
   id,
   ...props
@@ -35,9 +39,12 @@ export const SelectDropdown = <T extends string>({
   const inputId = id ?? label?.replace(/\s/g, '-').toLowerCase();
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className={cn('flex flex-col gap-1.5', containerClassName)}>
       {label && (
-        <label htmlFor={inputId} className="text-caption font-bold text-gray-900">
+        <label
+          htmlFor={inputId}
+          className={cn('text-caption font-bold text-gray-900', labelClassName)}
+        >
           {label}
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </label>
@@ -52,7 +59,7 @@ export const SelectDropdown = <T extends string>({
             'text-button text-gray-900 transition-colors',
             'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
             error ? 'border-red-500' : 'border-gray-100',
-            !value && 'text-gray-400',
+            !value && 'text-gray-500',
             className,
           )}
           {...props}

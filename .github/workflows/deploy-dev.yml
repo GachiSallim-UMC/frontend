@@ -1,0 +1,59 @@
+name: Deploy Dev
+
+on:
+  push:
+    branches: [develop]
+
+# GitHub OIDC로 AWS 역할을 assume하기 위해 필요. 정적 액세스 키는 쓰지 않는다.
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: dev 배포
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 린트
+        run: npm run lint
+
+      - name: AWS 자격 증명 설정 (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gha-deploy-dev
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: SSM에서 빌드 환경변수 로드
+        run: |
+          VITE_API_BASE_URL=$(aws ssm get-parameter --name "/gachi-salim/dev/VITE_API_BASE_URL" --query 'Parameter.Value' --output text)
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "::error::VITE_API_BASE_URL 파라미터 값이 비어있음"
+            exit 1
+          fi
+          echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> .env
+
+      - name: 빌드 (타입 체크 포함 — npm run build가 tsc -b를 실행함)
+        run: npm run build
+
+      - name: S3 동기화
+        run: aws s3 sync dist/ "s3://${{ vars.DEV_BUCKET_NAME }}" --delete
+
+      - name: CloudFront 캐시 무효화
+        run: aws cloudfront create-invalidation --distribution-id "${{ vars.DEV_DISTRIBUTION_ID }}" --paths "/index.html"

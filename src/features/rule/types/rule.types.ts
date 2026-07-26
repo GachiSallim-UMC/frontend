@@ -1,30 +1,117 @@
-import type { RuleStatus, User } from '@/shared/types';
+import type { RuleStatus } from '@/shared/types';
 
-/** 생활 규칙 카테고리 */
-export type RuleCategory = 'noise' | 'visitor' | 'cleanliness' | 'trash' | 'etc';
+export type RuleCategory =
+  | 'noise'
+  | 'cleaning'
+  | 'kitchen'
+  | 'bathroom'
+  | 'visitor'
+  | 'safety'
+  | 'etc';
+export type EditableRuleCategory = Exclude<RuleCategory, 'etc'>;
+export type RuleApiStatus = 'ACTIVE' | 'INACTIVE';
+export type RuleAgreementApiStatus = 'AGREED' | 'DISAGREED' | 'PENDING';
+
+export interface RuleUser {
+  id: string;
+  name: string;
+  nickname: string;
+}
+
+export interface RuleAgreementMember {
+  userId: string;
+  nickname: string;
+  status: RuleAgreementApiStatus;
+  confirmedAt: string | null;
+}
+
+export interface RuleHistory {
+  id: string;
+  action: string;
+  message: string;
+  createdAt: string;
+}
 
 /** 동의 현황 */
 export interface RuleAgreement {
   agreedCount: number;
   totalCount: number;
-  agreedMembers: User[];
+  disagreedCount?: number;
+  pendingCount?: number;
+  agreedMembers: RuleUser[];
 }
 
 /** 생활 규칙 도메인 모델 */
 export interface Rule {
   id: string;
   category: RuleCategory;
+  categoryId?: number | null;
+  categoryName?: string | null;
   title: string;
   content?: string;
-  registeredBy: User;
+  registeredBy: RuleUser;
   registeredAt: string;
+  updatedAt?: string;
   agreement: RuleAgreement;
+  agreements?: RuleAgreementMember[];
+  myAgreementStatus?: RuleAgreementApiStatus | null;
+  histories?: RuleHistory[];
   status: RuleStatus;
 }
 
 /** 생활 규칙 등록 DTO */
 export interface CreateRuleDto {
-  category: RuleCategory;
+  category: EditableRuleCategory;
   title: string;
-  content?: string;
+  content: string;
+}
+
+export interface UpdateRuleDto extends CreateRuleDto {
+  status: RuleStatus;
+}
+
+export interface UpdateRuleAgreementDto {
+  status: RuleAgreementApiStatus;
+}
+
+export interface ShareRuleResponse {
+  ruleId: number;
+  messageId: number;
+}
+
+export interface RuleAgreementSummaryResponse {
+  totalCount: number;
+  agreedCount: number;
+  disagreedCount: number;
+  pendingCount: number;
+}
+
+export interface RuleListItemResponse {
+  ruleId: number;
+  groupId: number;
+  categoryId: number | null;
+  title: string;
+  description: string | null;
+  status: RuleApiStatus;
+  createdBy: { userId: number; nickname: string };
+  agreementSummary: RuleAgreementSummaryResponse;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RuleDetailResponse extends RuleListItemResponse {
+  categoryName: string | null;
+  myAgreementStatus: RuleAgreementApiStatus | null;
+  agreements: Array<{
+    userId: number;
+    nickname: string;
+    status: RuleAgreementApiStatus;
+    confirmedAt: string | null;
+  }>;
+  histories: Array<{
+    logId: number;
+    action: string;
+    message: string;
+    createdAt: string;
+  }>;
 }

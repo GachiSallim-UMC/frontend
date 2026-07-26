@@ -9,6 +9,7 @@ interface PageLayoutProps {
   memberCount?: number;
   user?: { name: string; avatarUrl?: string };
   unreadMessageCount?: number;
+  unreadNotificationCount?: number;
   className?: string;
 }
 
@@ -18,18 +19,22 @@ export const PageLayout = ({
   memberCount = 3,
   user = { name: '홍길동' },
   unreadMessageCount = 0,
+  unreadNotificationCount = 0,
   className,
 }: PageLayoutProps) => {
   return (
-    <div className="min-h-screen bg-primary-50">
+    <div className="flex h-screen w-full overflow-hidden bg-primary-50">
       <Sidebar />
-      <Header
-        groupName={groupName}
-        memberCount={memberCount}
-        user={user}
-        unreadMessageCount={unreadMessageCount}
-      />
-      <main className={cn('content-area p-6', className)}>{children}</main>
+      <div className="flex h-screen flex-1 flex-col overflow-hidden">
+        <Header
+          groupName={groupName}
+          memberCount={memberCount}
+          user={user}
+          unreadMessageCount={unreadMessageCount}
+          unreadNotificationCount={unreadNotificationCount}
+        />
+        <main className={cn('flex flex-1 flex-col overflow-y-auto px-6 pb-6', className)}>{children}</main>
+      </div>
     </div>
   );
 };

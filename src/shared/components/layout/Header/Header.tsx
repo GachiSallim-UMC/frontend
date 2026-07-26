@@ -9,14 +9,18 @@ interface HeaderProps {
   memberCount: number;
   user: { name: string; avatarUrl?: string };
   unreadMessageCount?: number;
+  unreadNotificationCount?: number;
 }
 
-export const Header = ({ groupName, memberCount, user, unreadMessageCount = 0 }: HeaderProps) => {
+export const Header = ({
+  groupName,
+  memberCount,
+  user,
+  unreadMessageCount = 0,
+  unreadNotificationCount = 0,
+}: HeaderProps) => {
   return (
-    <header
-      className="fixed inset-x-0 top-0 z-10 flex h-16 items-center justify-between border-b border-gray-100 bg-white px-6"
-      style={{ left: 'var(--sidebar-width)' }}
-    >
+    <header className="z-10 flex h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6">
       {/* 그룹 정보 */}
       <div>
         <h1 className="text-group-title font-semibold text-gray-900">{groupName}</h1>
@@ -40,10 +44,15 @@ export const Header = ({ groupName, memberCount, user, unreadMessageCount = 0 }:
           </Link>
           <Link
             to="/notifications"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-600 shadow-card transition-colors hover:text-gray-900"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-600 shadow-card transition-colors hover:text-gray-900"
             aria-label="알림"
           >
             <NotificationsIcon className="h-6 w-6" />
+            {unreadNotificationCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-700 px-1 text-[10px] text-white">
+                {unreadNotificationCount}
+              </span>
+            )}
           </Link>
         </div>
 

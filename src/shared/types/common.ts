@@ -1,6 +1,6 @@
 export type Status = 'done' | 'pending' | 'scheduled';
 export type ExpenseStatus = 'paid' | 'unpaid';
-export type ItemStatus = 'enough' | 'short' | 'empty';
+export type ItemStatus = 'enough' | 'short' | 'empty' | 'purchased';
 export type RuleStatus = 'active' | 'inactive';
 
 export interface User {
@@ -17,7 +17,26 @@ export interface PaginationMeta {
   total: number;
 }
 
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
+export interface ErrorDetail {
+  field: string;
+  value: unknown;
+  reason: string;
 }
+
+export interface ApiSuccessResponse<T> {
+  statusCode: number;
+  data: T;
+  error: null;
+}
+
+export interface ApiErrorResponse {
+  statusCode: number;
+  data: null;
+  error: {
+    code: string;
+    message: string;
+    errors?: ErrorDetail[];
+  };
+}
+
+export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
