@@ -1,17 +1,57 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { User } from '@/shared/types';
+import { useEffect, useRef, useState } from 'react';
 import type {
+  CARD_MESSAGE_TYPES,
   ChatFilter,
-  ChatMessage,
-  ChatMessageGroup,
-  ChatRoom,
   ChatRoomCategory,
   ChatRoomMember,
   ChatShareCard,
   ShareCardType,
 } from '@/features/messenger/types';
+import { useChatMessages, useChatRoomDetail, useChatRooms } from './useChatRoomQueries';
+import {
+  useCreateChatRoom,
+  useDeleteChatRoom,
+  useInviteMembers,
+  useMarkAsRead,
+  useRemoveMember,
+  useSendCardMessage,
+  useSendMessage,
+  useTransferOwner,
+  useUpdateMemberSettings,
+} from './useChatRoomMutations';
 
-const groupMessagesBySender = (messages: ChatMessage[]): ChatMessageGroup[] => {
+const matchesFilter = (category: ChatRoomCategory, unreadCount: number, filter: ChatFilter) => {
+  switch (filter) {
+    case 'group':
+      return category === 'group';
+    case 'notice':
+      return category === 'notice';
+    case 'unread':
+      return unreadCount > 0;
+    default:
+      return true;
+  }
+};
+
+const CARD_TYPE_BY_SHARE_TYPE: Record<ShareCardType, (typeof CARD_MESSAGE_TYPES)[number]> = {
+  chore: 'CARD_CHORE',
+  expense: 'CARD_EXPENSE',
+  item: 'CARD_SUPPLY',
+  rule: 'CARD_RULE',
+};
+
+type ChatMessageItem = ReturnType<typeof useChatMessages>['messages'][number];
+
+interface ChatMessageGroup {
+  key: string;
+  senderId: string;
+  senderName: string;
+  senderAvatarUrl?: string;
+  isMine: boolean;
+  items: ChatMessageItem[];
+}
+
+const groupMessagesBySender = (messages: ChatMessageItem[]): ChatMessageGroup[] => {
   const groups: ChatMessageGroup[] = [];
   messages.forEach(message => {
     const lastGroup = groups[groups.length - 1];
@@ -31,38 +71,8 @@ const groupMessagesBySender = (messages: ChatMessage[]): ChatMessageGroup[] => {
   return groups;
 };
 
-/** 기존 목데이터 표기(예: '오전 10:06')와 맞춘 현재 시각 포맷 */
-const formatTimestamp = (date: Date) => {
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const period = hours < 12 ? '오전' : '오후';
-  const displayHour = hours % 12 === 0 ? 12 : hours % 12;
-  return `${period} ${displayHour}:${String(minutes).padStart(2, '0')}`;
-};
-
-const matchesFilter = (room: ChatRoom, filter: ChatFilter) => {
-  switch (filter) {
-    case 'group':
-      return room.category === 'group';
-    case 'notice':
-      return room.category === 'notice';
-    case 'unread':
-      return room.unreadCount > 0;
-    default:
-      return true;
-  }
-};
-
-export const useChatRoom = (
-  initialRooms: ChatRoom[],
-  initialMessages: ChatMessage[],
-  currentUserId: string,
-  currentUserName: string,
-  allUsers: User[] = [],
-) => {
-  const [rooms, setRooms] = useState(initialRooms);
-  const [activeRoomId, setActiveRoomId] = useState(initialRooms[0]?.id ?? '');
-  const [messages, setMessages] = useState(initialMessages);
+export const useChatRoom = (groupId: string | null, currentUserId: string) => {
+  const [activeRoomId, setActiveRoomIdState] = useState('');
   const [draft, setDraft] = useState('');
   const [activeShareType, setActiveShareType] = useState<ShareCardType | null>(null);
 
@@ -77,113 +87,98 @@ export const useChatRoom = (
   const [isDelegateOpen, setIsDelegateOpen] = useState(false);
   const [kickTarget, setKickTarget] = useState<ChatRoomMember | null>(null);
   const [transferOwnerTarget, setTransferOwnerTarget] = useState<ChatRoomMember | null>(null);
-  // TODO: AWS 관리형 웹소켓 연동 시 실제 연결 상태로 교체
+  // TODO: 웹소켓 연동 전까지는 REST 요청 성공 여부로만 연결 상태를 판단 (이번 라운드는 REST만 연동)
   const [isConnected] = useState(true);
 
-  const activeRoom = rooms.find(room => room.id === activeRoomId);
+  const { data: rooms, isLoading: isRoomsLoading } = useChatRooms(groupId);
+  const { data: activeRoom } = useChatRoomDetail(activeRoomId || null, currentUserId);
 
-  // 채팅방을 열람 중이면 안읽음 배지를 지운다 (최초 진입한 방 포함)
+  // 메시지 응답에 sender(닉네임/프로필사진)가 아직 없어서, 채팅방 멤버 목록으로 대체 조회할 때 쓴다.
+  const memberLookup = new Map(
+    (activeRoom?.members ?? []).map(member => [member.id, { name: member.name, avatarUrl: member.avatarUrl }]),
+  );
+
+  const {
+    messages: messageItems,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useChatMessages(activeRoomId || null, currentUserId, memberLookup);
+
+  const createRoomMutation = useCreateChatRoom(groupId);
+  const deleteRoomMutation = useDeleteChatRoom(groupId);
+  const inviteMembersMutation = useInviteMembers(groupId);
+  const removeMemberMutation = useRemoveMember(groupId);
+  const transferOwnerMutation = useTransferOwner();
+  const sendMessageMutation = useSendMessage();
+  const sendCardMessageMutation = useSendCardMessage();
+  const markAsReadMutation = useMarkAsRead(groupId);
+  const updateMemberSettingsMutation = useUpdateMemberSettings();
+
+  // 최초 진입 시에만 첫 방을 자동 선택한다. 방 삭제/나가기 이후의 "다음 방 선택"은
+  // 각 액션이 자체적으로 처리하므로, 목록 갱신 타이밍에 맞춰 여기서 다시 개입하지 않는다
+  // (그렇지 않으면 삭제 직후 아직 갱신 전인 목록 때문에 방금 지운 방이 재선택되는 경쟁 상태가 생김).
+  const hasAutoSelectedRef = useRef(false);
   useEffect(() => {
-    setRooms(prev => prev.map(room => (room.id === activeRoomId ? { ...room, unreadCount: 0 } : room)));
-  }, [activeRoomId]);
+    if (!hasAutoSelectedRef.current && !activeRoomId && rooms.length > 0) {
+      hasAutoSelectedRef.current = true;
+      setActiveRoomIdState(rooms[0].id);
+    }
+  }, [activeRoomId, rooms]);
 
-  const filteredRooms = useMemo(() => {
-    const keyword = searchQuery.trim().toLowerCase();
-    return rooms
-      .filter(room => matchesFilter(room, filter))
-      .filter(room => !keyword || room.name.toLowerCase().includes(keyword))
-      .sort((a, b) => Number(b.isPinned) - Number(a.isPinned));
-  }, [rooms, filter, searchQuery]);
+  const filteredRooms = rooms
+    .filter(room => matchesFilter(room.category, room.unreadCount, filter))
+    .filter(room => !searchQuery.trim() || room.name.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    .sort((a, b) => Number(b.isPinned) - Number(a.isPinned));
 
-  const messageGroups = useMemo(() => {
-    const roomMessages = messages.filter(message => message.roomId === activeRoomId);
-    return groupMessagesBySender(roomMessages);
-  }, [messages, activeRoomId]);
+  const messageGroups = groupMessagesBySender(messageItems);
 
-  const selectRoom = (roomId: string) => {
-    setActiveRoomId(roomId);
+  const setActiveRoomId = (roomId: string) => {
+    setActiveRoomIdState(roomId);
     setDraft('');
     setIsManagePanelOpen(false);
+    markAsReadMutation.mutate(roomId);
   };
 
   const sendMessage = () => {
     const content = draft.trim();
-    if (!content || !activeRoom) return;
-
-    setMessages(prev => [
-      ...prev,
-      {
-        id: `local-${Date.now()}`,
-        roomId: activeRoom.id,
-        senderId: currentUserId,
-        senderName: currentUserName,
-        timestamp: formatTimestamp(new Date()),
-        isMine: true,
-        content,
-      },
-    ]);
+    if (!content || !activeRoomId) return;
+    sendMessageMutation.mutate({ roomId: activeRoomId, content });
     setDraft('');
   };
 
-  const shareItem = (shareCard: ChatShareCard) => {
-    if (!activeRoom) return;
-
-    setMessages(prev => [
-      ...prev,
-      {
-        id: `local-${Date.now()}`,
-        roomId: activeRoom.id,
-        senderId: currentUserId,
-        senderName: currentUserName,
-        timestamp: formatTimestamp(new Date()),
-        isMine: true,
-        shareCard,
-      },
-    ]);
+  const shareItem = (shareCard: ChatShareCard, refId: string) => {
+    if (!activeRoomId) return;
+    sendCardMessageMutation.mutate({ roomId: activeRoomId, type: CARD_TYPE_BY_SHARE_TYPE[shareCard.type], refId });
     setActiveShareType(null);
   };
 
-  const createRoom = ({
-    name,
-    category,
-    memberIds,
-  }: {
-    name: string;
-    category: ChatRoomCategory;
-    memberIds: string[];
-  }) => {
-    const invitedMembers: ChatRoomMember[] = allUsers
-      .filter(user => memberIds.includes(user.id))
-      .map(user => ({ id: user.id, name: user.name }));
-
-    const newRoom: ChatRoom = {
-      id: `room-${Date.now()}`,
-      name,
-      lastMessage: '채팅방이 생성되었습니다.',
-      timestamp: '방금',
-      unreadCount: 0,
-      category,
-      members: [{ id: currentUserId, name: currentUserName, isOwner: true }, ...invitedMembers],
-      notificationEnabled: true,
-      isPinned: false,
-    };
-
-    setRooms(prev => [newRoom, ...prev]);
-    setActiveRoomId(newRoom.id);
-    setIsCreateRoomOpen(false);
+  const createRoom = ({ name, category }: { name: string; category: ChatRoomCategory; memberIds: string[] }) => {
+    createRoomMutation.mutate(
+      { name, category },
+      {
+        onSuccess: room => {
+          setActiveRoomIdState(room.id);
+          setIsCreateRoomOpen(false);
+        },
+      },
+    );
   };
 
   const deleteActiveRoom = () => {
-    if (!activeRoom) return;
-    const remaining = rooms.filter(room => room.id !== activeRoom.id);
-    setRooms(remaining);
-    setActiveRoomId(remaining[0]?.id ?? '');
-    setIsDeleteRoomOpen(false);
-    setIsManagePanelOpen(false);
+    if (!activeRoomId) return;
+    const nextRoomId = rooms.find(room => room.id !== activeRoomId)?.id ?? '';
+    deleteRoomMutation.mutate(activeRoomId, {
+      onSuccess: () => {
+        setActiveRoomIdState(nextRoomId);
+        setIsDeleteRoomOpen(false);
+        setIsManagePanelOpen(false);
+      },
+    });
   };
 
   const leaveActiveRoom = () => {
-    if (!activeRoom) return;
+    if (!activeRoomId || !activeRoom) return;
     const isOwner = activeRoom.members.some(member => member.id === currentUserId && member.isOwner);
     const otherMembers = activeRoom.members.filter(member => member.id !== currentUserId);
 
@@ -192,78 +187,84 @@ export const useChatRoom = (
       return;
     }
 
-    const remaining = rooms.filter(room => room.id !== activeRoom.id);
-    setRooms(remaining);
-    setActiveRoomId(remaining[0]?.id ?? '');
-    setIsManagePanelOpen(false);
+    const nextRoomId = rooms.find(room => room.id !== activeRoomId)?.id ?? '';
+    removeMemberMutation.mutate(
+      { roomId: activeRoomId, userId: currentUserId },
+      {
+        onSuccess: () => {
+          setActiveRoomIdState(nextRoomId);
+          setIsManagePanelOpen(false);
+        },
+      },
+    );
   };
 
-  // newOwnerId는 이후 API 연동 시 방장 위임 요청 payload로 사용된다.
-  // 현재는 로컬 mock이라 방을 나가면 내 시점의 목록에서 사라지는 것만 반영한다.
-  const delegateAndLeave = (_newOwnerId: string) => {
-    if (!activeRoom) return;
-    const remaining = rooms.filter(room => room.id !== activeRoom.id);
-    setRooms(remaining);
-    setActiveRoomId(remaining[0]?.id ?? '');
-    setIsDelegateOpen(false);
-    setIsManagePanelOpen(false);
+  const delegateAndLeave = (newOwnerId: string) => {
+    if (!activeRoomId) return;
+    const nextRoomId = rooms.find(room => room.id !== activeRoomId)?.id ?? '';
+    transferOwnerMutation.mutate(
+      { roomId: activeRoomId, userId: newOwnerId },
+      {
+        onSuccess: () => {
+          removeMemberMutation.mutate(
+            { roomId: activeRoomId, userId: currentUserId },
+            {
+              onSuccess: () => {
+                setActiveRoomIdState(nextRoomId);
+                setIsDelegateOpen(false);
+                setIsManagePanelOpen(false);
+              },
+            },
+          );
+        },
+      },
+    );
   };
 
   const kickMember = (member: ChatRoomMember) => {
-    if (!activeRoom) return;
-    setRooms(prev =>
-      prev.map(room =>
-        room.id === activeRoom.id
-          ? { ...room, members: room.members.filter(existing => existing.id !== member.id) }
-          : room,
-      ),
-    );
-    setKickTarget(null);
+    if (!activeRoomId) return;
+    removeMemberMutation.mutate({ roomId: activeRoomId, userId: member.id }, { onSuccess: () => setKickTarget(null) });
   };
 
   const transferOwnership = (member: ChatRoomMember) => {
-    if (!activeRoom) return;
-    setRooms(prev =>
-      prev.map(room =>
-        room.id === activeRoom.id
-          ? { ...room, members: room.members.map(existing => ({ ...existing, isOwner: existing.id === member.id })) }
-          : room,
-      ),
+    if (!activeRoomId) return;
+    transferOwnerMutation.mutate(
+      { roomId: activeRoomId, userId: member.id },
+      { onSuccess: () => setTransferOwnerTarget(null) },
     );
-    setTransferOwnerTarget(null);
   };
 
   const inviteMembers = (memberIds: string[]) => {
-    if (!activeRoom) return;
-    const invitedMembers: ChatRoomMember[] = allUsers
-      .filter(user => memberIds.includes(user.id))
-      .map(user => ({ id: user.id, name: user.name }));
-
-    setRooms(prev =>
-      prev.map(room => (room.id === activeRoom.id ? { ...room, members: [...room.members, ...invitedMembers] } : room)),
+    if (!activeRoomId) return;
+    inviteMembersMutation.mutate(
+      { roomId: activeRoomId, userIds: memberIds },
+      { onSuccess: () => setIsInviteOpen(false) },
     );
-    setIsInviteOpen(false);
   };
 
   const toggleNotification = (enabled: boolean) => {
-    if (!activeRoom) return;
-    setRooms(prev => prev.map(room => (room.id === activeRoom.id ? { ...room, notificationEnabled: enabled } : room)));
+    if (!activeRoomId) return;
+    updateMemberSettingsMutation.mutate({ roomId: activeRoomId, notificationEnabled: enabled });
   };
 
   const togglePin = (pinned: boolean) => {
-    if (!activeRoom) return;
-    setRooms(prev => prev.map(room => (room.id === activeRoom.id ? { ...room, isPinned: pinned } : room)));
+    if (!activeRoomId) return;
+    updateMemberSettingsMutation.mutate({ roomId: activeRoomId, isPinned: pinned });
   };
 
   return {
     rooms,
     totalRoomCount: rooms.length,
     filteredRooms,
+    isRoomsLoading,
     isConnected,
     activeRoom,
     activeRoomId,
-    setActiveRoomId: selectRoom,
+    setActiveRoomId,
     messageGroups,
+    fetchOlderMessages: fetchNextPage,
+    hasOlderMessages: hasNextPage,
+    isFetchingOlderMessages: isFetchingNextPage,
     draft,
     setDraft,
     sendMessage,

@@ -15,10 +15,19 @@ import {
   TransferOwnerModal,
   useChatRoom,
 } from '@/features/messenger';
-import { chores, expenses, items, rules, chatRooms, chatMessages, currentUser, users } from '@/pages/_shared/mockData';
+import { useGroupMembers } from '@/features/member';
+import { useMe } from '@/features/auth';
+import { useAuthStore, useGroupStore } from '@/shared/store';
+import { chores, expenses, items, rules } from '@/pages/_shared/mockData';
 import { buildShareCard, getShareOptions } from '@/pages/messenger/shareOptions';
 
 export const MessengerPage = () => {
+  const groupId = useGroupStore(s => s.selectedGroupId);
+  const currentUserId = useAuthStore(s => s.userId) ?? '';
+
+  const { data: groupMembers } = useGroupMembers(groupId);
+  const { data: me } = useMe();
+
   const {
     filteredRooms,
     totalRoomCount,
@@ -78,7 +87,7 @@ export const MessengerPage = () => {
 
     toggleNotification,
     togglePin,
-  } = useChatRoom(chatRooms, chatMessages, currentUser.id, currentUser.name, users);
+  } = useChatRoom(groupId, currentUserId);
 
   const messageListRef = useRef<HTMLDivElement>(null);
 
@@ -87,25 +96,34 @@ export const MessengerPage = () => {
     messageListRef.current?.scrollTo({ top: messageListRef.current.scrollHeight });
   }, [activeRoomId, messageGroups]);
 
+  // TODO: expense/item/rule 도메인이 아직 백엔드 연동 전이라 공유 항목 선택은 목데이터를 그대로 사용
   const shareSourceData = { chores, expenses, items, rules };
 
   const handleSelectShareOption = (optionId: string) => {
     if (!activeShareType) return;
     const shareCard = buildShareCard(activeShareType, optionId, shareSourceData);
-    if (shareCard) shareItem(shareCard);
+    if (shareCard) shareItem(shareCard, optionId);
   };
 
-  const createRoomCandidates = users
-    .filter(user => user.id !== currentUser.id)
-    .map(user => ({ id: user.id, name: user.name }));
+  // TODO: 그룹 멤버 목록 응답에 닉네임/프로필사진이 아직 없어 백엔드에 추가 요청해둔 상태 —
+  // 반영되기 전까지는 이미 채팅방에 있는 멤버(activeRoom.members, 닉네임 포함)에서 이름을 찾고,
+  // 못 찾으면 아이디를 그대로 표시한다.
+  const resolveMemberName = (userId: string) =>
+    activeRoom?.members.find(member => member.id === userId)?.name ?? `사용자 ${userId}`;
+
+  const createRoomCandidates = groupMembers
+    .filter(member => !member.leftAt && member.userId !== currentUserId)
+    .map(member => ({ id: member.userId, name: resolveMemberName(member.userId) }));
 
   const inviteCandidates = activeRoom
     ? createRoomCandidates.filter(candidate => !activeRoom.members.some(member => member.id === candidate.id))
     : [];
 
   const delegateCandidates = activeRoom
-    ? activeRoom.members.filter(member => member.id !== currentUser.id)
+    ? activeRoom.members.filter(member => member.id !== currentUserId)
     : [];
+
+  const currentUserName = me?.nickname ?? resolveMemberName(currentUserId);
 
   return (
     <div className="flex w-full flex-1 min-h-0 justify-center bg-gray-50">
@@ -129,8 +147,7 @@ export const MessengerPage = () => {
               <div className="flex min-w-0 flex-1 flex-col">
                 <ChatHeader
                   roomName={activeRoom.name}
-                  memberCount={activeRoom.members.length}
-                  onlineMembers={users.slice(0, 2).map(user => user.name)}
+                  memberCount={activeRoom.memberCount ?? activeRoom.members.length}
                   onOpenManage={openManagePanel}
                   isConnected={isConnected}
                 />
@@ -180,7 +197,7 @@ export const MessengerPage = () => {
           {isManagePanelOpen && activeRoom && (
             <ChatRoomManagePanel
               room={activeRoom}
-              currentUserId={currentUser.id}
+              currentUserId={currentUserId}
               onClose={closeManagePanel}
               onInviteMember={openInvite}
               onKickMember={requestKickMember}
@@ -205,7 +222,7 @@ export const MessengerPage = () => {
       <CreateChatRoomModal
         isOpen={isCreateRoomOpen}
         onClose={closeCreateRoom}
-        currentUser={{ name: currentUser.name }}
+        currentUser={{ name: currentUserName }}
         candidateMembers={createRoomCandidates}
         onCreate={createRoom}
         initialName={createRoomInitialName}

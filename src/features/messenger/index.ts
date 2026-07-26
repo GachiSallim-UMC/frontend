@@ -24,6 +24,7 @@ export { ShareItemPickerModal } from './components/ShareItemPickerModal';
 export { ShareTypeBar } from './components/ShareTypeBar';
 export { TransferOwnerModal } from './components/TransferOwnerModal';
 export { useChatRoom } from './hooks/useChatRoom';
+export { useUnreadMessageCount } from './hooks/useChatRoomQueries';
 export type {
   ChatFilter,
   ChatMessage,

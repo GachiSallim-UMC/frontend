@@ -126,7 +126,7 @@ export const ChatRoomListPanel = ({
                       timestamp={room.timestamp}
                       avatarUrl={room.avatarUrl}
                       thumbnailUrl={CATEGORY_THUMBNAIL[room.category]}
-                      memberCount={room.category === 'group' ? room.members.length : undefined}
+                      memberCount={room.category === 'group' ? (room.memberCount ?? room.members.length) : undefined}
                       unreadCount={room.unreadCount}
                       isActive={room.id === activeRoomId}
                       onClick={() => onSelectRoom(room.id)}

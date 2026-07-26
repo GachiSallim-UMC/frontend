@@ -50,6 +50,8 @@ export interface ChatRoom {
   unreadCount: number;
   category: ChatRoomCategory;
   members: ChatRoomMember[];
+  /** 목록 응답에서 멤버 상세 없이 인원 수만 알 때 사용 (없으면 members.length 사용) */
+  memberCount?: number;
   avatarUrl?: string;
   /** 메시지 알림 on/off */
   notificationEnabled: boolean;
@@ -72,4 +74,110 @@ export interface ShareableOption {
   id: string;
   title: string;
   subtitle?: string;
+}
+
+// ==================== 백엔드 응답/요청 DTO ====================
+// 2026-07-26 백엔드팀이 요청한 4가지(카테고리, 멤버별 알림/고정, 방장 위임, 목록/메시지 응답
+// 보강)를 모두 반영 완료. 방장은 `createdBy`(최초 생성자, 불변)와 별도로 `ownerId`(현재 방장,
+// 위임 가능)로 분리되어 있으니 소유권 판정은 반드시 ownerId로 해야 한다.
+// 단, 메시지 전송(POST) 응답에는 여전히 sender가 안 붙어있어(목록 조회 GET에만 포함) sender는
+// optional로 유지 — 방 멤버 목록에서 대체 조회하는 fallback도 그대로 둔다.
+
+export type ChatRoomTypeDto = 'GROUP' | 'NOTICE' | 'DM';
+
+export const CARD_MESSAGE_TYPES = ['CARD_CHORE', 'CARD_EXPENSE', 'CARD_SUPPLY', 'CARD_RULE'] as const;
+export type CardMessageTypeDto = (typeof CARD_MESSAGE_TYPES)[number];
+export type MessageTypeDto = 'TEXT' | 'SYSTEM' | CardMessageTypeDto;
+
+/** GET /chat-rooms/:roomId/messages 항목 (목록 조회에만 sender 포함, 전송 응답엔 없음) */
+export interface MessageResponse {
+  id: string;
+  chatRoomId: string;
+  senderId: string;
+  type: MessageTypeDto;
+  content: string;
+  refId: string | null;
+  createdAt: string;
+  sender?: {
+    id: string;
+    nickname: string;
+    profileImage: string | null;
+  };
+}
+
+/** GET /chat-rooms 목록의 각 항목 */
+export interface ChatRoomListItemResponse {
+  id: string;
+  groupId: string;
+  name: string;
+  isDefault: boolean;
+  type: ChatRoomTypeDto;
+  createdBy: string;
+  ownerId: string;
+  createdAt: string;
+  lastMessage: MessageResponse | null;
+  unreadCount: number;
+  memberCount: number;
+}
+
+export interface ChatRoomMemberResponse {
+  userId: string;
+  joinedAt: string;
+  lastReadAt: string | null;
+  notificationEnabled: boolean;
+  isPinned: boolean;
+  user: {
+    id: string;
+    nickname: string;
+    profileImage: string | null;
+  };
+}
+
+/** GET /chat-rooms/:roomId */
+export interface ChatRoomDetailResponse {
+  id: string;
+  groupId: string;
+  name: string;
+  isDefault: boolean;
+  type: ChatRoomTypeDto;
+  createdBy: string;
+  ownerId: string;
+  createdAt: string;
+  members: ChatRoomMemberResponse[];
+}
+
+export interface CreateChatRoomRequest {
+  groupId: string;
+  name: string;
+  type?: ChatRoomTypeDto;
+}
+
+/** PATCH /chat-rooms/:roomId/members/me */
+export interface UpdateChatRoomMemberSettingsRequest {
+  notificationEnabled?: boolean;
+  isPinned?: boolean;
+}
+
+export interface CreateMessageRequest {
+  content: string;
+}
+
+export interface CreateCardMessageRequest {
+  type: CardMessageTypeDto;
+  refId: string;
+  content?: string;
+}
+
+export interface InviteMemberRequest {
+  userIds: string[];
+}
+
+export interface ListMessagesQuery {
+  before?: string;
+  limit?: number;
+}
+
+/** PATCH /chat-rooms/:roomId/owner */
+export interface TransferOwnerRequest {
+  userId: string;
 }
