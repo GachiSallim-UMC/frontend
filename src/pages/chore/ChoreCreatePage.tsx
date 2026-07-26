@@ -5,7 +5,7 @@ import {
   ChoreFormActions,
   ChoreMemo,
   ChoreRepeat,
-  CreateChoreDto,
+  type CreateChoreDto,
   useChoreForm,
   useCreateChore,
 } from '@/features/chore';

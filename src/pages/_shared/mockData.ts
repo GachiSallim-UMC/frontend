@@ -1,5 +1,4 @@
 import type { ActivityLog } from '@/features/activity';
-import type { Chore } from '@/features/chore';
 import type { Expense } from '@/features/expense';
 import type { Item } from '@/features/item';
 import type { ChatMessage, ChatRoom } from '@/features/messenger';
@@ -17,84 +16,6 @@ export const users: User[] = [
 
 /** 현재 로그인 사용자 — Figma 기준 관리자(Admin) */
 export const currentUser: User = users[0]; // 홍길동
-
-// ==================== 집안일 (Figma 07 · 집안일 목록) ====================
-// todayChores(status !== 'done') = 3건 → 대시보드 "3건" 일치
-
-export const chores: Chore[] = [
-  {
-    id: 'c1',
-    name: '화장실 청소',
-    assignee: users[0],
-    category: 'cleaning',
-    repeatType: 'weekly',
-    repeatDays: ['mon'],
-    startDate: '2026.07.01',
-    status: 'pending',
-  },
-  {
-    id: 'c2',
-    name: '설거지',
-    assignee: users[1],
-    category: 'dishes',
-    repeatType: 'daily',
-    repeatDays: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
-    startDate: '2026.07.01',
-    status: 'done',
-  },
-  {
-    id: 'c3',
-    name: '분리수거',
-    assignee: users[2],
-    category: 'trash',
-    repeatType: 'weekly',
-    repeatDays: ['wed'],
-    startDate: '2026.07.01',
-    status: 'pending',
-  },
-  {
-    id: 'c4',
-    name: '냉장고 정리',
-    assignee: users[0],
-    category: 'etc',
-    repeatType: 'monthly',
-    repeatDays: [],
-    startDate: '2026.08.01',
-    status: 'scheduled',
-    memo: '유통기한 지난 식품 확인 및 정리',
-  },
-  {
-    id: 'c5',
-    name: '거실 청소',
-    assignee: users[1],
-    category: 'cleaning',
-    repeatType: 'weekly',
-    repeatDays: ['sat'],
-    startDate: '2026.06.28',
-    status: 'done',
-  },
-  {
-    id: 'c6',
-    name: '세탁기 돌리기',
-    assignee: users[2],
-    category: 'laundry',
-    repeatType: 'weekly',
-    repeatDays: ['tue', 'fri'],
-    startDate: '2026.06.27',
-    status: 'done',
-    memo: '밤 10시 이전에 돌리기',
-  },
-  {
-    id: 'c7',
-    name: '음식물 쓰레기 버리기',
-    assignee: users[0],
-    category: 'trash',
-    repeatType: 'daily',
-    repeatDays: ['mon', 'wed', 'fri'],
-    startDate: '2026.06.30',
-    status: 'done',
-  },
-];
 
 // ==================== 생활비 (Figma 09 · 정산 목록) ====================
 // 이번 달 총 지출 138,000원 = 32,000 + 30,000 + 54,000 + 22,000
@@ -330,15 +251,60 @@ export const notifications = [
 // 활동 내역 전체 페이지(Figma 17)는 아래 activityLogs를 사용합니다. 이건 대시보드 미니 위젯 전용 축약 데이터입니다.
 
 export const activities = [
-  { id: 'a1', actorName: '김영희', description: "집안일 '설거지'를 완료 처리했습니다.", timestamp: '오늘 10:30' },
-  { id: 'a2', actorName: '홍길동', description: "생활비 '인터넷 요금 30,000원'을 등록했습니다.", timestamp: '오늘 09:15' },
-  { id: 'a3', actorName: '이철수', description: "'세제' 상태를 '부족'으로 변경했습니다.", timestamp: '어제 22:10' },
-  { id: 'a4', actorName: '홍길동', description: "생활 규칙 '밤 11시 이후 조용히 하기'를 메신저에 공유했습니다.", timestamp: '어제 19:40' },
-  { id: 'a5', actorName: '이철수', description: "집안일 '분리수거'를 완료 처리했습니다.", timestamp: '어제 11:05' },
-  { id: 'a6', actorName: '홍길동', description: "공용 물품 '두루마리 화장지'를 '소진' 상태로 변경했습니다.", timestamp: '2일 전 15:20' },
-  { id: 'a7', actorName: '김영희', description: "생활비 '마트 장보기 32,000원'을 등록했습니다.", timestamp: '2일 전 14:00' },
-  { id: 'a8', actorName: '이철수', description: "생활 규칙 '주방 사용 후 즉시 정리'에 동의했습니다.", timestamp: '2일 전 13:30' },
-  { id: 'a9', actorName: '김영희', description: "그룹 '우리집 룸메이트'에 참여했습니다.", timestamp: '3일 전 15:20' },
+  {
+    id: 'a1',
+    actorName: '김영희',
+    description: "집안일 '설거지'를 완료 처리했습니다.",
+    timestamp: '오늘 10:30',
+  },
+  {
+    id: 'a2',
+    actorName: '홍길동',
+    description: "생활비 '인터넷 요금 30,000원'을 등록했습니다.",
+    timestamp: '오늘 09:15',
+  },
+  {
+    id: 'a3',
+    actorName: '이철수',
+    description: "'세제' 상태를 '부족'으로 변경했습니다.",
+    timestamp: '어제 22:10',
+  },
+  {
+    id: 'a4',
+    actorName: '홍길동',
+    description: "생활 규칙 '밤 11시 이후 조용히 하기'를 메신저에 공유했습니다.",
+    timestamp: '어제 19:40',
+  },
+  {
+    id: 'a5',
+    actorName: '이철수',
+    description: "집안일 '분리수거'를 완료 처리했습니다.",
+    timestamp: '어제 11:05',
+  },
+  {
+    id: 'a6',
+    actorName: '홍길동',
+    description: "공용 물품 '두루마리 화장지'를 '소진' 상태로 변경했습니다.",
+    timestamp: '2일 전 15:20',
+  },
+  {
+    id: 'a7',
+    actorName: '김영희',
+    description: "생활비 '마트 장보기 32,000원'을 등록했습니다.",
+    timestamp: '2일 전 14:00',
+  },
+  {
+    id: 'a8',
+    actorName: '이철수',
+    description: "생활 규칙 '주방 사용 후 즉시 정리'에 동의했습니다.",
+    timestamp: '2일 전 13:30',
+  },
+  {
+    id: 'a9',
+    actorName: '김영희',
+    description: "그룹 '우리집 룸메이트'에 참여했습니다.",
+    timestamp: '3일 전 15:20',
+  },
 ];
 
 // ==================== 활동 내역 (Figma 17 · 최근 활동 내역) ====================
@@ -550,7 +516,7 @@ export const groups: Group[] = [
   {
     id: 'g1',
     name: '우리집 룸메이트',
-    description: "룸메이트",
+    description: '룸메이트',
     type: 'roommate',
     address: '서울특별시 마포구 연남동 123-45',
     inviteCode: 'ABCDEF',
@@ -563,7 +529,7 @@ export const groups: Group[] = [
   {
     id: 'g2',
     name: '대학원 쉐어하우스',
-    description: "쉐어하우스",
+    description: '쉐어하우스',
     type: 'share',
     address: '서울특별시 마포구 연남동 123-45',
     inviteCode: 'ABCDEF',
@@ -572,10 +538,8 @@ export const groups: Group[] = [
     memberCount: 5,
     members: users,
     ownerId: 'u1', // 홍길동
-  }
-]
-
-
+  },
+];
 
 // ==================== 마이페이지 (Figma 18 · 마이페이지) ====================
 
