@@ -4,7 +4,7 @@ interface AddExpenseProps {
   onClick?: () => void;
 }
 
-const AddExpense = ({ onClick }: AddExpenseProps) => {
+export const AddExpense = ({ onClick }: AddExpenseProps) => {
 
   return (
     <button 
@@ -18,4 +18,3 @@ const AddExpense = ({ onClick }: AddExpenseProps) => {
   )
 }
 
-export default AddExpense

@@ -1,24 +1,14 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+import { calculateExpenseSplit } from '@/features/expense';
 
-export type SettlementMethod = '균등 분할 (n/n)' | '직접입력';
-
-function calculateEqualSplit(totalAmount: number, memberIds: string[]): Record<string, number> {
-  if (memberIds.length === 0) return {};
-
-  const perPerson = Math.floor(totalAmount / memberIds.length);
-  const remainder = totalAmount - perPerson * memberIds.length;
-
-  return memberIds.reduce<Record<string, number>>((acc, id, index) => {
-    acc[id] = index === memberIds.length - 1 ? perPerson + remainder : perPerson;
-    return acc;
-  }, {});
-}
+export type SettlementMethod = 'EQUAL' | 'CUSTOM' | 'RATIO';
 
 interface UseSettlementAmountsParams {
   amount: string;
   memberIds: string[];
   settlementMethod: SettlementMethod;
-  memberAmounts?: Record<string, number>;
+  memberAmounts?: Record<string, number>; 
+  memberRatios?: Record<string, number>;  
 }
 
 export function useSettlementAmounts({
@@ -26,26 +16,74 @@ export function useSettlementAmounts({
   memberIds,
   settlementMethod,
   memberAmounts,
+  memberRatios,
 }: UseSettlementAmountsParams): Record<string, number> {
-  return React.useMemo(() => {
+  const [calculatedAmounts, setCalculatedAmounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    let isMounted = true;
     const numericAmount = Number(amount.replace(/,/g, '')) || 0;
 
-    switch (settlementMethod) {
-      case '균등 분할 (n/n)':
-        return calculateEqualSplit(numericAmount, memberIds);
-      case '직접입력':
-        if (memberAmounts) {
-          return memberIds.reduce<Record<string, number>>((acc, id) => {
-            acc[id] = memberAmounts[id] || 0;
-            return acc;
-          }, {});
-        }
-        return memberIds.reduce<Record<string, number>>((acc, id) => {
-          acc[id] = 0;
-          return acc;
-        }, {});
-      default:
-        return calculateEqualSplit(numericAmount, memberIds);
+    if (numericAmount <= 0 || memberIds.length === 0) {
+      setCalculatedAmounts({});
+      return;
     }
-  }, [amount, memberIds, settlementMethod, memberAmounts]);
+
+    
+    if (settlementMethod === 'CUSTOM') {
+      const result = memberIds.reduce<Record<string, number>>((acc, id) => {
+        acc[id] = memberAmounts?.[id] || 0;
+        return acc;
+      }, {});
+      setCalculatedAmounts(result);
+      return;
+    }
+
+    
+    if (settlementMethod === 'RATIO') {
+      const result = memberIds.reduce<Record<string, number>>((acc, id) => {
+        const percentage = memberRatios?.[id] || 0;
+        acc[id] = Math.round((numericAmount * percentage) / 100);
+        return acc;
+      }, {});
+      setCalculatedAmounts(result);
+      return;
+    }
+
+    
+    const fetchSplit = async () => {
+      try {
+        const response = await calculateExpenseSplit({
+          totalAmount: numericAmount,
+          splitType: settlementMethod,
+          participants: memberIds.map(Number),
+        });
+
+        if (isMounted) {
+          const data = response?.data ?? response;
+          const splits = data?.calculatedSplits ?? [];
+
+          const result: Record<string, number> = splits.reduce(
+            (acc: Record<string, number>, split: { userId: string | number; amount: number }) => {
+              acc[String(split.userId)] = split.amount;
+              return acc;
+            },
+            {}
+          );
+
+          setCalculatedAmounts(result);
+        }
+      } catch (error) {
+        console.error('정산 금액 계산 API 호출 실패:', error);
+      }
+    };
+
+    fetchSplit();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [amount, memberIds, settlementMethod, memberAmounts, memberRatios]);
+
+  return calculatedAmounts;
 }

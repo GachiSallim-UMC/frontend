@@ -3,11 +3,12 @@ import type { Expense } from '@/features/expense';
 
 interface ExpenseTableProps {
   expenses: Expense[];
+  onDeleteSuccess?: (id: number | string) => void;
 }
 
 const GRID_COLS = 'grid-cols-[114fr_166fr_150fr_157fr_163fr_176fr_78fr]';
 
-const ExpenseTable = ({ expenses }: ExpenseTableProps) => {
+export const ExpenseTable = ({ expenses, onDeleteSuccess }: ExpenseTableProps) => {
   return (
     <div className='w-full min-w-[720px] rounded-t-[10px] bg-white border-[1px] border-gray-100 flex flex-col overflow-hidden'>
       <div className={`grid ${GRID_COLS} items-center w-full h-[60px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-primary-50 border-b border-gray-100`}>
@@ -22,11 +23,10 @@ const ExpenseTable = ({ expenses }: ExpenseTableProps) => {
 
       <div className='flex flex-col'>
         {expenses.map((expense) => (
-          <ExpenseRow key={expense.id} expense={expense} />
+          <ExpenseRow key={expense.id} expense={expense} onDeleteSuccess={onDeleteSuccess}/>
         ))}
       </div>
     </div>
   );
 };
 
-export default ExpenseTable;

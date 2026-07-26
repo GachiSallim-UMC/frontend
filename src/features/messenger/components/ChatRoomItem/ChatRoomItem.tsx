@@ -1,9 +1,15 @@
+import { UserAvatar } from '@/shared/components/ui/UserAvatar';
 import { cn } from '@/shared/lib/cn';
 
 interface ChatRoomItemProps {
   name: string;
   lastMessage: string;
   timestamp: string;
+  avatarUrl?: string;
+  /** 지정 시 사람 아바타 대신 렌더링되는 방 썸네일 (그룹/공지방 일러스트) */
+  thumbnailUrl?: string;
+  /** 그룹 채팅방일 때만 이름 옆에 표시되는 멤버 수 */
+  memberCount?: number;
   unreadCount?: number;
   isActive?: boolean;
   onClick?: () => void;
@@ -13,6 +19,9 @@ export const ChatRoomItem = ({
   name,
   lastMessage,
   timestamp,
+  avatarUrl,
+  thumbnailUrl,
+  memberCount,
   unreadCount = 0,
   isActive = false,
   onClick,
@@ -22,31 +31,40 @@ export const ChatRoomItem = ({
       type="button"
       onClick={onClick}
       className={cn(
-        'relative flex h-20 w-full flex-col items-start gap-1.5 border-b border-gray-100 py-[18px] pl-[25px] pr-4 text-left transition-colors',
-        isActive ? 'bg-primary-200' : 'hover:bg-gray-50',
+        'flex h-[76px] w-full gap-2.5 rounded-lg border bg-white px-4 py-3 text-left transition-colors',
+        isActive ? 'border-primary-500' : 'border-gray-100 hover:bg-gray-50',
       )}
     >
-      {isActive && <span className="absolute left-0 top-0 h-full w-[3px] bg-primary-700" />}
-      <div className="flex items-end gap-2.5">
-        <span
-          className={cn(
-            'text-[18px] font-semibold leading-[normal]',
-            isActive ? 'text-primary-700' : 'text-gray-900',
+      {thumbnailUrl ? (
+        <div className="mt-px flex h-12 w-12 shrink-0 items-center justify-center self-center rounded-full bg-primary-200">
+          <img src={thumbnailUrl} alt="" className="h-[38px] w-[38px]" />
+        </div>
+      ) : (
+        <UserAvatar name={name} avatarUrl={avatarUrl} size="lg" className="mt-px h-12 w-12 shrink-0 self-center" />
+      )}
+      <div className="mt-2 flex min-w-0 flex-1 flex-col gap-0.5 self-start">
+        <div className="flex items-center gap-1.5">
+          <span
+            className={cn(
+              'truncate text-[14px] font-bold leading-[normal]',
+              isActive ? 'text-primary-500' : 'text-gray-900',
+            )}
+          >
+            {name}
+          </span>
+          {typeof memberCount === 'number' && (
+            <span className="shrink-0 text-[12px] font-bold leading-[normal] text-gray-500">{memberCount}명</span>
           )}
-        >
-          {name}
-        </span>
+        </div>
+        <span className="truncate text-[12px] font-normal leading-[normal] text-gray-600">{lastMessage}</span>
+      </div>
+      <div className="mt-2 flex shrink-0 flex-col items-end gap-1 self-start">
+        <span className="text-[10px] font-normal leading-[normal] text-gray-500">{timestamp}</span>
         {unreadCount > 0 && (
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-500 text-xs text-white">
+          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary-700 px-[5px] text-[10px] text-white">
             {unreadCount}
           </span>
         )}
-      </div>
-      <div className="flex w-full items-end justify-between gap-2">
-        <span className="truncate text-[14px] font-normal leading-[normal] text-gray-900">{lastMessage}</span>
-        <span className="shrink-0 text-right text-[12px] font-normal leading-[normal] text-gray-500">
-          {timestamp}
-        </span>
       </div>
     </button>
   );

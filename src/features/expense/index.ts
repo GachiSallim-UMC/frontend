@@ -1,29 +1,6 @@
-/**
- * expense 도메인 public API.
- * api/hooks/components는 chore 도메인을 템플릿으로 구현하세요.
- */
-export type {
-  Expense,
-  ExpenseCategory,
-  CreateExpenseDto,
-  MemberShare,
-  SplitType,
-} from './types/expense.types';
+export * from './components';
+export * from './hooks';
+export * from './types';
+export * from './api';
 
-//hooks
-export { useExpenseForm } from './hooks/useExpenseForm';
-export { useExpenseSummary } from './hooks/useExpenseSummary';
-export { useSettlementAmounts } from './hooks/useSettlementAmounts';
 
-//component
-export { default as AddExpense } from './components/AddExpense';
-export { default as ExpenseTable } from './components/ExpenseTable';
-export { default as ExpenseRow} from './components/ExpenseRow';
-export { default as ExpenseSummaryCard } from './components/ExpenseSummaryCard';
-export { default as TabButton } from './components/TabButton';
-export { default as CustomButton } from './components/CustomButton';
-export { default as IconTextButton } from './components/IconTextButton';
-export { default as ExpenseAddForm } from './components/ExpenseAddForm';
-export { default as ExpenseDetailCard } from './components/ExpenseDetailCard';
-export { default as Receipt } from './components/Receipt';
-export { default as SettlementPreviewCard } from './components/SettlementPreviewCard';

@@ -8,7 +8,7 @@ interface TabButtonProps {
   onFilterChange: (filter: ExpenseFilter) => void;
 }
 
-const TabButton = ({ label, filter, activeFilter, onFilterChange }: TabButtonProps) => {
+export const TabButton = ({ label, filter, activeFilter, onFilterChange }: TabButtonProps) => {
   const baseStyle = 'px-[20px] sm:w-[148px] sm:px-0 h-[44px] lg:h-[50px] rounded-[8px] border-[1px] transition-all flex items-center justify-center font-sans font-normal text-button whitespace-nowrap'
 
   const isActive = activeFilter === filter;
@@ -25,4 +25,3 @@ const TabButton = ({ label, filter, activeFilter, onFilterChange }: TabButtonPro
   )
 }
 
-export default TabButton

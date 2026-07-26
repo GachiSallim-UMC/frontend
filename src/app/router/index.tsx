@@ -17,6 +17,7 @@ import { EmailSentPage } from '@/pages/auth/EmailSentPage';
 import { GroupSelectPage } from '@/pages/member/GroupSelectPage';
 import { AddGroupPage } from '@/pages/member/AddGroupPage';
 import { JoinGroupPage } from '@/pages/member/JoinGroupPage';
+import { DashboardPage } from '@/pages/dashboard/DashboardPage';
 
 import { TermsPage } from '@/pages/auth/TermsPage';
 import { PrivacyPage } from '@/pages/auth/PrivacyPage';
@@ -49,9 +50,9 @@ export const router = createBrowserRouter([
               { path: '/chores', element: <ChoreListPage /> },
               { path: '/chores/new', element: <ChoreCreatePage /> },
               { path: '/chores/:id/edit', element: <ChoreEditPage /> },
-              { path: '/expenses', element: <ExpenseListPage title="생활비 정산" /> },
-              { path: '/expenses/new', element: <ExpenseAddPage title="생활비 등록" /> },
-              { path: '/expenses/:id', element: <ExpenseAddPage title="정산 상세" /> },
+              { path: '/expenses', element: <ExpenseListPage  /> },
+              { path: '/expenses/new', element: <ExpenseAddPage /> },
+              { path: '/expenses/:id', element: <ExpenseAddPage /> },
               { path: '/items', element: <ItemListPage /> },
               { path: '/items/new', element: <ItemFormPage /> },
               { path: '/items/:id/edit', element: <ItemEditRoute /> },
