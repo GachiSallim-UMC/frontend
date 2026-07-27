@@ -44,3 +44,13 @@ export const useUpdateChore = () => {
     },
   });
 };
+
+export const useCompleteChore = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => choreApi.complete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all });
+    },
+  });
+};

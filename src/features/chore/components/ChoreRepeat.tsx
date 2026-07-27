@@ -54,7 +54,14 @@ export const ChoreRepeat = ({
             required
             options={REPEAT_TYPE_OPTIONS as { label: string; value: RepeatType }[]}
             value={repeatType}
-            onChange={value => onChange({ repeatType: value })}
+            onChange={value => {
+              onChange({
+                repeatType: value,
+                customOption: '',
+                repeatInterval: '',
+                repeatDays: [],
+              });
+            }}
           />
 
           {repeatType === 'CUSTOM' && (
@@ -62,7 +69,13 @@ export const ChoreRepeat = ({
               label="사용자 지정 옵션"
               options={CUSTOM_OPTIONS as { label: string; value: CustomOption }[]}
               value={customOption}
-              onChange={value => onChange({ customOption: value })}
+              onChange={value => {
+                onChange({
+                  customOption: value,
+                  repeatInterval: '',
+                  repeatDays: [],
+                });
+              }}
             />
           )}
 
@@ -139,7 +152,9 @@ export const ChoreRepeat = ({
             placeholder="yyyy/mm/dd"
             required
             value={startDate}
-            onChange={e => onChange({ startDate: e.target.value })}
+            onChange={e => {
+              onChange({ startDate: e.target.value.replace(/\//g, '-') });
+            }}
           />
           <div className="absolute right-[16px] bottom-[17px] h-[16px] w-[16px]">
             <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
@@ -148,7 +163,7 @@ export const ChoreRepeat = ({
               className="absolute inset-0 cursor-pointer opacity-0"
               onChange={e => {
                 if (e.target.value) {
-                  onChange({ startDate: e.target.value.replace(/-/g, '/') });
+                  onChange({ startDate: e.target.value });
                 }
               }}
             />
@@ -160,7 +175,9 @@ export const ChoreRepeat = ({
             label="종료일 (선택)"
             placeholder="yyyy/mm/dd"
             value={dueDate}
-            onChange={e => onChange({ dueDate: e.target.value })}
+            onChange={e => {
+              onChange({ dueDate: e.target.value.replace(/\//g, '-') });
+            }}
           />
           <div className="absolute right-[16px] bottom-[17px] h-[16px] w-[16px]">
             <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
@@ -169,7 +186,7 @@ export const ChoreRepeat = ({
               className="absolute inset-0 cursor-pointer opacity-0"
               onChange={e => {
                 if (e.target.value) {
-                  onChange({ dueDate: e.target.value.replace(/-/g, '/') });
+                  onChange({ dueDate: e.target.value });
                 }
               }}
             />

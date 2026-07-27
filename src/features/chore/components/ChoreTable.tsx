@@ -7,6 +7,8 @@ interface ChoreTableProps {
   chores: Chore[];
   onEdit?: (chore: Chore) => void;
   onShare?: (chore: Chore) => void;
+  onToggleComplete?: (chore: Chore) => void;
+  isUpdating?: boolean;
 }
 
 const REPEAT_LABEL: Record<Chore['repeatType'], string> = {
@@ -21,7 +23,13 @@ const REPEAT_LABEL: Record<Chore['repeatType'], string> = {
  * 집안일 목록 테이블 — shared의 DataTable을 집안일 도메인에 맞게 조합.
  * 도메인 컴포넌트는 shared 컴포넌트를 '사용'하고, 그 반대는 금지.
  */
-export const ChoreTable = ({ chores, onEdit, onShare }: ChoreTableProps) => {
+export const ChoreTable = ({
+  chores,
+  onEdit,
+  onShare,
+  onToggleComplete,
+  isUpdating,
+}: ChoreTableProps) => {
   const columns: Column<Chore>[] = [
     {
       key: 'isCompleted',
@@ -32,7 +40,8 @@ export const ChoreTable = ({ chores, onEdit, onShare }: ChoreTableProps) => {
           <input
             type="checkbox"
             checked={chore.status === 'done'}
-            readOnly
+            onChange={() => onToggleComplete?.(chore)}
+            disabled={isUpdating}
             className="
               h-[24px] w-[24px] cursor-pointer appearance-none rounded-[3px] 
               border border-gray-400 bg-white 
@@ -56,7 +65,11 @@ export const ChoreTable = ({ chores, onEdit, onShare }: ChoreTableProps) => {
       ),
     },
     { key: 'repeatType', header: '주기', render: chore => REPEAT_LABEL[chore.repeatType] },
-    { key: 'startDate', header: '기한' },
+    {
+      key: 'startDate',
+      header: '기한',
+      render: chore => chore.endDate || chore.startDate,
+    },
     {
       key: 'status',
       header: '상태',
