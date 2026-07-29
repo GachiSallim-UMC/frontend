@@ -2,14 +2,14 @@ import type { ItemStatus } from '@/shared/types';
 
 export type SupplyStatus = 'SUFFICIENT' | 'LOW' | 'EMPTY' | 'PURCHASED';
 export type SupplyCategory =
-  | 'DAILY'
-  | 'KITCHEN'
+  | 'DAILY_NECESSITIES'
   | 'BATHROOM'
-  | 'CLEANING'
-  | 'GROCERY'
-  | 'MEDICINE'
-  | 'PET'
-  | 'TOOL'
+  | 'KITCHEN'
+  | 'LAUNDRY_CLEANING'
+  | 'FOOD'
+  | 'HEALTH_HYGIENE'
+  | 'PET_PLANT'
+  | 'TOOLS_ETC'
   | 'ETC';
 export type SupplyPurchaseCategory =
   | 'FINANCE'
