@@ -23,7 +23,7 @@ export const AddGroupPage = () => {
     name: '',
     description: '',
     type: '',
-    maxMemberCount: 1,
+    maxMemberCount: 2,
   });
 
   const handleFormChange = (field: keyof AddGroupDto, value: string | number) => {
