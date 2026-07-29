@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   type Group,
@@ -15,6 +16,7 @@ export const JoinGroupPage = () => {
   const navigate = useNavigate();
   const setSelectedGroupId = useGroupStore(s => s.setSelectedGroupId);
   const joinGroupMutation = useJoinGroup();
+  const queryClient = useQueryClient();
 
   const [inviteCode, setInviteCode] = useState<string>('');
   const [showPreview, setShowPreview] = useState<boolean>(false);
@@ -34,8 +36,10 @@ export const JoinGroupPage = () => {
       { inviteCode },
       {
         onSuccess: res => {
+          queryClient.invalidateQueries({ queryKey: ['my-groups'] });
+
           const joinedGroup: Group = {
-            id: res.groupId,
+            id: res.id,
             name: '참여한 그룹',
             description: '',
             type: 'etc',

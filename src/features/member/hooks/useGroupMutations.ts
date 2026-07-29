@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memberApi } from '../api/member.api';
 import { MEMBER_QUERY_KEYS } from './useMyGroups';
 import type { CreateGroupDto, JoinGroupDto, UpdateGroupDto } from '../types/member.types';
@@ -83,6 +83,29 @@ export const useRemoveGroupMember = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['member', 'group-members', variables.groupId] });
       queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all });
+    },
+  });
+};
+
+export const useGroupPermissions = (groupId: number | string | undefined) => {
+  return useQuery({
+    queryKey: ['group-permissions', groupId],
+    queryFn: () => memberApi.getGroupPermissions(groupId!),
+    enabled: !!groupId,
+  });
+};
+
+export const useUpdateGroupPermissions = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: memberApi.updateGroupPermissions,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['group-permissions', variables.groupId] });
+    },
+    onError: error => {
+      console.error('권한 수정 실패:', error);
+      alert('권한 수정에 실패했습니다. 권한이 있는지 확인해주세요.');
     },
   });
 };

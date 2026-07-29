@@ -26,6 +26,8 @@ export {
   useDeleteGroup,
   useUpdateMemberRole,
   useRemoveGroupMember,
+  useGroupPermissions,
+  useUpdateGroupPermissions,
 } from './hooks/useGroupMutations';
 
 export { memberApi } from './api/member.api';
@@ -33,8 +35,10 @@ export { memberApi } from './api/member.api';
 export type {
   AddGroupDto,
   Group,
+  ResidenceType,
   GroupMemberResponse,
   Member,
+  MemberRole,
   MemberGroupResponse,
   PermissionType,
   GroupMemberRelationResponse,
@@ -42,4 +46,8 @@ export type {
   JoinGroupDto,
   UpdateGroupDto,
   UpdateMemberRoleDto,
+  GroupPermissionsResponse,
+  UpdateGroupPermissionsDto,
 } from './types/member.types';
+
+export { RESIDENCE_OPTIONS } from './constants/member.constants';

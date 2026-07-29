@@ -3,9 +3,10 @@ import type {
   GroupMemberResponse,
   MemberGroupResponse,
   JoinGroupDto,
-  GroupMemberRelationResponse,
   CreateGroupDto,
   UpdateGroupDto,
+  GroupPermissionsResponse,
+  UpdateGroupPermissionsDto,
 } from '../types/member.types';
 
 const BASE = '/groups';
@@ -57,8 +58,9 @@ export const memberApi = {
     const { data } = await apiClient.post<MemberGroupResponse>(BASE, body);
     return data;
   },
-  joinGroup: async (body: JoinGroupDto): Promise<GroupMemberRelationResponse> => {
-    const { data } = await apiClient.post<GroupMemberRelationResponse>(`${BASE}/join`, body);
+
+  joinGroup: async (body: JoinGroupDto): Promise<MemberGroupResponse> => {
+    const { data } = await apiClient.post<MemberGroupResponse>(`${BASE}/join`, body);
     return data;
   },
 
@@ -101,5 +103,26 @@ export const memberApi = {
 
   removeGroupMember: async (groupId: string, userId: string) => {
     await apiClient.delete(`${BASE}/${groupId}/members/${userId}`);
+  },
+
+  getGroupPermissions: async (groupId: number | string): Promise<GroupPermissionsResponse> => {
+    const { data } = await apiClient.get<GroupPermissionsResponse>(
+      `/groups/${groupId}/permissions`,
+    );
+    return data;
+  },
+
+  updateGroupPermissions: async ({
+    groupId,
+    payload,
+  }: {
+    groupId: number | string;
+    payload: UpdateGroupPermissionsDto;
+  }): Promise<GroupPermissionsResponse> => {
+    const { data } = await apiClient.patch<GroupPermissionsResponse>(
+      `/groups/${groupId}/permissions`,
+      payload,
+    );
+    return data;
   },
 };

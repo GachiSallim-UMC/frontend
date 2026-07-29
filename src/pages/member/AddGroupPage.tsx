@@ -22,7 +22,7 @@ export const AddGroupPage = () => {
   const [formData, setFormData] = useState<AddGroupDto>({
     name: '',
     description: '',
-    type: 'roommate',
+    type: '',
     maxMemberCount: 1,
   });
 
@@ -36,9 +36,15 @@ export const AddGroupPage = () => {
       return;
     }
 
+    if (formData.type === '') {
+      alert('거주 유형을 선택해주세요.');
+      return;
+    }
+
     const requestPayload = {
       name: formData.name,
       description: formData.description,
+      type: formData.type,
       maxMembers: Number(formData.maxMemberCount),
     };
 
@@ -53,7 +59,11 @@ export const AddGroupPage = () => {
 
         queryClient.invalidateQueries({ queryKey: ['my-groups'] });
 
-        setInviteCode(newInviteCode || '코드가 발급되었습니다.');
+        if (newInviteCode) {
+          setInviteCode(newInviteCode);
+        } else {
+          setInviteCode('코드 발급 오류');
+        }
         setIsCreated(true);
       },
       onError: error => {

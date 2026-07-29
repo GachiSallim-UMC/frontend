@@ -2,6 +2,8 @@ import type { User } from '@/shared/types';
 
 export type MemberRole = 'ADMIN' | 'MEMBER';
 
+export type ResidenceType = 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
+
 export interface Member {
   id: string;
   userId: string;
@@ -39,16 +41,16 @@ export interface GroupMemberRelationResponse {
 
 /**그릅 전체의 기능 */
 export type PermissionType =
-  | 'ALLOW_CHORE'
-  | 'ALLOW_SETTLEMENT'
-  | 'ALLOW_ITEM_STATUS'
-  | 'AUTO_APPROVE';
+  | 'allowChoreRegistration'
+  | 'allowItemStatusChange'
+  | 'allowSettlementRegistration'
+  | 'autoApproveNewMembers';
 
 export interface Group {
   id: string;
   name: string;
   description: string;
-  type: 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
+  type: ResidenceType | '';
   address: string;
   inviteCode?: string;
   createdAt?: string;
@@ -61,7 +63,7 @@ export interface Group {
 export interface AddGroupDto {
   name: string;
   description: string;
-  type: 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
+  type: ResidenceType | '';
   maxMemberCount: number;
 }
 
@@ -100,3 +102,18 @@ export type UpdateGroupDto = CreateGroupDto;
 export interface UpdateMemberRoleDto {
   role: string;
 }
+
+// 그룹 권한 조회 응답 타입
+export interface GroupPermissionsResponse {
+  groupId: number;
+  allowChoreRegistration: boolean;
+  allowSettlementRegistration: boolean;
+  allowItemStatusChange: boolean;
+  autoApproveNewMembers: boolean;
+  updatedAt: string;
+}
+
+// 그룹 권한 수정 요청 타입
+export type UpdateGroupPermissionsDto = Partial<
+  Omit<GroupPermissionsResponse, 'groupId' | 'updatedAt'>
+>;

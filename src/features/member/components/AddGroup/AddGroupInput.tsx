@@ -2,20 +2,13 @@ import type { AddGroupDto } from '@/features/member/types/member.types';
 import { FormInput, SelectDropdown } from '@/shared/components';
 import PlusIcon from '@/assets/icons/member/plus-circle.svg?react';
 import MinusIcon from '@/assets/icons/member/minus.svg?react';
+import { RESIDENCE_OPTIONS } from '../../constants/member.constants';
 
 interface AddGroupInputProps {
   formData: AddGroupDto;
   onChange: (field: keyof AddGroupDto, value: string | number) => void;
   disabled?: boolean;
 }
-
-const RESIDENCE_TYPES = [
-  { label: '룸메이트', value: 'roommate' },
-  { label: '쉐어하우스', value: 'share' },
-  { label: '하숙·고시원', value: 'boarding' },
-  { label: '가족', value: 'family' },
-  { label: '기타', value: 'etc' },
-] as const;
 
 export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroupInputProps) => {
   const handleDecrease = () => {
@@ -64,7 +57,8 @@ export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroup
           <div className="relative">
             <SelectDropdown
               value={formData.type}
-              options={RESIDENCE_TYPES}
+              placeholder="거주 유형을 선택해 주세요"
+              options={RESIDENCE_OPTIONS}
               onChange={value => onChange('type', value)}
               disabled={disabled}
             />
