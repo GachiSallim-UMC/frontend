@@ -18,6 +18,7 @@ import type {
   ShareChoreDto,
   ShareChoreResponse,
   UpdateChoreDto,
+  IncompleteChoreResponse,
 } from '../types/chore.types';
 
 const BASE = '/chores';
@@ -182,6 +183,13 @@ export const choreApi = {
 
   complete: async (id: string): Promise<void> => {
     await apiClient.patch(`${BASE}/${id}/complete`);
+  },
+
+  incomplete: async (id: string): Promise<IncompleteChoreResponse> => {
+    const { data } = await apiClient.patch<{ data: IncompleteChoreResponse }>(
+      `${BASE}/${id}/incomplete`,
+    );
+    return data.data;
   },
 
   share: async (id: string, dto: ShareChoreDto): Promise<ShareChoreResponse> => {
