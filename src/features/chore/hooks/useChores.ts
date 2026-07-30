@@ -45,10 +45,33 @@ export const useUpdateChore = () => {
   });
 };
 
+/**집안일 삭제 훅 */
+export const useRemoveChore = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => choreApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all });
+    },
+  });
+};
+
+/**집안일 완료 훅 */
 export const useCompleteChore = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => choreApi.complete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all });
+    },
+  });
+};
+
+/**집안일 완료->미완료 훅 */
+export const useIncompleteChore = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => choreApi.incomplete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all });
     },
