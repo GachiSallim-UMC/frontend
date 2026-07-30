@@ -186,10 +186,8 @@ export const choreApi = {
   },
 
   incomplete: async (id: string): Promise<IncompleteChoreResponse> => {
-    const { data } = await apiClient.patch<{ data: IncompleteChoreResponse }>(
-      `${BASE}/${id}/incomplete`,
-    );
-    return data.data;
+    const { data } = await apiClient.patch<IncompleteChoreResponse>(`${BASE}/${id}/incomplete`);
+    return data;
   },
 
   share: async (id: string, dto: ShareChoreDto): Promise<ShareChoreResponse> => {
