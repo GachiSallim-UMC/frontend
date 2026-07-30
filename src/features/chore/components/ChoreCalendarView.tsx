@@ -13,15 +13,26 @@ interface ChoreCalendarViewProps {
 }
 
 export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
-  const { currentDate, weekDates, handlePrevWeek, handleNextWeek } = useWeekCalendar();
+  const { currentDate, weekDates, handlePrevWeek, handleNextWeek, today, todayString } =
+    useWeekCalendar();
   const currentYear = currentDate.getFullYear();
-  const today = new Date();
-  const todayString = `${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+
+  /**UI 전용 상태 확인 */
+  const getChoreUIStatus = (chore: Chore): keyof typeof STATUS_COLORS => {
+    if (chore.status === 'done') return 'done';
+
+    const targetDateStr = chore.endDate || chore.startDate;
+    const targetDate = new Date(targetDateStr);
+    targetDate.setHours(0, 0, 0, 0);
+
+    return targetDate.getTime() <= today.getTime() ? 'pending' : 'scheduled';
+  };
 
   const weekDays = weekDates.map((dateStr, index) => {
     const choresForDay = chores.filter(chore => {
-      const dateObj = new Date(chore.startDate);
+      const targetDateStr = chore.endDate || chore.startDate;
+      const dateObj = new Date(targetDateStr);
       const month = String(dateObj.getMonth() + 1).padStart(2, '0');
       const day = String(dateObj.getDate()).padStart(2, '0');
 
@@ -111,29 +122,32 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
 
               <div className="flex-1 p-[12px] bg-white">
                 <div className="flex flex-col gap-[12px]">
-                  {day.chores.map(chore => (
-                    <div
-                      key={chore.id}
-                      className={`flex flex-col gap-0 ${chore.status === 'done' ? 'opacity-50' : ''}`}
-                    >
-                      <div className="flex items-center gap-[6px]">
-                        <Circle
-                          size={8}
-                          fill="currentColor"
-                          strokeWidth={0}
-                          className={STATUS_COLORS[chore.status as keyof typeof STATUS_COLORS]}
-                        />
-                        <span
-                          className={`text-[12px] text-gray-900 font-bold leading-tight ${chore.status === 'done' ? 'line-through' : ''}`}
-                        >
-                          {chore.name}
+                  {day.chores.map(chore => {
+                    const uiStatus = getChoreUIStatus(chore);
+                    return (
+                      <div
+                        key={chore.id}
+                        className={`flex flex-col gap-0 ${uiStatus === 'done' ? 'opacity-50' : ''}`}
+                      >
+                        <div className="flex items-center gap-[6px]">
+                          <Circle
+                            size={8}
+                            fill="currentColor"
+                            strokeWidth={0}
+                            className={STATUS_COLORS[uiStatus]}
+                          />
+                          <span
+                            className={`text-[12px] text-gray-900 font-bold leading-tight ${uiStatus === 'done' ? 'line-through' : ''}`}
+                          >
+                            {chore.name}
+                          </span>
+                        </div>
+                        <span className="pl-[14px] text-[10px] text-gray-600">
+                          {chore.assignee.name}
                         </span>
                       </div>
-                      <span className="pl-[14px] text-[10px] text-gray-600">
-                        {chore.assignee.name}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
