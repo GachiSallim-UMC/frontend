@@ -5,7 +5,7 @@ import type {
   MeResponsePayload,
   SignupDto,
   SignupConfirmDto } from '../types/auth.type';
-import { 
+import type { 
     UpdateProfileDto,
     UploadUrlRequestDto,
     UploadUrlResponse

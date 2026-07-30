@@ -1,16 +1,13 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { WarningModal } from '@/features/mypage/components/WarningModal'
 import { Button } from '@/shared/components';
 import { useErrorStore } from '@/shared/store';
 import { authApi } from '@/features/auth';
-import { useAuthStore } from '@/shared/store';
 import { useLogout } from '@/features/auth';
 import LogoutIcon from "@/assets/icons/mypage/logout.svg?react"
 import CrossIcon from "@/assets/icons/mypage/cross.svg?react"
 
 export const MyPageButtonGroup = () => {
-    const navigate = useNavigate();
     const showError = useErrorStore((state) => state.showError);
 
     const { mutate: logout, isPending: isLoggingOut } = useLogout();
@@ -22,23 +19,6 @@ export const MyPageButtonGroup = () => {
         logout(); 
     };
 
-    const handleWithdrawClick = () => {
-        setIsWithdrawalModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setIsWithdrawalModalOpen(false);
-    };
-
-    const clearLocalAuthAndNavigate = () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('idToken');
-        
-        useAuthStore.getState().clearSession();
-        navigate('/login');
-    };
-
     const handleConfirmWithdraw = async () => {
         setIsWithdrawing(true);
         try {
@@ -47,7 +27,7 @@ export const MyPageButtonGroup = () => {
             setIsWithdrawalModalOpen(false);
 
             logout();
-        } catch (error) {
+        } catch {
             showError({ title: '탈퇴 실패', message: '문제가 발생했습니다.' });
         } finally {
             setIsWithdrawing(false);
