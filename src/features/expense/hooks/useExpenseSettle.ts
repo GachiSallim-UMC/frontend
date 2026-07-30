@@ -3,42 +3,50 @@ import { settleExpenseSplit } from '@/features/expense';
 import type { Expense } from '@/features/expense';
 import { useErrorStore } from '@/shared/store';
 
+/** 지출의 모든 분담을 일괄 정산 처리 */
+export const bulkSettleExpense = async (expense: Expense): Promise<{ ok: boolean }> => {
+  if (!expense.shares || expense.shares.length === 0) return { ok: false };
+
+  if (expense.status === 'paid') {
+    useErrorStore.getState().showError({
+      title: '알림',
+      message: '이미 정산 완료된 항목입니다.',
+    });
+    return { ok: false };
+  }
+
+  try {
+    for (const share of expense.shares) {
+      const splitId = share.id;
+      if (!splitId) continue;
+
+      await settleExpenseSplit(Number(splitId), { isBulkComplete: true });
+    }
+
+    useErrorStore.getState().showError({
+      title: '완료',
+      message: '전체 정산이 완료되었습니다.',
+    });
+
+    return { ok: true };
+  } catch (error) {
+    console.error('전체 정산 실패:', error);
+
+    useErrorStore.getState().showError({
+      title: '오류',
+      message: '전체 정산 처리에 실패했습니다.',
+    });
+    return { ok: false };
+  }
+};
+
 export const useExpenseSettle = (expense?: Expense, onRefresh?: () => void) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleBulkSettle = async () => {
-    if (!expense?.shares || expense.shares.length === 0) return;
-
-    if (expense.status === 'paid') {
-      useErrorStore.getState().showError({
-        title: '알림',
-        message: '이미 정산 완료된 항목입니다.',
-      });
-      return;
-    }
-
-    try {
-      for (const share of expense.shares) {
-        const splitId = share.id;
-        if (!splitId) continue;
-
-        await settleExpenseSplit(Number(splitId), { isBulkComplete: true });
-      }
-
-      useErrorStore.getState().showError({
-        title: '완료',
-        message: '전체 정산이 완료되었습니다.',
-      });
-
-      onRefresh?.();
-    } catch (error) {
-      console.error('전체 정산 실패:', error);
-
-      useErrorStore.getState().showError({
-        title: '오류',
-        message: '전체 정산 처리에 실패했습니다.',
-      });
-    }
+    if (!expense) return;
+    const { ok } = await bulkSettleExpense(expense);
+    if (ok) onRefresh?.();
   };
 
   const handleIndividualSubmit = async (selectedSplitIds: (number | string)[]) => {
