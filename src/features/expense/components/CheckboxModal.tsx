@@ -53,8 +53,8 @@ export const CheckboxModal = ({
               key={member.id}
               className={`flex items-center justify-between p-3 rounded-lg border border-gray-100 transition-colors ${
                 member.isPaid
-                  ? 'opacity-50 cursor-not-allowed bg-gray-50'
-                  : 'hover:bg-gray-50 cursor-pointer'
+                  ? 'opacity-50 cursor-not-allowed bg-gray-100'
+                  : 'hover:bg-gray-100 cursor-pointer'
               }`}
             >
               <span className="font-sans text-button text-gray-800">

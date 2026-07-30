@@ -1,32 +1,107 @@
-import { ExpenseRow } from '@/features/expense'; 
+import EditIcon from '@/assets/icons/action/edit.svg?react';
+import ShareIcon from '@/assets/icons/action/share.svg?react';
+import { DataTable, UserAvatar, StatusBadge, type Column } from '@/shared/components/ui';
 import type { Expense } from '@/features/expense';
 
 interface ExpenseTableProps {
   expenses: Expense[];
-  onDeleteSuccess?: (id: number | string) => void;
+  onEdit?: (expense: Expense) => void;
+  onShare?: (expense: Expense) => void;
+  onDelete?: (expense: Expense) => void;
 }
 
-const GRID_COLS = 'grid-cols-[114fr_166fr_150fr_157fr_163fr_176fr_78fr]';
-
-export const ExpenseTable = ({ expenses, onDeleteSuccess }: ExpenseTableProps) => {
-  return (
-    <div className='w-full min-w-[720px] rounded-t-[10px] bg-white border-[1px] border-gray-100 flex flex-col overflow-hidden'>
-      <div className={`grid ${GRID_COLS} items-center w-full h-[60px] pl-[20px] pr-[16px] lg:pl-[30px] lg:pr-[25px] bg-primary-50 border-b border-gray-100`}>
-        <span className='font-sans font-bold text-caption text-gray-500 whitespace-nowrap'>날짜</span>
-        <span className='font-sans font-bold text-caption text-gray-500 whitespace-nowrap'>항목</span>
-        <span className='font-sans font-bold text-caption text-gray-500 whitespace-nowrap'>지불자</span>
-        <span className='font-sans font-bold text-caption text-gray-500 whitespace-nowrap'>총액</span>
-        <span className='font-sans font-bold text-caption text-gray-500 whitespace-nowrap'>분담 방식</span>
-        <span className='font-sans font-bold text-caption text-gray-500 whitespace-nowrap'>상태</span>
-        <span />
-      </div>
-
-      <div className='flex flex-col'>
-        {expenses.map((expense) => (
-          <ExpenseRow key={expense.id} expense={expense} onDeleteSuccess={onDeleteSuccess}/>
-        ))}
-      </div>
-    </div>
-  );
+const SPLIT_TYPE_LABEL: Record<string, string> = {
+  EQUAL: '균등 분할 (n/n)',
+  CUSTOM: '직접 입력',
+  RATIO: '비율 분할',
 };
 
+function formatDate(dateString: string): string {
+  if (!dateString) return '-';
+
+  const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) return dateString;
+
+  return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(
+    date.getDate(),
+  ).padStart(2, '0')}`;
+}
+
+export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) => {
+  const columns: Column<Expense>[] = [
+    {
+      key: 'date',
+      header: '날짜',
+      render: (row) => formatDate(row.date),
+    },
+    {
+      key: 'title',
+      header: '항목',
+      render: (row) => row.title || '제목 없음',
+    },
+    {
+      key: 'payer',
+      header: '지불자',
+      render: (row) => (
+        <span className="flex items-center gap-2">
+          <UserAvatar
+            name={row.payer?.name ?? '알 수 없음'}
+            avatarUrl={row.payer?.avatarUrl}
+            size="sm"
+          />
+          {row.payer?.nickname ?? '알 수 없음'}
+        </span>
+      ),
+    },
+    {
+      key: 'amount',
+      header: '총액',
+      render: (row) => `${(row.amount ?? 0).toLocaleString()}원`,
+    },
+    {
+      key: 'splitType',
+      header: '분담 방식',
+      render: (row) =>
+        SPLIT_TYPE_LABEL[row.splitType] ?? '균등 분할 (n/n)',
+    },
+    {
+      key: 'status',
+      header: '상태',
+      align: 'center',
+      render: (row) => (
+        <StatusBadge
+          variant={row.status === 'paid' ? 'done' : 'unpaid'}
+        />
+      ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (row) => (
+        <span className="flex justify-end gap-2 text-gray-500">
+          <button onClick={() => onEdit?.(row)} aria-label="수정">
+            <EditIcon className="h-[39px] w-[39px]" />
+          </button>
+          <button onClick={() => onShare?.(row)} aria-label="공유">
+            <ShareIcon className="h-[39px] w-[39px]" />
+          </button>
+        </span>
+      ),
+    },
+  ];
+
+  return (
+    <DataTable
+      columns={columns}
+      data={expenses}
+      emptyMessage="등록된 정산이 없습니다."
+      className="
+        border border-gray-100 overflow-hidden
+        !rounded-[10px] !shadow-none
+        [&_thead]:bg-primary-50 [&_th]:h-[60px] [&_th]:py-0 [&_th]:border-gray-100
+      "
+    />
+  );
+};

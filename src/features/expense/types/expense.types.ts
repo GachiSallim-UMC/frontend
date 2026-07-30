@@ -3,6 +3,8 @@ import type { ExpenseStatus, User } from '@/shared/types';
 /** 분담 방식 */
 export type SplitType = 'EQUAL' | 'RATIO' | 'CUSTOM';
 
+export type ExpenseFilter = 'TOTAL' | 'THIS_MONTH';
+
 /* 생활비 카테고리 */
 export type ExpenseCategory = 
   | 'FINANCE' 
