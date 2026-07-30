@@ -32,12 +32,16 @@ export const ShareCard = ({
         </p>
         {details && details.length > 0 && (
           <div className="flex flex-col gap-1 border-t border-gray-100 pt-2 text-[12px] font-normal leading-[normal] text-gray-900">
-            {details.map(detail => (
-              <div key={detail.label} className="flex items-center justify-between">
-                <span>{detail.label}</span>
-                <span className="text-right">{detail.value}</span>
-              </div>
-            ))}
+            {details.map(detail =>
+              detail.value === undefined ? (
+                <span key={detail.label}>{detail.label}</span>
+              ) : (
+                <div key={detail.label} className="flex items-center justify-between">
+                  <span>{detail.label}</span>
+                  <span className="text-right">{detail.value}</span>
+                </div>
+              ),
+            )}
           </div>
         )}
         <div className="mt-1 flex gap-2">

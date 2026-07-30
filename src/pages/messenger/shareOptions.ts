@@ -3,6 +3,7 @@ import type { Expense } from '@/features/expense';
 import type { Item } from '@/features/item';
 import type { Rule } from '@/features/rule';
 import type { ChatShareCard, ShareableOption, ShareCardType } from '@/features/messenger';
+import { josa } from '@/shared/lib';
 
 interface ShareSourceData {
   chores: Chore[];
@@ -71,10 +72,10 @@ export const buildShareCard = (
       return {
         type: 'chore',
         title: chore.name,
-        headline: '가 등록됐어요',
+        headline: `${josa(chore.name, '이', '가')} 등록됐어요`,
         details: [
-          { label: '담당자', value: chore.assignee.name },
-          { label: '반복', value: REPEAT_LABEL[chore.repeatType] },
+          { label: `담당: ${chore.assignee.name}` },
+          { label: `반복: ${REPEAT_LABEL[chore.repeatType]}` },
         ],
         actionLabel: '완료 처리',
       };
@@ -89,7 +90,7 @@ export const buildShareCard = (
         headline: ' 정산을 공유했어요',
         details: [
           { label: '총액', value: `${expense.amount.toLocaleString()}원` },
-         //{ label: '분담 방식', value: expense.splitType === 'equal' ? '균등 분할' : '비율 분할' },
+          { label: '분담 방식', value: expense.splitType === 'EQUAL' ? '균등 분할' : '비율 분할' },
           { label: '1인당 금액', value: `${perPerson.toLocaleString()}원` },
         ],
         actionLabel: '정산하기',
@@ -101,8 +102,8 @@ export const buildShareCard = (
       return {
         type: 'item',
         title: item.name,
-        headline: item.status === 'empty' ? '가 소진됐어요' : '가 부족해요',
-        details: [{ label: '구매 담당', value: item.buyer?.name ?? '미지정' }],
+        headline: `${josa(item.name, '이', '가')} ${item.status === 'empty' ? '소진됐어요' : '부족해요'}`,
+        details: [{ label: `구매 담당: ${item.buyer?.name ?? '미지정'}` }],
         actionLabel: '구매 완료',
       };
     }
@@ -111,9 +112,9 @@ export const buildShareCard = (
       if (!rule) return null;
       return {
         type: 'rule',
-        title: rule.title,
-        headline: ' 규칙 동의를 요청했어요',
-        details: [{ label: '동의 현황', value: `${rule.agreement.agreedCount}/${rule.agreement.totalCount}명 동의` }],
+        title: '새 규칙',
+        headline: '이 등록됐어요',
+        details: [{ label: rule.title }],
         actionLabel: '동의하기',
       };
     }
