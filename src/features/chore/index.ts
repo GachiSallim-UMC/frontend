@@ -12,7 +12,13 @@ export { ChoreRepeat } from './components/ChoreRepeat';
 export { ChoreMemo } from './components/ChoreMemo';
 export { ChoreFormActions } from './components/ChoreFormActions';
 
-export { useChores, useChoreFromList, useCreateChore, useUpdateChore } from './hooks/useChores';
+export {
+  useChores,
+  useChoreFromList,
+  useCreateChore,
+  useUpdateChore,
+  useCompleteChore,
+} from './hooks/useChores';
 export { useWeekCalendar } from './hooks/useWeekCalendar';
 export { useChoreRepeat } from './hooks/useChoreRepeat';
 export { useChoreForm } from './hooks/useChoreForm';

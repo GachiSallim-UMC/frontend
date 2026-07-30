@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChoreCalendarView, ChoreFilterBar, ChoreTable, useChores } from '@/features/chore';
+import {
+  ChoreCalendarView,
+  ChoreFilterBar,
+  ChoreTable,
+  useChores,
+  useCompleteChore,
+} from '@/features/chore';
 import type { Chore, ChoreFilter, RepeatType } from '@/features/chore';
 import { useGroupStore } from '@/shared/store';
 
@@ -15,6 +21,8 @@ const REPEAT_TYPE_FROM_FILTER: Record<NonNullable<ChoreFilter['repeatType']>, Re
 export const ChoreListPage = () => {
   const [filter, setFilter] = useState<ChoreFilter>({});
   const navigate = useNavigate();
+  const completeMutation = useCompleteChore();
+
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
   const { data: chores = [] } = useChores(
@@ -40,6 +48,15 @@ export const ChoreListPage = () => {
 
   const handleEdit = (chore: Chore) => navigate(`/chores/${chore.id}/edit`);
 
+  const handleToggleComplete = (chore: Chore) => {
+    completeMutation.mutate(String(chore.id), {
+      onError: error => {
+        console.error('상태 변경 실패:', error);
+        alert('상태 변경에 실패했습니다.');
+      },
+    });
+  };
+
   return (
     <div className="mt-[28px] flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
       <ChoreFilterBar filter={filter} onFilterChange={setFilter} />
@@ -51,6 +68,8 @@ export const ChoreListPage = () => {
           chores={filteredChores}
           onEdit={handleEdit}
           onShare={chore => console.log('Share chore', chore.name)}
+          onToggleComplete={handleToggleComplete}
+          isUpdating={completeMutation.isPending}
         />
       </div>
     </div>
