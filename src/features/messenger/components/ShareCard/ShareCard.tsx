@@ -5,6 +5,8 @@ import { SHARE_CARD_STYLE } from '@/features/messenger/components/ShareCard/shar
 interface ShareCardProps extends ChatShareCard {
   onViewDetail?: () => void;
   onAction?: () => void;
+  /** 액션 버튼 처리 중이면 true (연타 방지) */
+  isActionPending?: boolean;
 }
 
 export const ShareCard = ({
@@ -15,6 +17,7 @@ export const ShareCard = ({
   actionLabel,
   onViewDetail,
   onAction,
+  isActionPending,
 }: ShareCardProps) => {
   const style = SHARE_CARD_STYLE[type];
   const { Icon } = style;
@@ -58,7 +61,11 @@ export const ShareCard = ({
           <button
             type="button"
             onClick={onAction}
-            className={cn('h-9 flex-1 rounded-lg text-center text-[12px] font-bold leading-[normal]', style.fill)}
+            disabled={isActionPending}
+            className={cn(
+              'h-9 flex-1 rounded-lg text-center text-[12px] font-bold leading-[normal] disabled:cursor-not-allowed disabled:opacity-50',
+              style.fill,
+            )}
           >
             {actionLabel}
           </button>

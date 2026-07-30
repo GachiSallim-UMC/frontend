@@ -10,6 +10,8 @@ interface ChatBubbleProps {
   items: ChatMessage[];
   onViewShareDetail?: (message: ChatMessage) => void;
   onShareAction?: (message: ChatMessage) => void;
+  /** 공유 카드 액션 버튼 처리 중인 메시지 id 목록 (연타 방지용 disabled 처리) */
+  pendingShareActionIds?: Set<string>;
 }
 
 export const ChatBubble = ({
@@ -19,6 +21,7 @@ export const ChatBubble = ({
   items,
   onViewShareDetail,
   onShareAction,
+  pendingShareActionIds,
 }: ChatBubbleProps) => {
   return (
     <div className={cn('flex w-full max-w-[50%] min-w-0 items-start gap-2.5', isMine && 'ml-auto flex-row-reverse')}>
@@ -37,6 +40,7 @@ export const ChatBubble = ({
                   {...shareCard}
                   onViewDetail={() => onViewShareDetail?.(item)}
                   onAction={() => onShareAction?.(item)}
+                  isActionPending={pendingShareActionIds?.has(item.id)}
                 />
               ) : (
                 <div

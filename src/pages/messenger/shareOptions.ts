@@ -5,7 +5,7 @@ import type { Rule } from '@/features/rule';
 import type { ChatShareCard, ShareableOption, ShareCardType } from '@/features/messenger';
 import { josa } from '@/shared/lib';
 
-interface ShareSourceData {
+export interface ShareSourceData {
   chores: Chore[];
   expenses: Expense[];
   items: Item[];

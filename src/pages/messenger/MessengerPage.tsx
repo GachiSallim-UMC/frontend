@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   ChatBubble,
   ChatHeader,
@@ -16,25 +15,20 @@ import {
   TransferOwnerModal,
   useChatRoom,
 } from '@/features/messenger';
-import type { ChatMessage, ChatShareCard } from '@/features/messenger';
 import { useGroupMembers } from '@/features/member';
 import { useMe } from '@/features/auth';
 import { useAuthStore, useGroupStore } from '@/shared/store';
-import { useChores, useCompleteChore } from '@/features/chore';
-import { bulkSettleExpense, useExpenseList } from '@/features/expense';
-import { useItems, useUpdateItemStatus } from '@/features/item';
-import { useRules, useUpdateRuleAgreement } from '@/features/rule';
+import { useChores } from '@/features/chore';
+import { useExpenseList } from '@/features/expense';
+import { useItems } from '@/features/item';
+import { useRules } from '@/features/rule';
 import { buildShareCard, getShareOptions } from '@/pages/messenger/shareOptions';
+import { useShareCardActions } from '@/pages/messenger/useShareCardActions';
 
 export const MessengerPage = () => {
-  const navigate = useNavigate();
   const groupId = useGroupStore(s => s.selectedGroupId);
   const currentUserId = useAuthStore(s => s.userId) ?? '';
   const numericGroupId = groupId ? Number(groupId) : undefined;
-
-  const completeChore = useCompleteChore();
-  const updateRuleAgreement = useUpdateRuleAgreement();
-  const updateItemStatus = useUpdateItemStatus();
 
   const { data: groupMembers } = useGroupMembers(groupId);
   const { data: me } = useMe();
@@ -108,8 +102,6 @@ export const MessengerPage = () => {
   } = useChatRoom(groupId, currentUserId);
 
   const messageListRef = useRef<HTMLDivElement>(null);
-  // 메시지 id별로 보강된 카드 내용을 고정 (이후 실제 항목 상태 변경에 영향받지 않도록)
-  const shareCardCacheRef = useRef(new Map<string, ChatShareCard>());
 
   // 방 전환/새 메시지 시 맨 아래로 스크롤
   useEffect(() => {
@@ -124,53 +116,8 @@ export const MessengerPage = () => {
     if (shareCard) shareItem(shareCard, optionId);
   };
 
-  // 카드 메시지는 refId로 실제 집안일/생활비/물품/규칙 데이터를 찾아 상세 내용을 보강
-  const enrichedMessageGroups = messageGroups.map(group => ({
-    ...group,
-    items: group.items.map(item => {
-      if (!item.shareCard) return item;
-
-      const cached = shareCardCacheRef.current.get(item.id);
-      if (cached) return { ...item, shareCard: cached };
-
-      if (!item.refId) return item;
-      const enrichedShareCard = buildShareCard(item.shareCard.type, item.refId, shareSourceData);
-      if (!enrichedShareCard) return item;
-
-      shareCardCacheRef.current.set(item.id, enrichedShareCard);
-      return { ...item, shareCard: enrichedShareCard };
-    }),
-  }));
-
-  // "상세 보기" — 집안일/물품은 상세 페이지가 없어 목록으로 이동
-  const handleViewShareDetail = (message: ChatMessage) => {
-    const type = message.shareCard?.type;
-    if (!type) return;
-    if (type === 'expense' && message.refId) navigate(`/expenses/${message.refId}`);
-    else if (type === 'rule' && message.refId) navigate(`/rules/${message.refId}`);
-    else if (type === 'chore') navigate('/chores');
-    else if (type === 'item') navigate('/items');
-  };
-
-  // 강조 버튼(정산하기/동의하기/완료 처리/구매 완료) — 실제 도메인 액션 실행
-  const handleShareAction = (message: ChatMessage) => {
-    const type = message.shareCard?.type;
-    if (!type || !message.refId) return;
-    if (type === 'chore') {
-      completeChore.mutate(message.refId);
-    } else if (type === 'rule') {
-      updateRuleAgreement.mutate({ id: message.refId, dto: { status: 'AGREED' } });
-    } else if (type === 'expense') {
-      const expense = expenses.find(item => item.id === message.refId);
-      if (expense) void bulkSettleExpense(expense);
-    } else if (type === 'item') {
-      // 정식 구매 처리는 금액/카테고리 입력 UI가 필요해 우선 재고만 "충분"으로 되돌림
-      const item = items.find(entry => entry.id === message.refId);
-      if (item && item.status !== 'enough') {
-        updateItemStatus.mutate({ id: message.refId, dto: { status: 'enough' } });
-      }
-    }
-  };
+  const { enrichedMessageGroups, handleViewShareDetail, handleShareAction, pendingActionIds } =
+    useShareCardActions(messageGroups, shareSourceData, currentUserId);
 
   const createRoomCandidates = groupMembers
     .filter(member => !member.leftAt && member.userId !== currentUserId)
@@ -236,6 +183,7 @@ export const MessengerPage = () => {
                         items={group.items}
                         onViewShareDetail={handleViewShareDetail}
                         onShareAction={handleShareAction}
+                        pendingShareActionIds={pendingActionIds}
                       />
                     ))
                   )}
