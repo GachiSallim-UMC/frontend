@@ -10,6 +10,7 @@ import {
 } from '@/features/chore';
 import type { Chore, ChoreFilter, RepeatType } from '@/features/chore';
 import { useGroupStore } from '@/shared/store';
+import { useGroupMembers } from '@/features/member';
 
 const REPEAT_TYPE_FROM_FILTER: Record<NonNullable<ChoreFilter['repeatType']>, RepeatType> = {
   NONE: 'once',
@@ -27,6 +28,7 @@ export const ChoreListPage = () => {
 
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
+
   const { data: chores = [] } = useChores(
     groupId && Number.isSafeInteger(groupId)
       ? {
@@ -36,6 +38,19 @@ export const ChoreListPage = () => {
         }
       : undefined,
   );
+
+  const { data: rawMembers = [] } = useGroupMembers(selectedGroupId);
+
+  const mappedMembers = useMemo(() => {
+    return rawMembers.map(m => ({
+      id: m.userId,
+      userId: m.userId,
+      name: m.user.name,
+      role: m.role,
+      joinedAt: m.joinedAt,
+      avatarUrl: m.user.profileImage || undefined,
+    }));
+  }, [rawMembers]);
 
   const filteredChores = useMemo(() => {
     const keyword = filter.keyword?.trim().toLocaleLowerCase();
@@ -72,7 +87,7 @@ export const ChoreListPage = () => {
 
   return (
     <div className="mt-[28px] flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
-      <ChoreFilterBar filter={filter} onFilterChange={setFilter} />
+      <ChoreFilterBar filter={filter} onFilterChange={setFilter} groupMembers={mappedMembers} />
       <div className="w-full">
         <ChoreCalendarView chores={filteredChores} />
       </div>

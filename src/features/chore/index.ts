@@ -55,4 +55,6 @@ export {
   WEEK_OPTIONS,
   MONTH_OPTIONS,
   DAYS,
+  CHORE_STATUS_FILTER_OPTIONS,
+  CHORE_REPEAT_FILTER_OPTIONS,
 } from './constants/chore.constants';
