@@ -2,16 +2,24 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { WarningModal } from '@/features/mypage/components/WarningModal'
 import { Button } from '@/shared/components';
+import { useErrorStore } from '@/shared/store';
+import { authApi } from '@/features/auth';
+import { useAuthStore } from '@/shared/store';
+import { useLogout } from '@/features/auth';
 import LogoutIcon from "@/assets/icons/mypage/logout.svg?react"
 import CrossIcon from "@/assets/icons/mypage/cross.svg?react"
 
 export const MyPageButtonGroup = () => {
     const navigate = useNavigate();
+    const showError = useErrorStore((state) => state.showError);
+
+    const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
     const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
 
     const handleLogout = () => {
-        navigate('/login');
+        logout(); 
     };
 
     const handleWithdrawClick = () => {
@@ -22,10 +30,28 @@ export const MyPageButtonGroup = () => {
         setIsWithdrawalModalOpen(false);
     };
 
-    const handleConfirmWithdraw = () => {
-        console.log("회원 탈퇴 처리됨");
-        setIsWithdrawalModalOpen(false);
-        navigate('/login'); 
+    const clearLocalAuthAndNavigate = () => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('idToken');
+        
+        useAuthStore.getState().clearSession();
+        navigate('/login');
+    };
+
+    const handleConfirmWithdraw = async () => {
+        setIsWithdrawing(true);
+        try {
+            await authApi.withdraw();
+            alert('회원 탈퇴가 완료되었습니다.');
+            setIsWithdrawalModalOpen(false);
+
+            logout();
+        } catch (error) {
+            showError({ title: '탈퇴 실패', message: '문제가 발생했습니다.' });
+        } finally {
+            setIsWithdrawing(false);
+        }
     };
 
     return (
@@ -38,9 +64,10 @@ export const MyPageButtonGroup = () => {
                     leftIcon={
                         <LogoutIcon className='h-5 w-5' />
                     }
+                    disabled={isLoggingOut || isWithdrawing}
                     onClick={handleLogout}
                 >
-                    로그아웃
+                    {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
                 </Button>
 
                 <Button
@@ -50,7 +77,8 @@ export const MyPageButtonGroup = () => {
                     leftIcon={
                         <CrossIcon className='h-5 w-5' />
                     }
-                    onClick={handleWithdrawClick}
+                    onClick={() => setIsWithdrawalModalOpen(true)}
+                    disabled={isLoggingOut || isWithdrawing}
                 >
                     회원탈퇴
                 </Button>
@@ -59,8 +87,9 @@ export const MyPageButtonGroup = () => {
             {/* 모달 렌더링 영역 */}
             <WarningModal 
                 isOpen={isWithdrawalModalOpen} 
-                onClose={handleCloseModal} 
+                onClose={() => { if (!isWithdrawing) setIsWithdrawalModalOpen(false) }} 
                 onConfirm={handleConfirmWithdraw} 
+                isWithdrawing={isWithdrawing} 
             />
         </>
     )

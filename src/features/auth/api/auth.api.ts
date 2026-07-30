@@ -5,6 +5,11 @@ import type {
   MeResponsePayload,
   SignupDto,
   SignupConfirmDto } from '../types/auth.type';
+import { 
+    UpdateProfileDto,
+    UploadUrlRequestDto,
+    UploadUrlResponse
+} from '@/features/mypage/types/mypage.types'
 
 const BASE = '/auth';
 
@@ -60,4 +65,56 @@ export const authApi = {
   signupConfirm: async (dto: SignupConfirmDto): Promise<void> => {
     await apiClient.post(`${BASE}/signup/confirm`, dto);
   },
+  // 프로필 정보 업데이트
+  updateProfile: async (dto: UpdateProfileDto) => {
+    const { data } = await apiClient.patch(`${BASE}/profile`, dto);
+    return data.data;
+  },
+
+  // S3 업로드 URL 발급
+  getUploadUrl: async (dto: UploadUrlRequestDto): Promise<UploadUrlResponse> => {
+    const { data } = await apiClient.post(`${BASE}/profile-image/upload-url`, dto);
+    return data.data;
+  },
+
+  // S3 파일 업로드
+  uploadToS3: async (uploadData: UploadUrlResponse, file: File) => {
+    const formData = new FormData();
+        
+    // 백엔드에서 준 fields 값들을 모두 폼 데이터에 추가
+    Object.entries(uploadData.fields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+        
+    formData.append('file', file);
+
+    const response = await fetch(uploadData.uploadUrl, {
+      method: uploadData.uploadMethod,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('S3 이미지 업로드에 실패했습니다.');
+      }
+
+    // 성공 시 사용할 최종 이미지 URL 반환
+    return uploadData.profileImageUrl;
+  },
+
+  // 비밀번호 변경(마이페이지)
+  changePassword: async (previousPassword: string, newPassword: string) => {
+    const payload = {
+      previousPassword,
+      newPassword
+    };
+
+    const { data } = await apiClient.post(`${BASE}/password/change`, payload);
+    return data;
+  },
+
+  // 회원 탈퇴
+  withdraw: async () => {
+    const { data } = await apiClient.delete(`${BASE}/me`);
+    return data;
+  }
 };
