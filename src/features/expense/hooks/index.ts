@@ -3,6 +3,5 @@ export * from './useExpenseSummary';
 export * from './useSettlementAmounts';
 export * from './useExpenseList';
 export * from './useExpenseSettle';
-export * from './useLongPress';
 export * from './useCreatePayLink';
 export * from './useShareExpense';

@@ -1,6 +1,6 @@
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
-import { DataTable, UserAvatar, type Column } from '@/shared/components/ui';
+import { DataTable, UserAvatar, StatusBadge, type Column } from '@/shared/components/ui';
 import type { Expense } from '@/features/expense';
 
 interface ExpenseTableProps {
@@ -18,37 +18,61 @@ const SPLIT_TYPE_LABEL: Record<string, string> = {
 
 function formatDate(dateString: string): string {
   if (!dateString) return '-';
+
   const date = new Date(dateString);
+
   if (isNaN(date.getTime())) return dateString;
-  return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+
+  return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(
+    date.getDate(),
+  ).padStart(2, '0')}`;
 }
 
 export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) => {
   const columns: Column<Expense>[] = [
-    { key: 'date', header: '날짜', render: (row) => formatDate(row.date) },
-    { key: 'title', header: '항목', render: (row) => row.title || '제목 없음' },
+    {
+      key: 'date',
+      header: '날짜',
+      render: (row) => formatDate(row.date),
+    },
+    {
+      key: 'title',
+      header: '항목',
+      render: (row) => row.title || '제목 없음',
+    },
     {
       key: 'payer',
       header: '지불자',
       render: (row) => (
         <span className="flex items-center gap-2">
-          <UserAvatar name={row.payer?.name ?? '알 수 없음'} avatarUrl={row.payer?.avatarUrl} size="sm" />
+          <UserAvatar
+            name={row.payer?.name ?? '알 수 없음'}
+            avatarUrl={row.payer?.avatarUrl}
+            size="sm"
+          />
           {row.payer?.nickname ?? '알 수 없음'}
         </span>
       ),
     },
-    { key: 'amount', header: '총액', render: (row) => `${(row.amount ?? 0).toLocaleString()}원` },
-    { key: 'splitType', header: '분담 방식', render: (row) => SPLIT_TYPE_LABEL[row.splitType] ?? '균등 분할 (n/n)' },
+    {
+      key: 'amount',
+      header: '총액',
+      render: (row) => `${(row.amount ?? 0).toLocaleString()}원`,
+    },
+    {
+      key: 'splitType',
+      header: '분담 방식',
+      render: (row) =>
+        SPLIT_TYPE_LABEL[row.splitType] ?? '균등 분할 (n/n)',
+    },
     {
       key: 'status',
       header: '상태',
       align: 'center',
       render: (row) => (
-        <span className={`inline-flex h-[34px] w-[68px] items-center justify-center rounded-full ${
-          row.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-        }`}>
-          {row.status === 'paid' ? '완료' : '미정산'}
-        </span>
+        <StatusBadge
+          variant={row.status === 'paid' ? 'done' : 'unpaid'}
+        />
       ),
     },
     {
