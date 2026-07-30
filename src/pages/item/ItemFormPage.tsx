@@ -220,6 +220,8 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
           <TextArea
             label="메모"
             placeholder="예: 매달 구매, 마트에서 대용량으로 구입"
+            maxLength={255}
+            showCount
             rows={3}
             value={memo}
             onChange={event => setMemo(event.target.value)}
