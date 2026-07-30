@@ -8,7 +8,7 @@ export type RuleCategory =
   | 'visitor'
   | 'safety'
   | 'etc';
-export type EditableRuleCategory = Exclude<RuleCategory, 'etc'>;
+export type EditableRuleCategory = RuleCategory;
 export type RuleApiStatus = 'ACTIVE' | 'INACTIVE';
 export type RuleAgreementApiStatus = 'AGREED' | 'DISAGREED' | 'PENDING';
 
