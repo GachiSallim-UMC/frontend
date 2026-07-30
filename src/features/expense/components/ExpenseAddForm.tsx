@@ -1,20 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import arrowIcon from '@/assets/icons/expense/arrow.svg';
 import calendarIcon from '@/assets/icons/expense/calendar.svg';
-import { CustomButton, IconTextButton } from '@/features/expense';
-import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react';
 import { useSettlementAmounts, useExpenseForm, useShareExpense } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
 import type { Expense, ExpenseCategory } from '@/features/expense';
 import type { User } from '@/shared/types';
+import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
+import { ShareMessengerButton, Button } from '@/shared/components/';
+import { useErrorStore } from '@/shared/store';
 
-const inputClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button placeholder:text-gray-400 bg-white focus:bg-white focus:border-gray-300';
+const arrowIconEl = arrowIcon;
 const selectClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button bg-white appearance-none cursor-pointer';
 const labelClass = 'font-sans text-caption font-bold text-gray-800';
 const cardClass = 'w-full bg-white p-[16px] rounded-[18px] flex flex-col gap-5';
 const todayStr = new Date().toISOString().split('T')[0];
 const RequiredMark = () => <span className='font-sans font-bold text-caption text-red-700'>*</span>;
 const MEMO_MAX_LENGTH = 200;
+
+const CATEGORY_OPTIONS = [
+  { value: 'FINANCE', label: '세금/기타금융' },
+  { value: 'FOOD', label: '식비' },
+  { value: 'SHOPPING', label: '쇼핑' },
+  { value: 'EDUCATION', label: '교육' },
+  { value: 'GROCERY', label: '편의점/마트/잡화' },
+  { value: 'TRANSPORT', label: '교통/자동차' },
+  { value: 'LEISURE', label: '취미/여가' },
+  { value: 'CAFE', label: '카페/간식' },
+  { value: 'UTILITIES', label: '공과금/생활' },
+  { value: 'ETC', label: '기타' },
+] as const;
+
+const SPLIT_METHOD_OPTIONS = [
+  { value: 'EQUAL', label: '균등 분할 (n/n)' },
+  { value: 'CUSTOM', label: '직접 입력' },
+  { value: 'RATIO', label: '비율 분할 (%)' },
+] as const;
 
 function formatWon(value: number): string {
   return `${value.toLocaleString()}원`;
@@ -65,7 +85,10 @@ export const ExpenseAddForm = ({
 
   const handleDateBlur = () => {
     if (expenseDate && expenseDate < todayStr) {
-      alert('오늘 이전의 날짜는 선택할 수 없습니다.');
+      useErrorStore.getState().showError({
+        title: '알림',
+        message: '오늘 이전의 날짜는 선택할 수 없습니다.',
+      });
       setExpenseDate(todayStr);
     }
   };
@@ -127,7 +150,10 @@ export const ExpenseAddForm = ({
 
   const handleSaveClickWithGuard = () => {
     if (isSettled) {
-      alert('정산 완료된 내역은 수정할 수 없습니다.');
+      useErrorStore.getState().showError({
+        title: '알림',
+        message: '정산 완료된 내역은 수정할 수 없습니다.',
+      });
       return;
     }
     handleSaveClick();
@@ -148,34 +174,22 @@ export const ExpenseAddForm = ({
         <div className={cardClass}>
           <h2 className='font-sans text-body font-bold text-gray-800'>기본 정보</h2>
 
-          <div className='flex flex-col gap-2'>
-            <label htmlFor='expense-title' className={labelClass}>
-              항목명 <RequiredMark />
-            </label>
-            <input
-              id='expense-title'
-              type='text'
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder='예: 마트 장보기, 전기요금'
-              className={`${inputClass} text-gray-800`}
-            />
-          </div>
+          <FormInput
+            label="항목명"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder='예: 마트 장보기, 전기요금'
+          />
 
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-            <div className='flex flex-col gap-2'>
-              <label htmlFor='expense-amount' className={labelClass}>
-                금액 <RequiredMark />
-              </label>
-              <input
-                id='expense-amount'
-                type='text'
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder='0'
-                className={`${inputClass} text-gray-800`}
-              />
-            </div>
+            <FormInput
+              label="금액"
+              required
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder='0'
+            />
 
             <div className='flex flex-col gap-2'>
               <label htmlFor='expense-date' className={labelClass}>
@@ -189,7 +203,7 @@ export const ExpenseAddForm = ({
                   onChange={handleDateChange}
                   onBlur={handleDateBlur}
                   placeholder='yyyy-mm-dd'
-                  className={`${inputClass} placeholder:text-gray-400 text-gray-800`}
+                  className='w-full h-[50px] px-4 pr-12 rounded-[8px] border border-gray-100 outline-none text-button placeholder:text-gray-400 bg-white focus:bg-white focus:border-gray-300 text-gray-800'
                 />
 
                 <div
@@ -234,69 +248,34 @@ export const ExpenseAddForm = ({
                 ))}
               </select>
               <img
-                src={arrowIcon}
+                src={arrowIconEl}
                 alt='화살표'
                 className='absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none'
               />
             </div>
           </div>
 
-          <div className='flex flex-col gap-2'>
-            <label htmlFor='expense-category' className={labelClass}>
-              카테고리 <RequiredMark />
-            </label>
-            <div className='relative'>
-              <select
-                id='expense-category'
-                className={`${selectClass} text-gray-800`}
-                value={category}
-                onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
-              >
-                <option value='FINANCE'>세금/기타금융</option>
-                <option value='FOOD'>식비</option>
-                <option value='SHOPPING'>쇼핑</option>
-                <option value='EDUCATION'>교육</option>
-                <option value='GROCERY'>편의점/마트/잡화</option>
-                <option value='TRANSPORT'>교통/자동차</option>
-                <option value='LEISURE'>취미/여가</option>
-                <option value='CAFE'>카페/간식</option>
-                <option value='UTILITIES'>공과금/생활</option>
-                <option value='ETC'>기타</option>
-              </select>
-              <img
-                src={arrowIcon}
-                alt='화살표'
-                className='absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none'
-              />
-            </div>
-          </div>
+          <SelectDropdown
+            label="카테고리"
+            required
+            value={category}
+            onChange={(v) => setCategory(v as ExpenseCategory)}
+            options={CATEGORY_OPTIONS}
+            placeholder=""
+          />
         </div>
 
         <div className={cardClass}>
           <h2 className='font-sans text-body font-bold text-gray-800'>정산 방식</h2>
 
-          <div className='flex flex-col gap-2'>
-            <label htmlFor='settlement-method' className={labelClass}>
-              분담 방식 <RequiredMark />
-            </label>
-            <div className='relative'>
-              <select
-                id='settlement-method'
-                className={`${selectClass} text-gray-800`}
-                value={settlementMethod}
-                onChange={(e) => handleMethodChange(e.target.value as SettlementMethod)}
-              >
-                <option value='EQUAL'>균등 분할 (n/n)</option>
-                <option value='CUSTOM'>직접 입력</option>
-                <option value='RATIO'>비율 분할 (%)</option>
-              </select>
-              <img
-                src={arrowIcon}
-                alt='화살표'
-                className='absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none'
-              />
-            </div>
-          </div>
+          <SelectDropdown
+            label="분담 방식"
+            required
+            value={settlementMethod}
+            onChange={(v) => handleMethodChange(v as SettlementMethod)}
+            options={SPLIT_METHOD_OPTIONS}
+            placeholder=""
+          />
 
           <div className='flex flex-col gap-2'>
             <div className='flex items-center justify-between'>
@@ -415,49 +394,41 @@ export const ExpenseAddForm = ({
             </div>
           </div>
 
-          <div className='flex flex-col gap-2'>
-            <label htmlFor='settlement-memo' className={labelClass}>
-              메모
-            </label>
-            <div className='relative'>
-              <textarea
-                id='settlement-memo'
-                placeholder='예: 장보기, 전기요금'
-                maxLength={MEMO_MAX_LENGTH}
-                value={memo}
-                onChange={(e) => setMemo(e.target.value)}
-                rows={3}
-                className='w-full px-4 py-3 rounded-[8px] border border-gray-100 outline-none text-caption placeholder:text-gray-400 resize-none bg-white text-gray-800'
-              />
-              <span className='absolute bottom-2 right-3 text-caption text-gray-400'>
-                {memo.length}/{MEMO_MAX_LENGTH}
-              </span>
-            </div>
-          </div>
+          <TextArea
+            label="메모"
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+            placeholder='예: 장보기, 전기요금'
+            maxLength={MEMO_MAX_LENGTH}
+            showCount
+            countInside
+          />
         </div>
       </fieldset>
 
       <div className='flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full pt-4 pb-8 mt-2'>
         <div className='flex items-center gap-3'>
-          <CustomButton
-            label={isEditMode ? "수정하기" : "저장"}
+          <Button
             variant="primary"
+            size="md"
             onClick={handleSaveClickWithGuard}
             disabled={isSettled}
             className="flex-1 sm:w-[150px]"
-          />
-          <CustomButton
-            label="취소"
+          >
+            {isEditMode ? '수정하기' : '저장'}
+          </Button>
+          <Button
             variant="secondary"
+            size="md"
             onClick={onCancel}
             className="flex-1 sm:w-[150px]"
-          />
+          >
+            취소
+          </Button>
         </div>
 
-        <IconTextButton
+        <ShareMessengerButton
           label={isSharing ? '공유 중...' : '메신저에 공유'}
-          variant="message"
-          iconComponent={MessengerIcon}
           onClick={() => shareExpense(currentExpenseId)}
           className="w-full sm:w-[189px]"
           disabled={!currentExpenseId || isSharing}

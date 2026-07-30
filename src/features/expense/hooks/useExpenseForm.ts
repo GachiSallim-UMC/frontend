@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { CreateExpenseDto, UpdateExpenseDto, Expense, ExpenseCategory } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
 import { createExpense, updateExpense } from '@/features/expense';
+import { useErrorStore } from '@/shared/store';
 
 interface UseExpenseFormProps {
   initialExpense?: Expense;
@@ -102,14 +103,20 @@ export function useExpenseForm({
 
   const handleSaveClick = async () => {
     if (!title || !numericTotalAmount || !payerId || !expenseDate) {
-      alert('필수 정보를 모두 입력해주세요.');
+      useErrorStore.getState().showError({
+        title: '알림',
+        message: '필수 정보를 모두 입력해주세요.',
+      });
       return;
     }
 
     const requiresDirectInput = settlementMethod === 'CUSTOM' || settlementMethod === 'RATIO';
     if (requiresDirectInput && !isDirectInputCompleted) {
       const label = settlementMethod === 'RATIO' ? '비율' : '직접 입력';
-      alert(`${label} 분담 금액을 확인하고 완료 버튼을 눌러주세요.`);
+      useErrorStore.getState().showError({
+        title: '알림',
+        message: `${label} 분담 금액을 확인하고 완료 버튼을 눌러주세요.`,
+      });
       return;
     }
 
@@ -140,8 +147,8 @@ export function useExpenseForm({
         };
 
         if (settlementMethod !== 'EQUAL') {
-        updatePayload.targetMemberIds = targetMemberIds;
-      }
+          updatePayload.targetMemberIds = targetMemberIds;
+        }
 
         savedExpense = await updateExpense(expenseId, updatePayload);
       } else {
@@ -160,10 +167,16 @@ export function useExpenseForm({
       }
 
       onSave?.(savedExpense);
-      alert(isEditMode ? '수정사항이 저장되었습니다.' : '지출이 등록되었습니다.');
+      useErrorStore.getState().showError({
+        title: '완료',
+        message: isEditMode ? '수정사항이 저장되었습니다.' : '지출이 등록되었습니다.',
+      });
     } catch (error) {
       console.error(isEditMode ? '지출 수정 실패:' : '지출 등록 실패:', error);
-      alert(isEditMode ? '지출 수정 중 오류가 발생했습니다.' : '지출 등록 중 오류가 발생했습니다.');
+      useErrorStore.getState().showError({
+        title: '오류',
+        message: isEditMode ? '지출 수정 중 오류가 발생했습니다.' : '지출 등록 중 오류가 발생했습니다.',
+      });
     }
   };
 

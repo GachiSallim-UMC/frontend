@@ -57,7 +57,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
           name: m.user.name,
           nickname: m.user.nickname,
           email: '',
-          avatarUrl: m.user.profileImage ?? '',
+          avatarUrl: m.user.profileImage ?? undefined,
         }));
         if (isMounted) setMembers(mapped);
       } catch (err) {
@@ -121,7 +121,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   }
 
   return (
-    <div className='flex flex-col items-center mt-4 lg:mt-[28px] w-full flex-1 min-h-0 bg-gray-50 pb-8 lg:pb-12'>
+    <div className='flex flex-col items-center mt-4 lg:mt-[28px] w-full flex-1 min-h-0  pb-8 lg:pb-12'>
       <div className='flex flex-col w-full items-center px-3 sm:px-4'>
         <div className='w-full max-w-[1200px] flex flex-col gap-4 lg:gap-6'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start w-full'>
