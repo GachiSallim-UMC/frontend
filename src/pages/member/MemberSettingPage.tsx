@@ -1,59 +1,71 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { GroupBasicInfo, MemberManagement, PermissionSettings } from "@/features/member";
-import { WarningModal } from "@/features/member";
-import { Button } from "@/shared/components";
-import CrossIcon from "@/assets/icons/member/cross.svg?react"
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  GroupBasicInfo,
+  MemberManagement,
+  PermissionSettings,
+  WarningModal,
+  useDeleteGroup,
+} from '@/features/member';
+import { Button } from '@/shared/components';
+import CrossIcon from '@/assets/icons/member/cross.svg?react';
+import { useGroupStore } from '@/shared/store';
 
 export const MemberSettingPage = () => {
   const navigate = useNavigate();
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
-  
+
+  const deleteGroupMutation = useDeleteGroup();
+  const selectedGroupId = useGroupStore(s => s.selectedGroupId);
+
   const handleWithdrawClick = () => {
     setIsWithdrawalModalOpen(true);
   };
-  
+
   const handleCloseModal = () => {
     setIsWithdrawalModalOpen(false);
   };
 
   const handleConfirmWithdraw = () => {
-        console.log("그룹 삭제됨");
+    if (!selectedGroupId) {
+      alert('선택된 그룹 정보가 없습니다.');
+      return;
+    }
+
+    deleteGroupMutation.mutate(selectedGroupId, {
+      onSuccess: () => {
         setIsWithdrawalModalOpen(false);
-        navigate('/group'); 
-    };
+        navigate('/group');
+      },
+      onError: error => {
+        alert('그룹 삭제에 실패했습니다. 권한을 확인해주세요.');
+        console.error(error);
+        setIsWithdrawalModalOpen(false);
+      },
+    });
+  };
+
   return (
     <>
       <div className="flex w-full flex-col gap-5 py-7">
-        
-        {/* 그룹 기본 정보 */}
         <GroupBasicInfo />
-
-        {/* 멤버 관리 */}
         <MemberManagement />
-
-        {/* 권한 설정 */}
         <PermissionSettings />
-
-        {/* 그룹 삭제 버튼 */}
         <Button
-              variant="danger"
-              size="lg"
-              leftIcon={
-                  <CrossIcon className="h-5 w-5" />
-              }
-              className="w-full"
-              onClick={handleWithdrawClick}
-          >
-              그룹 삭제    
-          </Button>
-        
+          variant="danger"
+          size="lg"
+          leftIcon={<CrossIcon className="h-5 w-5" />}
+          className="w-full"
+          onClick={handleWithdrawClick}
+          isLoading={deleteGroupMutation.isPending}
+        >
+          그룹 삭제
+        </Button>
       </div>
-      {/* 모달 렌더링 영역 */}
-      <WarningModal 
-        isOpen={isWithdrawalModalOpen} 
-        onClose={handleCloseModal} 
-        onConfirm={handleConfirmWithdraw} 
+      <WarningModal
+        isOpen={isWithdrawalModalOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmWithdraw}
       />
     </>
   );
