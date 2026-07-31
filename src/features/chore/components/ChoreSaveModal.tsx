@@ -1,21 +1,21 @@
-import BangIcon from '@/assets/icons/action/trash.svg?react';
+import InfoIcon from '@/assets/icons/chore/bang.svg?react';
 import { Button, Modal } from '@/shared/components';
 
-interface ChoreDeleteModalProps {
+interface ChoreSaveModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   choreName: string;
-  isDeleting?: boolean;
+  isSaving?: boolean;
 }
 
-export const ChoreDeleteModal = ({
+export const ChoreSaveModal = ({
   isOpen,
   onClose,
   onConfirm,
   choreName,
-  isDeleting = false,
-}: ChoreDeleteModalProps) => {
+  isSaving = false,
+}: ChoreSaveModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -27,16 +27,15 @@ export const ChoreDeleteModal = ({
     >
       {/* 상단 아이콘 및 타이틀 */}
       <div className="flex flex-col items-center text-center">
-        <div className="mb-5 flex items-center justify-center h-20 w-20 bg-red-100 rounded-full">
-          <BangIcon className="h-10 w-10 text-red-500" />
+        <div className="mb-5 flex items-center justify-center h-20 w-20 bg-primary-100 rounded-full">
+          <InfoIcon className="h-10 w-10 text-primary-600 [&_*]:!fill-current" />
         </div>
         <div className="mb-8 flex flex-col items-center px-2">
-          <h1 className="mb-2 text-2xl text-gray-900 font-bold">집안일을 삭제하시겠습니까?</h1>
+          <h1 className="mb-2 text-2xl text-gray-900 font-bold">집안일을 저장하시겠습니까?</h1>
           <p className="text-sm font-medium text-gray-600 leading-relaxed">
-            <span className="font-bold text-gray-900">"{choreName}"</span>의 내용과 기록이 모두
-            사라지며,
+            <span className="font-bold text-gray-900">"{choreName}"</span> 내용으로
             <br />
-            삭제된 데이터는 복구할 수 없습니다.
+            집안일을 등록/수정합니다.
           </p>
         </div>
       </div>
@@ -46,18 +45,18 @@ export const ChoreDeleteModal = ({
         <Button
           variant="primary"
           size="lg"
-          isLoading={isDeleting}
+          isLoading={isSaving}
           onClick={onConfirm}
-          className="flex-1 !bg-red-700 !border-red-700 hover:!bg-red-800"
+          className="flex-1 !bg-primary-600 !border-primary-600 hover:!bg-primary-700"
         >
-          삭제
+          저장
         </Button>
 
         <Button
           variant="secondary"
           size="lg"
           onClick={onClose}
-          disabled={isDeleting}
+          disabled={isSaving}
           className="flex-1 !bg-gray-200 !border-gray-200 hover:!bg-gray-400"
         >
           취소

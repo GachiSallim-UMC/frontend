@@ -1,21 +1,13 @@
-import BangIcon from '@/assets/icons/action/trash.svg?react';
+import { AlertTriangle } from 'lucide-react';
 import { Button, Modal } from '@/shared/components';
 
-interface ChoreDeleteModalProps {
+interface ChoreCancelModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  choreName: string;
-  isDeleting?: boolean;
 }
 
-export const ChoreDeleteModal = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  choreName,
-  isDeleting = false,
-}: ChoreDeleteModalProps) => {
+export const ChoreCancelModal = ({ isOpen, onClose, onConfirm }: ChoreCancelModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -27,16 +19,15 @@ export const ChoreDeleteModal = ({
     >
       {/* 상단 아이콘 및 타이틀 */}
       <div className="flex flex-col items-center text-center">
-        <div className="mb-5 flex items-center justify-center h-20 w-20 bg-red-100 rounded-full">
-          <BangIcon className="h-10 w-10 text-red-500" />
+        <div className="mb-5 flex items-center justify-center h-20 w-20 bg-orange-100 rounded-full">
+          <AlertTriangle className="h-10 w-10 text-orange-500" />
         </div>
         <div className="mb-8 flex flex-col items-center px-2">
-          <h1 className="mb-2 text-2xl text-gray-900 font-bold">집안일을 삭제하시겠습니까?</h1>
+          <h1 className="mb-2 text-2xl text-gray-900 font-bold">작성을 취소하시겠습니까?</h1>
           <p className="text-sm font-medium text-gray-600 leading-relaxed">
-            <span className="font-bold text-gray-900">"{choreName}"</span>의 내용과 기록이 모두
-            사라지며,
+            작성 중인 내용은 저장되지 않으며,
             <br />
-            삭제된 데이터는 복구할 수 없습니다.
+            이전 페이지로 돌아갑니다.
           </p>
         </div>
       </div>
@@ -46,21 +37,19 @@ export const ChoreDeleteModal = ({
         <Button
           variant="primary"
           size="lg"
-          isLoading={isDeleting}
           onClick={onConfirm}
-          className="flex-1 !bg-red-700 !border-red-700 hover:!bg-red-800"
+          className="flex-1 !bg-orange-500 !border-orange-500 hover:!bg-orange-700 text-white"
         >
-          삭제
+          나가기
         </Button>
 
         <Button
           variant="secondary"
           size="lg"
           onClick={onClose}
-          disabled={isDeleting}
           className="flex-1 !bg-gray-200 !border-gray-200 hover:!bg-gray-400"
         >
-          취소
+          계속 작성
         </Button>
       </div>
     </Modal>

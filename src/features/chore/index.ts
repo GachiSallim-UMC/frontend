@@ -13,6 +13,8 @@ export { ChoreMemo } from './components/ChoreMemo';
 export { ChoreFormActions } from './components/ChoreFormActions';
 
 export { ChoreDeleteModal } from './components/ChoreDeleteModal';
+export { ChoreCancelModal } from './components/ChoreCancelModal';
+export { ChoreSaveModal } from './components/ChoreSaveModal';
 
 export {
   useChores,

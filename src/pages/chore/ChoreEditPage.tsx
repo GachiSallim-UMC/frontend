@@ -10,6 +10,8 @@ import {
   useUpdateChore,
   useRemoveChore,
   ChoreDeleteModal,
+  ChoreSaveModal,
+  ChoreCancelModal,
 } from '@/features/chore';
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
@@ -27,6 +29,8 @@ export const ChoreEditPage = () => {
   const { formData, updateField, getUpdateDto } = useChoreForm();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const userOptions =
     members?.map(member => ({
@@ -67,23 +71,38 @@ export const ChoreEditPage = () => {
     });
   };
 
-  const handleSave = () => {
+  const handleSaveClick = () => {
+    const dto = getUpdateDto();
+    if (!dto || !id) return;
+    setIsSaveModalOpen(true);
+  };
+
+  const handleConfirmSave = () => {
     const dto = getUpdateDto();
     if (!dto || !id) return;
 
     updateMutation.mutate(
       { id, dto },
       {
-        onSuccess: () => navigate('/chores'),
-        onError: () => alert('수정에 실패했습니다. 다시 시도해 주세요.'),
+        onSuccess: () => {
+          setIsSaveModalOpen(false);
+          navigate('/chores');
+        },
+        onError: () => {
+          alert('수정에 실패했습니다. 다시 시도해 주세요.');
+          setIsSaveModalOpen(false);
+        },
       },
     );
   };
 
-  const handleCancel = () => {
-    if (confirm('수정을 취소하시겠습니까? 변경 사항이 저장되지 않습니다.')) {
-      navigate(-1);
-    }
+  const handleCancelClick = () => {
+    setIsCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setIsCancelModalOpen(false);
+    navigate(-1);
   };
 
   const handleDeleteClick = () => {
@@ -141,8 +160,8 @@ export const ChoreEditPage = () => {
       />
       <ChoreMemo value={formData.memo} onChange={memo => updateField({ memo })} />
       <ChoreFormActions
-        onSave={handleSave}
-        onCancel={handleCancel}
+        onSave={handleSaveClick}
+        onCancel={handleCancelClick}
         onDelete={handleDeleteClick}
         isSubmitting={updateMutation.isPending || deleteMutation.isPending}
       />
@@ -152,6 +171,18 @@ export const ChoreEditPage = () => {
         onConfirm={handleConfirmDelete}
         choreName={choreData.title}
         isDeleting={deleteMutation.isPending}
+      />
+      <ChoreSaveModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={handleConfirmSave}
+        choreName={formData.title || choreData.title}
+        isSaving={updateMutation.isPending}
+      />
+      <ChoreCancelModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancel}
       />
     </div>
   );
