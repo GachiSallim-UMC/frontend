@@ -48,7 +48,7 @@ export const ChoreDeleteModal = ({
           size="lg"
           isLoading={isDeleting}
           onClick={onConfirm}
-          className="flex-1 !bg-red-700 !border-red-700 hover:!bg-red-800"
+          className="flex-1 !bg-red-700 !border-red-700 hover:!bg-red-500"
         >
           삭제
         </Button>
