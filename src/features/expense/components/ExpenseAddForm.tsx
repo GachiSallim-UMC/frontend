@@ -51,6 +51,7 @@ interface ExpenseAddFormProps {
   onCancel?: () => void;
   isEditMode?: boolean;
   expenseId?: string;
+  receiptUrl?: string;
 }
 
 export const ExpenseAddForm = ({
@@ -64,6 +65,7 @@ export const ExpenseAddForm = ({
   onCancel,
   isEditMode = false,
   expenseId,
+  receiptUrl,
 }: ExpenseAddFormProps) => {
   const [currentExpenseId, setCurrentExpenseId] = useState<string | undefined>(expenseId);
   const { shareExpense, isSharing } = useShareExpense();
@@ -132,6 +134,7 @@ export const ExpenseAddForm = ({
     onSave: handleFormSave,
     isEditMode,
     expenseId,
+    receiptUrl,
   });
 
   const settlementAmounts = useSettlementAmounts({
