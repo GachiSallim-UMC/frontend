@@ -78,7 +78,7 @@ export function toExpense(rawResponse: unknown): Expense {
     splitType: (raw.splitType as Expense['splitType']) ?? 'EQUAL',
     category: (raw.category as ExpenseCategory) ?? 'ETC',
     status: toExpenseStatus(raw.status as string),
-    shares,
+    shares: shares ?? [],
     memo: (raw.memo as string) ?? undefined,
   } as Expense;
 }

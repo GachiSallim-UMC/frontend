@@ -1,8 +1,9 @@
 export type ShareCardType = 'expense' | 'chore' | 'item' | 'rule';
 
 export interface ChatShareCardDetail {
+  /** value 없으면 한 줄 표시, 있으면 좌우 2단(라벨/값) 표시 */
   label: string;
-  value: string;
+  value?: string;
 }
 
 export interface ChatShareCard {
@@ -26,6 +27,8 @@ export interface ChatMessage {
   isMine: boolean;
   content?: string;
   shareCard?: ChatShareCard;
+  /** 카드가 참조하는 원본 도메인 항목 id (상세 보강용) */
+  refId?: string;
 }
 
 export type ChatRoomCategory = 'group' | 'notice' | 'dm';

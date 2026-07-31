@@ -1,17 +1,28 @@
 import { UserAvatar } from '@/shared/components/ui/UserAvatar';
 import { ShareCard } from '@/features/messenger/components/ShareCard';
 import { cn } from '@/shared/lib/cn';
-import type { ChatMessage, ChatShareCard } from '@/features/messenger/types';
+import type { ChatMessage } from '@/features/messenger/types';
 
 interface ChatBubbleProps {
   senderName: string;
   senderAvatarUrl?: string;
   isMine?: boolean;
   items: ChatMessage[];
-  onViewShareDetail?: (shareCard: ChatShareCard) => void;
+  onViewShareDetail?: (message: ChatMessage) => void;
+  onShareAction?: (message: ChatMessage) => void;
+  /** 공유 카드 액션 버튼 처리 중인 메시지 id 목록 (연타 방지용 disabled 처리) */
+  pendingShareActionIds?: Set<string>;
 }
 
-export const ChatBubble = ({ senderName, senderAvatarUrl, isMine = false, items, onViewShareDetail }: ChatBubbleProps) => {
+export const ChatBubble = ({
+  senderName,
+  senderAvatarUrl,
+  isMine = false,
+  items,
+  onViewShareDetail,
+  onShareAction,
+  pendingShareActionIds,
+}: ChatBubbleProps) => {
   return (
     <div className={cn('flex w-full max-w-[50%] min-w-0 items-start gap-2.5', isMine && 'ml-auto flex-row-reverse')}>
       <UserAvatar name={senderName} avatarUrl={senderAvatarUrl} size="lg" className="h-11 w-11 shrink-0" />
@@ -25,7 +36,12 @@ export const ChatBubble = ({ senderName, senderAvatarUrl, isMine = false, items,
           return (
             <div key={item.id} className={cn('flex min-w-0 items-end gap-3', isMine && 'flex-row-reverse')}>
               {shareCard ? (
-                <ShareCard {...shareCard} onViewDetail={() => onViewShareDetail?.(shareCard)} />
+                <ShareCard
+                  {...shareCard}
+                  onViewDetail={() => onViewShareDetail?.(item)}
+                  onAction={() => onShareAction?.(item)}
+                  isActionPending={pendingShareActionIds?.has(item.id)}
+                />
               ) : (
                 <div
                   className={cn(

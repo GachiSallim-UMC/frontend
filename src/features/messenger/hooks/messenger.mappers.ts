@@ -58,11 +58,7 @@ const CARD_TYPE_TO_SHARE_TYPE: Record<CardMessageTypeDto, ChatShareCard['type']>
   CARD_RULE: 'rule',
 };
 
-/**
- * 카드 메시지를 화면에 표시할 ChatShareCard로 변환.
- * expense/item/rule 도메인이 아직 백엔드 연동 전이라 refId로 실제 상세(금액 분담 등)를
- * 조회할 수 없음 — 지금은 타입 라벨 + 메시지 텍스트만으로 단순하게 표시.
- */
+/** 카드 메시지 → ChatShareCard (타입 라벨만, 상세 내용은 pages/messenger에서 보강) */
 const toShareCard = (dto: MessageResponse, cardType: CardMessageTypeDto): ChatShareCard => ({
   type: CARD_TYPE_TO_SHARE_TYPE[cardType],
   title: CARD_TYPE_LABEL[cardType],
@@ -97,6 +93,7 @@ export const toChatMessage = (
     isMine: dto.senderId === currentUserId,
     content: cardType ? undefined : dto.content || undefined,
     shareCard: cardType ? toShareCard(dto, cardType) : undefined,
+    refId: cardType ? (dto.refId ?? undefined) : undefined,
   };
 };
 
