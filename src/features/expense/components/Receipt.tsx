@@ -48,7 +48,7 @@ export const Receipt = ({ imageUrl, onImageChange, disabled = false }: ReceiptPr
             이미지 교체
           </button>
           {disabled && (
-            <p className='text-caption text-red-500 text-center'>
+            <p className='text-caption text-red-700 text-center'>
               정산 후에는 이미지 교체가 불가능합니다.
             </p>
           )}
