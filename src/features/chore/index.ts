@@ -24,6 +24,7 @@ export {
 export { useWeekCalendar } from './hooks/useWeekCalendar';
 export { useChoreRepeat } from './hooks/useChoreRepeat';
 export { useChoreForm } from './hooks/useChoreForm';
+export { getChoreTargetDateStr, getChoreUIStatus } from './hooks/useChoreStatus';
 
 export { choreApi } from './api/chore.api';
 

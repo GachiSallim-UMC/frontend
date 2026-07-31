@@ -7,8 +7,9 @@ import {
   useChores,
   useCompleteChore,
   useIncompleteChore,
+  getChoreUIStatus,
 } from '@/features/chore';
-import type { Chore, ChoreFilter, RepeatType } from '@/features/chore';
+import type { Chore, ChoreFilter, RepeatType, ChoreApiStatus } from '@/features/chore';
 import { useGroupStore } from '@/shared/store';
 import { useGroupMembers } from '@/features/member';
 
@@ -20,8 +21,12 @@ const REPEAT_TYPE_FROM_FILTER: Record<NonNullable<ChoreFilter['repeatType']>, Re
   CUSTOM: 'custom',
 };
 
+type ExtendedChoreFilter = Omit<ChoreFilter, 'status'> & {
+  status?: ChoreApiStatus | 'SCHEDULED' | 'ALL';
+};
+
 export const ChoreListPage = () => {
-  const [filter, setFilter] = useState<ChoreFilter>({});
+  const [filter, setFilter] = useState<ExtendedChoreFilter>({});
   const navigate = useNavigate();
   const completeMutation = useCompleteChore();
   const incompleteMutation = useIncompleteChore();
@@ -29,11 +34,17 @@ export const ChoreListPage = () => {
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
 
+  const apiStatus = useMemo(() => {
+    if (filter.status === 'SCHEDULED') return 'PENDING';
+    if (filter.status === 'ALL') return undefined;
+    return filter.status as ChoreApiStatus | undefined;
+  }, [filter.status]);
+
   const { data: chores = [] } = useChores(
     groupId && Number.isSafeInteger(groupId)
       ? {
           groupId,
-          status: filter.status,
+          status: apiStatus,
           assigneeId: filter.assigneeId,
         }
       : undefined,
@@ -56,17 +67,24 @@ export const ChoreListPage = () => {
     const keyword = filter.keyword?.trim().toLocaleLowerCase();
     const repeatType = filter.repeatType ? REPEAT_TYPE_FROM_FILTER[filter.repeatType] : undefined;
 
-    return chores.filter(
-      chore =>
-        (!keyword || chore.name.toLocaleLowerCase().includes(keyword)) &&
-        (!repeatType || chore.repeatType === repeatType),
-    );
-  }, [chores, filter.keyword, filter.repeatType]);
+    return chores.filter(chore => {
+      const matchesKeyword = !keyword || chore.name.toLocaleLowerCase().includes(keyword);
+      const matchesRepeat = !repeatType || chore.repeatType === repeatType;
+
+      let matchesStatus = true;
+      if (filter.status && filter.status !== 'ALL') {
+        const uiStatus = getChoreUIStatus(chore).toUpperCase();
+        matchesStatus = uiStatus === filter.status;
+      }
+
+      return matchesKeyword && matchesRepeat && matchesStatus;
+    });
+  }, [chores, filter.keyword, filter.repeatType, filter.status]);
 
   const handleEdit = (chore: Chore) => navigate(`/chores/${chore.id}/edit`);
 
   const handleToggleComplete = (chore: Chore) => {
-    if (chore.status === 'done') {
+    if (getChoreUIStatus(chore) === 'done') {
       // 이미 완료 상태면 -> 미완료 처리 API 호출
       incompleteMutation.mutate(String(chore.id), {
         onError: error => {
@@ -87,7 +105,11 @@ export const ChoreListPage = () => {
 
   return (
     <div className="mt-[28px] flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
-      <ChoreFilterBar filter={filter} onFilterChange={setFilter} groupMembers={mappedMembers} />
+      <ChoreFilterBar
+        filter={filter as ChoreFilter}
+        onFilterChange={f => setFilter(f as ExtendedChoreFilter)}
+        groupMembers={mappedMembers}
+      />
       <div className="w-full">
         <ChoreCalendarView chores={filteredChores} />
       </div>
