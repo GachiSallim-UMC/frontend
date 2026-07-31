@@ -13,7 +13,7 @@ import {
 } from '@/features/expense';
 import { memberApi } from '@/features/member';
 import { requireSelectedGroupId } from '@/shared/api';
-import { useAuthStore } from '@/shared/store';
+import { useAuthStore, useErrorStore } from '@/shared/store';
 import type { User } from '@/shared/types';
 
 interface ExpenseDetailPageProps {
@@ -144,18 +144,30 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
       setReceiptObjectKey(objectKey);
     } catch (err) {
       console.error('영수증 업로드 실패:', err);
-      alert('영수증 업로드에 실패했습니다.');
+      useErrorStore.getState().showError({
+        title: '오류',
+        message: '영수증 업로드에 실패했습니다.',
+      });
     } finally {
       setIsReceiptUploading(false);
     }
   };
 
-  const handleSave = (newExpense: Expense) => {
+  const handleSave = async (newExpense: Expense) => {
     setSavedExpense(enrichExpenseWithMembers(newExpense, members));
     setIsSubmitted(true);
 
     if (!id) {
       navigate(`/expenses/${newExpense.id}`, { replace: true });
+    }
+
+    if (receiptObjectKey) {
+      try {
+        const viewUrl = await getReceiptViewUrl(newExpense.id);
+        setReceiptViewUrl(viewUrl);
+      } catch (err) {
+        console.error('영수증 조회 URL 갱신 실패:', err);
+      }
     }
   };
 
@@ -197,12 +209,17 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
                     imageUrl={receiptViewUrl}
                     onImageChange={handleReceiptChange}
                     disabled={isReceiptUploading || savedExpense.status === 'paid'}
+                    isUploading={isReceiptUploading}
                   />
                   <SettlementPreviewCard expense={savedExpense} currentUserId={currentUserId} />
                 </>
               ) : (
                 <>
-                  <Receipt onImageChange={handleReceiptChange} disabled={isReceiptUploading} />
+                  <Receipt
+                    onImageChange={handleReceiptChange}
+                    disabled={isReceiptUploading}
+                    isUploading={isReceiptUploading}
+                  />
                   <SettlementPreviewCard currentUserId={currentUserId} />
                 </>
               )}
