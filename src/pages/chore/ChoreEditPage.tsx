@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChoreBasicInfo,
@@ -9,6 +9,7 @@ import {
   useChoreForm,
   useUpdateChore,
   useRemoveChore,
+  ChoreDeleteModal,
 } from '@/features/chore';
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
@@ -24,6 +25,8 @@ export const ChoreEditPage = () => {
   const updateMutation = useUpdateChore();
   const deleteMutation = useRemoveChore();
   const { formData, updateField, getUpdateDto } = useChoreForm();
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const userOptions =
     members?.map(member => ({
@@ -83,17 +86,23 @@ export const ChoreEditPage = () => {
     }
   };
 
-  const handleDelete = () => {
+  const handleDeleteClick = () => {
     if (!id) return;
-    if (confirm('정말 이 집안일을 삭제하시겠습니까?')) {
-      deleteMutation.mutate(id, {
-        onSuccess: () => {
-          alert('삭제되었습니다.');
-          navigate('/chores');
-        },
-        onError: () => alert('삭제에 실패했습니다. 다시 시도해 주세요.'),
-      });
-    }
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!id) return;
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
+        setIsDeleteModalOpen(false);
+        navigate('/chores');
+      },
+      onError: () => {
+        alert('삭제에 실패했습니다. 다시 시도해 주세요.');
+        setIsDeleteModalOpen(false);
+      },
+    });
   };
 
   if (isLoading) {
@@ -134,8 +143,15 @@ export const ChoreEditPage = () => {
       <ChoreFormActions
         onSave={handleSave}
         onCancel={handleCancel}
-        onDelete={handleDelete}
+        onDelete={handleDeleteClick}
         isSubmitting={updateMutation.isPending || deleteMutation.isPending}
+      />
+      <ChoreDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        choreName={choreData.title}
+        isDeleting={deleteMutation.isPending}
       />
     </div>
   );

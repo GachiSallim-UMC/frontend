@@ -12,6 +12,8 @@ export { ChoreRepeat } from './components/ChoreRepeat';
 export { ChoreMemo } from './components/ChoreMemo';
 export { ChoreFormActions } from './components/ChoreFormActions';
 
+export { ChoreDeleteModal } from './components/ChoreDeleteModal';
+
 export {
   useChores,
   useChoreFromList,
