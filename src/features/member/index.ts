@@ -28,6 +28,8 @@ export {
   useRemoveGroupMember,
   useGroupPermissions,
   useUpdateGroupPermissions,
+  useInviteInfo,
+  useGroupDetail,
 } from './hooks/useGroupMutations';
 
 export { memberApi } from './api/member.api';
@@ -48,6 +50,7 @@ export type {
   UpdateMemberRoleDto,
   GroupPermissionsResponse,
   UpdateGroupPermissionsDto,
+  InviteInfoResponse,
 } from './types/member.types';
 
 export { RESIDENCE_OPTIONS } from './constants/member.constants';

@@ -6,17 +6,24 @@ import {
   PermissionSettings,
   WarningModal,
   useDeleteGroup,
+  useUpdateGroup,
+  useGroupDetail,
 } from '@/features/member';
 import { Button } from '@/shared/components';
 import CrossIcon from '@/assets/icons/member/cross.svg?react';
 import { useGroupStore } from '@/shared/store';
+import { authApi } from '@/features/auth';
 
 export const MemberSettingPage = () => {
   const navigate = useNavigate();
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
 
   const deleteGroupMutation = useDeleteGroup();
+  const updateGroupMutation = useUpdateGroup();
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
+
+  const { data: groupDetail } = useGroupDetail(selectedGroupId ?? undefined);
+  const currentGroupImage = groupDetail?.groupImage;
 
   const handleWithdrawClick = () => {
     setIsWithdrawalModalOpen(true);
@@ -43,6 +50,33 @@ export const MemberSettingPage = () => {
         setIsWithdrawalModalOpen(false);
       },
     });
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedGroupId || !groupDetail) return;
+
+    try {
+      const uploadData = await authApi.getUploadUrl({
+        contentType: file.type,
+        fileSize: file.size,
+      });
+
+      const uploadedImageUrl = await authApi.uploadToS3(uploadData, file);
+
+      updateGroupMutation.mutate({
+        groupId: selectedGroupId,
+        body: {
+          name: groupDetail.name,
+          description: groupDetail.description,
+          maxMembers: groupDetail.maxMembers,
+          groupImage: uploadedImageUrl,
+        },
+      });
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
+      alert('이미지 변경에 실패했습니다.');
+    }
   };
 
   return (

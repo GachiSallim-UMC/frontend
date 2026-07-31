@@ -4,6 +4,7 @@ import { Button, FormInput, SelectDropdown } from '@/shared/components';
 import { memberApi } from '@/features/member/api/member.api';
 import { useUpdateGroup } from '../../hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
+import { authApi } from '@/features/auth';
 
 import CameraIcon from '@/assets/icons/member/camera.svg?react';
 import UploadIcon from '@/assets/icons/member/upload.svg?react';
@@ -19,6 +20,9 @@ export const GroupBasicInfo = () => {
   const [maxMemberCount, setMaxMemberCount] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [groupImage, setGroupImage] = useState<string | null>(null);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: groupData, refetch } = useQuery({
@@ -38,6 +42,7 @@ export const GroupBasicInfo = () => {
       setGroupName(groupData.name || '');
       setMaxMemberCount(String(groupData.maxMembers || ''));
       setDescription(groupData.description || '');
+      setGroupImage(groupData.groupImage || null);
     }
   }, [groupData]);
 
@@ -63,23 +68,24 @@ export const GroupBasicInfo = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setGroupImage(imageUrl);
-      // TODO: 파일 업로드 API가 있다면 여기서 mutation 호출
+      setSelectedFile(file);
+      setGroupImage(URL.createObjectURL(file));
     }
   };
 
   const handleDefaultAvatarSelect = () => {
     setIsMenuOpen(false);
     setGroupImage(null);
+    setSelectedFile(null);
   };
 
   const handleImageDelete = () => {
     setIsMenuOpen(false);
     setGroupImage(null);
+    setSelectedFile(null);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedGroupId) return;
 
     if (!groupName.trim()) {
@@ -87,24 +93,45 @@ export const GroupBasicInfo = () => {
       return;
     }
 
-    updateGroupMutation.mutate(
-      {
-        groupId: selectedGroupId,
-        body: {
-          name: groupName,
-          description: description,
-          maxMembers: Number(maxMemberCount),
+    let finalGroupImageUrl = groupImage;
+
+    try {
+      if (selectedFile) {
+        setIsUploading(true);
+        const uploadData = await authApi.getUploadUrl({
+          contentType: selectedFile.type,
+          fileSize: selectedFile.size,
+        });
+        finalGroupImageUrl = await authApi.uploadToS3(uploadData, selectedFile);
+      }
+
+      updateGroupMutation.mutate(
+        {
+          groupId: selectedGroupId,
+          body: {
+            name: groupName,
+            description: description,
+            maxMembers: Number(maxMemberCount),
+            groupImage: finalGroupImageUrl,
+          },
         },
-      },
-      {
-        onSuccess: () => {
-          alert('그룹 정보가 수정되었습니다.');
+        {
+          onSuccess: () => {
+            alert('그룹 정보가 수정되었습니다.');
+            setSelectedFile(null);
+            setIsUploading(false);
+          },
+          onError: () => {
+            alert('그룹 정보 수정에 실패했습니다.');
+            setIsUploading(false);
+          },
         },
-        onError: () => {
-          alert('그룹 정보 수정에 실패했습니다.');
-        },
-      },
-    );
+      );
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
+      alert('이미지 저장 중 오류가 발생했습니다.');
+      setIsUploading(false);
+    }
   };
 
   const handleCopyCode = () => {
@@ -239,7 +266,7 @@ export const GroupBasicInfo = () => {
             onClick={handleSave}
             variant="primary"
             className="w-32 shrink-0 font-bold h-[50px]"
-            isLoading={updateGroupMutation.isPending}
+            isLoading={updateGroupMutation.isPending || isUploading}
           >
             저장
           </Button>

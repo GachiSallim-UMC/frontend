@@ -58,6 +58,7 @@ export interface Group {
   memberCount: number;
   members: User[];
   ownerId: string;
+  groupImage?: string | null;
 }
 
 export interface AddGroupDto {
@@ -80,6 +81,7 @@ export interface MemberGroupResponse {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
+  groupImage?: string | null;
 }
 
 /**그룹 생성 */
@@ -88,6 +90,7 @@ export interface CreateGroupDto {
   description?: string | null;
   maxMembers?: number;
   permissions?: PermissionType[];
+  groupImage?: string | null;
 }
 
 /**초대 코드로 그룹 참여*/
@@ -117,3 +120,11 @@ export interface GroupPermissionsResponse {
 export type UpdateGroupPermissionsDto = Partial<
   Omit<GroupPermissionsResponse, 'groupId' | 'updatedAt'>
 >;
+
+/**초대 코드 미리보기 응답 */
+export interface InviteInfoResponse {
+  name: string;
+  description: string;
+  currentMembers: number;
+  maxMembers: number;
+}
