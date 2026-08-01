@@ -7,6 +7,7 @@ interface WarningModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
+    isWithdrawing?: boolean;
 }
 
 const WITHDRAWAL_AGREE_OPTIONS = [
@@ -16,7 +17,7 @@ const WITHDRAWAL_AGREE_OPTIONS = [
   },
 ];
 
-export const WarningModal = ({isOpen, onClose, onConfirm}: WarningModalProps) => {
+export const WarningModal = ({isOpen, onClose, onConfirm, isWithdrawing}: WarningModalProps) => {
     const [checkedValues, setCheckedValues] = useState<string[]>([]);
     const [inputValue, setInputValue] = useState('');
 
@@ -79,6 +80,7 @@ export const WarningModal = ({isOpen, onClose, onConfirm}: WarningModalProps) =>
                     value={inputValue}
                     onChange={handleInputChange}
                     placeholder="회원탈퇴 입력"
+                    disabled={isWithdrawing}
                 />
                 <p className="text-sm font-medium text-gray-400">문구가 정확히 일치해야 탈퇴 버튼이 활성화돼요.</p>
             </div>
@@ -88,7 +90,7 @@ export const WarningModal = ({isOpen, onClose, onConfirm}: WarningModalProps) =>
                 <Button
                     variant="primary"
                     size="lg"
-                    disabled={!isValid}
+                    disabled={!isValid || isWithdrawing}
                     onClick={onConfirm}
                     className="flex-[2] !border-red-700 !bg-red-700 hover:!bg-red-800"
                 >
@@ -98,6 +100,7 @@ export const WarningModal = ({isOpen, onClose, onConfirm}: WarningModalProps) =>
                 <Button
                     variant="secondary"
                     size="lg"
+                    disabled={isWithdrawing}
                     onClick={onClose}
                     className="flex-1 !border-gray-200 !bg-gray-200 hover:!bg-gray-300"
                 >

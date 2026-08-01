@@ -7,3 +7,12 @@ export {SystemSetting} from './components/SystemSetting'
 export {WarningModal} from './components/WarningModal'
 
 export type {ThemeValue, LanguageValue, TimezoneValue, StartDayValue, DateFormatValue, FontSizeValue} from '@/features/mypage/types/mypage.types'
+
+export type {
+    UpdateProfileDto,
+    UploadUrlRequestDto,
+    UploadUrlResponse,
+    NotificationPreferencesDto
+} from './types/mypage.types'
+
+export {myPageApi} from './api/myPage.api'
