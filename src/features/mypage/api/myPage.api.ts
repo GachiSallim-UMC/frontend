@@ -34,11 +34,11 @@ export const myPageApi = {
     
   updateProfile: async (dto: UpdateProfileDto) => {
     const { data } = await apiClient.patch('/auth/profile', dto); // BASE 의존 없이 직접 작성
-    return data.data;
+    return data;
   },
   getUploadUrl: async (dto: UploadUrlRequestDto): Promise<UploadUrlResponse> => {
     const { data } = await apiClient.post('/auth/profile-image/upload-url', dto);
-    return data.data;
+    return data;
   },
 
   // S3 파일 업로드
