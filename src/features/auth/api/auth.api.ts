@@ -6,7 +6,8 @@ import type {
   SignupDto,
   SocialFormDto,
   ForgotPasswordDto,
-  SignupConfirmDto } from '../types/auth.type';
+  SignupConfirmDto,
+  ResetPasswordDto } from '../types/auth.type';
 import type { 
     UpdateProfileDto,
     UploadUrlRequestDto,
