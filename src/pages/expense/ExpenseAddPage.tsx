@@ -6,11 +6,14 @@ import {
   Receipt,
   SettlementPreviewCard,
   getExpenseById,
+  requestReceiptUploadUrl,
+  uploadReceiptToS3,
+  getReceiptViewUrl,
   type Expense,
 } from '@/features/expense';
 import { memberApi } from '@/features/member';
 import { requireSelectedGroupId } from '@/shared/api';
-import { useAuthStore } from '@/shared/store';
+import { useAuthStore, useErrorStore } from '@/shared/store';
 import type { User } from '@/shared/types';
 
 interface ExpenseDetailPageProps {
@@ -33,7 +36,6 @@ function enrichExpenseWithMembers(expense: Expense, memberList: User[]): Expense
 export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const isEditMode = !!id;
 
   const currentUserId = useAuthStore((state) => state.userId ?? undefined);
 
@@ -41,8 +43,14 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   const [membersLoading, setMembersLoading] = useState<boolean>(true);
 
   const [savedExpense, setSavedExpense] = useState<Expense | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState<boolean>(isEditMode);
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(isEditMode);
+  const [isLoading, setIsLoading] = useState<boolean>(!!id);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(!!id);
+
+  const isEditMode = !!id || !!savedExpense;
+
+  const [receiptObjectKey, setReceiptObjectKey] = useState<string | undefined>(undefined);
+  const [receiptViewUrl, setReceiptViewUrl] = useState<string | undefined>(undefined);
+  const [isReceiptUploading, setIsReceiptUploading] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -103,16 +111,71 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     };
   }, [id, membersLoading, members]);
 
-  const handleSave = (newExpense: Expense) => {
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchReceiptViewUrl = async () => {
+      if (!savedExpense?.id) return;
+      try {
+        const viewUrl = await getReceiptViewUrl(savedExpense.id);
+        if (isMounted) setReceiptViewUrl(viewUrl);
+      } catch (err) {
+        console.error('영수증 이미지 조회 실패:', err);
+      }
+    };
+
+    fetchReceiptViewUrl();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [savedExpense?.id]);
+
+  const handleReceiptChange = async (file: File) => {
+    setIsReceiptUploading(true);
+    try {
+      const groupId = requireSelectedGroupId();
+      const { uploadUrl, fields, objectKey } = await requestReceiptUploadUrl({
+        groupId: Number(groupId),
+        contentType: file.type as 'image/jpeg' | 'image/png' | 'image/webp',
+        fileSize: file.size,
+      });
+      await uploadReceiptToS3(uploadUrl, fields, file);
+      setReceiptObjectKey(objectKey);
+    } catch (err) {
+      console.error('영수증 업로드 실패:', err);
+      useErrorStore.getState().showError({
+        title: '오류',
+        message: '영수증 업로드에 실패했습니다.',
+      });
+    } finally {
+      setIsReceiptUploading(false);
+    }
+  };
+
+  const handleSave = async (newExpense: Expense) => {
     setSavedExpense(enrichExpenseWithMembers(newExpense, members));
     setIsSubmitted(true);
+
+    if (!id) {
+      navigate(`/expenses/${newExpense.id}`, { replace: true });
+    }
+
+    if (receiptObjectKey) {
+      try {
+        const viewUrl = await getReceiptViewUrl(newExpense.id);
+        setReceiptViewUrl(viewUrl);
+      } catch (err) {
+        console.error('영수증 조회 URL 갱신 실패:', err);
+      }
+    }
   };
 
   const handleCancel = () => {
     navigate(-1);
   };
 
-  if (isEditMode && isLoading) {
+  if (id && isLoading) {
     return (
       <div className='flex justify-center items-center w-full flex-1 min-h-[300px] lg:min-h-[400px] text-gray-400'>
         지출 정보를 불러오는 중...
@@ -133,7 +196,8 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
                 onSave={handleSave}
                 onCancel={handleCancel}
                 isEditMode={isEditMode}
-                expenseId={id}
+                expenseId={savedExpense?.id ? String(savedExpense.id) : id}
+                receiptUrl={receiptObjectKey}
               />
             </div>
 
@@ -141,11 +205,23 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
               {isSubmitted && savedExpense ? (
                 <>
                   <ExpenseDetailCard expense={savedExpense} />
-                  <Receipt />
+                  <Receipt
+                    imageUrl={receiptViewUrl}
+                    onImageChange={handleReceiptChange}
+                    disabled={isReceiptUploading || savedExpense.status === 'paid'}
+                    isUploading={isReceiptUploading}
+                  />
                   <SettlementPreviewCard expense={savedExpense} currentUserId={currentUserId} />
                 </>
               ) : (
-                <SettlementPreviewCard currentUserId={currentUserId} />
+                <>
+                  <Receipt
+                    onImageChange={handleReceiptChange}
+                    disabled={isReceiptUploading}
+                    isUploading={isReceiptUploading}
+                  />
+                  <SettlementPreviewCard currentUserId={currentUserId} />
+                </>
               )}
             </div>
           </div>

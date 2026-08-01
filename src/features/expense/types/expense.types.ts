@@ -82,3 +82,22 @@ export interface UpdateExpenseDto {
   targetMemberIds?: ExpenseParticipant[];
   [key: string]: unknown;
 }
+
+/** 영수증 업로드 URL 발급 요청 DTO */
+export interface RequestReceiptUploadUrlDto {
+  groupId: number;
+  contentType: 'image/jpeg' | 'image/png' | 'image/webp';
+  fileSize: number;
+}
+
+/** 영수증 업로드 URL 발급 응답 */
+export interface ReceiptUploadUrlResponse {
+  uploadUrl: string;
+  fields: Record<string, string>;
+  objectKey: string;
+}
+
+/** 영수증 이미지 조회 URL 응답 */
+export interface ReceiptViewUrlResponse {
+  viewUrl: string;
+}
