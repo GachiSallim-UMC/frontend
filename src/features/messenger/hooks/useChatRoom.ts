@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import type {
   CARD_MESSAGE_TYPES,
   ChatFilter,
+  ChatMessage,
   ChatRoomCategory,
   ChatRoomMember,
   ChatShareCard,
   ShareCardType,
 } from '@/features/messenger/types';
+import { formatTimestamp } from './messenger.mappers';
 import { useChatMessages, useChatRoomDetail, useChatRooms } from './useChatRoomQueries';
 import { useChatSocket } from './useChatSocket';
 import {
@@ -88,6 +90,8 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   const [isDelegateOpen, setIsDelegateOpen] = useState(false);
   const [kickTarget, setKickTarget] = useState<ChatRoomMember | null>(null);
   const [transferOwnerTarget, setTransferOwnerTarget] = useState<ChatRoomMember | null>(null);
+  // 전송 중/실패 텍스트 메시지 (방 id별) — 서버가 확정하기 전까지 로컬에서만 관리
+  const [localMessagesByRoom, setLocalMessagesByRoom] = useState<Record<string, ChatMessage[]>>({});
 
   const { data: rooms, isLoading: isRoomsLoading } = useChatRooms(groupId);
   const { isConnected } = useChatSocket(groupId, activeRoomId);
@@ -139,7 +143,8 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
     .filter(room => !searchQuery.trim() || room.name.toLowerCase().includes(searchQuery.trim().toLowerCase()))
     .sort((a, b) => Number(b.isPinned) - Number(a.isPinned));
 
-  const messageGroups = groupMessagesBySender(messageItems);
+  const localMessages = localMessagesByRoom[activeRoomId] ?? [];
+  const messageGroups = groupMessagesBySender([...messageItems, ...localMessages]);
 
   const setActiveRoomId = (roomId: string) => {
     focusRoom(roomId);
@@ -147,11 +152,65 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
     setIsManagePanelOpen(false);
   };
 
+  // 로컬 전송 중/실패 메시지 patch — patch가 null이면 제거(전송 성공, 또는 사용자가 직접 삭제)
+  const patchLocalMessage = (roomId: string, clientId: string, patch: Partial<ChatMessage> | null) => {
+    setLocalMessagesByRoom(prev => {
+      const roomMessages = prev[roomId];
+      if (!roomMessages) return prev;
+      const next = patch
+        ? roomMessages.map(message => (message.id === clientId ? { ...message, ...patch } : message))
+        : roomMessages.filter(message => message.id !== clientId);
+      return { ...prev, [roomId]: next };
+    });
+  };
+
+  const buildOptimisticMessage = (roomId: string, content: string): ChatMessage => {
+    const me = activeRoom?.members.find(member => member.id === currentUserId);
+    return {
+      id: `local-${crypto.randomUUID()}`,
+      roomId,
+      senderId: currentUserId,
+      senderName: me?.name ?? '',
+      senderAvatarUrl: me?.avatarUrl,
+      timestamp: formatTimestamp(new Date().toISOString()),
+      isMine: true,
+      content,
+      status: 'pending',
+    };
+  };
+
   const sendMessage = () => {
     const content = draft.trim();
     if (!content || !activeRoomId) return;
-    sendMessageMutation.mutate({ roomId: activeRoomId, content });
+    const roomId = activeRoomId;
+    const optimisticMessage = buildOptimisticMessage(roomId, content);
+
+    setLocalMessagesByRoom(prev => ({ ...prev, [roomId]: [...(prev[roomId] ?? []), optimisticMessage] }));
     setDraft('');
+
+    sendMessageMutation.mutate(
+      { roomId, content },
+      {
+        onSuccess: () => patchLocalMessage(roomId, optimisticMessage.id, null),
+        onError: () => patchLocalMessage(roomId, optimisticMessage.id, { status: 'failed' }),
+      },
+    );
+  };
+
+  const retrySendMessage = (message: ChatMessage) => {
+    const roomId = message.roomId;
+    patchLocalMessage(roomId, message.id, { status: 'pending' });
+    sendMessageMutation.mutate(
+      { roomId, content: message.content ?? '' },
+      {
+        onSuccess: () => patchLocalMessage(roomId, message.id, null),
+        onError: () => patchLocalMessage(roomId, message.id, { status: 'failed' }),
+      },
+    );
+  };
+
+  const deleteFailedMessage = (message: ChatMessage) => {
+    patchLocalMessage(message.roomId, message.id, null);
   };
 
   const shareItem = (shareCard: ChatShareCard, refId: string) => {
@@ -275,6 +334,8 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
     draft,
     setDraft,
     sendMessage,
+    retrySendMessage,
+    deleteFailedMessage,
     activeShareType,
     openSharePicker: setActiveShareType,
     closeSharePicker: () => setActiveShareType(null),

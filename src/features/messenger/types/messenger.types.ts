@@ -29,6 +29,8 @@ export interface ChatMessage {
   shareCard?: ChatShareCard;
   /** 카드가 참조하는 원본 도메인 항목 id (상세 보강용) */
   refId?: string;
+  /** 로컬(옵티미스틱) 전용 — 서버가 확정한 메시지는 undefined */
+  status?: 'pending' | 'failed';
 }
 
 export type ChatRoomCategory = 'group' | 'notice' | 'dm';
