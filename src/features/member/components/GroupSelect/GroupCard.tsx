@@ -15,7 +15,7 @@ export const GroupCard = ({ group, onEnter }: GroupCardProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-gray-100 bg-white px-3 pt-6 pb-5">
-      <div className="mb-4 h-21 w-21">
+      <div className="mb-4 h-[86px] w-[86px] shrink-0 items-center justify-center">
         {group.groupImage ? (
           <img
             src={group.groupImage}
