@@ -94,7 +94,7 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   const [localMessagesByRoom, setLocalMessagesByRoom] = useState<Record<string, ChatMessage[]>>({});
 
   const { data: rooms, isLoading: isRoomsLoading } = useChatRooms(groupId);
-  const { isConnected } = useChatSocket(groupId, activeRoomId);
+  const { isConnected } = useChatSocket(groupId, activeRoomId, currentUserId);
   const { data: activeRoom } = useChatRoomDetail(activeRoomId || null, currentUserId);
 
   // 메시지 응답에 sender(닉네임/프로필사진)가 아직 없어서, 채팅방 멤버 목록으로 대체 조회할 때 쓴다.
