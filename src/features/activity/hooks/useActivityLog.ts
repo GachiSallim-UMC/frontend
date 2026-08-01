@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { REALTIME_POLL_INTERVAL_MS } from '@/shared/lib';
 import { activityApi } from '../api/activity.api';
 import { groupByDate, matchesPeriod } from '../lib/activityDate';
 import type { ActivityCategory, ActivityLog } from '../types/activity.type';
@@ -81,8 +82,9 @@ export const useActivityLog = () => {
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.data.length === PAGE_SIZE ? allPages.length + 1 : undefined,
-    // 활동 내역 페이지를 보고 있는 동안엔 다른 사용자의 활동도 반영되도록 폴링 (페이지를 벗어나면 자동으로 멈춤)
-    refetchInterval: 10000,
+    // 1페이지만 폴링 (여러 페이지 폴링 시 새 항목으로 경계가 밀려 중복 표시될 수 있음)
+    refetchInterval: query => (query.state.data?.pages.length === 1 ? REALTIME_POLL_INTERVAL_MS : false),
+    meta: { skipGlobalError: true }, // 에러는 isError로 인라인 표시하므로 전역 모달 생략
   });
 
   const logs = useMemo(() => data?.pages.flatMap(page => page.data) ?? [], [data]);
