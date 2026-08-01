@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import {SocialBadge, SocialProvider, SocialLoginInput, SocialFormDto } from '@/features/auth';
-import { authApi } from '@/features/auth';
+import {SocialBadge, SocialLoginInput, authApi } from '@/features/auth';
+import type {SocialProvider, SocialFormDto } from '@/features/auth';
 import { ApiError } from '@/shared/api';
 import { useErrorStore, useAuthStore } from '@/shared/store';
 
@@ -48,8 +48,6 @@ export const SocialLoginPage = () => {
                 nickname: formData.nickname
             }, accessToken);
 
-            console.log('가입 완료:', data);
-
             setSession({
                 accessToken,
                 idToken,
@@ -60,10 +58,18 @@ export const SocialLoginPage = () => {
 
             navigate('/group', { replace: true });
             
-        } catch (error: any) {
-            console.error('API Error:', error);
+        } catch (error: unknown) {
+            let status: number | undefined;
+            let errorMessage = '회원가입 처리 중 문제가 발생했습니다.';
 
-            const status = error?.response?.status || error?.status;
+            if (error instanceof ApiError) {
+                const e = error as ApiError & { status?: number };
+                status = e.status; 
+                errorMessage = e.message;
+            } else if (error instanceof Error) {
+                const e = error as Error & { status?: number; response?: { status?: number } };
+                status = e.status || e.response?.status;
+            }
 
             if (status === 409) {
                 showError({
@@ -76,10 +82,6 @@ export const SocialLoginPage = () => {
                     message: '잘못된 요청입니다. 입력하신 정보를 다시 확인해주세요.',
                 });
             } else {
-                const errorMessage = error instanceof ApiError 
-                    ? error.message 
-                    : '회원가입 처리 중 문제가 발생했습니다.';
-                
                 showError({
                     title: '오류 발생',
                     message: errorMessage,

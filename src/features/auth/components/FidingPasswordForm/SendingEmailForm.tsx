@@ -25,10 +25,16 @@ export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
             if (onSubmit) {
                 onSubmit(email);
             }
-        } catch (error: any) {
+        } catch (error: unknown) { 
+            let errorMessage = '가입된 이메일을 찾을 수 없거나 발송에 실패했습니다.';
+            if (error instanceof Error) {
+                const e = error as Error & { response?: { data?: { message?: string } } };
+                errorMessage = e.response?.data?.message || e.message;
+            }
+
             showError({
                 title: '이메일 발송 실패',
-                message: error.response?.data?.message || error.message || '가입된 이메일을 찾을 수 없거나 발송에 실패했습니다.',
+                message: errorMessage,
             });
         } finally {
             setIsSubmitting(false);

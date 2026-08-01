@@ -70,3 +70,8 @@ export interface ResetPasswordDto {
   confirmationCode: string;
   newPassword: string;
 }
+
+export interface ResetPasswordFormData {
+    newPassword: string;
+    newPasswordConfirm: string;
+}

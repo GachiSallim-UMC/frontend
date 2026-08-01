@@ -1,4 +1,4 @@
-import { FormEvent, ChangeEvent } from "react";
+import type { FormEvent, ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 import { FormInput, CheckboxGroup, Button } from "@/shared/components"
 import type { SocialFormDto } from "@/features/auth/types/auth.type"

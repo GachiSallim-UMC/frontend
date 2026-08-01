@@ -26,6 +26,7 @@ import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
 import { SocialLoginPage } from '@/pages/auth/SocialLoginPage';
 import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage';
+import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage';
 
 
 export const router = createBrowserRouter([
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
   { path: '/privacy', element: <PrivacyPage /> },
   { path: '/social-signup', element:<SocialLoginPage />},
   { path: '/auth/callback', element:<AuthCallbackPage />},
+  { path: '/reset-password', element:<ResetPasswordPage />},
   {
     element: <RequireAuth />,
     children: [
