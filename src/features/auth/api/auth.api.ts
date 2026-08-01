@@ -4,7 +4,10 @@ import type {
   LoginResponsePayload, 
   MeResponsePayload,
   SignupDto,
-  SignupConfirmDto } from '../types/auth.type';
+  SignupConfirmDto,
+  SocialFormDto,
+  ForgotPasswordDto,
+  ResetPasswordDto } from '../types/auth.type';
 
 const BASE = '/auth';
 
@@ -59,5 +62,21 @@ export const authApi = {
   },
   signupConfirm: async (dto: SignupConfirmDto): Promise<void> => {
     await apiClient.post(`${BASE}/signup/confirm`, dto);
+  },
+  socialSignup: async (dto: SocialFormDto, accessToken: string): Promise<MeResponsePayload> => {
+    const { data } = await apiClient.post<MeResponsePayload>(`${BASE}/social/signup`, dto, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    
+    if (!isMeResponsePayload(data)) {
+      throw new ApiError(502, 'INVALID_API_RESPONSE', '소셜 가입 응답 형식이 올바르지 않습니다.');
+    }
+    return data;
+  },
+  forgotPassword: async (dto: ForgotPasswordDto): Promise<void> => {
+    await apiClient.post(`${BASE}/password/forgot`, dto);
+  },
+  resetPassword: async (dto: ResetPasswordDto): Promise<void> => {
+    await apiClient.post(`${BASE}/password/reset`, dto);
   },
 };

@@ -14,6 +14,16 @@ export const LoginPage =() => {
         return <Navigate to="/group" replace />;
     }
 
+    const handleSocialLogin = (provider: 'Google' | 'Kakao') => {
+        const cognitoDomain = import.meta.env.VITE_COGNITO_DOMAIN_URL;
+        const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
+        const redirectUri = `${window.location.origin}/auth/callback`;
+
+        const authorizeUrl = `${cognitoDomain}/oauth2/authorize?client_id=${clientId}&response_type=code&scope=openid+email+profile+aws.cognito.signin.user.admin&redirect_uri=${redirectUri}&identity_provider=${provider}`;
+
+        window.location.href = authorizeUrl;
+    };
+
     return (
         // 배경
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
@@ -36,7 +46,7 @@ export const LoginPage =() => {
                     isSubmitting={isPending}
                     errorMessage={error instanceof ApiError ? error.message : undefined}
                 />
-                <SocialLoginForm />
+                <SocialLoginForm onLoginClick={handleSocialLogin}/>
 
                 <div className="mt-8 flex gap-6 text-base font-bold text-primary-500 justify-center">
                     <Link to="/signup" className="hover:underline">회원가입</Link>

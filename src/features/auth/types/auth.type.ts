@@ -48,3 +48,25 @@ export interface SignupConfirmDto {
   email: string;
   confirmationCode: string;
 }
+
+export interface SocialFormDto {
+    name: string;
+    nickname: string;
+}
+
+export const INITIAL_SOCIAL_FORM_DATA: SocialFormDto = {
+    name: '',
+    nickname: ''
+};
+
+export type SocialProvider = 'Kakao' | 'Google';
+
+export interface ForgotPasswordDto {
+  email: string;
+}
+
+export interface ResetPasswordDto {
+  email: string;
+  confirmationCode: string;
+  newPassword: string;
+}

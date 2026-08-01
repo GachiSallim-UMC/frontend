@@ -1,20 +1,37 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { FormInput, Button } from "@/shared/components"
-
+import { authApi } from "@/features/auth/api/auth.api"
+import { useErrorStore } from "@/shared/store";
 
 interface SendingEmailFormProps {
     onSubmit?: (email: string) => void;
 }
 
 export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
-    const [email, setEmail] = useState("")
-    ;
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
+    const [email, setEmail] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-        if (onSubmit) {
-            onSubmit(email);
+    const showError = useErrorStore((state) => state.showError);
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!email.trim() || isSubmitting) return;
+
+        setIsSubmitting(true);
+
+        try {
+            await authApi.forgotPassword({ email });
+            if (onSubmit) {
+                onSubmit(email);
+            }
+        } catch (error: any) {
+            showError({
+                title: '이메일 발송 실패',
+                message: error.response?.data?.message || error.message || '가입된 이메일을 찾을 수 없거나 발송에 실패했습니다.',
+            });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -34,9 +51,10 @@ export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
                     type="submit"
                     variant="primary"
                     size="md"
+                    disabled={!email.trim() || isSubmitting}
                     className="w-full h-14 font-bold"
                 >
-                재설정 링크 보내기  
+                    {isSubmitting ? '전송 중...' : '재설정 링크 보내기'}
                 </Button>
             </div>
         </form>
