@@ -81,6 +81,8 @@ export const useActivityLog = () => {
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.data.length === PAGE_SIZE ? allPages.length + 1 : undefined,
+    // 활동 내역 페이지를 보고 있는 동안엔 다른 사용자의 활동도 반영되도록 폴링 (페이지를 벗어나면 자동으로 멈춤)
+    refetchInterval: 10000,
   });
 
   const logs = useMemo(() => data?.pages.flatMap(page => page.data) ?? [], [data]);

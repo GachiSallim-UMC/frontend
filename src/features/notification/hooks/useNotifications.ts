@@ -13,6 +13,7 @@ export const useNotifications = () => {
   const [statusFilter, setStatusFilter] = useState('전체');
   const [categoryFilter, setCategoryFilter] = useState('전체');
 
+  // 알림 페이지를 보고 있는 동안엔 다른 사용자의 활동도 반영되도록 폴링 (페이지를 벗어나면 자동으로 멈춤)
   const {
     data: notifications = [],
     isLoading,
@@ -21,6 +22,7 @@ export const useNotifications = () => {
   } = useQuery({
     queryKey: NOTIFICATION_QUERY_KEYS.list(),
     queryFn: notificationApi.list,
+    refetchInterval: 10000,
   });
 
   const statusOptions = ['전체', '읽지 않음', '읽음'];
