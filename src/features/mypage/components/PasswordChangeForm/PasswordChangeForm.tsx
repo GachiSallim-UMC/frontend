@@ -1,15 +1,51 @@
 import { useState } from 'react';
 import { FormInput, Button } from '@/shared/components'
+import { useErrorStore } from '@/shared/store';
+import { myPageApi } from '@/features/mypage/api/myPage.api';
 
 export const PasswordChangeForm = () => {
+    const showError = useErrorStore((state) => state.showError);
+    
     const [currentPassword, setCurrentPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
+    
+    const [isLoading, setIsLoading] = useState<boolean>(false); 
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        // 필드 유효성 검사
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            alert('모든 비밀번호 필드를 입력해주세요.');
+            return;
+        }
+
+        // 비밀번호 일치 여부
         if (newPassword !== confirmPassword) {
-        alert('새 비밀번호가 일치하지 않습니다.');
-        return;
+            alert('새 비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            await myPageApi.changePassword(currentPassword, newPassword);
+
+            alert('비밀번호가 성공적으로 변경되었습니다.');
+            
+            // 입력창 초기화
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+            
+        } catch (error) {
+            console.error('비밀번호 변경 실패:', error);
+            
+            showError({
+                title: '비밀번호 변경 실패',
+                message: '비밀번호 변경에 실패했습니다. 현재 비밀번호가 맞는지 확인해 주세요.'
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -31,6 +67,7 @@ export const PasswordChangeForm = () => {
                         value={currentPassword} 
                         onChange={(e) => setCurrentPassword(e.target.value)} 
                         placeholder="현재 비밀번호"
+                        disabled={isLoading}
                     />
                 </div>
 
@@ -46,6 +83,7 @@ export const PasswordChangeForm = () => {
                             value={newPassword} 
                             onChange={(e) => setNewPassword(e.target.value)} 
                             placeholder="새 비밀번호"
+                            disabled={isLoading}
                             />
                     </div>
 
@@ -59,6 +97,7 @@ export const PasswordChangeForm = () => {
                             value={confirmPassword} 
                             onChange={(e) => setConfirmPassword(e.target.value)} 
                             placeholder="새 비밀번호 확인"
+                            disabled={isLoading}
                             />
                     </div>
                 </div>
@@ -70,8 +109,9 @@ export const PasswordChangeForm = () => {
                         size='md'
                         onClick={handleSave}
                         className='w-40'
+                        disabled={isLoading}
                     >
-                        저장
+                        {isLoading ? '저장 중...' : '저장'}
                     </Button>
                 </div>
             </div>

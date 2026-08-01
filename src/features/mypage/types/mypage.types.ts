@@ -12,3 +12,33 @@ export type NotificationType =
   | 'SETTLEMENT_REQUEST'
   | 'RULE_AGREEMENT_REQUEST'
   | 'GROUP_ACTIVITY_ALL';
+
+
+export interface UpdateProfileDto {
+  name: string;
+  nickname: string;
+  profileImage: string | null;
+}
+
+export interface UploadUrlRequestDto {
+  contentType: string;
+  fileSize: number;
+}
+
+export interface UploadUrlResponse {
+  uploadMethod: string;
+  uploadUrl: string;
+  fields: Record<string, string>;
+  objectKey: string;
+  profileImageUrl: string;
+  expiresAt: string;
+}
+
+export interface NotificationPreferencesDto {
+  choreDue: boolean;
+  supplyStatusChanged: boolean;
+  newMessage: boolean;
+  expenseRequest: boolean;
+  ruleAgreementRequest: boolean;
+  groupActivity: boolean;
+}
