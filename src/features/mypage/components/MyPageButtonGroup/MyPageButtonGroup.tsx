@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { WarningModal } from '@/features/mypage/components/WarningModal'
 import { Button } from '@/shared/components';
 import { useErrorStore } from '@/shared/store';
-import { authApi } from '@/features/auth';
+import {myPageApi} from '@/features/mypage/api/myPage.api'
 import { useLogout } from '@/features/auth';
 import LogoutIcon from "@/assets/icons/mypage/logout.svg?react"
 import CrossIcon from "@/assets/icons/mypage/cross.svg?react"
@@ -22,7 +22,7 @@ export const MyPageButtonGroup = () => {
     const handleConfirmWithdraw = async () => {
         setIsWithdrawing(true);
         try {
-            await authApi.withdraw();
+            await myPageApi.withdraw();
             alert('회원 탈퇴가 완료되었습니다.');
             setIsWithdrawalModalOpen(false);
 

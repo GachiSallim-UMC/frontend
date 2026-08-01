@@ -3,7 +3,7 @@ import { CheckboxGroup } from '@/shared/components';
 import { useErrorStore } from '@/shared/store';
 import { NOTIFICATION_LEFT_OPTIONS, NOTIFICATION_RIGHT_OPTIONS } from '@/features/mypage/types/mypage.constants';
 import type { NotificationPreferencesDto, NotificationType } from '@/features/mypage/types/mypage.types';
-import { notificationApi } from '@/features/notification';
+import { myPageApi } from '@/features/mypage/api/myPage.api';
 
 // 백엔드 객체 -> 프론트엔드 배열 변환
 const mapApiToState = (data: NotificationPreferencesDto): NotificationType[] => {
@@ -41,7 +41,7 @@ export const NotificationSettings = () => {
   useEffect(() => {
     const fetchPreferences = async () => {
       try {
-        const preferencesData = await notificationApi.getPreferences();
+        const preferencesData = await myPageApi.getNotificationPreferences();
         setSelectedAlerts(mapApiToState(preferencesData));
       } catch (error) {
         console.error('알림 설정 조회 실패 상세:', error);
@@ -65,7 +65,7 @@ export const NotificationSettings = () => {
     try {
       const payload = mapStateToApi(newSelectedAlerts);
     
-      await notificationApi.updatePreferences(payload);
+      await myPageApi.updateNotificationPreferences(payload);
     } catch (error) {
       console.error('알림 설정 업데이트 실패:', error);
       setSelectedAlerts(previousAlerts); // 롤백

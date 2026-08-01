@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FormInput, Button } from '@/shared/components'
 import { useErrorStore } from '@/shared/store';
-import { authApi } from '@/features/auth';
+import { myPageApi } from '@/features/mypage/api/myPage.api';
 
 export const PasswordChangeForm = () => {
     const showError = useErrorStore((state) => state.showError);
@@ -28,7 +28,7 @@ export const PasswordChangeForm = () => {
         setIsLoading(true);
 
         try {
-            await authApi.changePassword(currentPassword, newPassword);
+            await myPageApi.changePassword(currentPassword, newPassword);
 
             alert('비밀번호가 성공적으로 변경되었습니다.');
             

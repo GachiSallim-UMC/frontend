@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button, FormInput } from '@/shared/components';
-import { authApi } from '@/features/auth';
+import { myPageApi } from '@/features/mypage/api/myPage.api';
 import { useErrorStore } from '@/shared/store';
 import CameraIcon from "@/assets/icons/mypage/camera.svg?react"
 import UploadIcon from "@/assets/icons/mypage/upload.svg?react"
 import TrashIcon from "@/assets/icons/mypage/trash.svg?react"
 import ProfileIcon from "@/assets/icons/mypage/profile.svg?react"
+
 
 export const ProfileBasicInfo = () => {
     const showError = useErrorStore((state) => state.showError);
@@ -13,7 +14,7 @@ export const ProfileBasicInfo = () => {
     const [name, setName] = useState<string>('홍길동');
     const [nickname, setNickname] = useState<string>('길동');
     const [profileImage, setProfileImage] = useState<string | null>(null);
-    const email = 'hong@example.com'; 
+    const [email, setEmail] = useState<string>('hong@example.com');
 
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -24,13 +25,12 @@ export const ProfileBasicInfo = () => {
     useEffect(() => {
         const fetchMyProfile = async () => {
             try {
-                // 이전에 만들어두신 me API를 호출합니다.
-                const myData = await authApi.me(); 
+                const myData = await myPageApi.me(); 
                 
-                // 서버에서 받아온 진짜 내 정보로 State 업데이트
                 setName(myData.name);
                 setNickname(myData.nickname);
                 setProfileImage(myData.profileImage || null);
+                setEmail(myData.email);
             } catch (error) {
                 console.error('프로필 정보 불러오기 실패:', error);
             }
@@ -86,13 +86,13 @@ export const ProfileBasicInfo = () => {
             setIsLoading(true);
             
             // 서버에 Presigned URL 요청
-            const uploadUrlInfo = await authApi.getUploadUrl({
+            const uploadUrlInfo = await myPageApi.getUploadUrl({
                 contentType: file.type,
                 fileSize: file.size,
             });
 
             // S3에 파일 직접 업로드
-            const finalImageUrl = await authApi.uploadToS3(uploadUrlInfo, file);
+            const finalImageUrl = await myPageApi.uploadToS3(uploadUrlInfo, file);
 
             // 업로드 성공 시 화면 미리보기 업데이트
             setProfileImage(finalImageUrl);
@@ -136,7 +136,7 @@ export const ProfileBasicInfo = () => {
             setIsLoading(true);
             const payload = { name, nickname, profileImage };
             
-            const result = await authApi.updateProfile(payload);
+            const result = await myPageApi.updateProfile(payload);
             console.log('저장 완료 데이터:', result);
             alert('프로필이 성공적으로 저장되었습니다.');
         } catch (error) {

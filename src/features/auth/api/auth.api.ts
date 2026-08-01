@@ -68,13 +68,13 @@ export const authApi = {
   // 프로필 정보 업데이트
   updateProfile: async (dto: UpdateProfileDto) => {
     const { data } = await apiClient.patch(`${BASE}/profile`, dto);
-    return data.data;
+    return data;
   },
 
   // S3 업로드 URL 발급
   getUploadUrl: async (dto: UploadUrlRequestDto): Promise<UploadUrlResponse> => {
     const { data } = await apiClient.post(`${BASE}/profile-image/upload-url`, dto);
-    return data.data;
+    return data;
   },
 
   // S3 파일 업로드

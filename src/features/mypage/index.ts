@@ -14,3 +14,5 @@ export type {
     UploadUrlResponse,
     NotificationPreferencesDto
 } from './types/mypage.types'
+
+export {myPageApi} from './api/myPage.api'
