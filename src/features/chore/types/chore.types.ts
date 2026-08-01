@@ -153,3 +153,11 @@ export interface GetChoresParams {
   status?: ChoreApiStatus;
   assigneeId?: number;
 }
+
+export interface IncompleteChoreResponse {
+  choreId: number;
+  status: string;
+  completedBy: unknown | null;
+  completedAt: string | null;
+  removedNextOccurrenceIds: number[];
+}

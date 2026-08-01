@@ -6,6 +6,7 @@ import {
   ChoreTable,
   useChores,
   useCompleteChore,
+  useIncompleteChore,
 } from '@/features/chore';
 import type { Chore, ChoreFilter, RepeatType } from '@/features/chore';
 import { useGroupStore } from '@/shared/store';
@@ -22,6 +23,7 @@ export const ChoreListPage = () => {
   const [filter, setFilter] = useState<ChoreFilter>({});
   const navigate = useNavigate();
   const completeMutation = useCompleteChore();
+  const incompleteMutation = useIncompleteChore();
 
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
@@ -49,12 +51,23 @@ export const ChoreListPage = () => {
   const handleEdit = (chore: Chore) => navigate(`/chores/${chore.id}/edit`);
 
   const handleToggleComplete = (chore: Chore) => {
-    completeMutation.mutate(String(chore.id), {
-      onError: error => {
-        console.error('상태 변경 실패:', error);
-        alert('상태 변경에 실패했습니다.');
-      },
-    });
+    if (chore.status === 'done') {
+      // 이미 완료 상태면 -> 미완료 처리 API 호출
+      incompleteMutation.mutate(String(chore.id), {
+        onError: error => {
+          console.error('완료 취소 실패:', error);
+          alert('완료 취소에 실패했습니다.');
+        },
+      });
+    } else {
+      // 미완료 상태면 -> 기존처럼 완료 처리 API 호출
+      completeMutation.mutate(String(chore.id), {
+        onError: error => {
+          console.error('완료 처리 실패:', error);
+          alert('완료 처리에 실패했습니다.');
+        },
+      });
+    }
   };
 
   return (
@@ -69,7 +82,7 @@ export const ChoreListPage = () => {
           onEdit={handleEdit}
           onShare={chore => console.log('Share chore', chore.name)}
           onToggleComplete={handleToggleComplete}
-          isUpdating={completeMutation.isPending}
+          isUpdating={completeMutation.isPending || incompleteMutation.isPending}
         />
       </div>
     </div>

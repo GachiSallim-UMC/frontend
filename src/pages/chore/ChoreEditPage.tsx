@@ -8,6 +8,7 @@ import {
   useChoreFromList,
   useChoreForm,
   useUpdateChore,
+  useRemoveChore,
 } from '@/features/chore';
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
@@ -21,6 +22,7 @@ export const ChoreEditPage = () => {
   const { data: choreData, isLoading, isError } = useChoreFromList(groupId, id);
   const { data: members } = useGroupMembers(selectedGroupId);
   const updateMutation = useUpdateChore();
+  const deleteMutation = useRemoveChore();
   const { formData, updateField, getUpdateDto } = useChoreForm();
 
   const userOptions =
@@ -81,6 +83,19 @@ export const ChoreEditPage = () => {
     }
   };
 
+  const handleDelete = () => {
+    if (!id) return;
+    if (confirm('정말 이 집안일을 삭제하시겠습니까?')) {
+      deleteMutation.mutate(id, {
+        onSuccess: () => {
+          alert('삭제되었습니다.');
+          navigate('/chores');
+        },
+        onError: () => alert('삭제에 실패했습니다. 다시 시도해 주세요.'),
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-[300px] w-full items-center justify-center mt-[28px]">
@@ -119,7 +134,8 @@ export const ChoreEditPage = () => {
       <ChoreFormActions
         onSave={handleSave}
         onCancel={handleCancel}
-        isSubmitting={updateMutation.isPending}
+        onDelete={handleDelete}
+        isSubmitting={updateMutation.isPending || deleteMutation.isPending}
       />
     </div>
   );
