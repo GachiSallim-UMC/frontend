@@ -4,6 +4,8 @@ import type {
   LoginResponsePayload, 
   MeResponsePayload,
   SignupDto,
+  SocialFormDto,
+  ForgotPasswordDto,
   SignupConfirmDto } from '../types/auth.type';
 import type { 
     UpdateProfileDto,
