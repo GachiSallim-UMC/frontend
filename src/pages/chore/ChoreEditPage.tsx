@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChoreBasicInfo,
@@ -16,6 +16,11 @@ import {
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
 import { useGroupStore } from '@/shared/store';
+import { ShareItemPickerModal, type ShareableOption } from '@/features/messenger';
+
+/**index에 포함되어 있지 않아 불러올 수 없어서 직접 임포트 하였습니다. */
+import { useSendCardMessage } from '@/features/messenger/hooks/useChatRoomMutations';
+import { useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
 
 export const ChoreEditPage = () => {
   const { id = '' } = useParams<{ id: string }>();
@@ -31,6 +36,23 @@ export const ChoreEditPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const sendCardMessageMutation = useSendCardMessage();
+  const { data: chatRooms = [] } = useChatRooms(selectedGroupId ? String(selectedGroupId) : null);
+
+  const chatRoomOptions: ShareableOption[] = useMemo(() => {
+    return chatRooms.map(room => ({
+      id: String(room.id),
+      title: room.name,
+      subtitle:
+        room.category === 'group'
+          ? '그룹 채팅방'
+          : room.category === 'notice'
+            ? '공지방'
+            : '1:1 채팅방',
+    }));
+  }, [chatRooms]);
 
   const userOptions =
     members?.map(member => ({
@@ -124,6 +146,31 @@ export const ChoreEditPage = () => {
     });
   };
 
+  const handleShareClick = () => {
+    setIsShareModalOpen(true);
+  };
+
+  const handleSelectChatRoom = (optionId: string) => {
+    if (!id) return;
+
+    sendCardMessageMutation.mutate(
+      {
+        roomId: optionId,
+        type: 'CARD_CHORE',
+        refId: id,
+      },
+      {
+        onSuccess: () => {
+          setIsShareModalOpen(false);
+          navigate('/messenger');
+        },
+        onError: () => {
+          alert('집안일 공유에 실패했습니다.');
+        },
+      },
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-[300px] w-full items-center justify-center mt-[28px]">
@@ -163,6 +210,7 @@ export const ChoreEditPage = () => {
         onSave={handleSaveClick}
         onCancel={handleCancelClick}
         onDelete={handleDeleteClick}
+        onShare={handleShareClick}
         isSubmitting={updateMutation.isPending || deleteMutation.isPending}
       />
       <ChoreDeleteModal
@@ -183,6 +231,12 @@ export const ChoreEditPage = () => {
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
         onConfirm={handleConfirmCancel}
+      />
+      <ShareItemPickerModal
+        type={isShareModalOpen ? 'chore' : null}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={() => setIsShareModalOpen(false)}
       />
     </div>
   );
