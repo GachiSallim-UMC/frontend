@@ -17,7 +17,7 @@ import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { useGroupStore } from '@/shared/store';
 
-type FormErrors = Partial<Record<'name' | 'category' | 'status' | 'memo', string>>;
+type FormErrors = Partial<Record<'name' | 'category' | 'status', string>>;
 
 export const ItemFormPage = () => {
   const { id } = useParams();
@@ -99,12 +99,10 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
     const canPreservePurchasedStatus = editingItem?.status === 'purchased';
     const nextErrors: FormErrors = {};
     if (!name.trim()) nextErrors.name = '물품명을 입력해 주세요.';
-    else if (name.trim().length > 100) nextErrors.name = '물품명은 100자 이하로 입력해 주세요.';
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!status && !canPreservePurchasedStatus) {
       nextErrors.status = '현재 상태를 선택해 주세요.';
     }
-    if (memo.length > 255) nextErrors.memo = '메모는 255자 이하로 입력해 주세요.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !category) return;
 
@@ -162,7 +160,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
       <div className="mx-auto flex w-full flex-col px-4 pb-6 pt-4 lg:mt-16 lg:block lg:max-w-[1114px] lg:px-0 lg:pb-0 lg:pt-0 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
         <Panel
           title="물품 정보"
-          className="h-auto rounded-none bg-transparent p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:bg-white lg:p-[30px]"
+          className="h-auto rounded-none bg-transparent p-0 shadow-none lg:h-[500px] lg:overflow-hidden lg:rounded-[18px] lg:bg-white lg:p-[30px]"
           headerClassName="hidden lg:mb-5 lg:flex"
           titleClassName="text-gray-800"
         >
@@ -172,11 +170,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
               required
               placeholder="예: 세제, 샴푸, 두루마리 화장지"
               value={name}
-              onChange={event => {
-                setName(event.target.value);
-                setErrors(previous => ({ ...previous, name: undefined }));
-              }}
-              maxLength={100}
+              onChange={event => setName(event.target.value)}
               error={errors.name}
               containerClassName="gap-2 lg:gap-1"
               labelClassName="text-mobile-body leading-[17px] text-gray-700 lg:text-caption lg:text-gray-800"
@@ -187,10 +181,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
                 label="카테고리"
                 required
                 value={category}
-                onChange={value => {
-                  setCategory(value);
-                  setErrors(previous => ({ ...previous, category: undefined }));
-                }}
+                onChange={setCategory}
                 options={ITEM_CATEGORY_OPTIONS}
                 placeholder="카테고리 선택"
                 error={errors.category}
@@ -202,10 +193,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
                 label="현재 상태"
                 required={editingItem?.status !== 'purchased'}
                 value={status}
-                onChange={value => {
-                  setStatus(value);
-                  setErrors(previous => ({ ...previous, status: undefined }));
-                }}
+                onChange={setStatus}
                 options={ITEM_STATUS_OPTIONS}
                 placeholder={
                   editingItem?.status === 'purchased' ? '구매완료 상태 유지' : '상태 선택'
@@ -242,14 +230,10 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
               showCount
               rows={3}
               value={memo}
-              onChange={event => {
-                setMemo(event.target.value);
-                setErrors(previous => ({ ...previous, memo: undefined }));
-              }}
-              error={errors.memo}
+              onChange={event => setMemo(event.target.value)}
               containerClassName="gap-2 lg:gap-1"
               labelClassName="text-mobile-body leading-[17px] text-gray-700 lg:text-caption lg:text-gray-800"
-              footerClassName="hidden lg:flex"
+              countClassName="hidden lg:block"
               className="block h-[88px] px-4 py-3.5 text-mobile-label lg:h-[100px] lg:py-4 lg:text-button"
             />
           </div>
