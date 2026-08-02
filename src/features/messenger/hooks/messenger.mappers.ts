@@ -1,3 +1,4 @@
+import { formatDate } from '@/shared/lib';
 import type {
   CardMessageTypeDto,
   ChatMessage,
@@ -22,11 +23,8 @@ export const formatTimestamp = (iso: string): string => {
   return `${period} ${displayHour}:${String(minutes).padStart(2, '0')}`;
 };
 
-/** 멤버 목록에 쓰는 가입일 표기 (예: '2026.03.02') */
-const formatJoinedDate = (iso: string): string => {
-  const date = new Date(iso);
-  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
-};
+/** 멤버 목록에 쓰는 가입일 표기 (마이페이지 날짜 형식 설정을 따름) */
+const formatJoinedDate = (iso: string): string => formatDate(iso);
 
 export const mapChatRoomType = (type: ChatRoomListItemResponse['type']): ChatRoomCategory => {
   if (type === 'NOTICE') return 'notice';

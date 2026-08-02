@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, FormInput, SelectDropdown } from '@/shared/components';
+import { formatDate, useDateFormat } from '@/shared/lib';
 import { memberApi } from '@/features/member/api/member.api';
 import { useUpdateGroup } from '../../hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
@@ -14,6 +15,7 @@ import CopyIcon from '@/assets/icons/member/copy.svg?react';
 export const GroupBasicInfo = () => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const updateGroupMutation = useUpdateGroup();
+  const dateFormat = useDateFormat();
 
   const [groupName, setGroupName] = useState<string>('');
   const [maxMemberCount, setMaxMemberCount] = useState<string>('');
@@ -126,9 +128,7 @@ export const GroupBasicInfo = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const formattedDate = groupData?.createdAt
-    ? new Date(groupData.createdAt).toLocaleDateString().replace(/\./g, '.').trim()
-    : '';
+  const formattedDate = groupData?.createdAt ? formatDate(groupData.createdAt, dateFormat) : '';
 
   return (
     <section className="flex w-full items-start gap-23 rounded-2xl bg-white p-7">
