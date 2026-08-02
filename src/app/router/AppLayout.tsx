@@ -19,7 +19,11 @@ export const AppLayout = () => {
     <PageLayout
       groupName={selectedGroup?.name}
       memberCount={selectedGroup?.memberCount}
-      user={me ? { name: me.name, avatarUrl: me.profileImage ?? undefined } : undefined}
+      user={
+        me
+          ? { name: me.nickname || me.name, avatarUrl: me.profileImage ?? undefined }
+          : undefined
+      }
       unreadMessageCount={unreadMessageCount}
       unreadNotificationCount={unreadCount}
     >

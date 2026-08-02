@@ -18,15 +18,27 @@ import {
 import { useGroupMembers } from '@/features/member';
 import { useMe } from '@/features/auth';
 import { useAuthStore, useGroupStore } from '@/shared/store';
-import { chores, expenses, items, rules } from '@/pages/_shared/mockData';
+import { useChores } from '@/features/chore';
+import { useExpenseList } from '@/features/expense';
+import { useItems } from '@/features/item';
+import { useRules } from '@/features/rule';
 import { buildShareCard, getShareOptions } from '@/pages/messenger/shareOptions';
+import { useShareCardActions } from '@/pages/messenger/useShareCardActions';
 
 export const MessengerPage = () => {
   const groupId = useGroupStore(s => s.selectedGroupId);
   const currentUserId = useAuthStore(s => s.userId) ?? '';
+  const numericGroupId = groupId ? Number(groupId) : undefined;
 
   const { data: groupMembers } = useGroupMembers(groupId);
   const { data: me } = useMe();
+
+  const { data: chores = [] } = useChores(
+    numericGroupId && Number.isSafeInteger(numericGroupId) ? { groupId: numericGroupId } : undefined,
+  );
+  const { data: items = [] } = useItems();
+  const { data: rules = [] } = useRules();
+  const { expenses } = useExpenseList('TOTAL');
 
   const {
     filteredRooms,
@@ -39,6 +51,8 @@ export const MessengerPage = () => {
     draft,
     setDraft,
     sendMessage,
+    retrySendMessage,
+    deleteFailedMessage,
     activeShareType,
     openSharePicker,
     closeSharePicker,
@@ -91,12 +105,11 @@ export const MessengerPage = () => {
 
   const messageListRef = useRef<HTMLDivElement>(null);
 
-  // 방을 바꾸거나 메시지가 새로 추가되면 항상 최신 메시지가 보이도록 맨 아래로 내린다.
+  // 방 전환/새 메시지 시 맨 아래로 스크롤
   useEffect(() => {
     messageListRef.current?.scrollTo({ top: messageListRef.current.scrollHeight });
   }, [activeRoomId, messageGroups]);
 
-  // TODO: expense/item/rule 도메인이 아직 백엔드 연동 전이라 공유 항목 선택은 목데이터를 그대로 사용
   const shareSourceData = { chores, expenses, items, rules };
 
   const handleSelectShareOption = (optionId: string) => {
@@ -104,6 +117,9 @@ export const MessengerPage = () => {
     const shareCard = buildShareCard(activeShareType, optionId, shareSourceData);
     if (shareCard) shareItem(shareCard, optionId);
   };
+
+  const { enrichedMessageGroups, handleViewShareDetail, handleShareAction, pendingActionIds } =
+    useShareCardActions(messageGroups, shareSourceData, currentUserId);
 
   const createRoomCandidates = groupMembers
     .filter(member => !member.leftAt && member.userId !== currentUserId)
@@ -155,18 +171,23 @@ export const MessengerPage = () => {
                   ref={messageListRef}
                   className="flex flex-1 flex-col gap-5 overflow-y-auto bg-gray-50 px-[30px] py-6"
                 >
-                  {messageGroups.length === 0 ? (
+                  {enrichedMessageGroups.length === 0 ? (
                     <div className="flex flex-1 items-center justify-center text-caption text-gray-500">
                       아직 주고받은 메시지가 없습니다.
                     </div>
                   ) : (
-                    messageGroups.map(group => (
+                    enrichedMessageGroups.map(group => (
                       <ChatBubble
                         key={group.key}
                         senderName={group.senderName}
                         senderAvatarUrl={group.senderAvatarUrl}
                         isMine={group.isMine}
                         items={group.items}
+                        onViewShareDetail={handleViewShareDetail}
+                        onShareAction={handleShareAction}
+                        pendingShareActionIds={pendingActionIds}
+                        onRetryFailedMessage={retrySendMessage}
+                        onDeleteFailedMessage={deleteFailedMessage}
                       />
                     ))
                   )}

@@ -6,6 +6,8 @@ import type {
   CalculateExpenseDto,
   SettleExpenseSplitDto,
   UpdateExpenseDto,
+  RequestReceiptUploadUrlDto,
+  ReceiptUploadUrlResponse,
 } from '@/features/expense';
 import type { ExpenseStatus } from '@/shared/types';
 
@@ -39,13 +41,15 @@ export function toExpense(rawResponse: unknown): Expense {
   const shares = Array.isArray(raw.splits)
     ? raw.splits.map((s: Record<string, unknown>) => {
         const sUser = s.user as Record<string, unknown> | undefined;
+        const userNickname = typeof sUser?.nickname === 'string' ? sUser.nickname : '';
+        const userName = typeof sUser?.name === 'string' ? sUser.name : '';
         return {
           id: s.id as string | number,
           user: sUser
             ? {
                 id: String(sUser.id ?? ''),
-                name: (sUser.name as string) ?? '',
-                nickname: (sUser.nickname as string) ?? '',
+                name: userNickname || userName,
+                nickname: userNickname,
                 email: (sUser.email as string) ?? '',
                 avatarUrl: (sUser.profileImage as string) ?? '',
               }
@@ -78,7 +82,7 @@ export function toExpense(rawResponse: unknown): Expense {
     splitType: (raw.splitType as Expense['splitType']) ?? 'EQUAL',
     category: (raw.category as ExpenseCategory) ?? 'ETC',
     status: toExpenseStatus(raw.status as string),
-    shares,
+    shares: shares ?? [],
     memo: (raw.memo as string) ?? undefined,
   } as Expense;
 }
@@ -145,4 +149,40 @@ export const deleteExpense = async (expenseId: number | string): Promise<void> =
 export const shareExpenseCard = async (expenseId: number | string): Promise<unknown> => {
   const response = await apiClient.post(`/expenses/${expenseId}/share`);
   return unwrap(response.data);
+};
+
+export const requestReceiptUploadUrl = async (
+  dto: RequestReceiptUploadUrlDto
+): Promise<ReceiptUploadUrlResponse> => {
+  const response = await apiClient.post('/expenses/receipt-image/upload-url', dto);
+  const data = unwrap(response.data) as Record<string, unknown>;
+
+  return {
+    uploadUrl: data.uploadUrl as string,
+    fields: data.fields as Record<string, string>,
+    objectKey: data.objectKey as string,
+  };
+};
+
+export const uploadReceiptToS3 = async (
+  uploadUrl: string,
+  fields: Record<string, string>,
+  file: File
+): Promise<void> => {
+  const formData = new FormData();
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+  formData.append('file', file);
+
+  const res = await fetch(uploadUrl, { method: 'POST', body: formData });
+  if (!res.ok) {
+    throw new Error('영수증 이미지 업로드에 실패했습니다.');
+  }
+};
+
+export const getReceiptViewUrl = async (expenseId: number | string): Promise<string> => {
+  const response = await apiClient.get(`/expenses/${expenseId}/receipt-image`);
+  const data = unwrap(response.data) as Record<string, unknown>;
+  return data.viewUrl as string;
 };

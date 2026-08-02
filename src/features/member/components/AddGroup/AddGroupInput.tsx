@@ -12,7 +12,7 @@ interface AddGroupInputProps {
 
 export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroupInputProps) => {
   const handleDecrease = () => {
-    if (formData.maxMemberCount > 1) {
+    if (formData.maxMemberCount > 2) {
       onChange('maxMemberCount', formData.maxMemberCount - 1);
     }
   };
@@ -73,8 +73,8 @@ export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroup
             <button
               type="button"
               onClick={handleDecrease}
-              disabled={disabled || formData.maxMemberCount <= 1}
-              className={formData.maxMemberCount <= 1 ? 'opacity-45 cursor-not-allowed' : ''}
+              disabled={disabled || formData.maxMemberCount <= 2}
+              className={formData.maxMemberCount <= 2 ? 'opacity-45 cursor-not-allowed' : ''}
             >
               <MinusIcon className="h-6 w-6"></MinusIcon>
             </button>
