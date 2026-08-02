@@ -90,7 +90,7 @@ export const useSendCardMessage = () => {
 };
 
 /** 내 알림/상단고정 설정 변경 */
-export const useUpdateMemberSettings = () => {
+export const useUpdateMemberSettings = (groupId: string | null) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -104,6 +104,8 @@ export const useUpdateMemberSettings = () => {
     }) => messengerApi.updateMemberSettings(roomId, { notificationEnabled, isPinned }),
     onSuccess: (_data, { roomId }) => {
       queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.roomDetail(roomId) });
+      // 상단 고정은 방 목록 정렬에 쓰이므로 목록 쿼리도 같이 갱신한다
+      queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.rooms(groupId) });
     },
   });
 };
