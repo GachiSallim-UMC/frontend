@@ -121,6 +121,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
         if (isMounted) setReceiptViewUrl(viewUrl);
       } catch (err) {
         console.error('영수증 이미지 조회 실패:', err);
+        if (isMounted) setReceiptViewUrl(undefined);
       }
     };
 
