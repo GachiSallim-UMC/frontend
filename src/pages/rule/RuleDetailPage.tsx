@@ -56,7 +56,7 @@ const AGREEMENT_SUBLABEL: Record<MyAgreement, string> = {
   pending: '미응답',
 };
 
-type FormErrors = Partial<Record<'title' | 'category' | 'content' | 'status', string>>;
+type FormErrors = Partial<Record<'title' | 'category' | 'status', string>>;
 
 export const RuleDetailPage = () => {
   const { id = '' } = useParams();
@@ -106,18 +106,17 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
     const nextErrors: FormErrors = {};
     const trimmedTitle = title.trim();
-    const trimmedContent = content.trim();
     if (!trimmedTitle) {
       nextErrors.title = '규칙 제목을 입력해 주세요.';
     } else if (trimmedTitle.length > 30) {
       nextErrors.title = '규칙 제목은 30자 이하로 입력해 주세요.';
     }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
-    if (!trimmedContent) nextErrors.content = '상세 설명을 입력해 주세요.';
     if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !category || !status) return;
 
+    const trimmedContent = content.trim();
     const hasChanges =
       trimmedTitle !== rule.title.trim() ||
       category !== rule.category ||
@@ -167,7 +166,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
       <div className="flex min-w-0 flex-col gap-4 lg:gap-5">
         <Panel
           title="기본 정보"
-          className="h-auto rounded-none p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:p-[30px]"
+          className="h-auto rounded-none p-0 shadow-none lg:h-[500px] lg:rounded-[18px] lg:p-[30px]"
           headerClassName="hidden lg:mb-5 lg:flex"
           titleClassName="text-gray-800"
         >
@@ -177,61 +176,47 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               required
               maxLength={30}
               value={title}
-              onChange={e => {
-                setTitle(e.target.value);
-                setErrors(previous => ({ ...previous, title: undefined }));
-              }}
+              onChange={e => setTitle(e.target.value)}
               error={errors.title}
               containerClassName="order-1 col-span-2 gap-2 lg:col-span-1 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 text-xs lg:h-[50px] lg:text-button"
+              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:text-button"
             />
             <SelectDropdown
               label="카테고리"
               required
               value={category}
-              onChange={value => {
-                setCategory(value);
-                setErrors(previous => ({ ...previous, category: undefined }));
-              }}
+              onChange={setCategory}
               options={RULE_CATEGORY_OPTIONS}
               error={errors.category}
               containerClassName="order-2 gap-2 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 pr-9 text-xs lg:h-[50px] lg:px-3 lg:pr-9 lg:text-button"
+              className="h-11 px-4 pr-9 text-mobile-label lg:h-[50px] lg:px-3 lg:pr-9 lg:text-button"
             />
             <TextArea
               label="상세 설명"
               mobileLabel="메모"
-              required
               placeholder="규칙에 대한 자세한 설명, 예외 상황 등"
               maxLength={200}
               showCount
               countInside
               countClassName="hidden lg:block"
               value={content}
-              onChange={e => {
-                setContent(e.target.value);
-                setErrors(previous => ({ ...previous, content: undefined }));
-              }}
-              error={errors.content}
+              onChange={e => setContent(e.target.value)}
               containerClassName="order-4 col-span-2 gap-2 lg:order-3 lg:col-span-1 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="block h-[88px] px-4 py-3 text-xs lg:h-[100px] lg:pb-9 lg:pt-4 lg:text-button"
+              className="block h-[88px] px-4 py-3 text-mobile-label lg:h-[100px] lg:pb-9 lg:pt-4 lg:text-button"
             />
             <SelectDropdown
               label="적용 상태"
               required
               value={status}
-              onChange={value => {
-                setStatus(value);
-                setErrors(previous => ({ ...previous, status: undefined }));
-              }}
+              onChange={setStatus}
               options={RULE_STATUS_OPTIONS}
               error={errors.status}
               containerClassName="order-3 gap-2 lg:order-4 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 pr-9 text-xs lg:h-[50px] lg:px-3 lg:pr-9 lg:text-button"
+              className="h-11 px-4 pr-9 text-mobile-label lg:h-[50px] lg:px-3 lg:pr-9 lg:text-button"
             />
           </div>
         </Panel>
@@ -276,7 +261,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                       className="h-8 w-8 shrink-0 lg:h-10 lg:w-10"
                     />
                     <span className="flex min-w-0 flex-col gap-0.5 lg:gap-1">
-                      <p className="truncate text-xs font-bold leading-normal text-gray-900 lg:text-button">
+                      <p className="truncate text-mobile-label font-bold leading-normal text-gray-900 lg:text-button">
                         {member.name}
                         {isMe && ' (나)'}
                       </p>
@@ -306,8 +291,8 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                     onClick={() => void handleAgreement(option.apiStatus)}
                     className={
                       myAgreement === option.value
-                        ? 'h-9 min-w-0 flex-1 rounded bg-gray-900 text-xs font-normal text-white disabled:cursor-not-allowed disabled:opacity-50 lg:h-[45px] lg:w-[92px] lg:flex-none lg:text-button'
-                        : 'h-9 min-w-0 flex-1 rounded border border-gray-900 bg-white text-xs font-normal text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 lg:h-[45px] lg:w-[92px] lg:flex-none lg:text-button'
+                        ? 'h-9 min-w-0 flex-1 rounded bg-gray-900 text-mobile-label font-normal text-white disabled:cursor-not-allowed disabled:opacity-50 lg:h-[45px] lg:w-[92px] lg:flex-none lg:text-button'
+                        : 'h-9 min-w-0 flex-1 rounded border border-gray-900 bg-white text-mobile-label font-normal text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 lg:h-[45px] lg:w-[92px] lg:flex-none lg:text-button'
                     }
                   >
                     {option.label}
@@ -320,13 +305,13 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
         <div className="flex flex-col gap-2.5 lg:hidden">
           <ShareMessengerButton
-            className="h-11 text-xs"
+            className="h-11 text-mobile-label"
             onClick={handleShare}
             disabled={shareRule.isPending}
           />
           <Button
             type="button"
-            className="h-11 w-full text-xs font-bold"
+            className="h-11 w-full text-mobile-label font-bold"
             onClick={() => void handleSave()}
             disabled={isPending}
           >
@@ -353,7 +338,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                       <HistoryIcon className="h-5 w-5 lg:h-6 lg:w-6" />
                     </span>
                     <span className="flex min-w-0 flex-col gap-0.5 lg:gap-1">
-                      <p className="truncate text-xs font-bold leading-normal text-gray-900 lg:text-button">
+                      <p className="truncate text-mobile-label font-bold leading-normal text-gray-900 lg:text-button">
                         {entry.title}
                       </p>
                       <p className="truncate text-mobile-caption leading-normal text-gray-600 lg:text-caption lg:text-gray-900">

@@ -41,7 +41,7 @@ export const RuleListPage = () => {
               type="button"
               onClick={() => setCategoryFilter(option.value)}
               className={cn(
-                'h-8 shrink-0 rounded-full border px-4 text-xs font-bold transition-colors',
+                'h-8 shrink-0 rounded-full border px-4 text-mobile-label font-bold transition-colors',
                 categoryFilter === option.value
                   ? 'border-primary-400 bg-primary-50 text-primary-400'
                   : 'border-gray-100 bg-white text-gray-600',

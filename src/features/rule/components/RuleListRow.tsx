@@ -31,13 +31,13 @@ export const RuleListRow = ({ rule, isLast, onShare }: RuleListRowProps) => {
       <div className="flex h-[68px] items-center pl-3 pr-1.5 sm:h-[60px] sm:pl-4 sm:pr-2 lg:h-[84px] lg:pl-[34px] lg:pr-[25px]">
         <div className="flex w-[68px] shrink-0 items-center gap-1.5 sm:w-[84px] sm:gap-2 lg:w-[99px] lg:gap-3">
           <span className="h-5 w-0.5 shrink-0 rounded-full bg-primary-500 lg:h-[30px] lg:w-1" />
-          <span className="whitespace-nowrap text-xs font-bold text-primary-700 lg:text-body">
+          <span className="whitespace-nowrap text-mobile-label font-bold text-primary-700 lg:text-body">
             {RULE_CATEGORY_LABEL[rule.category]}
           </span>
         </div>
 
         <Link to={`/rules/${rule.id}`} className="ml-2 min-w-0 flex-1 sm:ml-3 lg:ml-5">
-          <p className="line-clamp-2 text-xs font-bold leading-normal text-gray-900 sm:line-clamp-1 lg:text-button">
+          <p className="line-clamp-2 text-mobile-label font-bold leading-normal text-gray-900 sm:line-clamp-1 lg:text-button">
             {rule.title}
           </p>
           <p className="mt-0.5 truncate text-mobile-caption leading-normal text-gray-600 lg:mt-1 lg:text-caption">
