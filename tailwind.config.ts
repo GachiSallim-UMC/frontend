@@ -87,6 +87,7 @@ const config: Config = {
       // Figma 디자인시스템 Font 섹션의 역할별 타이포 크기 체계
       fontSize: {
         'mobile-caption': ['10px', '1.4'],
+        'mobile-label': ['12px', '1.4'],
         'mobile-body': ['14px', '1.45'],
         'mobile-title': ['18px', '1.4'],
         caption: ['14px', '1.5'], // 보조설명·멤버수·날짜·담당자·배지

@@ -9,6 +9,7 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   showCount?: boolean;
   maxLength?: number;
   countInside?: boolean;
+  countClassName?: string;
   containerClassName?: string;
   labelClassName?: string;
 }
@@ -21,6 +22,7 @@ export const TextArea = ({
   showCount,
   maxLength,
   countInside = false,
+  countClassName,
   containerClassName,
   labelClassName,
   value,
@@ -60,7 +62,12 @@ export const TextArea = ({
           {...props}
         />
         {countInside && showCount && maxLength && (
-          <p className="pointer-events-none absolute bottom-3.5 right-4 text-caption leading-normal text-gray-400">
+          <p
+            className={cn(
+              'pointer-events-none absolute bottom-3.5 right-4 text-caption leading-normal text-gray-400',
+              countClassName,
+            )}
+          >
             {currentLength}/{maxLength}
           </p>
         )}
@@ -72,7 +79,7 @@ export const TextArea = ({
             {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}
           </div>
           {!countInside && showCount && maxLength && (
-            <p className="text-xs text-gray-400">
+            <p className={cn('text-xs text-gray-400', countClassName)}>
               {currentLength}/{maxLength}
             </p>
           )}
