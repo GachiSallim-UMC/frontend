@@ -45,6 +45,7 @@ export const AddGroupPage = () => {
       name: formData.name,
       description: formData.description,
       maxMembers: Number(formData.maxMemberCount),
+      residenceType: formData.type,
     };
 
     createGroupMutation.mutate(requestPayload, {

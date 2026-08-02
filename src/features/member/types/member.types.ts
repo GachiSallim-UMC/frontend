@@ -2,7 +2,7 @@ import type { User } from '@/shared/types';
 
 export type MemberRole = 'ADMIN' | 'MEMBER';
 
-export type ResidenceType = 'roommate' | 'share' | 'boarding' | 'family' | 'etc';
+export type ResidenceType = 'ROOMMATE' | 'SHARE' | 'BOARDING' | 'FAMILY' | 'ETC';
 
 export interface Member {
   id: string;
@@ -82,6 +82,7 @@ export interface MemberGroupResponse {
   createdAt: string;
   updatedAt: string;
   groupImage?: string | null;
+  residenceType?: ResidenceType;
 }
 
 /**그룹 생성 */
@@ -91,6 +92,7 @@ export interface CreateGroupDto {
   maxMembers?: number;
   permissions?: PermissionType[];
   groupImage?: string | null;
+  residenceType?: ResidenceType;
 }
 
 /**초대 코드로 그룹 참여*/
@@ -127,4 +129,6 @@ export interface InviteInfoResponse {
   description: string;
   currentMembers: number;
   maxMembers: number;
+  residenceType?: ResidenceType;
+  groupImage?: string | null;
 }

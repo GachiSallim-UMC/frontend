@@ -12,6 +12,12 @@ import TrashIcon from '@/assets/icons/member/trash.svg?react';
 import ProfileIcon from '@/assets/icons/member/profile.svg?react';
 import CopyIcon from '@/assets/icons/member/copy.svg?react';
 
+import RoommateIcon from '@/assets/icons/member/ResidenceType/roommate.svg?react';
+import ShareIcon from '@/assets/icons/member/ResidenceType/share.svg?react';
+import FamilyIcon from '@/assets/icons/member/ResidenceType/family.svg?react';
+import BoardingIcon from '@/assets/icons/member/ResidenceType/boarding.svg?react';
+import EtcIcon from '@/assets/icons/member/ResidenceType/etc.svg?react';
+
 export const GroupBasicInfo = () => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const updateGroupMutation = useUpdateGroup();
@@ -20,6 +26,7 @@ export const GroupBasicInfo = () => {
   const [maxMemberCount, setMaxMemberCount] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [groupImage, setGroupImage] = useState<string | null>(null);
+  const [isAvatarDeleted, setIsAvatarDeleted] = useState<boolean>(false);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -43,6 +50,7 @@ export const GroupBasicInfo = () => {
       setMaxMemberCount(String(groupData.maxMembers || ''));
       setDescription(groupData.description || '');
       setGroupImage(groupData.groupImage || null);
+      setIsAvatarDeleted(false);
     }
   }, [groupData]);
 
@@ -70,6 +78,7 @@ export const GroupBasicInfo = () => {
     if (file) {
       setSelectedFile(file);
       setGroupImage(URL.createObjectURL(file));
+      setIsAvatarDeleted(false);
     }
   };
 
@@ -77,12 +86,14 @@ export const GroupBasicInfo = () => {
     setIsMenuOpen(false);
     setGroupImage(null);
     setSelectedFile(null);
+    setIsAvatarDeleted(false);
   };
 
   const handleImageDelete = () => {
     setIsMenuOpen(false);
     setGroupImage(null);
     setSelectedFile(null);
+    setIsAvatarDeleted(true);
   };
 
   const handleSave = async () => {
@@ -128,7 +139,6 @@ export const GroupBasicInfo = () => {
         },
       );
     } catch (error) {
-      console.error('이미지 업로드 실패:', error);
       alert('이미지 저장 중 오류가 발생했습니다.');
       setIsUploading(false);
     }
@@ -157,6 +167,21 @@ export const GroupBasicInfo = () => {
     ? new Date(groupData.createdAt).toLocaleDateString().replace(/\./g, '.').trim()
     : '';
 
+  const renderDefaultIcon = (type?: string) => {
+    switch (type) {
+      case 'ROOMMATE':
+        return <RoommateIcon className="h-full w-full object-cover" />;
+      case 'BOARDING':
+        return <BoardingIcon className="h-full w-full object-cover" />;
+      case 'FAMILY':
+        return <FamilyIcon className="h-full w-full object-cover" />;
+      case 'SHARE':
+        return <ShareIcon className="h-full w-full object-cover" />;
+      default:
+        return <EtcIcon className="h-full w-full object-cover" />;
+    }
+  };
+
   return (
     <section className="flex w-full items-start gap-23 rounded-2xl bg-white p-7">
       <input
@@ -175,8 +200,12 @@ export const GroupBasicInfo = () => {
               alt="그룹 프로필"
               className="h-full w-full rounded-full object-cover"
             />
-          ) : (
+          ) : isAvatarDeleted ? (
             <div className="h-full w-full rounded-full bg-primary-200 object-cover" />
+          ) : (
+            <div className="h-full w-full overflow-hidden rounded-full bg-primary-200 object-cover">
+              {renderDefaultIcon(groupData?.residenceType)}
+            </div>
           )}
 
           {/* 카메라 버튼 및 드롭다운 메뉴 래퍼 */}

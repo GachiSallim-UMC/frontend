@@ -1,7 +1,10 @@
 import { Button } from '@/shared/components';
 import type { Group } from '@/features/member/types/member.types';
-import HouseIcon from '@/assets/icons/member/house.svg?react';
-import SchoolIcon from '@/assets/icons/member/school.svg?react';
+import RoommateIcon from '@/assets/icons/member/ResidenceType/roommate.svg?react';
+import ShareIcon from '@/assets/icons/member/ResidenceType/share.svg?react';
+import FamilyIcon from '@/assets/icons/member/ResidenceType/family.svg?react';
+import BoardingIcon from '@/assets/icons/member/ResidenceType/boarding.svg?react';
+import EtcIcon from '@/assets/icons/member/ResidenceType/etc.svg?react';
 
 interface GroupCardProps {
   group: Group;
@@ -13,6 +16,21 @@ export const GroupCard = ({ group, onEnter }: GroupCardProps) => {
     onEnter(group.id);
   };
 
+  const renderDefaultIcon = (type: string) => {
+    switch (type) {
+      case 'ROOMMATE':
+        return <RoommateIcon />;
+      case 'BOARDING':
+        return <BoardingIcon />;
+      case 'FAMILY':
+        return <FamilyIcon />;
+      case 'SHARE':
+        return <ShareIcon />;
+      default:
+        return <EtcIcon />;
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-gray-100 bg-white px-3 pt-6 pb-5">
       <div className="mb-4 h-[86px] w-[86px] shrink-0 items-center justify-center">
@@ -22,10 +40,8 @@ export const GroupCard = ({ group, onEnter }: GroupCardProps) => {
             alt={`${group.name} 프로필`}
             className="h-full w-full rounded-full object-cover shadow-sm"
           />
-        ) : group.type === 'roommate' ? (
-          <HouseIcon />
         ) : (
-          <SchoolIcon />
+          renderDefaultIcon(group.type)
         )}
       </div>
       <h1 className="font-button font-bold text-gray-900">{group.name}</h1>

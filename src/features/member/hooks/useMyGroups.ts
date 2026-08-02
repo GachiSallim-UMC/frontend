@@ -7,7 +7,7 @@ const toGroup = (group: MemberGroupResponse): Group => ({
   id: group.id,
   name: group.name,
   description: group.description ?? '',
-  type: '',
+  type: group.residenceType ?? 'ETC',
   address: '',
   inviteCode: group.inviteCode ?? undefined,
   createdAt: group.createdAt,
