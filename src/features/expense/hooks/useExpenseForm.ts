@@ -11,6 +11,7 @@ interface UseExpenseFormProps {
   onSave?: (newExpense: Expense) => void;
   isEditMode?: boolean;
   expenseId?: string;
+  receiptUrl?: string;
 }
 
 export function useExpenseForm({
@@ -20,6 +21,7 @@ export function useExpenseForm({
   onSave,
   isEditMode = false,
   expenseId,
+  receiptUrl,
 }: UseExpenseFormProps) {
   const [title, setTitle] = useState(initialExpense?.title || '');
   const [amount, setAmount] = useState(
@@ -150,6 +152,10 @@ export function useExpenseForm({
           updatePayload.targetMemberIds = targetMemberIds;
         }
 
+        if (receiptUrl) {
+          updatePayload.receiptUrl = receiptUrl;
+        }
+
         savedExpense = await updateExpense(expenseId, updatePayload);
       } else {
         const createPayload: CreateExpenseDto = {
@@ -161,7 +167,7 @@ export function useExpenseForm({
           splitType: settlementMethod,
           targetMemberIds,
           memo,
-          receiptUrl: '',
+          receiptUrl: receiptUrl ?? '',
         };
         savedExpense = await createExpense(createPayload);
       }

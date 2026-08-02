@@ -26,5 +26,10 @@ export const useWeekCalendar = () => {
     const dayDate = String(date.getDate()).padStart(2, '0');
     return `${month}.${dayDate}`;
   });
-  return { currentDate, weekDates, handlePrevWeek, handleNextWeek };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // 자정(00:00:00) 기준으로 맞춤
+  const todayString = `${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+
+  return { currentDate, weekDates, handlePrevWeek, handleNextWeek, today, todayString };
 };

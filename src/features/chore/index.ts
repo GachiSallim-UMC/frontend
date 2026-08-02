@@ -17,7 +17,9 @@ export {
   useChoreFromList,
   useCreateChore,
   useUpdateChore,
+  useRemoveChore,
   useCompleteChore,
+  useIncompleteChore,
 } from './hooks/useChores';
 export { useWeekCalendar } from './hooks/useWeekCalendar';
 export { useChoreRepeat } from './hooks/useChoreRepeat';
@@ -43,6 +45,7 @@ export type {
   GetChoresParams,
   ShareChoreDto,
   ShareChoreResponse,
+  IncompleteChoreResponse,
 } from './types/chore.types';
 
 export {

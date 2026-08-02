@@ -4,10 +4,16 @@ import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react';
 interface ChoreFormActionsProps {
   onSave: () => void;
   onCancel: () => void;
+  onDelete?: () => void;
   isSubmitting?: boolean;
 }
 
-export const ChoreFormActions = ({ onSave, onCancel, isSubmitting }: ChoreFormActionsProps) => {
+export const ChoreFormActions = ({
+  onSave,
+  onCancel,
+  onDelete,
+  isSubmitting,
+}: ChoreFormActionsProps) => {
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center gap-[12px]">
@@ -22,6 +28,16 @@ export const ChoreFormActions = ({ onSave, onCancel, isSubmitting }: ChoreFormAc
         >
           취소
         </Button>
+        {onDelete && (
+          <Button
+            variant="secondary"
+            className="w-[150px] bg-red-700 font-bold text-white hover:bg-red-700 border-none"
+            onClick={onDelete}
+            disabled={isSubmitting}
+          >
+            삭제
+          </Button>
+        )}
       </div>
       <Button
         variant="ghost"
