@@ -16,11 +16,12 @@ import {
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
 import { useGroupStore } from '@/shared/store';
-import { ShareItemPickerModal, type ShareableOption } from '@/features/messenger';
-
-/**index에 포함되어 있지 않아 불러올 수 없어서 직접 임포트 하였습니다. */
-import { useSendCardMessage } from '@/features/messenger/hooks/useChatRoomMutations';
-import { useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
+import {
+  ShareItemPickerModal,
+  type ShareableOption,
+  useSendCardMessage,
+  useChatRooms,
+} from '@/features/messenger';
 
 export const ChoreEditPage = () => {
   const { id = '' } = useParams<{ id: string }>();
