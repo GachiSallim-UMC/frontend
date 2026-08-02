@@ -41,13 +41,15 @@ export function toExpense(rawResponse: unknown): Expense {
   const shares = Array.isArray(raw.splits)
     ? raw.splits.map((s: Record<string, unknown>) => {
         const sUser = s.user as Record<string, unknown> | undefined;
+        const userNickname = typeof sUser?.nickname === 'string' ? sUser.nickname : '';
+        const userName = typeof sUser?.name === 'string' ? sUser.name : '';
         return {
           id: s.id as string | number,
           user: sUser
             ? {
                 id: String(sUser.id ?? ''),
-                name: (sUser.name as string) ?? '',
-                nickname: (sUser.nickname as string) ?? '',
+                name: userNickname || userName,
+                nickname: userNickname,
                 email: (sUser.email as string) ?? '',
                 avatarUrl: (sUser.profileImage as string) ?? '',
               }

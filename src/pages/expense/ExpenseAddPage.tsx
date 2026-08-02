@@ -62,7 +62,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
         const rawMembers = await memberApi.getGroupMembers(groupId);
         const mapped: User[] = rawMembers.map((m) => ({
           id: m.user.id,
-          name: m.user.name,
+          name: m.user.nickname || m.user.name,
           nickname: m.user.nickname,
           email: '',
           avatarUrl: m.user.profileImage ?? undefined,
