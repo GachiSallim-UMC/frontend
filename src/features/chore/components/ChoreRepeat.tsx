@@ -4,7 +4,9 @@ import type {
   ChoreApiDayOfWeek as DayOfWeek,
   ChoreApiRepeatType as RepeatType,
 } from '../types/chore.types';
+import type { ChoreFormErrors } from '../hooks/useChoreForm';
 import CalendarIcon from '@/assets/icons/chore/calendar.svg';
+import { isUnsignedIntegerInput } from '@/shared/lib/inputValidation';
 import {
   CUSTOM_OPTIONS,
   REPEAT_TYPE_OPTIONS,
@@ -20,6 +22,7 @@ interface ChoreRepeatProps {
   repeatDays: DayOfWeek[];
   startDate: string;
   dueDate: string;
+  errors?: ChoreFormErrors;
   onChange: (updates: Partial<ChoreRepeatProps>) => void;
 }
 
@@ -30,6 +33,7 @@ export const ChoreRepeat = ({
   repeatDays,
   startDate,
   dueDate,
+  errors = {},
   onChange,
 }: ChoreRepeatProps) => {
   const isDaysEnabled =
@@ -54,6 +58,7 @@ export const ChoreRepeat = ({
             required
             options={REPEAT_TYPE_OPTIONS as { label: string; value: RepeatType }[]}
             value={repeatType}
+            error={errors.repeatType}
             onChange={value => {
               onChange({
                 repeatType: value,
@@ -69,6 +74,7 @@ export const ChoreRepeat = ({
               label="사용자 지정 옵션"
               options={CUSTOM_OPTIONS as { label: string; value: CustomOption }[]}
               value={customOption}
+              error={errors.customOption}
               onChange={value => {
                 onChange({
                   customOption: value,
@@ -81,14 +87,20 @@ export const ChoreRepeat = ({
 
           {repeatType === 'CUSTOM' && customOption === 'EVERY_N_DAYS' && (
             <FormInput
-              type="number"
-              min="1"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={2}
               label="반복일 (N일마다)"
               placeholder="숫자 입력 (예: 3)"
               value={repeatInterval}
+              error={errors.repeatInterval}
               onChange={e => {
                 const val = e.target.value;
-                if (val === '' || (Number(val) >= 1 && Number(val) <= 99)) {
+                if (
+                  val === '' ||
+                  (isUnsignedIntegerInput(val) && Number(val) >= 1 && Number(val) <= 99)
+                ) {
                   onChange({ repeatInterval: val });
                 }
               }}
@@ -141,22 +153,23 @@ export const ChoreRepeat = ({
               </label>
             ))}
           </div>
+          {errors.repeatDays && <p className="text-xs text-red-500">{errors.repeatDays}</p>}
         </div>
       </div>
 
       <div className="flex w-full gap-[20px]">
         <div className="relative flex-1">
           <FormInput
-            type="text"
+            type="date"
             label="시작일"
             placeholder="yyyy/mm/dd"
             required
             value={startDate}
-            onChange={e => {
-              onChange({ startDate: e.target.value.replace(/\//g, '-') });
-            }}
+            onChange={e => onChange({ startDate: e.target.value })}
+            max={dueDate || undefined}
+            error={errors.startDate}
           />
-          <div className="absolute right-[16px] bottom-[17px] h-[16px] w-[16px]">
+          <div className="absolute right-[16px] top-[40px] h-[16px] w-[16px]">
             <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
             <input
               type="date"
@@ -171,15 +184,15 @@ export const ChoreRepeat = ({
         </div>
         <div className="relative flex-1">
           <FormInput
-            type="text"
+            type="date"
             label="종료일 (선택)"
             placeholder="yyyy/mm/dd"
             value={dueDate}
-            onChange={e => {
-              onChange({ dueDate: e.target.value.replace(/\//g, '-') });
-            }}
+            onChange={e => onChange({ dueDate: e.target.value })}
+            min={startDate || undefined}
+            error={errors.dueDate}
           />
-          <div className="absolute right-[16px] bottom-[17px] h-[16px] w-[16px]">
+          <div className="absolute right-[16px] top-[40px] h-[16px] w-[16px]">
             <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
             <input
               type="date"

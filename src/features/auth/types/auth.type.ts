@@ -48,3 +48,5 @@ export interface SignupConfirmDto {
   email: string;
   confirmationCode: string;
 }
+
+export type SignupFormErrors = Partial<Record<keyof SignupFormData, string>>;

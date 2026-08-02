@@ -31,7 +31,7 @@ export const ChoreEditPage = () => {
   const { data: members } = useGroupMembers(selectedGroupId);
   const updateMutation = useUpdateChore();
   const deleteMutation = useRemoveChore();
-  const { formData, updateField, getUpdateDto } = useChoreForm();
+  const { formData, errors, updateField, getUpdateDto } = useChoreForm();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -194,6 +194,7 @@ export const ChoreEditPage = () => {
         assigneeId={String(formData.assigneeId)}
         category={formData.category}
         assigneeOptions={userOptions}
+        errors={errors}
         onChange={handleBasicInfoChange}
       />
       <ChoreRepeat
@@ -203,9 +204,14 @@ export const ChoreEditPage = () => {
         repeatDays={formData.repeatDays}
         startDate={formData.startDate}
         dueDate={formData.dueDate}
+        errors={errors}
         onChange={updateField}
       />
-      <ChoreMemo value={formData.memo} onChange={memo => updateField({ memo })} />
+      <ChoreMemo
+        value={formData.memo}
+        error={errors.memo}
+        onChange={memo => updateField({ memo })}
+      />
       <ChoreFormActions
         onSave={handleSaveClick}
         onCancel={handleCancelClick}

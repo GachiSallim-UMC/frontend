@@ -21,14 +21,21 @@ export const JoinGroupPage = () => {
   const [inviteCode, setInviteCode] = useState<string>('');
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const [foundGroup, setFoundGroup] = useState<Group | null>(null);
+  const [inviteCodeError, setInviteCodeError] = useState<string>();
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInviteCode(e.target.value);
+    const value = e.target.value.toUpperCase();
+    if (!/^[A-HJ-NP-Z2-9]*$/.test(value)) {
+      setInviteCodeError('I·O를 제외한 영문 대문자와 숫자 2~9만 입력할 수 있습니다.');
+      return;
+    }
+    setInviteCode(value);
+    setInviteCodeError(undefined);
   };
 
   const handleConfirmCode = () => {
-    if (!inviteCode.trim()) {
-      alert('초대 코드를 입력해주세요.');
+    if (!/^[A-HJ-NP-Z2-9]{6}$/.test(inviteCode)) {
+      setInviteCodeError('초대 코드를 정확히 6자리로 입력해 주세요.');
       return;
     }
 
@@ -76,7 +83,7 @@ export const JoinGroupPage = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-primary-100">
-      <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
+      <div className="flex min-h-[696px] w-full max-w-2xl flex-col rounded-3xl bg-white shadow-sm">
         <GroupPageHeader />
 
         <div className="flex-1 pt-5 pb-18 px-10">
@@ -91,6 +98,7 @@ export const JoinGroupPage = () => {
             inviteCode={inviteCode}
             onChange={handleCodeChange}
             onConfirm={handleConfirmCode}
+            error={inviteCodeError}
             disabled={showPreview}
           />
 

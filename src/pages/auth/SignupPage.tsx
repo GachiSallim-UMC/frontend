@@ -5,6 +5,7 @@ export const SignupPage = () => {
     const { 
         step,
         formData, 
+        errors,
         onFormDataChange, 
         agreedTerms, 
         onAgreedTermsChange,
@@ -18,11 +19,12 @@ export const SignupPage = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
             {/* 흰 색 카드 */}
-            <div className="h-[696px] w-full max-w-lg rounded-3xl bg-white px-10 pt-10 pb-8">
+            <div className="min-h-[696px] w-full max-w-lg rounded-3xl bg-white px-10 pt-10 pb-8">
 
                 <SignupForm 
                     step={step}
                     formData={formData}
+                    errors={errors}
                     onFormDataChange={onFormDataChange}
                     agreedTerms={agreedTerms}
                     onAgreedTermsChange={onAgreedTermsChange}
