@@ -138,7 +138,7 @@ export const GroupBasicInfo = () => {
           },
         },
       );
-    } catch (error) {
+    } catch {
       alert('이미지 저장 중 오류가 발생했습니다.');
       setIsUploading(false);
     }
