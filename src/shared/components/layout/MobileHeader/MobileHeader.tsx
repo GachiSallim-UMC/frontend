@@ -51,8 +51,8 @@ const getRouteHeader = (pathname: string): MobileRouteHeader => {
       action: { label: '등록', to: '/rules/new' },
     };
   }
-  if (pathname === '/rules/new') return { title: '생활 규칙 등록', backTo: '/rules' };
-  if (pathname.startsWith('/rules/')) return { title: '생활 규칙 상세', backTo: '/rules' };
+  if (pathname === '/rules/new') return { title: '규칙 등록', backTo: '/rules' };
+  if (pathname.startsWith('/rules/')) return { title: '규칙 상세', backTo: '/rules' };
   if (pathname === '/messenger') return { title: '메신저', backTo: '/dashboard' };
   if (pathname === '/notifications') return { title: '알림', backTo: '/dashboard' };
   if (pathname === '/activity') return { title: '활동 내역', backTo: '/dashboard' };

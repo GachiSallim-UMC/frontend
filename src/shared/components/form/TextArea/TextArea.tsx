@@ -3,24 +3,28 @@ import { cn } from '@/shared/lib/cn';
 
 interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
+  mobileLabel?: string;
   error?: string;
   hint?: string;
   required?: boolean;
   showCount?: boolean;
   maxLength?: number;
   countInside?: boolean;
+  countClassName?: string;
   containerClassName?: string;
   labelClassName?: string;
 }
 
 export const TextArea = ({
   label,
+  mobileLabel,
   error,
   hint,
   required,
   showCount,
   maxLength,
   countInside = false,
+  countClassName,
   containerClassName,
   labelClassName,
   value,
@@ -39,7 +43,14 @@ export const TextArea = ({
           htmlFor={inputId}
           className={cn('text-caption font-bold text-gray-900', labelClassName)}
         >
-          {label}
+          {mobileLabel ? (
+            <>
+              <span className="lg:hidden">{mobileLabel}</span>
+              <span className="hidden lg:inline">{label}</span>
+            </>
+          ) : (
+            label
+          )}
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </label>
       )}
@@ -60,7 +71,12 @@ export const TextArea = ({
           {...props}
         />
         {countInside && showCount && maxLength && (
-          <p className="pointer-events-none absolute bottom-3.5 right-4 text-caption leading-normal text-gray-400">
+          <p
+            className={cn(
+              'pointer-events-none absolute bottom-3.5 right-4 text-caption leading-normal text-gray-400',
+              countClassName,
+            )}
+          >
             {currentLength}/{maxLength}
           </p>
         )}
@@ -72,7 +88,7 @@ export const TextArea = ({
             {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}
           </div>
           {!countInside && showCount && maxLength && (
-            <p className="text-xs text-gray-400">
+            <p className={cn('text-xs text-gray-400', countClassName)}>
               {currentLength}/{maxLength}
             </p>
           )}
