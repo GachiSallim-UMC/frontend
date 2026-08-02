@@ -57,7 +57,7 @@ export const ChoreEditPage = () => {
   const userOptions =
     members?.map(member => ({
       value: String(member.userId),
-      label: member.user.name || member.user.nickname || `멤버 ${member.userId}`,
+      label: member.user.nickname || member.user.name || `멤버 ${member.userId}`,
     })) ?? [];
 
   useEffect(() => {
