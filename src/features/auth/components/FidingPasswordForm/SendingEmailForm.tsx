@@ -1,7 +1,8 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { FormInput, Button } from "@/shared/components"
-
+import { authApi } from "@/features/auth/api/auth.api"
+import { useErrorStore } from "@/shared/store";
 
 interface SendingEmailFormProps {
     onSubmit?: (email: string) => void;
@@ -10,9 +11,13 @@ interface SendingEmailFormProps {
 export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
     const [email, setEmail] = useState("");
     const [error, setError] = useState<string>();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e: FormEvent) => {
+    const showError = useErrorStore((state) => state.showError);
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        if (isSubmitting) return;
 
         const normalizedEmail = email.trim();
         if (!normalizedEmail) {
@@ -28,8 +33,26 @@ export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
             return;
         }
 
-        if (onSubmit) {
-            onSubmit(normalizedEmail);
+        setIsSubmitting(true);
+
+        try {
+            await authApi.forgotPassword({ email: normalizedEmail });
+            if (onSubmit) {
+                onSubmit(normalizedEmail);
+            }
+        } catch (error: unknown) {
+            let errorMessage = '가입된 이메일을 찾을 수 없거나 발송에 실패했습니다.';
+            if (error instanceof Error) {
+                const e = error as Error & { response?: { data?: { message?: string } } };
+                errorMessage = e.response?.data?.message || e.message;
+            }
+
+            showError({
+                title: '이메일 발송 실패',
+                message: errorMessage,
+            });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -54,9 +77,10 @@ export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
                     type="submit"
                     variant="primary"
                     size="md"
+                    disabled={isSubmitting}
                     className="w-full h-14 font-bold"
                 >
-                재설정 링크 보내기  
+                    {isSubmitting ? '전송 중...' : '재설정 링크 보내기'}
                 </Button>
             </div>
         </form>
