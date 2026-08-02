@@ -69,12 +69,11 @@ export const useSignupForm = () => {
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
             nextErrors.email = '올바른 이메일 형식으로 입력해 주세요.';
         }
+        const passwordComplexityRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)\S+$/;
         if (!formData.password) nextErrors.password = '비밀번호를 입력해 주세요.';
         else if (formData.password.length < 8 || formData.password.length > 16) {
             nextErrors.password = '비밀번호는 8자 이상 16자 이하로 입력해 주세요.';
-        }
-        const passwordComplexityRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)\S+$/;
-        if (formData.password && !passwordComplexityRegex.test(formData.password)) {
+        } else if (!passwordComplexityRegex.test(formData.password)) {
             nextErrors.password = '영문 대문자·소문자·숫자를 포함하고 공백 없이 입력해 주세요.';
         }
         if (!formData.passwordConfirm) nextErrors.passwordConfirm = '비밀번호를 다시 입력해 주세요.';
@@ -155,22 +154,6 @@ export const useSignupForm = () => {
         navigate('/login');
     }
 
-    // 인증번호 다시 보내기
-    const handleResendCode = async () => {
-        try {
-            // TODO: 재전송 API 호출 구현 필요
-            // await authApi.resendCode({ email: formData.email });
-
-            setIsCodeError(false); // 에러 상태 초기화
-            setErrors(previous => ({ ...previous, verificationCode: undefined }));
-            setFormData(prev => ({ ...prev, verificationCode: '' })); // 인풋창 초기화
-
-            alert('인증번호가 재전송되었습니다.');
-        } catch {
-            showError({ title: '재전송 실패', message: '인증번호 재전송에 실패했습니다.' });
-        }
-    };
-
     // 이용약관 페이지에서 돌아왔을 때 입력값 & 동의 상태 복원
     useEffect(() => {
         const state = location.state as TermsNavigationState | null;
@@ -196,7 +179,6 @@ export const useSignupForm = () => {
         onAgreedTermsChange: setAgreedTerms,
         handleConfirmEmail,
         handleSubmitInfo,
-        handleResendCode,
         isCodeError,
         isVerified,      
         handleFinalSubmit
