@@ -1,7 +1,11 @@
 import KakaoIcon from '@/assets/icons/login/kakao.svg?react';
 import GoogleIcon from '@/assets/icons/login/google.svg?react';
 
-export const SocialLoginForm = () => {
+interface SocialLoginFormProps {
+    onLoginClick: (provider: 'Google' | 'Kakao') => void;
+}
+
+export const SocialLoginForm = ({ onLoginClick }: SocialLoginFormProps) => {
     return (
         <div className="flex flex-col">
             {/* 구분선 */}
@@ -17,6 +21,7 @@ export const SocialLoginForm = () => {
                 <button 
                     type="button" 
                     aria-label="카카오 로그인" 
+                    onClick={() => onLoginClick('Kakao')}
                     className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full transition-opacity hover:opacity-90"
                 >
                     <KakaoIcon className="h-full w-full" />
@@ -24,6 +29,7 @@ export const SocialLoginForm = () => {
                 <button 
                     type="button" 
                     aria-label="구글 로그인" 
+                    onClick={() => onLoginClick('Google')}
                     className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white transition-colors hover:bg-gray-50"
                 >
                     <GoogleIcon className="h-full w-full" />

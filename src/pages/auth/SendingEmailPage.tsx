@@ -17,7 +17,7 @@ export const SendingEmailPage = () => {
                     <p className="mb-3 font-medium text-sm text-gray-600">
                         비밀번호를 잊으셨나요?
                     </p>
-                    <p className="text-center text-sm text-gray-600 font-bold leading-tight">
+                    <p className="text-center text-sm text-gray-600 leading-tight">
                         가입하신 이메일 주소를 입력하시면<br />
                         비밀번호를 재설정할 수 있는 링크를 보내드립니다.
                     </p>
