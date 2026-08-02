@@ -69,7 +69,7 @@ export const MobileHeader = ({ user, unreadNotificationCount = 0 }: MobileHeader
   if (pathname === '/dashboard') {
     return (
       <header className="sticky top-0 z-30 h-[52px] shrink-0 border-b border-gray-100 bg-white lg:hidden">
-        <div className="mx-auto flex h-full w-full max-w-[390px] items-center justify-between px-4">
+        <div className="mx-auto flex h-full w-full items-center justify-between px-4">
           <Link to="/dashboard" className="flex items-center gap-2.5" aria-label="같이살림 홈">
             <img src={logoUrl} alt="" className="h-[22.572px] w-5" />
             <span className="font-logo text-mobile-title font-medium leading-normal tracking-[0.04em] text-gray-900">
@@ -118,7 +118,7 @@ export const MobileHeader = ({ user, unreadNotificationCount = 0 }: MobileHeader
 
   return (
     <header className="sticky top-0 z-30 h-[52px] shrink-0 border-b border-gray-100 bg-white lg:hidden">
-      <div className="mx-auto grid h-full w-full max-w-[390px] grid-cols-[1fr_auto_1fr] items-center px-4">
+      <div className="mx-auto grid h-full w-full grid-cols-[1fr_auto_1fr] items-center px-4">
         <div className="justify-self-start">
           <button
             type="button"

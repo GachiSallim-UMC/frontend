@@ -47,7 +47,7 @@ export const MobileBottomNavigation = ({ unreadMessageCount = 0 }: MobileBottomN
       aria-label="모바일 주요 메뉴"
       className="fixed inset-x-0 bottom-0 z-40 h-[calc(3.5rem+env(safe-area-inset-bottom))] border-t border-gray-100 bg-white pb-safe lg:hidden"
     >
-      <ul className="mx-auto grid h-full max-w-[390px] grid-cols-4">
+      <ul className="grid h-full w-full grid-cols-4">
         {items.map(item => (
           <li key={item.to}>
             <NavLink
