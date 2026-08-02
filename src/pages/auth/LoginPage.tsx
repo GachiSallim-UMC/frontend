@@ -1,5 +1,5 @@
 import { Link, Navigate } from 'react-router-dom';
-import {LoginForm, SocialLoginForm, useLogin} from "@/features/auth";
+import {LoginForm, SocialLoginForm, useLogin, OAUTH_STATE_STORAGE_KEY} from "@/features/auth";
 import { usePushSubscription } from '@/features/notification';
 import { ApiError } from "@/shared/api";
 import { useAuthStore } from '@/shared/store';
@@ -19,7 +19,11 @@ export const LoginPage =() => {
         const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
         const redirectUri = `${window.location.origin}/auth/callback`;
 
-        const authorizeUrl = `${cognitoDomain}/oauth2/authorize?client_id=${clientId}&response_type=code&scope=openid+email+profile+aws.cognito.signin.user.admin&redirect_uri=${redirectUri}&identity_provider=${provider}`;
+        // CSRF 방지: 콜백에서 이 값과 대조해 지금 시작한 로그인에서 온 code가 맞는지 검증
+        const state = crypto.randomUUID();
+        sessionStorage.setItem(OAUTH_STATE_STORAGE_KEY, state);
+
+        const authorizeUrl = `${cognitoDomain}/oauth2/authorize?client_id=${clientId}&response_type=code&scope=openid+email+profile+aws.cognito.signin.user.admin&redirect_uri=${redirectUri}&identity_provider=${provider}&state=${state}`;
 
         window.location.href = authorizeUrl;
     };

@@ -16,6 +16,7 @@ export { ResetPasswordForm } from './components/ResetPasswordForm/ResetPasswordF
 
 export { TERMS_DATA } from './constants/Terms'
 export {PRIVACY_DATA} from './constants/Privacy'
+export { OAUTH_STATE_STORAGE_KEY } from './constants/oauthState'
 export {INITIAL_SIGNUP_FORM_DATA} from './types/auth.type'
 export {useSignupForm} from './hooks/useSignupForm'
 export type {SignupFormData} from './types/auth.type'

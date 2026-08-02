@@ -17,9 +17,12 @@ export const ResetPasswordForm = ({
     isLoading = false,
 }: ResetPasswordFormProps) => {
     
-    // 새 비밀번호 길이 8자 이상, 새 비밀번호와 재입력 일치 시 버튼 활성화
-    const isSubmitEnabled = 
-        formData.newPassword.length >= 8 && 
+    // 안내 문구(영문 대문자·소문자·숫자 포함 8~16자)와 동일한 기준으로 검증 후 일치할 때만 버튼 활성화
+    const passwordComplexityRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/;
+    const isSubmitEnabled =
+        formData.newPassword.length >= 8 &&
+        formData.newPassword.length <= 16 &&
+        passwordComplexityRegex.test(formData.newPassword) &&
         formData.newPassword === formData.newPasswordConfirm;
 
     return (

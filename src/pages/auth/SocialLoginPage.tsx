@@ -63,12 +63,10 @@ export const SocialLoginPage = () => {
             let errorMessage = '회원가입 처리 중 문제가 발생했습니다.';
 
             if (error instanceof ApiError) {
-                const e = error as ApiError & { status?: number };
-                status = e.status; 
-                errorMessage = e.message;
+                status = error.statusCode;
+                errorMessage = error.message;
             } else if (error instanceof Error) {
-                const e = error as Error & { status?: number; response?: { status?: number } };
-                status = e.status || e.response?.status;
+                errorMessage = error.message;
             }
 
             if (status === 409) {

@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { authApi } from '@/features/auth'
-import { useErrorStore, useAuthStore } from '@/shared/store' 
+import { authApi, OAUTH_STATE_STORAGE_KEY } from '@/features/auth'
+import { ApiError } from '@/shared/api'
+import { useErrorStore, useAuthStore } from '@/shared/store'
 
 export const AuthCallbackPage = () => {
     const [searchParams] = useSearchParams();
@@ -65,14 +66,11 @@ export const AuthCallbackPage = () => {
                     let status: number | undefined;
                     let message = '';
 
-                    if (apiError instanceof Error) {
-                        const e = apiError as Error & { 
-                            status?: number; 
-                            statusCode?: number; 
-                            response?: { status?: number } 
-                        };
-                        status = e.status || e.statusCode || e.response?.status;
-                        message = e.message;
+                    if (apiError instanceof ApiError) {
+                        status = apiError.statusCode;
+                        message = apiError.message;
+                    } else if (apiError instanceof Error) {
+                        message = apiError.message;
                     }
 
                     if (status === 404 || message.includes('찾을 수 없습니다')) {
@@ -97,21 +95,37 @@ export const AuthCallbackPage = () => {
             }
         };
 
+        if (isProcessed.current) return;
+
         const code = searchParams.get('code');
         const error = searchParams.get('error');
+        const returnedState = searchParams.get('state');
 
         if (error) {
+            isProcessed.current = true;
+            sessionStorage.removeItem(OAUTH_STATE_STORAGE_KEY);
             showError({ title: '로그인 취소', message: '소셜 로그인이 취소되었거나 실패했습니다.' });
             navigate('/login', { replace: true });
             return;
         }
 
-        if (code && !isProcessed.current) {
+        if (!code) return;
+
+        // CSRF 방지: 콜백으로 돌아온 state가 로그인 시작 시 저장해둔 값과 일치할 때만 code를 처리
+        const expectedState = sessionStorage.getItem(OAUTH_STATE_STORAGE_KEY);
+        sessionStorage.removeItem(OAUTH_STATE_STORAGE_KEY);
+
+        if (!returnedState || !expectedState || returnedState !== expectedState) {
             isProcessed.current = true;
-            processLogin(code);
+            showError({ title: '인증 오류', message: '로그인 요청을 확인할 수 없습니다. 다시 로그인해주세요.' });
+            navigate('/login', { replace: true });
+            return;
         }
-        
-    }, [searchParams, navigate, showError, setSession]); 
+
+        isProcessed.current = true;
+        processLogin(code);
+
+    }, [searchParams, navigate, showError, setSession]);
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
