@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChoreBasicInfo,
@@ -9,10 +9,18 @@ import {
   useChoreForm,
   useUpdateChore,
   useRemoveChore,
+  ChoreDeleteModal,
+  ChoreSaveModal,
+  ChoreCancelModal,
 } from '@/features/chore';
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
 import { useGroupStore } from '@/shared/store';
+import { ShareItemPickerModal, type ShareableOption } from '@/features/messenger';
+
+/**index에 포함되어 있지 않아 불러올 수 없어서 직접 임포트 하였습니다. */
+import { useSendCardMessage } from '@/features/messenger/hooks/useChatRoomMutations';
+import { useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
 
 export const ChoreEditPage = () => {
   const { id = '' } = useParams<{ id: string }>();
@@ -24,6 +32,27 @@ export const ChoreEditPage = () => {
   const updateMutation = useUpdateChore();
   const deleteMutation = useRemoveChore();
   const { formData, updateField, getUpdateDto } = useChoreForm();
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const sendCardMessageMutation = useSendCardMessage();
+  const { data: chatRooms = [] } = useChatRooms(selectedGroupId ? String(selectedGroupId) : null);
+
+  const chatRoomOptions: ShareableOption[] = useMemo(() => {
+    return chatRooms.map(room => ({
+      id: String(room.id),
+      title: room.name,
+      subtitle:
+        room.category === 'group'
+          ? '그룹 채팅방'
+          : room.category === 'notice'
+            ? '공지방'
+            : '1:1 채팅방',
+    }));
+  }, [chatRooms]);
 
   const userOptions =
     members?.map(member => ({
@@ -64,36 +93,82 @@ export const ChoreEditPage = () => {
     });
   };
 
-  const handleSave = () => {
+  const handleSaveClick = () => {
+    const dto = getUpdateDto();
+    if (!dto || !id) return;
+    setIsSaveModalOpen(true);
+  };
+
+  const handleConfirmSave = () => {
     const dto = getUpdateDto();
     if (!dto || !id) return;
 
     updateMutation.mutate(
       { id, dto },
       {
-        onSuccess: () => navigate('/chores'),
-        onError: () => alert('수정에 실패했습니다. 다시 시도해 주세요.'),
+        onSuccess: () => {
+          setIsSaveModalOpen(false);
+          navigate('/chores');
+        },
+        onError: () => {
+          alert('수정에 실패했습니다. 다시 시도해 주세요.');
+          setIsSaveModalOpen(false);
+        },
       },
     );
   };
 
-  const handleCancel = () => {
-    if (confirm('수정을 취소하시겠습니까? 변경 사항이 저장되지 않습니다.')) {
-      navigate(-1);
-    }
+  const handleCancelClick = () => {
+    setIsCancelModalOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleConfirmCancel = () => {
+    setIsCancelModalOpen(false);
+    navigate(-1);
+  };
+
+  const handleDeleteClick = () => {
     if (!id) return;
-    if (confirm('정말 이 집안일을 삭제하시겠습니까?')) {
-      deleteMutation.mutate(id, {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!id) return;
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
+        setIsDeleteModalOpen(false);
+        navigate('/chores');
+      },
+      onError: () => {
+        alert('삭제에 실패했습니다. 다시 시도해 주세요.');
+        setIsDeleteModalOpen(false);
+      },
+    });
+  };
+
+  const handleShareClick = () => {
+    setIsShareModalOpen(true);
+  };
+
+  const handleSelectChatRoom = (optionId: string) => {
+    if (!id) return;
+
+    sendCardMessageMutation.mutate(
+      {
+        roomId: optionId,
+        type: 'CARD_CHORE',
+        refId: id,
+      },
+      {
         onSuccess: () => {
-          alert('삭제되었습니다.');
-          navigate('/chores');
+          setIsShareModalOpen(false);
+          navigate('/messenger');
         },
-        onError: () => alert('삭제에 실패했습니다. 다시 시도해 주세요.'),
-      });
-    }
+        onError: () => {
+          alert('집안일 공유에 실패했습니다.');
+        },
+      },
+    );
   };
 
   if (isLoading) {
@@ -132,10 +207,36 @@ export const ChoreEditPage = () => {
       />
       <ChoreMemo value={formData.memo} onChange={memo => updateField({ memo })} />
       <ChoreFormActions
-        onSave={handleSave}
-        onCancel={handleCancel}
-        onDelete={handleDelete}
+        onSave={handleSaveClick}
+        onCancel={handleCancelClick}
+        onDelete={handleDeleteClick}
+        onShare={handleShareClick}
         isSubmitting={updateMutation.isPending || deleteMutation.isPending}
+      />
+      <ChoreDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        choreName={choreData.title}
+        isDeleting={deleteMutation.isPending}
+      />
+      <ChoreSaveModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={handleConfirmSave}
+        choreName={formData.title || choreData.title}
+        isSaving={updateMutation.isPending}
+      />
+      <ChoreCancelModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+      />
+      <ShareItemPickerModal
+        type={isShareModalOpen ? 'chore' : null}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={() => setIsShareModalOpen(false)}
       />
     </div>
   );

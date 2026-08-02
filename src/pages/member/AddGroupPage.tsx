@@ -44,7 +44,6 @@ export const AddGroupPage = () => {
     const requestPayload = {
       name: formData.name,
       description: formData.description,
-      type: formData.type,
       maxMembers: Number(formData.maxMemberCount),
     };
 
