@@ -29,7 +29,7 @@ export const ItemListPage = () => {
       ...item,
       buyer: {
         ...item.buyer,
-        name: member.user.name,
+        name: member.user.nickname || member.user.name,
         nickname: member.user.nickname,
         avatarUrl: member.user.profileImage ?? undefined,
       },

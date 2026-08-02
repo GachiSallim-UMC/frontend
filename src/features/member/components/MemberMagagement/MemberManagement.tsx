@@ -63,7 +63,7 @@ export const MemberManagement = () => {
       {/* 멤버 리스트 영역 */}
       <div className="flex flex-col">
         {members.map((member, index) => {
-          const userName = member.user?.name || member.user?.nickname || '멤버';
+          const userName = member.user?.nickname || member.user?.name || '멤버';
           const userAvatarUrl = member.user?.profileImage ?? undefined;
 
           return (

@@ -51,6 +51,8 @@ export const MessengerPage = () => {
     draft,
     setDraft,
     sendMessage,
+    retrySendMessage,
+    deleteFailedMessage,
     activeShareType,
     openSharePicker,
     closeSharePicker,
@@ -184,6 +186,8 @@ export const MessengerPage = () => {
                         onViewShareDetail={handleViewShareDetail}
                         onShareAction={handleShareAction}
                         pendingShareActionIds={pendingActionIds}
+                        onRetryFailedMessage={retrySendMessage}
+                        onDeleteFailedMessage={deleteFailedMessage}
                       />
                     ))
                   )}

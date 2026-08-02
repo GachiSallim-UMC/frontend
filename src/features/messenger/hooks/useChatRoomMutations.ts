@@ -64,7 +64,7 @@ export const useTransferOwner = () => {
   });
 };
 
-/** 텍스트 메시지 전송 */
+/** 텍스트 메시지 전송 — 실패 시 말풍선 옆에 인라인으로 보여주므로 전역 에러 모달은 건너뜀 */
 export const useSendMessage = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -73,6 +73,7 @@ export const useSendMessage = () => {
     onSuccess: (_data, { roomId }) => {
       queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.messages(roomId) });
     },
+    meta: { skipGlobalError: true },
   });
 };
 
