@@ -1,7 +1,9 @@
-import type { ChangeEvent, FunctionComponent, SVGProps } from 'react';
+import type { ChangeEvent } from 'react';
 import { useState, useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button, FormInput } from '@/shared/components';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
+import { AVATAR_ID_TO_URL, AVATAR_ID_BY_URL } from '@/features/mypage/constants/avatars';
 import { useErrorStore } from '@/shared/store';
 import CameraIcon from "@/assets/icons/mypage/camera.svg?react"
 import UploadIcon from "@/assets/icons/mypage/upload.svg?react"
@@ -9,32 +11,9 @@ import TrashIcon from "@/assets/icons/mypage/trash.svg?react"
 import ProfileIcon from "@/assets/icons/mypage/profile.svg?react"
 import { AvatarSelectionModal } from '@/features/mypage/components/AvatarSelectionModal/AvatarSelectionModal';
 
-import Avatar1 from '@/assets/icons/mypage/Avatar/avatar-1.svg?react';
-import Avatar2 from '@/assets/icons/mypage/Avatar/avatar-2.svg?react';
-import Avatar3 from '@/assets/icons/mypage/Avatar/avatar-3.svg?react';
-import Avatar4 from '@/assets/icons/mypage/Avatar/avatar-4.svg?react';
-import Avatar5 from '@/assets/icons/mypage/Avatar/avatar-5.svg?react';
-import Avatar6 from '@/assets/icons/mypage/Avatar/avatar-6.svg?react';
-import Avatar7 from '@/assets/icons/mypage/Avatar/avatar-7.svg?react';
-import Avatar8 from '@/assets/icons/mypage/Avatar/avatar-8.svg?react';
-import Avatar9 from '@/assets/icons/mypage/Avatar/avatar-9.svg?react';
-import Avatar10 from '@/assets/icons/mypage/Avatar/avatar-10.svg?react';
-
-const AVATAR_COMPONENTS: Record<string, FunctionComponent<SVGProps<SVGSVGElement>>> = {
-    'avatar-1': Avatar1,
-    'avatar-2': Avatar2,
-    'avatar-3': Avatar3,
-    'avatar-4': Avatar4,
-    'avatar-5': Avatar5,
-    'avatar-6': Avatar6,
-    'avatar-7': Avatar7,
-    'avatar-8': Avatar8,
-    'avatar-9': Avatar9,
-    'avatar-10': Avatar10,
-};
-
 export const ProfileBasicInfo = () => {
     const showError = useErrorStore((state) => state.showError);
+    const queryClient = useQueryClient();
 
     const [name, setName] = useState<string>('홍길동');
     const [nickname, setNickname] = useState<string>('길동');
@@ -78,22 +57,20 @@ export const ProfileBasicInfo = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // 헤더 등 다른 화면에서 useMe()로 구독 중인 'auth' me 캐시를 무효화해 즉시 반영되게 함
+    const invalidateMe = () => {
+        queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+    };
+
     const renderProfileImage = () => {
         if (!profileImage) {
             return <div className='h-full w-full rounded-full bg-primary-400' />;
         }
 
-        const AvatarSvg = AVATAR_COMPONENTS[profileImage];
-        if (AvatarSvg) {
-            return (
-                <AvatarSvg className="h-full w-full rounded-full border border-gray-100 bg-gray-50 object-cover" />
-            );
-        }
-
         return (
-            <img 
-                src={profileImage} 
-                alt="프로필 이미지" 
+            <img
+                src={profileImage}
+                alt="프로필 이미지"
                 className='h-full w-full rounded-full border border-gray-100 bg-gray-50 object-cover'
             />
         );
@@ -120,7 +97,7 @@ export const ProfileBasicInfo = () => {
             return;
         }
 
-        const MAX_SIZE = 5 * 1024 * 1024; 
+        const MAX_SIZE = 10 * 1024 * 1024; 
         if (file.size > MAX_SIZE) {
             showError({
                 title: '파일 용량 초과',
@@ -137,7 +114,9 @@ export const ProfileBasicInfo = () => {
                 fileSize: file.size,
             });
             const finalImageUrl = await myPageApi.uploadToS3(uploadUrlInfo, file);
+            await myPageApi.updateProfile({ name, nickname, profileImage: finalImageUrl });
             setProfileImage(finalImageUrl);
+            invalidateMe();
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
             console.error('S3 Upload Error:', e.response?.data?.message || e.message);
@@ -157,15 +136,46 @@ export const ProfileBasicInfo = () => {
         setIsMenuOpen(false);
     };
 
-    // 모달에서 아바타 선택 완료 시 호출
-    const handleConfirmAvatar = (selectedAvatarUrl: string) => {
-        setProfileImage(selectedAvatarUrl);
+    // 모달에서 아바타 선택 완료 시 호출 (selectedAvatarId 예: 'avatar-4')
+    const handleConfirmAvatar = async (selectedAvatarId: string) => {
         setIsAvatarModalOpen(false);
+        const avatarUrl = AVATAR_ID_TO_URL[selectedAvatarId];
+        if (!avatarUrl) return;
+
+        try {
+            setIsLoading(true);
+            await myPageApi.updateProfile({ name, nickname, profileImage: avatarUrl });
+            setProfileImage(avatarUrl);
+            invalidateMe();
+        } catch (error: unknown) {
+            const e = error as Error & { response?: { data?: { message?: string } } };
+            console.error('Avatar Save Error:', e.response?.data?.message || e.message);
+            showError({
+                title: '저장 실패',
+                message: '아바타 변경 중 오류가 발생했습니다. 다시 시도해주세요.'
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleDeleteImage = () => {
-        setProfileImage(null);
+    const handleDeleteImage = async () => {
         setIsMenuOpen(false);
+        try {
+            setIsLoading(true);
+            await myPageApi.updateProfile({ name, nickname, profileImage: null });
+            setProfileImage(null);
+            invalidateMe();
+        } catch (error: unknown) {
+            const e = error as Error & { response?: { data?: { message?: string } } };
+            console.error('Profile Image Delete Error:', e.response?.data?.message || e.message);
+            showError({
+                title: '삭제 실패',
+                message: '프로필 이미지 삭제 중 오류가 발생했습니다. 다시 시도해주세요.'
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleSave = async () => {
@@ -183,6 +193,7 @@ export const ProfileBasicInfo = () => {
             
             const result = await myPageApi.updateProfile(payload);
             console.log('저장 완료 데이터:', result);
+            invalidateMe();
             alert('프로필이 성공적으로 저장되었습니다.');
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
@@ -311,7 +322,7 @@ export const ProfileBasicInfo = () => {
                 isOpen={isAvatarModalOpen}
                 onClose={() => setIsAvatarModalOpen(false)}
                 onConfirm={handleConfirmAvatar}
-                currentAvatar={profileImage}
+                currentAvatar={profileImage ? (AVATAR_ID_BY_URL[profileImage] ?? profileImage) : null}
             />
         </>
     );

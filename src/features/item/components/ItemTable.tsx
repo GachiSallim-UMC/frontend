@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
 import { StatusBadge, UserAvatar } from '@/shared/components/ui';
+import { formatDate, useDateFormat } from '@/shared/lib';
 import { ITEM_CATEGORY_LABEL } from '../hooks/useItemFilters';
 import type { Item } from '../types/item.types';
 
@@ -11,13 +12,10 @@ interface ItemTableProps {
 
 const GRID_COLUMNS = 'grid-cols-[1.24fr_1.15fr_1.58fr_1.25fr_1.71fr_1fr]';
 
-const formatUpdatedAt = (value: string) => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(date);
-};
+export const ItemTable = ({ items }: ItemTableProps) => {
+  const dateFormat = useDateFormat();
 
-export const ItemTable = ({ items }: ItemTableProps) => (
+  return (
   <div className="flex h-[428px] w-full flex-col overflow-hidden rounded-[10px] border border-gray-100 bg-white">
     <div
       className={`grid h-[60px] shrink-0 ${GRID_COLUMNS} items-center border-b border-gray-100 bg-primary-50 pr-[5px] text-caption font-bold text-gray-500`}
@@ -69,7 +67,7 @@ export const ItemTable = ({ items }: ItemTableProps) => (
                       <span className="text-gray-400">미지정</span>
                     )}
                   </span>
-                  <span className="truncate pl-[30px]">{formatUpdatedAt(item.updatedAt)}</span>
+                  <span className="truncate pl-[30px]">{formatDate(item.updatedAt, dateFormat)}</span>
                   <span className="pl-[30px]">
                     <StatusBadge variant={item.status} className="w-[68px] px-0 leading-normal" />
                   </span>
@@ -97,4 +95,5 @@ export const ItemTable = ({ items }: ItemTableProps) => (
       )}
     </div>
   </div>
-);
+  );
+};

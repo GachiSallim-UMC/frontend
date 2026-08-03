@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SelectDropdown } from '@/shared/components';
 import { Switch } from '@/shared/components';
+import { useDateFormatStore } from '@/shared/store';
 import {
   DATE_FORMAT_OPTIONS,
   FONT_SIZE_OPTIONS,
@@ -10,7 +11,6 @@ import {
   TIMEZONE_OPTIONS,
 } from '@/features/mypage/types/mypage.constants'
 import type {
-  DateFormatValue,
   FontSizeValue,
   LanguageValue,
   StartDayValue,
@@ -24,7 +24,9 @@ export const SystemSetting = () => {
     const [language, setLanguage] = useState<LanguageValue>('ko');
     const [timezone, setTimezone] = useState<TimezoneValue>('seoul');
     const [startDay, setStartDay] = useState<StartDayValue>('sunday');
-    const [dateFormat, setDateFormat] = useState<DateFormatValue>('YYYY/MM/DD');
+    // 날짜 형식은 전역 설정이라 다른 화면의 날짜 표시에도 즉시 반영되도록 전역 store를 사용
+    const dateFormat = useDateFormatStore(state => state.dateFormat);
+    const setDateFormat = useDateFormatStore(state => state.setDateFormat);
     const [fontSize, setFontSize] = useState<FontSizeValue>('normal');
 
     // 토글 스위치 상태 관리
