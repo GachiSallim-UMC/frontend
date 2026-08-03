@@ -20,14 +20,21 @@ export const JoinGroupPage = () => {
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const [foundGroup, setFoundGroup] = useState<Group | null>(null);
   const [isChecking, setIsChecking] = useState<boolean>(false);
+  const [inviteCodeError, setInviteCodeError] = useState<string>();
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInviteCode(e.target.value);
+    const value = e.target.value.toUpperCase();
+    if (!/^[A-HJ-NP-Z2-9]*$/.test(value)) {
+      setInviteCodeError('I·O를 제외한 영문 대문자와 숫자 2~9만 입력할 수 있습니다.');
+      return;
+    }
+    setInviteCode(value);
+    setInviteCodeError(undefined);
   };
 
   const handleConfirmCode = async () => {
-    if (!inviteCode.trim()) {
-      alert('초대 코드를 입력해주세요.');
+    if (!/^[A-HJ-NP-Z2-9]{6}$/.test(inviteCode)) {
+      setInviteCodeError('초대 코드를 정확히 6자리로 입력해 주세요.');
       return;
     }
 
