@@ -5,3 +5,4 @@ export * from './useExpenseList';
 export * from './useExpenseSettle';
 export * from './useCreatePayLink';
 export * from './useShareExpense';
+export * from './useExpenseMutations';

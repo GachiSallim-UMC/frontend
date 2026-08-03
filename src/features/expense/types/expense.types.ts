@@ -47,6 +47,12 @@ export interface ExpenseParticipant {
   percentage?: number;
 }
 
+export const expenseKeys = {
+  all: ['expenses'] as const,
+  lists: () => [...expenseKeys.all, 'list'] as const,
+  detail: (id: number | string) => [...expenseKeys.all, 'detail', id] as const,
+};
+
 /** 생활비 등록 DTO */
 export interface CreateExpenseDto {
   title: string;
