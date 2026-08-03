@@ -87,7 +87,8 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
   const updateAgreement = useUpdateRuleAgreement();
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('rule');
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('rule');
   const [errors, setErrors] = useState<FormErrors>({});
 
   const isPending = updateRule.isPending || updateAgreement.isPending;
@@ -319,6 +320,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </div>
   );

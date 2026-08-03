@@ -31,7 +31,8 @@ function enrichExpenseWithMembers(expense: Expense, memberList: User[]): Expense
 export const ExpenseListPage = () => {
   const [activeFilter, setActiveFilter] = useState<ExpenseFilterValue>('TOTAL');
   const navigate = useNavigate();
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('expense');
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('expense');
 
   const currentUserId = useAuthStore((state) => state.userId ?? undefined);
 
@@ -156,6 +157,7 @@ export const ExpenseListPage = () => {
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </div>
   );

@@ -20,7 +20,8 @@ export const RuleFormPage = () => {
     useRuleForm();
   const createRule = useCreateRule();
   const updateRule = useUpdateRule();
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('rule');
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('rule');
   const [errors, setErrors] = useState<FormErrors>({});
   const mutationError = createRule.error ?? updateRule.error;
 
@@ -150,6 +151,7 @@ export const RuleFormPage = () => {
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
         onClose={handleCloseShareModal}
+        isSubmitting={isSharePending}
       />
     </div>
   );

@@ -31,7 +31,8 @@ export const ChoreListPage = () => {
   const navigate = useNavigate();
   const completeMutation = useCompleteChore();
   const incompleteMutation = useIncompleteChore();
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('chore');
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('chore');
 
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
@@ -133,6 +134,7 @@ export const ChoreListPage = () => {
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </div>
   );

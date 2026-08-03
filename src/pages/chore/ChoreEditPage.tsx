@@ -33,7 +33,8 @@ export const ChoreEditPage = () => {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('chore');
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('chore');
 
   const userOptions =
     members?.map(member => ({
@@ -198,6 +199,7 @@ export const ChoreEditPage = () => {
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </div>
   );

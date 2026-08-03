@@ -74,7 +74,8 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const updateStatus = useUpdateItemStatus();
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('item');
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('item');
   const [errors, setErrors] = useState<FormErrors>({});
 
   const buyerOptions = groupMembers.map(member => ({
@@ -283,6 +284,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </div>
   );

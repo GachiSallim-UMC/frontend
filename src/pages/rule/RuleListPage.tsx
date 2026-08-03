@@ -12,7 +12,8 @@ import { SelectDropdown } from '@/shared/components/form';
 
 export const RuleListPage = () => {
   const { data = [], isLoading, error, refetch } = useRules();
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('rule');
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('rule');
   const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } =
     useRuleFilters(data);
 
@@ -82,6 +83,7 @@ export const RuleListPage = () => {
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </section>
   );

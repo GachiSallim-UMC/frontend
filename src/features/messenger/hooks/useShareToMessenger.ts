@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useErrorStore, useGroupStore } from '@/shared/store';
 import type { ShareableOption, ShareCardType } from '@/features/messenger/types';
@@ -13,6 +13,9 @@ export const useShareToMessenger = (type: ShareCardType) => {
   const { data: rooms } = useChatRooms(groupId);
   const sendCardMessageMutation = useSendCardMessage(groupId);
   const [refId, setRefId] = useState<string | null>(null);
+  // isPending은 렌더링 이후에야 갱신되므로, 같은 틱 안에서 연속 클릭되는 경우까지 막으려면
+  // 리렌더를 기다리지 않는 동기 락이 따로 필요하다.
+  const isSubmittingRef = useRef(false);
 
   const chatRoomOptions: ShareableOption[] = useMemo(
     () =>
@@ -28,17 +31,20 @@ export const useShareToMessenger = (type: ShareCardType) => {
   const closeShare = () => setRefId(null);
 
   const handleSelectChatRoom = (roomId: string) => {
-    if (!refId) return;
+    if (!refId || isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
 
     sendCardMessageMutation.mutate(
       { roomId, type: CARD_TYPE_BY_SHARE_TYPE[type], refId },
       {
         onSuccess: () => {
+          isSubmittingRef.current = false;
           setRefId(null);
           navigate('/messenger', { state: { roomId } });
         },
         // 전역 에러 모달은 4xx 대부분을 걸러내므로(isUnexpectedApiError), 공유 실패는 여기서 직접 안내한다.
         onError: error => {
+          isSubmittingRef.current = false;
           useErrorStore.getState().showError({
             title: '오류',
             message: error instanceof Error ? error.message : '메신저 공유에 실패했습니다. 잠시 후 다시 시도해 주세요.',

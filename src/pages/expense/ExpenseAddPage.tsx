@@ -238,6 +238,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </div>
   );
