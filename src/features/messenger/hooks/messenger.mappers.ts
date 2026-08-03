@@ -9,6 +9,7 @@ import type {
   ChatShareCard,
   MessageResponse,
   MessageTypeDto,
+  ShareCardType,
 } from '@/features/messenger/types';
 import { CARD_MESSAGE_TYPES } from '@/features/messenger/types';
 
@@ -56,6 +57,14 @@ const CARD_TYPE_TO_SHARE_TYPE: Record<CardMessageTypeDto, ChatShareCard['type']>
   CARD_EXPENSE: 'expense',
   CARD_SUPPLY: 'item',
   CARD_RULE: 'rule',
+};
+
+/** 공유 대상 도메인 → 카드 메시지 타입. useShareToMessenger/useChatRoom 양쪽에서 공용으로 씀 */
+export const CARD_TYPE_BY_SHARE_TYPE: Record<ShareCardType, CardMessageTypeDto> = {
+  chore: 'CARD_CHORE',
+  expense: 'CARD_EXPENSE',
+  item: 'CARD_SUPPLY',
+  rule: 'CARD_RULE',
 };
 
 /** 카드 메시지 → ChatShareCard (타입 라벨만, 상세 내용은 pages/messenger에서 보강) */

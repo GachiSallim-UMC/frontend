@@ -12,11 +12,7 @@ import {
 import type { Chore, ChoreFilter, RepeatType, ChoreApiStatus } from '@/features/chore';
 import { useGroupStore } from '@/shared/store';
 import { useGroupMembers } from '@/features/member';
-import { ShareItemPickerModal, type ShareableOption } from '@/features/messenger';
-
-/**index에 포함되어 있지 않아 불러올 수 없어서 직접 임포트 하였습니다. */
-import { useSendCardMessage } from '@/features/messenger/hooks/useChatRoomMutations';
-import { useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 
 const REPEAT_TYPE_FROM_FILTER: Record<NonNullable<ChoreFilter['repeatType']>, RepeatType> = {
   NONE: 'once',
@@ -35,26 +31,10 @@ export const ChoreListPage = () => {
   const navigate = useNavigate();
   const completeMutation = useCompleteChore();
   const incompleteMutation = useIncompleteChore();
-  const sendCardMessageMutation = useSendCardMessage();
-  const [shareChoreTarget, setShareChoreTarget] = useState<Chore | null>(null);
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('chore');
 
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
-
-  const { data: chatRooms = [] } = useChatRooms(selectedGroupId || null);
-
-  const chatRoomOptions: ShareableOption[] = useMemo(() => {
-    return chatRooms.map(room => ({
-      id: String(room.id),
-      title: room.name,
-      subtitle:
-        room.category === 'group'
-          ? '그룹 채팅방'
-          : room.category === 'notice'
-            ? '공지방'
-            : '1:1 채팅방',
-    }));
-  }, [chatRooms]);
 
   const apiStatus = useMemo(() => {
     if (filter.status === 'SCHEDULED') return 'PENDING';
@@ -126,28 +106,7 @@ export const ChoreListPage = () => {
   };
 
   const handleShareClick = (chore: Chore) => {
-    setShareChoreTarget(chore);
-  };
-
-  const handleSelectChatRoom = (optionId: string) => {
-    if (!shareChoreTarget) return;
-
-    sendCardMessageMutation.mutate(
-      {
-        roomId: optionId,
-        type: 'CARD_CHORE',
-        refId: String(shareChoreTarget.id),
-      },
-      {
-        onSuccess: () => {
-          setShareChoreTarget(null);
-          navigate('/messenger');
-        },
-        onError: () => {
-          alert('집안일 공유에 실패했습니다.');
-        },
-      },
-    );
+    openShare(String(chore.id));
   };
 
   return (
@@ -170,10 +129,10 @@ export const ChoreListPage = () => {
         />
       </div>
       <ShareItemPickerModal
-        type={shareChoreTarget ? 'chore' : null}
+        type={activeType}
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
-        onClose={() => setShareChoreTarget(null)}
+        onClose={closeShare}
       />
     </div>
   );

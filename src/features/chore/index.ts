@@ -43,8 +43,6 @@ export type {
   DayOfWeek,
   CustomOption,
   GetChoresParams,
-  ShareChoreDto,
-  ShareChoreResponse,
   IncompleteChoreResponse,
 } from './types/chore.types';
 
