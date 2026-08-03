@@ -5,9 +5,9 @@ import {
   RULE_STATUS_OPTIONS,
   useCreateRule,
   useRuleForm,
-  useShareRule,
   useUpdateRule,
 } from '@/features/rule';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
@@ -20,12 +20,19 @@ export const RuleFormPage = () => {
     useRuleForm();
   const createRule = useCreateRule();
   const updateRule = useUpdateRule();
-  const shareRule = useShareRule();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('rule');
   const [errors, setErrors] = useState<FormErrors>({});
-  const mutationError = createRule.error ?? updateRule.error ?? shareRule.error;
+  const mutationError = createRule.error ?? updateRule.error;
+
+  // 저장 후 바로 공유할 때는, 새로 만든 규칙 id로 방 선택 모달을 띄운다.
+  // 모달을 그냥 닫으면(방을 안 골라도) 규칙 자체는 이미 저장됐으므로 목록으로 이동한다.
+  const handleCloseShareModal = () => {
+    closeShare();
+    navigate('/rules');
+  };
 
   const handleSubmit = async (shareAfterSave: boolean) => {
-    if (createRule.isPending || updateRule.isPending || shareRule.isPending) return;
+    if (createRule.isPending || updateRule.isPending) return;
 
     const nextErrors: FormErrors = {};
     const trimmedTitle = title.trim();
@@ -57,11 +64,7 @@ export const RuleFormPage = () => {
         });
       }
       if (shareAfterSave) {
-        try {
-          await shareRule.mutateAsync(String(created.ruleId));
-        } finally {
-          navigate('/rules');
-        }
+        openShare(String(created.ruleId));
         return;
       }
       navigate('/rules');
@@ -142,6 +145,12 @@ export const RuleFormPage = () => {
           rightSlot={<ShareMessengerButton onClick={() => void handleSubmit(true)} />}
         />
       </div>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={handleCloseShareModal}
+      />
     </div>
   );
 };

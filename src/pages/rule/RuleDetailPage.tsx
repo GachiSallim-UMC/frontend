@@ -6,7 +6,6 @@ import {
   useRuleAgreement,
   useRuleDetail,
   useRuleForm,
-  useShareRule,
   useUpdateRule,
   useUpdateRuleAgreement,
   type MyAgreement,
@@ -14,6 +13,7 @@ import {
   type RuleAgreementApiStatus,
   type RuleHistoryType,
 } from '@/features/rule';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { FormActions, ShareMessengerButton, StatusBadge, UserAvatar } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
@@ -87,11 +87,11 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
   const updateAgreement = useUpdateRuleAgreement();
-  const shareRule = useShareRule();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('rule');
   const [errors, setErrors] = useState<FormErrors>({});
 
   const isPending = updateRule.isPending || updateAgreement.isPending;
-  const mutationError = updateRule.error ?? updateAgreement.error ?? shareRule.error;
+  const mutationError = updateRule.error ?? updateAgreement.error;
 
   const handleSave = async () => {
     if (isPending) return;
@@ -149,8 +149,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   };
 
   const handleShare = () => {
-    if (shareRule.isPending) return;
-    shareRule.mutate(rule.id);
+    openShare(rule.id);
   };
 
   return (
@@ -315,6 +314,12 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           </div>
         </Panel>
       </div>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+      />
     </div>
   );
 };

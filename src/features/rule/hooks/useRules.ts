@@ -60,11 +60,6 @@ export const useUpdateRuleAgreement = () => {
   });
 };
 
-export const useShareRule = () =>
-  useMutation({
-    mutationFn: ruleApi.share,
-  });
-
 export const useDeleteRule = () => {
   const queryClient = useQueryClient();
 

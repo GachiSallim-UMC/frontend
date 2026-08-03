@@ -6,20 +6,15 @@ import {
   RuleListRow,
   useRuleFilters,
   useRules,
-  useShareRule,
 } from '@/features/rule';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { SelectDropdown } from '@/shared/components/form';
 
 export const RuleListPage = () => {
   const { data = [], isLoading, error, refetch } = useRules();
-  const shareRule = useShareRule();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('rule');
   const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } =
     useRuleFilters(data);
-
-  const handleShare = (id: string) => {
-    if (shareRule.isPending) return;
-    shareRule.mutate(id);
-  };
 
   return (
     <section className="mx-auto mt-16 h-[472px] w-full max-w-[1114px] rounded-[20px] bg-white p-[30px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
@@ -76,12 +71,18 @@ export const RuleListPage = () => {
                 key={rule.id}
                 rule={rule}
                 isLast={index === filteredRules.length - 1}
-                onShare={handleShare}
+                onShare={openShare}
               />
             ))}
           </div>
         )}
       </div>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+      />
     </section>
   );
 };

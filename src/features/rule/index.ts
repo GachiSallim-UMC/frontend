@@ -18,7 +18,6 @@ export {
   useDeleteRule,
   useRuleDetail,
   useRules,
-  useShareRule,
   useUpdateRule,
   useUpdateRuleAgreement,
 } from './hooks/useRules';
@@ -31,7 +30,6 @@ export type {
   RuleAgreementApiStatus,
   RuleCategory,
   RuleHistory,
-  ShareRuleResponse,
   RuleUser,
   UpdateRuleAgreementDto,
   UpdateRuleDto,
