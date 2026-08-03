@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SelectDropdown } from '@/shared/components';
 import { Switch } from '@/shared/components';
-import { useDateFormatStore } from '@/shared/store';
+import { useDateFormatStore, useStartDayStore } from '@/shared/store';
 import {
   DATE_FORMAT_OPTIONS,
   FONT_SIZE_OPTIONS,
@@ -13,7 +13,6 @@ import {
 import type {
   FontSizeValue,
   LanguageValue,
-  StartDayValue,
   ThemeValue,
   TimezoneValue,
 } from '@/features/mypage/types/mypage.types'
@@ -23,7 +22,9 @@ export const SystemSetting = () => {
     const [theme, setTheme] = useState<ThemeValue>('light');
     const [language, setLanguage] = useState<LanguageValue>('ko');
     const [timezone, setTimezone] = useState<TimezoneValue>('seoul');
-    const [startDay, setStartDay] = useState<StartDayValue>('sunday');
+    // 주 시작 요일은 전역 설정이라 집안일 페이지 주간 캘린더에도 반영되도록 전역 store 사용
+    const startDay = useStartDayStore(state => state.startDay);
+    const setStartDay = useStartDayStore(state => state.setStartDay);
     // 날짜 형식은 전역 설정이라 다른 화면의 날짜 표시에도 즉시 반영되도록 전역 store를 사용
     const dateFormat = useDateFormatStore(state => state.dateFormat);
     const setDateFormat = useDateFormatStore(state => state.setDateFormat);
