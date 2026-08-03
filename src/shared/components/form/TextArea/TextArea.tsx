@@ -12,6 +12,7 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   countClassName?: string;
   containerClassName?: string;
   labelClassName?: string;
+  footerClassName?: string;
 }
 
 export const TextArea = ({
@@ -25,6 +26,7 @@ export const TextArea = ({
   countClassName,
   containerClassName,
   labelClassName,
+  footerClassName,
   value,
   className,
   id,
@@ -73,7 +75,7 @@ export const TextArea = ({
         )}
       </div>
       {(error || hint || (!countInside && showCount && maxLength)) && (
-        <div className="flex items-center justify-between">
+        <div className={cn('flex items-center justify-between', footerClassName)}>
           <div>
             {error && <p className="text-xs text-red-500">{error}</p>}
             {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}

@@ -13,6 +13,7 @@ const twMerge = extendTailwindMerge({
         {
           text: [
             'mobile-caption',
+            'mobile-label',
             'mobile-body',
             'mobile-title',
             'caption',

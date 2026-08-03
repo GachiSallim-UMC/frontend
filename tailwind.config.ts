@@ -69,13 +69,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: [
-          'Pretendard',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'system-ui',
-          'sans-serif',
-        ],
+        sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
         // 로고 제목 전용 (Figma: KBO Dia Gothic)
         logo: ['"KBO Dia Gothic"', 'Pretendard', 'sans-serif'],
       },
