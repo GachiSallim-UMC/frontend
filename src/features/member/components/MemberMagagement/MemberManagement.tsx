@@ -1,16 +1,18 @@
 import { UserAvatar } from '@/shared/components';
-import { useGroupMembers } from '@/features/member/hooks/useGroupMembers';
+import { useGroupMembers, GROUP_MEMBER_QUERY_KEYS } from '@/features/member/hooks/useGroupMembers';
 import {
   useUpdateMemberRole,
   useRemoveGroupMember,
 } from '@/features/member/hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const MemberManagement = () => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const { data: members, isLoading, isError } = useGroupMembers(selectedGroupId);
   const updateRoleMutation = useUpdateMemberRole();
   const removeMemberMutation = useRemoveGroupMember();
+  const queryClient = useQueryClient();
 
   const handleDelegateAdmin = (userId: string, name: string) => {
     if (!selectedGroupId) return;
@@ -19,7 +21,12 @@ export const MemberManagement = () => {
       updateRoleMutation.mutate(
         { groupId: selectedGroupId, userId, role: 'ADMIN' },
         {
-          onSuccess: () => alert(`${name}님이 관리자로 지정되었습니다.`),
+          onSuccess: () => {
+            alert(`${name}님이 관리자로 지정되었습니다.`);
+            queryClient.invalidateQueries({
+              queryKey: GROUP_MEMBER_QUERY_KEYS.list(selectedGroupId),
+            });
+          },
           onError: () => alert('권한 위임에 실패했습니다.'),
         },
       );
@@ -33,7 +40,12 @@ export const MemberManagement = () => {
       removeMemberMutation.mutate(
         { groupId: selectedGroupId, userId },
         {
-          onSuccess: () => alert(`${name}님이 그룹에서 내보내졌습니다.`),
+          onSuccess: () => {
+            alert(`${name}님이 그룹에서 내보내졌습니다.`);
+            queryClient.invalidateQueries({
+              queryKey: GROUP_MEMBER_QUERY_KEYS.list(selectedGroupId),
+            });
+          },
           onError: () => alert('멤버 내보내기에 실패했습니다.'),
         },
       );
