@@ -37,10 +37,6 @@ export const ResetPasswordForm = ({
             </div>
 
             <form onSubmit={onSubmit} className="flex flex-col">
-                <p className="mb-6 text-sm font-medium text-gray-500 break-keep leading-relaxed text-center bg-gray-50 p-3 rounded-lg">
-                    비밀번호는 영문 대문자, 소문자, 숫자를 포함한 <br />
-                    8~16자의 문자열로 이루어져야 합니다.
-                </p>
 
                 <div className="mb-4">
                     <label className="mb-2 block text-base font-bold text-gray-800">새 비밀번호</label>
@@ -51,6 +47,9 @@ export const ResetPasswordForm = ({
                         onChange={onChange('newPassword')}
                         disabled={isLoading}
                     />
+                    <p className="mt-1 text-base text-gray-400">
+                        * 영문 대문자·소문자·숫자를 포함한 8~16자의 비밀번호 입력
+                    </p>
                 </div>
 
                 <div className="mb-8">
