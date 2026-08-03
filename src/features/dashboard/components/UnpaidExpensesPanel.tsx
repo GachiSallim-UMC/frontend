@@ -12,25 +12,26 @@ import HouseIcon from "@/assets/icons/dashboard/unPaid/house.svg?react"
 import ShoppingIcon from "@/assets/icons/dashboard/unPaid/shopping.svg?react"
 import SpoonIcon from "@/assets/icons/dashboard/unPaid/spoon.svg?react"
 
+// 백엔드가 내려주는 ExpenseCategory 원본 값(대문자) 기준으로 분기
 const getExpenseIcon = (category?: string) => {
     switch (category) {
-        case 'grocery':
+        case 'GROCERY':
             return <BasketIcon className="h-7 w-7" />;
-        case 'education':
+        case 'EDUCATION':
             return <BookIcon className="h-7 w-7" />;
-        case 'finance':
+        case 'FINANCE':
             return <CalculatorIcon className="h-7 w-7" />;
-        case 'transport':
+        case 'TRANSPORT':
             return <CarIcon className="h-7 w-7" />;
-        case 'cafe':
+        case 'CAFE':
             return <CoffeeIcon className="h-7 w-7" />;
-        case 'leisure':
+        case 'LEISURE':
             return <GameIcon className="h-7 w-7" />;
-        case 'living':
+        case 'UTILITIES':
             return <HouseIcon className="h-7 w-7" />;
-        case 'shopping':
+        case 'SHOPPING':
             return <ShoppingIcon className="h-7 w-7" />;
-        case 'food':
+        case 'FOOD':
             return <SpoonIcon className="h-7 w-7" />;
         default:
             return <EtcIcon className="h-7 w-7" />;

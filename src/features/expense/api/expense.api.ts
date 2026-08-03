@@ -1,4 +1,4 @@
-import { apiClient, withSelectedNumericGroupBody, withSelectedGroupParams } from '@/shared/api';
+import { apiClient, withSelectedNumericGroupBody, withSelectedGroupParams, ApiError } from '@/shared/api';
 import type {
   Expense,
   CreateExpenseDto,
@@ -181,8 +181,15 @@ export const uploadReceiptToS3 = async (
   }
 };
 
-export const getReceiptViewUrl = async (expenseId: number | string): Promise<string> => {
-  const response = await apiClient.get(`/expenses/${expenseId}/receipt-image`);
-  const data = unwrap(response.data) as Record<string, unknown>;
-  return data.viewUrl as string;
+export const getReceiptViewUrl = async (expenseId: number | string): Promise<string | undefined> => {
+  try {
+    const response = await apiClient.get(`/expenses/${expenseId}/receipt-image`);
+    const data = unwrap(response.data) as Record<string, unknown>;
+    return data.viewUrl as string;
+  } catch (err) {
+    if (err instanceof ApiError && err.statusCode === 400) {
+      return undefined;
+    }
+    throw err;
+  }
 };

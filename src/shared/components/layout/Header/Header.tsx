@@ -57,7 +57,7 @@ export const Header = ({
         </div>
 
         <Link to="/mypage" className="flex items-center gap-2" aria-label="마이페이지">
-          <UserAvatar name={user.name} avatarUrl={user.avatarUrl} size="md" />
+          <UserAvatar name={user.name} avatarUrl={user.avatarUrl} size="md" fallback="plain" />
           <span className="text-button font-bold text-gray-900">{user.name}</span>
         </Link>
       </div>
