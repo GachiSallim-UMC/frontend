@@ -146,7 +146,6 @@ export const deleteExpense = async (expenseId: number | string): Promise<void> =
   await apiClient.delete(`/expenses/${expenseId}`);
 };
 
-
 export const requestReceiptUploadUrl = async (
   dto: RequestReceiptUploadUrlDto
 ): Promise<ReceiptUploadUrlResponse> => {
