@@ -260,7 +260,7 @@ export const ProfileBasicInfo = () => {
                             )}
                         </div>
                     </div>
-                    <span className="text-xl font-bold text-gray-900">{name}</span>
+                    <span className="text-xl font-bold text-gray-900">{nickname || name}</span>
                 </div>
 
                 {/* 기본 정보 폼 */}

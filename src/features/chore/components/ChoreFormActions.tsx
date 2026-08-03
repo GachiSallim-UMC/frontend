@@ -5,6 +5,7 @@ interface ChoreFormActionsProps {
   onSave: () => void;
   onCancel: () => void;
   onDelete?: () => void;
+  onShare?: () => void;
   isSubmitting?: boolean;
 }
 
@@ -12,6 +13,7 @@ export const ChoreFormActions = ({
   onSave,
   onCancel,
   onDelete,
+  onShare,
   isSubmitting,
 }: ChoreFormActionsProps) => {
   return (
@@ -39,13 +41,16 @@ export const ChoreFormActions = ({
           </Button>
         )}
       </div>
-      <Button
-        variant="ghost"
-        leftIcon={<MessengerIcon className="h-[24px] w-[24px] text-primary-600" />}
-        className="py-[13px] pl-[34px] pr-[35px] font-normal bg-white border border-dashed border-primary-500 text-primary-600 hover:bg-primary-50"
-      >
-        메신저에 공유
-      </Button>
+      {onShare && (
+        <Button
+          variant="ghost"
+          onClick={onShare}
+          leftIcon={<MessengerIcon className="h-[24px] w-[24px] text-primary-600" />}
+          className="py-[13px] pl-[34px] pr-[35px] font-normal bg-white border border-dashed border-primary-500 text-primary-600 hover:bg-primary-50"
+        >
+          메신저에 공유
+        </Button>
+      )}
     </div>
   );
 };

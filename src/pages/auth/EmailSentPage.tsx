@@ -17,7 +17,7 @@ export const EmailSentPage = () => {
         
         <div className="my-5 h-px w-full bg-gray-200" />
         
-        <EmailSentButtonGroup />
+        <EmailSentButtonGroup email={email} />
 
         <div className="mt-5 flex justify-center">
           <Link to="/login" className="text-base font-medium text-primary-500 underline">
