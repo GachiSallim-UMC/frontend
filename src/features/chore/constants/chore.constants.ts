@@ -51,3 +51,18 @@ export const DAYS: { value: DayOfWeek; label: string }[] = [
   { value: 'SAT', label: '토' },
   { value: 'SUN', label: '일' },
 ];
+
+export const CHORE_STATUS_FILTER_OPTIONS = [
+  { value: 'ALL', label: '전체' },
+  { value: 'DONE', label: '완료' },
+  { value: 'PENDING', label: '미완료' },
+  { value: 'SCHEDULED', label: '예정' },
+];
+
+export const CHORE_REPEAT_FILTER_OPTIONS = [
+  { value: 'ALL', label: '전체' },
+  { value: 'NONE', label: '반복 없음' },
+  { value: 'DAILY', label: '매일' },
+  { value: 'WEEKLY', label: '매주' },
+  { value: 'MONTHLY', label: '매월' },
+];

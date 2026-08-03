@@ -77,10 +77,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
 
   const buyerOptions = groupMembers.map(member => ({
     value: member.userId,
-    label:
-      member.user.nickname === member.user.name
-        ? member.user.name
-        : `${member.user.name} (${member.user.nickname})`,
+    label: member.user.nickname || member.user.name || `멤버 ${member.userId}`,
   }));
 
   if (editingItem?.buyer && !buyerOptions.some(option => option.value === editingItem.buyer?.id)) {
