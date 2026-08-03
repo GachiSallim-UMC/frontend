@@ -12,7 +12,8 @@ import {
   type Item,
 } from '@/features/item';
 import { useGroupMembers } from '@/features/member';
-import { Button, FormActions } from '@/shared/components/ui';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
+import { Button, FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { useGroupStore } from '@/shared/store';
@@ -73,6 +74,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const updateStatus = useUpdateItemStatus();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom } = useShareToMessenger('item');
   const [errors, setErrors] = useState<FormErrors>({});
 
   const buyerOptions = groupMembers.map(member => ({
@@ -240,6 +242,9 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         onSave={() => void handleSave()}
         onCancel={() => navigate(-1)}
         saveLabel={isPending ? '처리 중' : '저장'}
+        rightSlot={
+          editingItem ? <ShareMessengerButton onClick={() => openShare(editingItem.id)} /> : null
+        }
       />
 
       <Panel
@@ -273,6 +278,12 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
           </Button>
         </div>
       </Panel>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+      />
     </div>
   );
 };

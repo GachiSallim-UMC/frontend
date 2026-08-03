@@ -7,6 +7,7 @@ import type { Item } from '../types/item.types';
 
 interface ItemTableProps {
   items: Item[];
+  onShare?: (item: Item) => void;
 }
 
 const GRID_COLUMNS = 'grid-cols-[1.24fr_1.15fr_1.58fr_1.25fr_1.71fr_1fr]';
@@ -17,7 +18,7 @@ const formatUpdatedAt = (value: string) => {
   return new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(date);
 };
 
-export const ItemTable = ({ items }: ItemTableProps) => (
+export const ItemTable = ({ items, onShare }: ItemTableProps) => (
   <div className="flex h-[428px] w-full flex-col overflow-hidden rounded-[10px] border border-gray-100 bg-white">
     <div
       className={`grid h-[60px] shrink-0 ${GRID_COLUMNS} items-center border-b border-gray-100 bg-primary-50 pr-[5px] text-caption font-bold text-gray-500`}
@@ -84,6 +85,7 @@ export const ItemTable = ({ items }: ItemTableProps) => (
                     <button
                       type="button"
                       aria-label="공유"
+                      onClick={() => onShare?.(item)}
                       className="flex size-[39px] items-center justify-center transition-colors hover:text-gray-500"
                     >
                       <ShareIcon className="size-[39px]" />
