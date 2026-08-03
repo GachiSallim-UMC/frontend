@@ -34,6 +34,7 @@ interface NavItem {
   ActiveIcon?: IconType;
   label: string;
   badge?: number;
+  end?: boolean;
 }
 
 interface NavGroup {
@@ -80,13 +81,13 @@ const BOTTOM_NAV: NavItem[] = [
     ActiveIcon: GroupSettingsActiveIcon,
     label: '그룹 설정',
   },
-  { to: '/group', Icon: GroupChangeIcon, label: '그룹 변경' },
+  { to: '/group', Icon: GroupChangeIcon, label: '그룹 변경', end: true },
 ];
 
 const NavItemLink = ({ item }: { item: NavItem }) => (
   <NavLink
     to={item.to}
-    end
+    end={item.end}
     className={({ isActive }) =>
       cn(
         'flex items-center gap-[8px] rounded-r-[10px] border-l-4 px-[22px] py-[10px] text-body transition-colors',
