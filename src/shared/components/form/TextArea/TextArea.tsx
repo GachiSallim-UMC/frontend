@@ -3,6 +3,7 @@ import { cn } from '@/shared/lib/cn';
 
 interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
+  mobileLabel?: string;
   error?: string;
   hint?: string;
   required?: boolean;
@@ -17,6 +18,7 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 
 export const TextArea = ({
   label,
+  mobileLabel,
   error,
   hint,
   required,
@@ -43,7 +45,14 @@ export const TextArea = ({
           htmlFor={inputId}
           className={cn('text-caption font-bold text-gray-900', labelClassName)}
         >
-          {label}
+          {mobileLabel ? (
+            <>
+              <span className="lg:hidden">{mobileLabel}</span>
+              <span className="hidden lg:inline">{label}</span>
+            </>
+          ) : (
+            label
+          )}
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </label>
       )}
