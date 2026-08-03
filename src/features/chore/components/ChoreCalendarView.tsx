@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Circle } from 'lucide-react';
 import { useWeekCalendar } from '../hooks/useWeekCalendar';
+import { getChoreTargetDateStr, getChoreUIStatus } from '../hooks/useChoreStatus';
 import type { Chore } from '../types/chore.types';
 
 const STATUS_COLORS = {
@@ -13,25 +14,13 @@ interface ChoreCalendarViewProps {
 }
 
 export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
-  const { currentDate, weekDates, handlePrevWeek, handleNextWeek, today, todayString } =
-    useWeekCalendar();
+  const { currentDate, weekDates, handlePrevWeek, handleNextWeek, todayString } = useWeekCalendar();
   const currentYear = currentDate.getFullYear();
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
-  /**UI 전용 상태 확인 */
-  const getChoreUIStatus = (chore: Chore): keyof typeof STATUS_COLORS => {
-    if (chore.status === 'done') return 'done';
-
-    const targetDateStr = chore.endDate || chore.startDate;
-    const targetDate = new Date(targetDateStr);
-    targetDate.setHours(0, 0, 0, 0);
-
-    return targetDate.getTime() <= today.getTime() ? 'pending' : 'scheduled';
-  };
-
   const weekDays = weekDates.map((dateStr, index) => {
     const choresForDay = chores.filter(chore => {
-      const targetDateStr = chore.endDate || chore.startDate;
+      const targetDateStr = getChoreTargetDateStr(chore);
       const dateObj = new Date(targetDateStr);
       const month = String(dateObj.getMonth() + 1).padStart(2, '0');
       const day = String(dateObj.getDate()).padStart(2, '0');

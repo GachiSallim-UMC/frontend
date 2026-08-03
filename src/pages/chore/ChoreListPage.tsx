@@ -7,9 +7,17 @@ import {
   useChores,
   useCompleteChore,
   useIncompleteChore,
+  getChoreUIStatus,
 } from '@/features/chore';
-import type { Chore, ChoreFilter, RepeatType } from '@/features/chore';
+import type { Chore, ChoreFilter, RepeatType, ChoreApiStatus } from '@/features/chore';
 import { useGroupStore } from '@/shared/store';
+import { useGroupMembers } from '@/features/member';
+import {
+  ShareItemPickerModal,
+  type ShareableOption,
+  useSendCardMessage,
+  useChatRooms,
+} from '@/features/messenger';
 
 const REPEAT_TYPE_FROM_FILTER: Record<NonNullable<ChoreFilter['repeatType']>, RepeatType> = {
   NONE: 'once',
@@ -19,39 +27,87 @@ const REPEAT_TYPE_FROM_FILTER: Record<NonNullable<ChoreFilter['repeatType']>, Re
   CUSTOM: 'custom',
 };
 
+type ExtendedChoreFilter = Omit<ChoreFilter, 'status'> & {
+  status?: ChoreApiStatus | 'SCHEDULED' | 'ALL';
+};
+
 export const ChoreListPage = () => {
-  const [filter, setFilter] = useState<ChoreFilter>({});
+  const [filter, setFilter] = useState<ExtendedChoreFilter>({});
   const navigate = useNavigate();
   const completeMutation = useCompleteChore();
   const incompleteMutation = useIncompleteChore();
+  const sendCardMessageMutation = useSendCardMessage();
+  const [shareChoreTarget, setShareChoreTarget] = useState<Chore | null>(null);
 
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
+
+  const { data: chatRooms = [] } = useChatRooms(selectedGroupId || null);
+
+  const chatRoomOptions: ShareableOption[] = useMemo(() => {
+    return chatRooms.map(room => ({
+      id: String(room.id),
+      title: room.name,
+      subtitle:
+        room.category === 'group'
+          ? '그룹 채팅방'
+          : room.category === 'notice'
+            ? '공지방'
+            : '1:1 채팅방',
+    }));
+  }, [chatRooms]);
+
+  const apiStatus = useMemo(() => {
+    if (filter.status === 'SCHEDULED') return 'PENDING';
+    if (filter.status === 'ALL') return undefined;
+    return filter.status as ChoreApiStatus | undefined;
+  }, [filter.status]);
+
   const { data: chores = [] } = useChores(
     groupId && Number.isSafeInteger(groupId)
       ? {
           groupId,
-          status: filter.status,
+          status: apiStatus,
           assigneeId: filter.assigneeId,
         }
       : undefined,
   );
 
+  const { data: rawMembers = [] } = useGroupMembers(selectedGroupId);
+
+  const mappedMembers = useMemo(() => {
+    return rawMembers.map(m => ({
+      id: m.userId,
+      userId: m.userId,
+      name: m.user.name,
+      role: m.role,
+      joinedAt: m.joinedAt,
+      avatarUrl: m.user.profileImage || undefined,
+    }));
+  }, [rawMembers]);
+
   const filteredChores = useMemo(() => {
     const keyword = filter.keyword?.trim().toLocaleLowerCase();
     const repeatType = filter.repeatType ? REPEAT_TYPE_FROM_FILTER[filter.repeatType] : undefined;
 
-    return chores.filter(
-      chore =>
-        (!keyword || chore.name.toLocaleLowerCase().includes(keyword)) &&
-        (!repeatType || chore.repeatType === repeatType),
-    );
-  }, [chores, filter.keyword, filter.repeatType]);
+    return chores.filter(chore => {
+      const matchesKeyword = !keyword || chore.name.toLocaleLowerCase().includes(keyword);
+      const matchesRepeat = !repeatType || chore.repeatType === repeatType;
+
+      let matchesStatus = true;
+      if (filter.status && filter.status !== 'ALL') {
+        const uiStatus = getChoreUIStatus(chore).toUpperCase();
+        matchesStatus = uiStatus === filter.status;
+      }
+
+      return matchesKeyword && matchesRepeat && matchesStatus;
+    });
+  }, [chores, filter.keyword, filter.repeatType, filter.status]);
 
   const handleEdit = (chore: Chore) => navigate(`/chores/${chore.id}/edit`);
 
   const handleToggleComplete = (chore: Chore) => {
-    if (chore.status === 'done') {
+    if (getChoreUIStatus(chore) === 'done') {
       // 이미 완료 상태면 -> 미완료 처리 API 호출
       incompleteMutation.mutate(String(chore.id), {
         onError: error => {
@@ -70,9 +126,38 @@ export const ChoreListPage = () => {
     }
   };
 
+  const handleShareClick = (chore: Chore) => {
+    setShareChoreTarget(chore);
+  };
+
+  const handleSelectChatRoom = (optionId: string) => {
+    if (!shareChoreTarget) return;
+
+    sendCardMessageMutation.mutate(
+      {
+        roomId: optionId,
+        type: 'CARD_CHORE',
+        refId: String(shareChoreTarget.id),
+      },
+      {
+        onSuccess: () => {
+          setShareChoreTarget(null);
+          navigate('/messenger');
+        },
+        onError: () => {
+          alert('집안일 공유에 실패했습니다.');
+        },
+      },
+    );
+  };
+
   return (
     <div className="mt-[28px] flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
-      <ChoreFilterBar filter={filter} onFilterChange={setFilter} />
+      <ChoreFilterBar
+        filter={filter as ChoreFilter}
+        onFilterChange={f => setFilter(f as ExtendedChoreFilter)}
+        groupMembers={mappedMembers}
+      />
       <div className="w-full">
         <ChoreCalendarView chores={filteredChores} />
       </div>
@@ -80,11 +165,17 @@ export const ChoreListPage = () => {
         <ChoreTable
           chores={filteredChores}
           onEdit={handleEdit}
-          onShare={chore => console.log('Share chore', chore.name)}
+          onShare={handleShareClick}
           onToggleComplete={handleToggleComplete}
           isUpdating={completeMutation.isPending || incompleteMutation.isPending}
         />
       </div>
+      <ShareItemPickerModal
+        type={shareChoreTarget ? 'chore' : null}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={() => setShareChoreTarget(null)}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
 import { DataTable, StatusBadge, UserAvatar, type Column } from '@/shared/components/ui';
 import type { Chore } from '../types/chore.types';
+import { getChoreUIStatus } from '../hooks/useChoreStatus';
 
 interface ChoreTableProps {
   chores: Chore[];
@@ -19,10 +20,6 @@ const REPEAT_LABEL: Record<Chore['repeatType'], string> = {
   custom: '사용자 지정',
 };
 
-/**
- * 집안일 목록 테이블 — shared의 DataTable을 집안일 도메인에 맞게 조합.
- * 도메인 컴포넌트는 shared 컴포넌트를 '사용'하고, 그 반대는 금지.
- */
 export const ChoreTable = ({
   chores,
   onEdit,
@@ -39,7 +36,7 @@ export const ChoreTable = ({
         <div className="flex h-full items-center justify-center">
           <input
             type="checkbox"
-            checked={chore.status === 'done'}
+            checked={getChoreUIStatus(chore) === 'done'}
             onChange={() => onToggleComplete?.(chore)}
             disabled={isUpdating}
             className="
@@ -73,7 +70,7 @@ export const ChoreTable = ({
     {
       key: 'status',
       header: '상태',
-      render: chore => <StatusBadge variant={chore.status} />,
+      render: chore => <StatusBadge variant={getChoreUIStatus(chore)} />,
     },
     {
       key: 'actions',

@@ -67,6 +67,7 @@ const config: Config = {
           800: '#222222',
           900: '#111111',
         },
+        kakao: '#FFE716',
       },
       fontFamily: {
         sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],

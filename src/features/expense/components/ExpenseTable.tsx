@@ -1,6 +1,7 @@
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
 import { DataTable, UserAvatar, StatusBadge, type Column } from '@/shared/components/ui';
+import { useDateFormat } from '@/shared/lib';
 import type { Expense } from '@/features/expense';
 
 interface ExpenseTableProps {
@@ -16,24 +17,29 @@ const SPLIT_TYPE_LABEL: Record<string, string> = {
   RATIO: '비율 분할',
 };
 
-function formatDate(dateString: string): string {
+// 표에는 연도 없이 월/일만 표시하되, 전역 날짜 형식의 순서(월-일 vs 일-월)는 반영한다.
+function formatShortDate(dateString: string, order: 'MD' | 'DM'): string {
   if (!dateString) return '-';
 
   const date = new Date(dateString);
 
   if (isNaN(date.getTime())) return dateString;
 
-  return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(
-    date.getDate(),
-  ).padStart(2, '0')}`;
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+
+  return order === 'DM' ? `${dd}/${mm}` : `${mm}/${dd}`;
 }
 
 export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) => {
+  const dateFormat = useDateFormat();
+  const dateOrder = dateFormat === 'DD/MM/YY' ? 'DM' : 'MD';
+
   const columns: Column<Expense>[] = [
     {
       key: 'date',
       header: '날짜',
-      render: (row) => formatDate(row.date),
+      render: (row) => formatShortDate(row.date, dateOrder),
     },
     {
       key: 'title',

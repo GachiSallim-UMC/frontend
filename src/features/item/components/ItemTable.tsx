@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
 import { StatusBadge, UserAvatar } from '@/shared/components/ui';
+import { formatDate, useDateFormat } from '@/shared/lib';
 import { ITEM_CATEGORY_LABEL } from '../hooks/useItemFilters';
 import type { Item, ItemCategory } from '../types/item.types';
 
@@ -23,13 +24,10 @@ const MOBILE_CATEGORY_LABEL: Record<ItemCategory, string> = {
   etc: '기타',
 };
 
-const formatUpdatedAt = (value: string) => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(date);
-};
+export const ItemTable = ({ items }: ItemTableProps) => {
+  const dateFormat = useDateFormat();
 
-export const ItemTable = ({ items }: ItemTableProps) => (
+  return (
   <>
     <div className="w-full overflow-hidden rounded-lg bg-white lg:hidden">
       {items.length === 0 ? (
@@ -135,7 +133,7 @@ export const ItemTable = ({ items }: ItemTableProps) => (
                       )}
                     </span>
                     <span className="truncate pl-4 min-[1200px]:pl-[30px]">
-                      {formatUpdatedAt(item.updatedAt)}
+                      {formatDate(item.updatedAt, dateFormat)}
                     </span>
                     <span className="pl-[30px]">
                       <StatusBadge variant={item.status} className="w-[68px] px-0 leading-normal" />
@@ -165,4 +163,5 @@ export const ItemTable = ({ items }: ItemTableProps) => (
       </div>
     </div>
   </>
-);
+  );
+};

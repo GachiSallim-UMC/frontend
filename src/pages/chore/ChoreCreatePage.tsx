@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChoreBasicInfo,
@@ -6,6 +7,8 @@ import {
   ChoreRepeat,
   useChoreForm,
   useCreateChore,
+  ChoreSaveModal,
+  ChoreCancelModal,
 } from '@/features/chore';
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
@@ -14,15 +17,18 @@ import { useGroupStore } from '@/shared/store';
 export const ChoreCreatePage = () => {
   const navigate = useNavigate();
   const createMutation = useCreateChore();
-  const { formData, updateField, getCreateDto } = useChoreForm();
+  const { formData, errors, updateField, getCreateDto } = useChoreForm();
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
   const { data: members } = useGroupMembers(selectedGroupId);
 
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
   const userOptions =
     members?.map(member => ({
       value: String(member.userId),
-      label: member.user.name || member.user.nickname || `멤버 ${member.userId}`,
+      label: member.user.nickname || member.user.name || `멤버 ${member.userId}`,
     })) ?? [];
 
   const handleBasicInfoChange = (
@@ -41,25 +47,40 @@ export const ChoreCreatePage = () => {
     });
   };
 
-  const handleSave = () => {
+  const handleSaveClick = () => {
     if (!groupId || !Number.isSafeInteger(groupId)) {
       alert('선택된 그룹을 확인해 주세요.');
       return;
     }
+    const dto = getCreateDto(groupId);
+    if (!dto) return;
+    setIsSaveModalOpen(true);
+  };
 
+  const handleConfirmSave = () => {
+    if (!groupId || !Number.isSafeInteger(groupId)) return;
     const dto = getCreateDto(groupId);
     if (!dto) return;
 
     createMutation.mutate(dto, {
-      onSuccess: () => navigate('/chores'),
-      onError: () => alert('등록에 실패했습니다. 다시 시도해 주세요.'),
+      onSuccess: () => {
+        setIsSaveModalOpen(false);
+        navigate('/chores');
+      },
+      onError: () => {
+        alert('등록에 실패했습니다. 다시 시도해 주세요.');
+        setIsSaveModalOpen(false);
+      },
     });
   };
 
-  const handleCancel = () => {
-    if (confirm('작성 중인 내용이 모두 사라집니다. 취소하시겠습니까?')) {
-      navigate(-1);
-    }
+  const handleCancelClick = () => {
+    setIsCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setIsCancelModalOpen(false);
+    navigate(-1);
   };
 
   return (
@@ -69,6 +90,7 @@ export const ChoreCreatePage = () => {
         assigneeId={String(formData.assigneeId)}
         category={formData.category}
         assigneeOptions={userOptions}
+        errors={errors}
         onChange={handleBasicInfoChange}
       />
       <ChoreRepeat
@@ -78,13 +100,30 @@ export const ChoreCreatePage = () => {
         repeatDays={formData.repeatDays}
         startDate={formData.startDate}
         dueDate={formData.dueDate}
+        errors={errors}
         onChange={updateField}
       />
-      <ChoreMemo value={formData.memo} onChange={memo => updateField({ memo })} />
+      <ChoreMemo
+        value={formData.memo}
+        error={errors.memo}
+        onChange={memo => updateField({ memo })}
+      />
       <ChoreFormActions
-        onSave={handleSave}
-        onCancel={handleCancel}
+        onSave={handleSaveClick}
+        onCancel={handleCancelClick}
         isSubmitting={createMutation.isPending}
+      />
+      <ChoreSaveModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={handleConfirmSave}
+        choreName={formData.title || '새 집안일'}
+        isSaving={createMutation.isPending}
+      />
+      <ChoreCancelModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancel}
       />
     </div>
   );

@@ -13,6 +13,8 @@ interface ChatInputBarProps {
 export const ChatInputBar = ({ value, onChange, onSend, onSelectShareType }: ChatInputBarProps) => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    const trimmedValue = value.trim();
+    if (!trimmedValue || trimmedValue.length > 2000) return;
     onSend();
   };
 
@@ -24,10 +26,17 @@ export const ChatInputBar = ({ value, onChange, onSend, onSelectShareType }: Cha
           type="text"
           value={value}
           onChange={e => onChange(e.target.value)}
+          maxLength={2000}
           placeholder="메시지를 입력하세요... (WebSocket 실시간 전송)"
           className="h-[42px] flex-1 rounded-lg border border-gray-100 bg-white px-4 text-caption text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
-        <Button type="submit" variant="primary" size="md" className="h-[42px] w-[116px] font-bold">
+        <Button
+          type="submit"
+          variant="primary"
+          size="md"
+          disabled={!value.trim() || value.trim().length > 2000}
+          className="h-[42px] w-[116px] font-bold"
+        >
           전송
         </Button>
       </form>
