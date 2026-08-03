@@ -7,6 +7,7 @@ import type {
   UpdateGroupDto,
   GroupPermissionsResponse,
   UpdateGroupPermissionsDto,
+  InviteInfoResponse,
 } from '../types/member.types';
 
 const BASE = '/groups';
@@ -30,7 +31,8 @@ const isMemberGroupResponse = (value: unknown): value is MemberGroupResponse =>
   typeof value.createdBy === 'string' &&
   typeof value.isDeleted === 'boolean' &&
   typeof value.createdAt === 'string' &&
-  typeof value.updatedAt === 'string';
+  typeof value.updatedAt === 'string' &&
+  (value.groupImage === undefined || isNullableString(value.groupImage));
 
 const isGroupMemberResponse = (value: unknown): value is GroupMemberResponse =>
   isRecord(value) &&
@@ -123,6 +125,13 @@ export const memberApi = {
       `/groups/${groupId}/permissions`,
       payload,
     );
+    return data;
+  },
+
+  getInviteInfo: async (code: string): Promise<InviteInfoResponse> => {
+    const { data } = await apiClient.get<InviteInfoResponse>(`${BASE}/invite-info`, {
+      params: { code },
+    });
     return data;
   },
 };

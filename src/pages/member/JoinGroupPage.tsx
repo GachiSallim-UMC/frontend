@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
-
 import {
   type Group,
   JoinGroupInput,
@@ -11,16 +9,17 @@ import {
 } from '@/features/member';
 import { useGroupStore } from '@/shared/store';
 import { GroupPageHeader } from './GroupPageHeader';
+import { memberApi } from '@/features/member/api/member.api';
 
 export const JoinGroupPage = () => {
   const navigate = useNavigate();
   const setSelectedGroupId = useGroupStore(s => s.setSelectedGroupId);
   const joinGroupMutation = useJoinGroup();
-  const queryClient = useQueryClient();
 
   const [inviteCode, setInviteCode] = useState<string>('');
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const [foundGroup, setFoundGroup] = useState<Group | null>(null);
+  const [isChecking, setIsChecking] = useState<boolean>(false);
   const [inviteCodeError, setInviteCodeError] = useState<string>();
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,47 +32,58 @@ export const JoinGroupPage = () => {
     setInviteCodeError(undefined);
   };
 
-  const handleConfirmCode = () => {
+  const handleConfirmCode = async () => {
     if (!/^[A-HJ-NP-Z2-9]{6}$/.test(inviteCode)) {
       setInviteCodeError('초대 코드를 정확히 6자리로 입력해 주세요.');
       return;
     }
 
+    setIsChecking(true);
+    try {
+      const previewData = await memberApi.getInviteInfo(inviteCode);
+
+      const groupPreview: Group = {
+        id: 'temp-id', // 가입 전이므로 임시 ID 사용
+        name: previewData.name,
+        description: previewData.description,
+        type: previewData.residenceType || 'ETC',
+        address: '',
+        inviteCode: inviteCode,
+        memberCount: previewData.currentMembers,
+        maxMemberCount: previewData.maxMembers,
+        members: [],
+        ownerId: '',
+        groupImage: previewData.groupImage || null,
+      };
+
+      setFoundGroup(groupPreview);
+      setShowPreview(true);
+    } catch (error) {
+      alert('유효하지 않은 초대 코드이거나 만료되었습니다.');
+      setShowPreview(false);
+      setFoundGroup(null);
+      console.error(error);
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  const handleJoinGroup = () => {
+    if (!inviteCode) return;
+
     joinGroupMutation.mutate(
       { inviteCode },
       {
         onSuccess: res => {
-          queryClient.invalidateQueries({ queryKey: ['my-groups'] });
-
-          const joinedGroup: Group = {
-            id: res.id,
-            name: '참여한 그룹',
-            description: '',
-            type: 'etc',
-            address: '',
-            inviteCode: inviteCode,
-            memberCount: 1,
-            members: [],
-            ownerId: '',
-          };
-
-          setFoundGroup(joinedGroup);
-          setShowPreview(true);
+          setSelectedGroupId(res.id);
+          navigate('/dashboard');
         },
         onError: error => {
-          alert('유효하지 않은 초대 코드이거나 이미 가입된 그룹입니다.');
-          setShowPreview(false);
-          setFoundGroup(null);
+          alert('가입에 실패했거나 이미 가입된 그룹입니다.');
           console.error(error);
         },
       },
     );
-  };
-
-  const handleJoinGroup = () => {
-    if (!foundGroup) return;
-    setSelectedGroupId(foundGroup.id);
-    navigate('/dashboard');
   };
 
   const handleCancel = () => {
@@ -99,7 +109,7 @@ export const JoinGroupPage = () => {
             onChange={handleCodeChange}
             onConfirm={handleConfirmCode}
             error={inviteCodeError}
-            disabled={showPreview}
+            disabled={showPreview || isChecking}
           />
 
           {showPreview && foundGroup && (

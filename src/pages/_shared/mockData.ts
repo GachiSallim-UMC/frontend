@@ -98,7 +98,7 @@ export const chores: Chore[] = [
 // ==================== 생활비 (Figma 09 · 정산 목록) ====================
 // 이번 달 총 지출 138,000원 = 32,000 + 30,000 + 54,000 + 22,000
 
-export const expenses: Expense[] =[] /*[
+export const expenses: Expense[] = []; /*[
   {
     id: 'e1',
     title: '마트 장보기',
@@ -633,7 +633,7 @@ export const groups: Group[] = [
     id: 'g1',
     name: '우리집 룸메이트',
     description: '룸메이트',
-    type: 'roommate',
+    type: 'ROOMMATE',
     address: '서울특별시 마포구 연남동 123-45',
     inviteCode: 'ABCDEF',
     createdAt: '2026.04.01',
@@ -646,7 +646,7 @@ export const groups: Group[] = [
     id: 'g2',
     name: '대학원 쉐어하우스',
     description: '쉐어하우스',
-    type: 'share',
+    type: 'SHARE',
     address: '서울특별시 마포구 연남동 123-45',
     inviteCode: 'ABCDEF',
     createdAt: '2026.04.01',
