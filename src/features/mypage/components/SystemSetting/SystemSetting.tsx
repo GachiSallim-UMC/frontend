@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SelectDropdown } from '@/shared/components';
 import { Switch } from '@/shared/components';
 import { useStartDayStore } from '@/shared/store';
+import { useDateFormatStore } from '@/shared/store';
 import {
   DATE_FORMAT_OPTIONS,
   FONT_SIZE_OPTIONS,
@@ -11,7 +12,6 @@ import {
   TIMEZONE_OPTIONS,
 } from '@/features/mypage/types/mypage.constants'
 import type {
-  DateFormatValue,
   FontSizeValue,
   LanguageValue,
   ThemeValue,

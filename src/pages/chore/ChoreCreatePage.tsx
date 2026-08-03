@@ -17,7 +17,7 @@ import { useGroupStore } from '@/shared/store';
 export const ChoreCreatePage = () => {
   const navigate = useNavigate();
   const createMutation = useCreateChore();
-  const { formData, updateField, getCreateDto } = useChoreForm();
+  const { formData, errors, updateField, getCreateDto } = useChoreForm();
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
   const { data: members } = useGroupMembers(selectedGroupId);
@@ -90,6 +90,7 @@ export const ChoreCreatePage = () => {
         assigneeId={String(formData.assigneeId)}
         category={formData.category}
         assigneeOptions={userOptions}
+        errors={errors}
         onChange={handleBasicInfoChange}
       />
       <ChoreRepeat
@@ -99,9 +100,14 @@ export const ChoreCreatePage = () => {
         repeatDays={formData.repeatDays}
         startDate={formData.startDate}
         dueDate={formData.dueDate}
+        errors={errors}
         onChange={updateField}
       />
-      <ChoreMemo value={formData.memo} onChange={memo => updateField({ memo })} />
+      <ChoreMemo
+        value={formData.memo}
+        error={errors.memo}
+        onChange={memo => updateField({ memo })}
+      />
       <ChoreFormActions
         onSave={handleSaveClick}
         onCancel={handleCancelClick}

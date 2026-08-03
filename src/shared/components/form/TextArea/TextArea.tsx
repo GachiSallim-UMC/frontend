@@ -3,26 +3,32 @@ import { cn } from '@/shared/lib/cn';
 
 interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
+  mobileLabel?: string;
   error?: string;
   hint?: string;
   required?: boolean;
   showCount?: boolean;
   maxLength?: number;
   countInside?: boolean;
+  countClassName?: string;
   containerClassName?: string;
   labelClassName?: string;
+  footerClassName?: string;
 }
 
 export const TextArea = ({
   label,
+  mobileLabel,
   error,
   hint,
   required,
   showCount,
   maxLength,
   countInside = false,
+  countClassName,
   containerClassName,
   labelClassName,
+  footerClassName,
   value,
   className,
   id,
@@ -39,7 +45,14 @@ export const TextArea = ({
           htmlFor={inputId}
           className={cn('text-caption font-bold text-gray-900', labelClassName)}
         >
-          {label}
+          {mobileLabel ? (
+            <>
+              <span className="lg:hidden">{mobileLabel}</span>
+              <span className="hidden lg:inline">{label}</span>
+            </>
+          ) : (
+            label
+          )}
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </label>
       )}
@@ -60,19 +73,24 @@ export const TextArea = ({
           {...props}
         />
         {countInside && showCount && maxLength && (
-          <p className="pointer-events-none absolute bottom-3.5 right-4 text-caption leading-normal text-gray-400">
+          <p
+            className={cn(
+              'pointer-events-none absolute bottom-3.5 right-4 text-caption leading-normal text-gray-400',
+              countClassName,
+            )}
+          >
             {currentLength}/{maxLength}
           </p>
         )}
       </div>
       {(error || hint || (!countInside && showCount && maxLength)) && (
-        <div className="flex items-center justify-between">
+        <div className={cn('flex items-center justify-between', footerClassName)}>
           <div>
             {error && <p className="text-xs text-red-500">{error}</p>}
             {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}
           </div>
           {!countInside && showCount && maxLength && (
-            <p className="text-xs text-gray-400">
+            <p className={cn('text-xs text-gray-400', countClassName)}>
               {currentLength}/{maxLength}
             </p>
           )}
