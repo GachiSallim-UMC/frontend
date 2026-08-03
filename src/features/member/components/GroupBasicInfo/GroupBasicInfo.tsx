@@ -9,7 +9,6 @@ import { authApi } from '@/features/auth';
 import CameraIcon from '@/assets/icons/member/camera.svg?react';
 import UploadIcon from '@/assets/icons/member/upload.svg?react';
 import TrashIcon from '@/assets/icons/member/trash.svg?react';
-import ProfileIcon from '@/assets/icons/member/profile.svg?react';
 import CopyIcon from '@/assets/icons/member/copy.svg?react';
 
 import RoommateIcon from '@/assets/icons/member/ResidenceType/roommate.svg?react';
@@ -26,8 +25,6 @@ export const GroupBasicInfo = () => {
   const [maxMemberCount, setMaxMemberCount] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [groupImage, setGroupImage] = useState<string | null>(null);
-  const [isAvatarDeleted, setIsAvatarDeleted] = useState<boolean>(false);
-
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +47,6 @@ export const GroupBasicInfo = () => {
       setMaxMemberCount(String(groupData.maxMembers || ''));
       setDescription(groupData.description || '');
       setGroupImage(groupData.groupImage || null);
-      setIsAvatarDeleted(false);
     }
   }, [groupData]);
 
@@ -78,22 +74,13 @@ export const GroupBasicInfo = () => {
     if (file) {
       setSelectedFile(file);
       setGroupImage(URL.createObjectURL(file));
-      setIsAvatarDeleted(false);
     }
-  };
-
-  const handleDefaultAvatarSelect = () => {
-    setIsMenuOpen(false);
-    setGroupImage(null);
-    setSelectedFile(null);
-    setIsAvatarDeleted(false);
   };
 
   const handleImageDelete = () => {
     setIsMenuOpen(false);
     setGroupImage(null);
     setSelectedFile(null);
-    setIsAvatarDeleted(true);
   };
 
   const handleSave = async () => {
@@ -200,8 +187,6 @@ export const GroupBasicInfo = () => {
               alt="그룹 프로필"
               className="h-full w-full rounded-full object-cover"
             />
-          ) : isAvatarDeleted ? (
-            <div className="h-full w-full rounded-full bg-primary-200 object-cover" />
           ) : (
             <div className="h-full w-full overflow-hidden rounded-full bg-primary-200 object-cover">
               {renderDefaultIcon(groupData?.residenceType)}
@@ -227,13 +212,6 @@ export const GroupBasicInfo = () => {
                 >
                   <UploadIcon />
                   사진 업로드
-                </button>
-                <button
-                  onClick={handleDefaultAvatarSelect}
-                  className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-100"
-                >
-                  <ProfileIcon />
-                  기본 아바타 선택
                 </button>
                 <button
                   onClick={handleImageDelete}
