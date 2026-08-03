@@ -1,6 +1,35 @@
+import { useState } from "react";
 import { Button } from "@/shared/components"
+import { downloadBlob } from "@/shared/lib";
+import { useErrorStore } from "@/shared/store";
+import { myPageApi } from "@/features/mypage/api/myPage.api";
 
-export const DataInfoSettings = () => {
+interface DataInfoSettingsProps {
+    onViewPrivacy?: () => void;
+    onViewTerms?: () => void;
+}
+
+export const DataInfoSettings = ({ onViewPrivacy, onViewTerms }: DataInfoSettingsProps) => {
+    const showError = useErrorStore((state) => state.showError);
+    const [isExporting, setIsExporting] = useState(false);
+
+    const handleExportData = async () => {
+        try {
+            setIsExporting(true);
+            const { blob, filename } = await myPageApi.exportMyData();
+            downloadBlob(blob, filename);
+        } catch (error: unknown) {
+            const e = error as Error & { response?: { data?: { message?: string } } };
+            console.error('데이터 내보내기 실패:', e.response?.data?.message || e.message);
+            showError({
+                title: '내보내기 실패',
+                message: '데이터를 내보내는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+            });
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     return (
         <section className='flex w-full flex-col rounded-2xl bg-white p-7'>
              <h3 className='mb-5 text-lg font-bold text-gray-900 leading-snug'>
@@ -17,11 +46,13 @@ export const DataInfoSettings = () => {
                                     집안일·정산·활동 내역을 파일(CSV)로 다운로드 
                                 </span>
                             </div>
-                            <Button 
+                            <Button
                                 variant="secondary"
                                 size="sm"
-                            > 
-                                내보내기 
+                                isLoading={isExporting}
+                                onClick={handleExportData}
+                            >
+                                내보내기
                             </Button>
                         </div>
             
@@ -51,10 +82,11 @@ export const DataInfoSettings = () => {
                                     개인정보 수집·이용 및 보관 정책 안내
                                 </span>
                             </div>
-                            <Button 
+                            <Button
                                 variant="secondary"
                                 size="sm"
-                            > 
+                                onClick={onViewPrivacy}
+                            >
                                 보기
                             </Button>
                         </div>
@@ -68,10 +100,11 @@ export const DataInfoSettings = () => {
                                     서비스 이용약관 전문
                                 </span>
                             </div>
-                            <Button 
+                            <Button
                                 variant="secondary"
                                 size="sm"
-                            > 
+                                onClick={onViewTerms}
+                            >
                                 보기
                             </Button>
                         </div>

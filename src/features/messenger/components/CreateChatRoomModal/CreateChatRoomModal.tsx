@@ -31,12 +31,14 @@ export const CreateChatRoomModal = ({
   initialName = '',
 }: CreateChatRoomModalProps) => {
   const [name, setName] = useState('');
+  const [nameError, setNameError] = useState<string>();
   const [category, setCategory] = useState<ChatRoomCategory>('group');
   const [memberIds, setMemberIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (isOpen) {
       setName(initialName);
+      setNameError(undefined);
       setCategory('group');
       setMemberIds([]);
     }
@@ -48,8 +50,16 @@ export const CreateChatRoomModal = ({
   };
 
   const handleCreate = () => {
-    if (!name.trim()) return;
-    onCreate({ name: name.trim(), category, memberIds });
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setNameError('채팅방 이름을 입력해 주세요.');
+      return;
+    }
+    if (trimmedName.length > 100) {
+      setNameError('채팅방 이름은 100자 이하로 입력해 주세요.');
+      return;
+    }
+    onCreate({ name: trimmedName, category, memberIds });
   };
 
   return (
@@ -76,10 +86,15 @@ export const CreateChatRoomModal = ({
             id="new-room-name"
             type="text"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={e => {
+              setName(e.target.value);
+              setNameError(undefined);
+            }}
+            maxLength={100}
             placeholder="채팅방 이름"
-            className="h-[58px] w-full rounded-lg border border-gray-100 px-[21px] text-[16px] text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className={`h-[58px] w-full rounded-lg border px-[21px] text-[16px] text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 ${nameError ? 'border-red-500' : 'border-gray-100'}`}
           />
+          {nameError && <p className="text-xs text-red-500">{nameError}</p>}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -114,7 +129,7 @@ export const CreateChatRoomModal = ({
         <button
           type="button"
           onClick={handleCreate}
-          disabled={!name.trim()}
+          disabled={!name.trim() || name.trim().length > 100}
           className="h-[58px] flex-1 rounded-lg bg-primary-600 text-[16px] font-bold leading-[normal] text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           채팅방 만들기
