@@ -12,11 +12,12 @@ import {
 import type { Chore, ChoreFilter, RepeatType, ChoreApiStatus } from '@/features/chore';
 import { useGroupStore } from '@/shared/store';
 import { useGroupMembers } from '@/features/member';
-import { ShareItemPickerModal, type ShareableOption } from '@/features/messenger';
-
-/**index에 포함되어 있지 않아 불러올 수 없어서 직접 임포트 하였습니다. */
-import { useSendCardMessage } from '@/features/messenger/hooks/useChatRoomMutations';
-import { useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
+import {
+  ShareItemPickerModal,
+  type ShareableOption,
+  useSendCardMessage,
+  useChatRooms,
+} from '@/features/messenger';
 
 const REPEAT_TYPE_FROM_FILTER: Record<NonNullable<ChoreFilter['repeatType']>, RepeatType> = {
   NONE: 'once',
