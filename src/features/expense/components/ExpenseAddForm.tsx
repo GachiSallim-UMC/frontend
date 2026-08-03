@@ -434,12 +434,14 @@ export const ExpenseAddForm = ({
           </Button>
         </div>
 
-        <ShareMessengerButton
-          label={isSharing ? '공유 중...' : '메신저에 공유'}
-          onClick={() => currentExpenseId && onShare?.(currentExpenseId)}
-          className="w-full sm:w-[189px]"
-          disabled={!currentExpenseId || isSharing}
-        />
+        {currentExpenseId && (
+          <ShareMessengerButton
+            label={isSharing ? '공유 중...' : '메신저에 공유'}
+            onClick={() => onShare?.(currentExpenseId)}
+            className="w-full sm:w-[189px]"
+            disabled={isSharing}
+          />
+        )}
       </div>
     </div>
   );
