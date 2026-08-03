@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button, FormInput } from '@/shared/components';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
 import { AVATAR_ID_TO_URL, AVATAR_ID_BY_URL } from '@/features/mypage/constants/avatars';
+import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from '@/shared/lib/inputValidation';
 import { useErrorStore } from '@/shared/store';
 import CameraIcon from "@/assets/icons/mypage/camera.svg?react"
 import UploadIcon from "@/assets/icons/mypage/upload.svg?react"
@@ -19,6 +20,7 @@ export const ProfileBasicInfo = () => {
     const [nickname, setNickname] = useState<string>('길동');
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const [email, setEmail] = useState<string>('hong@example.com');
+    const [errors, setErrors] = useState<Partial<Record<'name' | 'nickname', string>>>({});
 
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -179,17 +181,25 @@ export const ProfileBasicInfo = () => {
     };
 
     const handleSave = async () => {
-        if (!name.trim() || !nickname.trim()) {
-            showError({
-                title: '입력 정보 누락',
-                message: '이름과 닉네임을 모두 입력해주세요.'
-            });
+        const nextErrors: typeof errors = {};
+        const trimmedName = name.trim();
+        const trimmedNickname = nickname.trim();
+        if (!trimmedName) nextErrors.name = '이름을 입력해 주세요.';
+        else if (trimmedName.length > 30) nextErrors.name = '이름은 30자 이하로 입력해 주세요.';
+        if (!trimmedNickname) nextErrors.nickname = '닉네임을 입력해 주세요.';
+        else if (trimmedNickname.length < 2 || trimmedNickname.length > 10) {
+            nextErrors.nickname = '닉네임은 2자 이상 10자 이하로 입력해 주세요.';
+        } else if (!NICKNAME_PATTERN.test(trimmedNickname)) {
+            nextErrors.nickname = NICKNAME_PATTERN_MESSAGE;
+        }
+        setErrors(nextErrors);
+        if (Object.keys(nextErrors).length > 0) {
             return;
         }
 
         try {
             setIsLoading(true);
-            const payload = { name, nickname, profileImage };
+            const payload = { name: trimmedName, nickname: trimmedNickname, profileImage };
             
             const result = await myPageApi.updateProfile(payload);
             console.log('저장 완료 데이터:', result);
@@ -275,8 +285,13 @@ export const ProfileBasicInfo = () => {
                             <FormInput
                                 id="name"
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => {
+                                    setName(e.target.value);
+                                    setErrors(previous => ({ ...previous, name: undefined }));
+                                }}
                                 placeholder='이름을 입력해주세요'
+                                maxLength={30}
+                                error={errors.name}
                             />
                         </div>
 
@@ -285,8 +300,13 @@ export const ProfileBasicInfo = () => {
                             <FormInput
                                 id="nickname"
                                 value={nickname}
-                                onChange={(e) => setNickname(e.target.value)}
+                                onChange={(e) => {
+                                    setNickname(e.target.value);
+                                    setErrors(previous => ({ ...previous, nickname: undefined }));
+                                }}
                                 placeholder='닉네임을 입력해주세요'
+                                maxLength={10}
+                                error={errors.nickname}
                             />
                         </div>
                     </div>

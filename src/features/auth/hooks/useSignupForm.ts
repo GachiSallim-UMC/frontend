@@ -3,8 +3,9 @@ import type { FormEvent, SyntheticEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { authApi } from "@/features/auth/api/auth.api"
 import { ApiError } from "@/shared/api";
+import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from "@/shared/lib/inputValidation";
 import { useErrorStore } from "@/shared/store";
-import type { SignupFormData } from "@/features/auth/types/auth.type";
+import type { SignupFormData, SignupFormErrors } from "@/features/auth/types/auth.type";
 
 interface TermsNavigationState {
     formData?: SignupFormData;
@@ -32,30 +33,56 @@ export const useSignupForm = () => {
     const [agreedTerms, setAgreedTerms] = useState<string[]>([]);
 
     const [isCodeError, setIsCodeError] = useState(false);
+    const [errors, setErrors] = useState<SignupFormErrors>({});
+
+    const handleFormDataChange = (nextData: SignupFormData) => {
+        setFormData(previous => {
+            const changedFields = (Object.keys(nextData) as (keyof SignupFormData)[]).filter(
+                field => previous[field] !== nextData[field],
+            );
+            if (changedFields.length > 0) {
+                setErrors(previousErrors => {
+                    const nextErrors = { ...previousErrors };
+                    changedFields.forEach(field => delete nextErrors[field]);
+                    return nextErrors;
+                });
+            }
+            return nextData;
+        });
+    };
 
     // 회원가입 요청    
     const handleSubmitInfo = async (e: FormEvent) => {
         e.preventDefault();
 
-        // 유효성 검사
-        if (formData.nickname.trim().length < 2 || formData.nickname.trim().length > 10) {
-            showError({ title: '입력 오류', message: '닉네임은 2글자 이상, 10자 이하여야 합니다.' });
-            return;
+        const nextErrors: SignupFormErrors = {};
+        const trimmedName = formData.name.trim();
+        const trimmedNickname = formData.nickname.trim();
+        if (!trimmedName) nextErrors.name = '이름을 입력해 주세요.';
+        else if (trimmedName.length > 30) nextErrors.name = '이름은 30자 이하로 입력해 주세요.';
+        if (!trimmedNickname) nextErrors.nickname = '닉네임을 입력해 주세요.';
+        else if (trimmedNickname.length < 2 || trimmedNickname.length > 10) {
+            nextErrors.nickname = '닉네임은 2자 이상 10자 이하로 입력해 주세요.';
+        } else if (!NICKNAME_PATTERN.test(trimmedNickname)) {
+            nextErrors.nickname = NICKNAME_PATTERN_MESSAGE;
         }
-
-        if (formData.password.trim().length < 8 || formData.password.trim().length > 16) {
-            showError({ title: '입력 오류', message: '비밀번호는 8글자 이상, 16자 이하여야 합니다.' });
-            return;
+        if (!formData.email.trim()) nextErrors.email = '이메일을 입력해 주세요.';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+            nextErrors.email = '올바른 이메일 형식으로 입력해 주세요.';
         }
-
-        const passwordComplexityRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/;
-        if (!passwordComplexityRegex.test(formData.password)) {
-            showError({ title: '입력 오류', message: '비밀번호는 대문자, 소문자, 숫자를 모두 포함해야 합니다.' });
-            return;
+        const passwordComplexityRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)\S+$/;
+        if (!formData.password) nextErrors.password = '비밀번호를 입력해 주세요.';
+        else if (formData.password.length < 8 || formData.password.length > 16) {
+            nextErrors.password = '비밀번호는 8자 이상 16자 이하로 입력해 주세요.';
+        } else if (!passwordComplexityRegex.test(formData.password)) {
+            nextErrors.password = '영문 대문자·소문자·숫자를 포함하고 공백 없이 입력해 주세요.';
         }
-
-        if (formData.password !== formData.passwordConfirm) {
-            showError({ title: '입력 오류', message: '비밀번호가 일치하지 않습니다.' });
+        if (!formData.passwordConfirm) nextErrors.passwordConfirm = '비밀번호를 다시 입력해 주세요.';
+        else if (formData.password !== formData.passwordConfirm) {
+            nextErrors.passwordConfirm = '비밀번호가 일치하지 않습니다.';
+        }
+        setErrors(nextErrors);
+        if (Object.keys(nextErrors).length > 0) {
             return;
         }
 
@@ -84,8 +111,11 @@ export const useSignupForm = () => {
     const handleConfirmEmail = async (e: SyntheticEvent) => {
         e.preventDefault();
 
-        if (!formData.email || !formData.verificationCode) {
-            showError({ title: '입력 오류', message: '이메일과 인증 번호를 모두 입력해주세요.' });
+        if (!/^\d{6}$/.test(formData.verificationCode)) {
+            setErrors(previous => ({
+                ...previous,
+                verificationCode: '인증번호 6자리를 숫자로 입력해 주세요.',
+            }));
             return;
         }
 
@@ -102,6 +132,7 @@ export const useSignupForm = () => {
         } catch (error) {
             // 실패 시 UI 테두리를 빨갛게 만들기 위해 true로 변경
             setIsCodeError(true); 
+            setErrors(previous => ({ ...previous, verificationCode: '인증번호가 일치하지 않습니다.' }));
 
             if (error instanceof ApiError && error.statusCode === 400) {
                 showError({ title: '인증 실패', message: '인증번호가 일치하지 않습니다.' }); 
@@ -124,21 +155,6 @@ export const useSignupForm = () => {
         navigate('/login');
     }
 
-    // 인증번호 다시 보내기
-    const handleResendCode = async () => {
-        try {
-            // TODO: 재전송 API 호출 구현 필요
-            // await authApi.resendCode({ email: formData.email });
-            
-            setIsCodeError(false); // 에러 상태 초기화
-            setFormData(prev => ({ ...prev, verificationCode: '' })); // 인풋창 초기화
-            
-            alert('인증번호가 재전송되었습니다.');
-        } catch {
-            showError({ title: '재전송 실패', message: '인증번호 재전송에 실패했습니다.' });
-        }
-    };
-
     // 이용약관 페이지에서 돌아왔을 때 입력값 & 동의 상태 복원
     useEffect(() => {
         const state = location.state as TermsNavigationState | null;
@@ -158,12 +174,12 @@ export const useSignupForm = () => {
     return {
         step,
         formData,
-        onFormDataChange: setFormData,
+        errors,
+        onFormDataChange: handleFormDataChange,
         agreedTerms,
         onAgreedTermsChange: setAgreedTerms,
         handleConfirmEmail,
         handleSubmitInfo,
-        handleResendCode,
         isCodeError,
         isVerified,      
         handleFinalSubmit

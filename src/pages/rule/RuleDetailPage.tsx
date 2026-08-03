@@ -50,7 +50,7 @@ const AGREEMENT_SUBLABEL: Record<MyAgreement, string> = {
   pending: '미응답',
 };
 
-type FormErrors = Partial<Record<'title' | 'category' | 'status', string>>;
+type FormErrors = Partial<Record<'title' | 'category' | 'content' | 'status', string>>;
 
 export const RuleDetailPage = () => {
   const { id = '' } = useParams();
@@ -98,17 +98,18 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
     const nextErrors: FormErrors = {};
     const trimmedTitle = title.trim();
+    const trimmedContent = content.trim();
     if (!trimmedTitle) {
       nextErrors.title = '규칙 제목을 입력해 주세요.';
     } else if (trimmedTitle.length > 30) {
       nextErrors.title = '규칙 제목은 30자 이하로 입력해 주세요.';
     }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
+    if (!trimmedContent) nextErrors.content = '상세 설명을 입력해 주세요.';
     if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !category || !status) return;
 
-    const trimmedContent = content.trim();
     const hasChanges =
       trimmedTitle !== rule.title.trim() ||
       category !== rule.category ||
@@ -158,7 +159,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
       <div className="flex min-w-0 flex-col gap-5">
         <Panel
           title="기본 정보"
-          className="h-[500px] rounded-[18px] p-[30px] shadow-none"
+          className="min-h-[500px] rounded-[18px] p-[30px] shadow-none"
           headerClassName="mb-5"
           titleClassName="text-gray-800"
         >
@@ -168,7 +169,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               required
               maxLength={30}
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={e => {
+                setTitle(e.target.value);
+                setErrors(previous => ({ ...previous, title: undefined }));
+              }}
               error={errors.title}
               containerClassName="gap-1"
               labelClassName="leading-[17px] text-gray-800"
@@ -178,7 +182,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               label="카테고리"
               required
               value={category}
-              onChange={setCategory}
+              onChange={value => {
+                setCategory(value);
+                setErrors(previous => ({ ...previous, category: undefined }));
+              }}
               options={RULE_CATEGORY_OPTIONS}
               error={errors.category}
               containerClassName="gap-1"
@@ -186,12 +193,17 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
             />
             <TextArea
               label="상세 설명"
+              required
               placeholder="규칙에 대한 자세한 설명, 예외 상황 등"
               maxLength={200}
               showCount
               countInside
               value={content}
-              onChange={e => setContent(e.target.value)}
+              onChange={e => {
+                setContent(e.target.value);
+                setErrors(previous => ({ ...previous, content: undefined }));
+              }}
+              error={errors.content}
               containerClassName="gap-1"
               labelClassName="leading-[17px] text-gray-800"
               className="block h-[100px] px-4 pb-9 pt-4"
@@ -200,7 +212,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               label="적용 상태"
               required
               value={status}
-              onChange={setStatus}
+              onChange={value => {
+                setStatus(value);
+                setErrors(previous => ({ ...previous, status: undefined }));
+              }}
               options={RULE_STATUS_OPTIONS}
               error={errors.status}
               containerClassName="gap-1"

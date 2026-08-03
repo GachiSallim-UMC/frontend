@@ -49,6 +49,8 @@ export interface SignupConfirmDto {
   confirmationCode: string;
 }
 
+export type SignupFormErrors = Partial<Record<keyof SignupFormData, string>>;
+
 export interface SocialFormDto {
     name: string;
     nickname: string;
