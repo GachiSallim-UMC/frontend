@@ -4,6 +4,7 @@ interface JoinGroupInputProps {
     inviteCode: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onConfirm: () => void;
+  error?: string;
   disabled?: boolean;
 }
 
@@ -11,6 +12,7 @@ export const JoinGroupInput =({
     inviteCode,
     onChange,
     onConfirm,
+    error,
     disabled = false,
 }: JoinGroupInputProps) => {
     const isButtonActive = inviteCode.trim().length > 0;
@@ -27,7 +29,10 @@ export const JoinGroupInput =({
                 value={inviteCode}
                 onChange={onChange}
                 disabled={disabled}
-                placeholder="6자리 코드 입력 (예: AB1234)"
+                maxLength={6}
+                autoCapitalize="characters"
+                placeholder="6자리 코드 입력 (예: AB2CDE)"
+                error={error}
             />
             </div>
             <div className="flex-1">

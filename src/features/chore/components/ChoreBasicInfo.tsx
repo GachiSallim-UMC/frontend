@@ -1,5 +1,6 @@
 import { FormInput, SelectDropdown } from '@/shared/components';
 import type { ChoreApiCategory as ChoreCategory } from '../types/chore.types';
+import type { ChoreFormErrors } from '../hooks/useChoreForm';
 import { CATEGORY_OPTIONS } from '../constants/chore.constants';
 
 interface ChoreBasicInfoProps {
@@ -7,6 +8,7 @@ interface ChoreBasicInfoProps {
   assigneeId: string;
   category: ChoreCategory | '';
   assigneeOptions: { value: string; label: string }[];
+  errors?: ChoreFormErrors;
   onChange: (
     updates: Partial<{ title: string; assigneeId: string; category: ChoreCategory | '' }>,
   ) => void;
@@ -17,6 +19,7 @@ export const ChoreBasicInfo = ({
   assigneeId,
   category,
   assigneeOptions,
+  errors = {},
   onChange,
 }: ChoreBasicInfoProps) => {
   return (
@@ -27,9 +30,11 @@ export const ChoreBasicInfo = ({
         <FormInput
           label="집안일 이름"
           required
+          maxLength={100}
           placeholder="예: 화장실 청소, 설거지, 분리수거"
           value={title || ''}
           onChange={e => onChange({ title: e.target.value })}
+          error={errors.title}
         />
 
         <div className="flex w-full gap-[20px]">
@@ -41,6 +46,7 @@ export const ChoreBasicInfo = ({
               options={assigneeOptions}
               value={assigneeId}
               onChange={value => onChange({ assigneeId: value })}
+              error={errors.assigneeId}
             />
           </div>
 
@@ -52,6 +58,7 @@ export const ChoreBasicInfo = ({
               options={CATEGORY_OPTIONS as { value: ChoreCategory; label: string }[]}
               value={category}
               onChange={value => onChange({ category: value })}
+              error={errors.category}
             />
           </div>
         </div>

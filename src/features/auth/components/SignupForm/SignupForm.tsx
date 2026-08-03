@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { FormInput } from '@/shared/components/form';
 import { Button } from '@/shared/components/ui';
 import { CheckboxGroup } from '@/shared/components/form';
-import type { SignupFormData } from '@/features/auth/types/auth.type'
+import type { SignupFormData, SignupFormErrors } from '@/features/auth/types/auth.type'
+import { isUnsignedIntegerInput } from '@/shared/lib/inputValidation';
 import CircleIcon from "@/assets/icons/login/findingPassword/circle.svg?react"
 import MailIcon from "@/assets/icons/login/findingPassword/mail.svg?react"
 
@@ -11,6 +12,7 @@ import MailIcon from "@/assets/icons/login/findingPassword/mail.svg?react"
 interface SignupFormProps {
     step: 1 | 2;
     formData: SignupFormData
+    errors: SignupFormErrors;
     onFormDataChange: (data: SignupFormData) => void;
     agreedTerms: string[];
     onAgreedTermsChange: (value: string[]) => void;
@@ -24,6 +26,7 @@ interface SignupFormProps {
 export const SignupForm = ({
     step,
     formData,
+    errors,
     onFormDataChange,
     agreedTerms,
     onAgreedTermsChange,
@@ -38,7 +41,9 @@ export const SignupForm = ({
 
     const handleChange = 
         (field: keyof SignupFormData) => (e: ChangeEvent<HTMLInputElement>) => {
-            onFormDataChange({...formData, [field]: e.target.value});
+            const value = e.target.value;
+            if (field === 'verificationCode' && !isUnsignedIntegerInput(value)) return;
+            onFormDataChange({...formData, [field]: value});
         };
 
     const handleSubmit = (e: FormEvent) => {
@@ -63,25 +68,29 @@ export const SignupForm = ({
                         새 계정 만들기
                     </p>
                 </div>
-                <form onSubmit={handleSubmit} className="flex flex-col">
+                <form noValidate onSubmit={handleSubmit} className="flex flex-col">
                     {/* 이름 & 닉네임 영역 */}
                     <div className="mb-4 grid grid-cols-2 gap-4">
                         <div>
                             <label className="mb-2 block text-base font-bold text-gray-800">이름</label>
                             <FormInput
                                 type="text"
+                                maxLength={30}
                                 placeholder="이름을 입력해주세요"
                                 value={formData.name}
                                 onChange={handleChange('name')}
+                                error={errors.name}
                             />    
                         </div>
                         <div>
                             <label className="mb-2 block text-base font-bold text-gray-800">닉네임</label>
                             <FormInput
                                 type="text"
+                                maxLength={10}
                                 placeholder="닉네임을 입력해주세요"
                                 value={formData.nickname}
                                 onChange={handleChange('nickname')}
+                                error={errors.nickname}
                             />    
                         </div>
                     </div>
@@ -91,9 +100,11 @@ export const SignupForm = ({
                         <label className="mb-2 block text-base font-bold text-gray-800">이메일</label>
                         <FormInput
                             type="email"
+                            maxLength={100}
                             placeholder="이메일 주소를 입력해주세요"
                             value={formData.email}
                             onChange={handleChange('email')}
+                            error={errors.email}
                         />
                     </div>
 
@@ -102,9 +113,11 @@ export const SignupForm = ({
                         <label className="mb-2 block text-base font-bold text-gray-800">비밀번호</label>
                         <FormInput
                             type="password"
+                            maxLength={16}
                             placeholder="비밀번호를 입력해주세요"
                             value={formData.password}
                             onChange={handleChange('password')}
+                            error={errors.password}
                         />
                     </div>
 
@@ -113,9 +126,11 @@ export const SignupForm = ({
                         <label className="mb-2 block text-base font-bold text-gray-800">비밀번호 확인</label>
                         <FormInput
                             type="password"
+                            maxLength={16}
                             placeholder="비밀번호를 다시 입력해주세요"
                             value={formData.passwordConfirm}
                             onChange={handleChange('passwordConfirm')}
+                            error={errors.passwordConfirm}
                         />
                     </div>
 
@@ -172,7 +187,7 @@ export const SignupForm = ({
                     </div>
 
                     {/* 폼 영역 */}
-                    <form onSubmit={onFinalSubmit} className="flex w-full flex-col">
+                    <form noValidate onSubmit={onFinalSubmit} className="flex w-full flex-col">
 
                         {/* 이메일 확인 영역 */}
                         <div className="mb-4 w-full">
@@ -187,19 +202,21 @@ export const SignupForm = ({
                         </div>
 
                         {/* 인증번호 입력 및 인증 버튼 영역 */}
-                        <div className='mb-2 w-full'>
+                        <div className='mb-5 w-full'>
                             <label className="mb-2 block text-base font-bold text-gray-800">인증번호</label>
                             <div className='flex w-full gap-2'>
                                 <div className='flex-1'>
                                     <FormInput
                                         type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        maxLength={6}
                                         placeholder="인증번호 6자리를 입력해주세요"
                                         value={formData.verificationCode}
                                         disabled={isVerified}
                                         onChange={handleChange('verificationCode')}
-                                        className={`w-full ${
-                                            isCodeError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
-                                        }`}
+                                        error={errors.verificationCode || (isCodeError ? '인증번호가 일치하지 않습니다.' : undefined)}
+                                        className="w-full"
                                     />
                                 </div>
                                 {/* 우측 인증 버튼 */}
@@ -213,19 +230,6 @@ export const SignupForm = ({
                                     인증
                                 </Button>
                             </div>
-                        </div>
-
-                        {/* 에러 메시지 */}
-                        <div className={`mb-5 flex items-center px-1 text-sm ${isCodeError ? 'justify-between' : 'justify-end'}`}>
-                            {isCodeError && (
-                                <div className="flex items-center text-red-500">
-                                    <svg className="mr-1 h-4 w-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="8" cy="8" r="7.5" stroke="currentColor" />
-                                        <path d="M8 4V9M8 12H8.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                    </svg>
-                                    <span>인증번호가 일치하지 않습니다.</span>
-                                </div>
-                            )}
                         </div>
 
                         {/* 최종 회원가입 버튼 */}

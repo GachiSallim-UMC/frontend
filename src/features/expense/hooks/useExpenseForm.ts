@@ -25,7 +25,7 @@ export function useExpenseForm({
 }: UseExpenseFormProps) {
   const [title, setTitle] = useState(initialExpense?.title || '');
   const [amount, setAmount] = useState(
-    initialExpense?.amount ? Number(initialExpense.amount).toLocaleString() : ''
+    initialExpense?.amount ? String(Number(initialExpense.amount)) : ''
   );
   const [checkedMembers, setCheckedMembers] = useState<string[]>(
     initialExpense?.shares ? initialExpense.shares.map((s) => s.user.id) : mockUsers.map((u) => u.id)
@@ -76,8 +76,14 @@ export function useExpenseForm({
   };
 
   const numericTotalAmount = Number(amount.replace(/,/g, '')) || 0;
-  const totalCustomSum = Object.values(customMemberAmounts).reduce((acc, cur) => acc + cur, 0);
-  const totalRatioSum = Object.values(customMemberRatios).reduce((acc, cur) => acc + cur, 0);
+  const totalCustomSum = checkedMembers.reduce(
+    (sum, memberId) => sum + (customMemberAmounts[memberId] ?? 0),
+    0,
+  );
+  const totalRatioSum = checkedMembers.reduce(
+    (sum, memberId) => sum + (customMemberRatios[memberId] ?? 0),
+    0,
+  );
 
   const handleCompleteDirectInput = () => {
     if (settlementMethod === 'RATIO') {
@@ -104,24 +110,6 @@ export function useExpenseForm({
   };
 
   const handleSaveClick = async () => {
-    if (!title || !numericTotalAmount || !payerId || !expenseDate) {
-      useErrorStore.getState().showError({
-        title: '알림',
-        message: '필수 정보를 모두 입력해주세요.',
-      });
-      return;
-    }
-
-    const requiresDirectInput = settlementMethod === 'CUSTOM' || settlementMethod === 'RATIO';
-    if (requiresDirectInput && !isDirectInputCompleted) {
-      const label = settlementMethod === 'RATIO' ? '비율' : '직접 입력';
-      useErrorStore.getState().showError({
-        title: '알림',
-        message: `${label} 분담 금액을 확인하고 완료 버튼을 눌러주세요.`,
-      });
-      return;
-    }
-
     try {
       const formattedDate = expenseDate.replace(/\//g, '-');
 

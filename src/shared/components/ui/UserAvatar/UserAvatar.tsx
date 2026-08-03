@@ -19,6 +19,12 @@ interface UserAvatarProps {
   avatarId?: number;
   size?: AvatarSize;
   className?: string;
+  /**
+   * avatarUrl·avatarId가 모두 없을 때 표시할 기본값.
+   * 'illustration'(기본): 이름 기반으로 고정 일러스트 자동 선택.
+   * 'plain': 마이페이지 미설정 상태와 동일한 단색 원.
+   */
+  fallback?: 'illustration' | 'plain';
 }
 
 const sizeStyles: Record<AvatarSize, string> = {
@@ -47,7 +53,24 @@ const pickByName = (name: string) => {
   return DEFAULT_AVATARS[sum % DEFAULT_AVATARS.length];
 };
 
-export const UserAvatar = ({ name, avatarUrl, avatarId, size = 'md', className }: UserAvatarProps) => {
+export const UserAvatar = ({
+  name,
+  avatarUrl,
+  avatarId,
+  size = 'md',
+  className,
+  fallback = 'illustration',
+}: UserAvatarProps) => {
+  if (!avatarUrl && !avatarId && fallback === 'plain') {
+    return (
+      <div
+        role="img"
+        aria-label={name}
+        className={cn('shrink-0 rounded-full bg-primary-400', sizeStyles[size], className)}
+      />
+    );
+  }
+
   const src =
     avatarUrl ??
     (avatarId ? DEFAULT_AVATARS[(avatarId - 1) % DEFAULT_AVATARS.length] : pickByName(name));

@@ -10,6 +10,14 @@ import type { MeResponsePayload } from '@/features/auth/types/auth.type';
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
+const extractFilename = (contentDisposition?: string): string | null => {
+  if (!contentDisposition) return null;
+  const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+  return match ? decodeURIComponent(match[1]) : null;
+};
+
+const todayDateString = () => new Date().toISOString().slice(0, 10);
+
 const isMeResponsePayload = (value: unknown): value is MeResponsePayload =>
   isRecord(value) &&
   (typeof value.userId === 'string' || typeof value.userId === 'number') &&
@@ -73,6 +81,20 @@ export const myPageApi = {
   withdraw: async () => {
     const { data } = await apiClient.delete('/auth/me');
     return data;
+  },
+
+  // 내 데이터 내보내기 (UTF-8 BOM 포함 CSV)
+  exportMyData: async (): Promise<{ blob: Blob; filename: string }> => {
+    const response = await apiClient.get<Blob>('/auth/me/data-export', {
+      responseType: 'blob',
+      headers: { Accept: 'text/csv' },
+    });
+
+    const filename =
+      extractFilename(response.headers['content-disposition']) ??
+      `gachisallim-my-data-${todayDateString()}.csv`;
+
+    return { blob: response.data, filename };
   },
 
   getNotificationPreferences: async (): Promise<NotificationPreferencesDto> => {
