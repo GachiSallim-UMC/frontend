@@ -14,9 +14,9 @@ interface ChoreCalendarViewProps {
 }
 
 export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
-  const { currentDate, weekDates, handlePrevWeek, handleNextWeek, todayString } = useWeekCalendar();
+  const { currentDate, weekDates, dayLabels, handlePrevWeek, handleNextWeek, todayString } =
+    useWeekCalendar();
   const currentYear = currentDate.getFullYear();
-  const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
   const weekDays = weekDates.map((dateStr, index) => {
     const choresForDay = chores.filter(chore => {
@@ -29,7 +29,7 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
     });
 
     return {
-      day: daysOfWeek[index],
+      day: dayLabels[index],
       date: dateStr,
       chores: choresForDay,
     };
