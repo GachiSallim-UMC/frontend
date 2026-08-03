@@ -1,29 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal, Button } from "@/shared/components";
-
-import Avatar1 from '@/assets/icons/mypage/Avatar/avatar-1.svg?react';
-import Avatar2 from '@/assets/icons/mypage/Avatar/avatar-2.svg?react';
-import Avatar3 from '@/assets/icons/mypage/Avatar/avatar-3.svg?react';
-import Avatar4 from '@/assets/icons/mypage/Avatar/avatar-4.svg?react';
-import Avatar5 from '@/assets/icons/mypage/Avatar/avatar-5.svg?react';
-import Avatar6 from '@/assets/icons/mypage/Avatar/avatar-6.svg?react';
-import Avatar7 from '@/assets/icons/mypage/Avatar/avatar-7.svg?react';
-import Avatar8 from '@/assets/icons/mypage/Avatar/avatar-8.svg?react';
-import Avatar9 from '@/assets/icons/mypage/Avatar/avatar-9.svg?react';
-import Avatar10 from '@/assets/icons/mypage/Avatar/avatar-10.svg?react';
-
-const AVATAR_LIST = [
-    { id: 'avatar-1', Component: Avatar1 },
-    { id: 'avatar-2', Component: Avatar2 },
-    { id: 'avatar-3', Component: Avatar3 },
-    { id: 'avatar-4', Component: Avatar4 },
-    { id: 'avatar-5', Component: Avatar5 },
-    { id: 'avatar-6', Component: Avatar6 },
-    { id: 'avatar-7', Component: Avatar7 },
-    { id: 'avatar-8', Component: Avatar8 },
-    { id: 'avatar-9', Component: Avatar9 },
-    { id: 'avatar-10', Component: Avatar10 },
-];
+import { DEFAULT_AVATARS } from "@/features/mypage/constants/avatars";
 
 interface AvatarSelectionModalProps {
     isOpen: boolean;
@@ -62,7 +39,7 @@ export const AvatarSelectionModal = ({
             
             {/* 아바타 그리드 */}
             <div className="mb-8 grid grid-cols-5 gap-5 px-10">
-                {AVATAR_LIST.map(({ id, Component }) => (
+                {DEFAULT_AVATARS.map(({ id, url }) => (
                     <div key={id} className="flex justify-center">
                         <button
                             onClick={() => setTempSelectedAvatar(id)}
@@ -72,8 +49,10 @@ export const AvatarSelectionModal = ({
                                     : 'hover:ring-2 hover:ring-gray-200 hover:ring-offset-2'
                             }`}
                         >
-                            <Component 
-                                className="h-full w-full bg-gray-50 object-cover" 
+                            <img
+                                src={url}
+                                alt={id}
+                                className="h-full w-full bg-gray-50 object-cover"
                             />
                         </button>
                     </div>

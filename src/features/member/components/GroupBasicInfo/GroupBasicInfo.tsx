@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, FormInput, SelectDropdown } from '@/shared/components';
+import { formatDate, useDateFormat } from '@/shared/lib';
 import { memberApi } from '@/features/member/api/member.api';
 import { useUpdateGroup } from '../../hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
@@ -20,6 +21,7 @@ import EtcIcon from '@/assets/icons/member/ResidenceType/etc.svg?react';
 export const GroupBasicInfo = () => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const updateGroupMutation = useUpdateGroup();
+  const dateFormat = useDateFormat();
 
   const [groupName, setGroupName] = useState<string>('');
   const [maxMemberCount, setMaxMemberCount] = useState<string>('');
@@ -27,6 +29,7 @@ export const GroupBasicInfo = () => {
   const [groupImage, setGroupImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [errors, setErrors] = useState<Partial<Record<'groupName' | 'maxMemberCount' | 'description', string>>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: groupData, refetch } = useQuery({
@@ -86,8 +89,17 @@ export const GroupBasicInfo = () => {
   const handleSave = async () => {
     if (!selectedGroupId) return;
 
-    if (!groupName.trim()) {
-      alert('그룹 이름을 입력해주세요.');
+    const nextErrors: typeof errors = {};
+    const trimmedGroupName = groupName.trim();
+    const parsedMaxMemberCount = Number(maxMemberCount);
+    if (!trimmedGroupName) nextErrors.groupName = '그룹 이름을 입력해 주세요.';
+    else if (trimmedGroupName.length > 40) nextErrors.groupName = '그룹 이름은 40자 이하로 입력해 주세요.';
+    if (!Number.isInteger(parsedMaxMemberCount) || parsedMaxMemberCount < 2 || parsedMaxMemberCount > 12) {
+      nextErrors.maxMemberCount = '최대 인원은 2명부터 12명까지 선택해 주세요.';
+    }
+    if (description.length > 255) nextErrors.description = '그룹 소개는 255자 이하로 입력해 주세요.';
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
       return;
     }
 
@@ -112,6 +124,18 @@ export const GroupBasicInfo = () => {
             maxMembers: Number(maxMemberCount),
             groupImage: finalGroupImageUrl,
           },
+    updateGroupMutation.mutate(
+      {
+        groupId: selectedGroupId,
+        body: {
+          name: trimmedGroupName,
+          description: description,
+          maxMembers: Number(maxMemberCount),
+        },
+      },
+      {
+        onSuccess: () => {
+          alert('그룹 정보가 수정되었습니다.');
         },
         {
           onSuccess: () => {
@@ -150,9 +174,7 @@ export const GroupBasicInfo = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const formattedDate = groupData?.createdAt
-    ? new Date(groupData.createdAt).toLocaleDateString().replace(/\./g, '.').trim()
-    : '';
+  const formattedDate = groupData?.createdAt ? formatDate(groupData.createdAt, dateFormat) : '';
 
   const renderDefaultIcon = (type?: string) => {
     switch (type) {
@@ -241,17 +263,26 @@ export const GroupBasicInfo = () => {
             <FormInput
               id="groupName"
               value={groupName}
-              onChange={e => setGroupName(e.target.value)}
+              onChange={e => {
+                setGroupName(e.target.value);
+                setErrors(previous => ({ ...previous, groupName: undefined }));
+              }}
               placeholder="그룹 이름을 입력해주세요"
+              maxLength={40}
+              error={errors.groupName}
             />
           </div>
           <SelectDropdown
             id="maxMembers"
             label="최대 인원"
             value={maxMemberCount}
-            onChange={setMaxMemberCount}
+            onChange={value => {
+              setMaxMemberCount(value);
+              setErrors(previous => ({ ...previous, maxMemberCount: undefined }));
+            }}
             options={maxMemberOptions}
             placeholder="인원 선택"
+            error={errors.maxMemberCount}
           />
         </div>
 
@@ -264,8 +295,13 @@ export const GroupBasicInfo = () => {
             <FormInput
               id="description"
               value={description}
-              onChange={e => setDescription(e.target.value)}
+              onChange={e => {
+                setDescription(e.target.value);
+                setErrors(previous => ({ ...previous, description: undefined }));
+              }}
               placeholder="그룹을 소개하는 한 줄 평을 적어주세요"
+              maxLength={255}
+              error={errors.description}
             />
           </div>
 

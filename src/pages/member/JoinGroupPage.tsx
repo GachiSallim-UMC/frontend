@@ -93,7 +93,7 @@ export const JoinGroupPage = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-primary-100">
-      <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
+      <div className="flex min-h-[696px] w-full max-w-2xl flex-col rounded-3xl bg-white shadow-sm">
         <GroupPageHeader />
 
         <div className="flex-1 pt-5 pb-18 px-10">
@@ -108,6 +108,7 @@ export const JoinGroupPage = () => {
             inviteCode={inviteCode}
             onChange={handleCodeChange}
             onConfirm={handleConfirmCode}
+            error={inviteCodeError}
             disabled={showPreview || isChecking}
           />
 

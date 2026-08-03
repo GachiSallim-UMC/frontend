@@ -1,4 +1,6 @@
 export type Status = 'done' | 'pending' | 'scheduled';
+export type StartDayValue = 'sunday' | 'monday';
+export type DateFormatValue = 'YYYY/MM/DD' | 'DD/MM/YY';
 export type ExpenseStatus = 'paid' | 'unpaid';
 export type ItemStatus = 'enough' | 'short' | 'empty' | 'purchased';
 export type RuleStatus = 'active' | 'inactive';

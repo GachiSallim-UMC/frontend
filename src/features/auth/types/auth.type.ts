@@ -48,3 +48,32 @@ export interface SignupConfirmDto {
   email: string;
   confirmationCode: string;
 }
+
+export type SignupFormErrors = Partial<Record<keyof SignupFormData, string>>;
+
+export interface SocialFormDto {
+    name: string;
+    nickname: string;
+}
+
+export const INITIAL_SOCIAL_FORM_DATA: SocialFormDto = {
+    name: '',
+    nickname: ''
+};
+
+export type SocialProvider = 'Kakao' | 'Google';
+
+export interface ForgotPasswordDto {
+  email: string;
+}
+
+export interface ResetPasswordDto {
+  email: string;
+  confirmationCode: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordFormData {
+    newPassword: string;
+    newPasswordConfirm: string;
+}

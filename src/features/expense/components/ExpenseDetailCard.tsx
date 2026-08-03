@@ -5,6 +5,7 @@ import {
   SettlementConfirm,
 } from '@/features/expense';
 import { StatusBadge } from '@/shared/components';
+import { formatDate, useDateFormat } from '@/shared/lib';
 import { useExpenseSettle } from '@/features/expense';
 import type { Expense } from '@/features/expense';
 
@@ -18,6 +19,7 @@ export function ExpenseDetailCard({
   onRefresh,
 }: ExpenseDetailCardProps) {
   const [isSettlementConfirmOpen, setIsSettlementConfirmOpen] = useState(false);
+  const dateFormat = useDateFormat();
 
   const {
     isModalOpen,
@@ -52,19 +54,10 @@ export function ExpenseDetailCard({
     }
   };
 
-  function formatDate(dateString: string): string {
+  const formatExpenseDate = (dateString: string): string => {
     if (!dateString) return '-';
-
-    const date = new Date(dateString);
-
-    if (isNaN(date.getTime())) return dateString;
-
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-
-    return `${yyyy}-${mm}-${dd}`;
-  }
+    return formatDate(dateString, dateFormat);
+  };
 
   return (
     <>
@@ -91,7 +84,7 @@ export function ExpenseDetailCard({
 
           <div className="border-b border-gray-100 p-2 flex justify-between">
             <span className="text-gray-900">지출일</span>
-            <span>{formatDate(expense.date)}</span>
+            <span>{formatExpenseDate(expense.date)}</span>
           </div>
 
           <div className="border-b border-gray-100 p-2 flex justify-between">

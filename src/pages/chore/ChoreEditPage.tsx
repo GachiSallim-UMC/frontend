@@ -16,11 +16,12 @@ import {
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
 import { useGroupStore } from '@/shared/store';
-import { ShareItemPickerModal, type ShareableOption } from '@/features/messenger';
-
-/**index에 포함되어 있지 않아 불러올 수 없어서 직접 임포트 하였습니다. */
-import { useSendCardMessage } from '@/features/messenger/hooks/useChatRoomMutations';
-import { useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
+import {
+  ShareItemPickerModal,
+  type ShareableOption,
+  useSendCardMessage,
+  useChatRooms,
+} from '@/features/messenger';
 
 export const ChoreEditPage = () => {
   const { id = '' } = useParams<{ id: string }>();
@@ -31,7 +32,7 @@ export const ChoreEditPage = () => {
   const { data: members } = useGroupMembers(selectedGroupId);
   const updateMutation = useUpdateChore();
   const deleteMutation = useRemoveChore();
-  const { formData, updateField, getUpdateDto } = useChoreForm();
+  const { formData, errors, updateField, getUpdateDto } = useChoreForm();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -194,6 +195,7 @@ export const ChoreEditPage = () => {
         assigneeId={String(formData.assigneeId)}
         category={formData.category}
         assigneeOptions={userOptions}
+        errors={errors}
         onChange={handleBasicInfoChange}
       />
       <ChoreRepeat
@@ -203,9 +205,14 @@ export const ChoreEditPage = () => {
         repeatDays={formData.repeatDays}
         startDate={formData.startDate}
         dueDate={formData.dueDate}
+        errors={errors}
         onChange={updateField}
       />
-      <ChoreMemo value={formData.memo} onChange={memo => updateField({ memo })} />
+      <ChoreMemo
+        value={formData.memo}
+        error={errors.memo}
+        onChange={memo => updateField({ memo })}
+      />
       <ChoreFormActions
         onSave={handleSaveClick}
         onCancel={handleCancelClick}

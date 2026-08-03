@@ -9,19 +9,30 @@ export const PasswordChangeForm = () => {
     const [currentPassword, setCurrentPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [errors, setErrors] = useState<Partial<Record<'currentPassword' | 'newPassword' | 'confirmPassword', string>>>({});
     
     const [isLoading, setIsLoading] = useState<boolean>(false); 
 
     const handleSave = async () => {
-        // 필드 유효성 검사
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            alert('모든 비밀번호 필드를 입력해주세요.');
-            return;
+        const nextErrors: typeof errors = {};
+        if (!currentPassword) nextErrors.currentPassword = '현재 비밀번호를 입력해 주세요.';
+        else if (currentPassword.length > 256 || /\s/.test(currentPassword)) {
+            nextErrors.currentPassword = '현재 비밀번호는 공백 없이 입력해 주세요.';
         }
-
-        // 비밀번호 일치 여부
-        if (newPassword !== confirmPassword) {
-            alert('새 비밀번호가 일치하지 않습니다.');
+        if (!newPassword) nextErrors.newPassword = '새 비밀번호를 입력해 주세요.';
+        else if (newPassword.length < 8 || newPassword.length > 16) {
+            nextErrors.newPassword = '새 비밀번호는 8자 이상 16자 이하로 입력해 주세요.';
+        } else if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)\S+$/.test(newPassword)) {
+            nextErrors.newPassword = '영문 대문자·소문자·숫자를 포함하고 공백 없이 입력해 주세요.';
+        } else if (newPassword === currentPassword) {
+            nextErrors.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.';
+        }
+        if (!confirmPassword) nextErrors.confirmPassword = '새 비밀번호를 다시 입력해 주세요.';
+        else if (newPassword !== confirmPassword) {
+            nextErrors.confirmPassword = '새 비밀번호가 일치하지 않습니다.';
+        }
+        setErrors(nextErrors);
+        if (Object.keys(nextErrors).length > 0) {
             return;
         }
 
@@ -64,10 +75,15 @@ export const PasswordChangeForm = () => {
                     <FormInput
                         id="currentPassword"
                         type="password"
-                        value={currentPassword} 
-                        onChange={(e) => setCurrentPassword(e.target.value)} 
+                        maxLength={256}
+                        value={currentPassword}
+                        onChange={(e) => {
+                            setCurrentPassword(e.target.value);
+                            setErrors(previous => ({ ...previous, currentPassword: undefined }));
+                        }}
                         placeholder="현재 비밀번호"
                         disabled={isLoading}
+                        error={errors.currentPassword}
                     />
                 </div>
 
@@ -80,10 +96,15 @@ export const PasswordChangeForm = () => {
                         <FormInput
                             id="newPassword"
                             type="password"
-                            value={newPassword} 
-                            onChange={(e) => setNewPassword(e.target.value)} 
+                            maxLength={16}
+                            value={newPassword}
+                            onChange={(e) => {
+                                setNewPassword(e.target.value);
+                                setErrors(previous => ({ ...previous, newPassword: undefined }));
+                            }}
                             placeholder="새 비밀번호"
                             disabled={isLoading}
+                            error={errors.newPassword}
                             />
                     </div>
 
@@ -94,10 +115,15 @@ export const PasswordChangeForm = () => {
                         <FormInput
                             id="confirmPassword"
                             type="password"
-                            value={confirmPassword} 
-                            onChange={(e) => setConfirmPassword(e.target.value)} 
+                            maxLength={16}
+                            value={confirmPassword}
+                            onChange={(e) => {
+                                setConfirmPassword(e.target.value);
+                                setErrors(previous => ({ ...previous, confirmPassword: undefined }));
+                            }}
                             placeholder="새 비밀번호 확인"
                             disabled={isLoading}
+                            error={errors.confirmPassword}
                             />
                     </div>
                 </div>
