@@ -2,6 +2,7 @@ import type { ChangeEvent, FunctionComponent, SVGProps } from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Button, FormInput } from '@/shared/components';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
+import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from '@/shared/lib/inputValidation';
 import { useErrorStore } from '@/shared/store';
 import CameraIcon from "@/assets/icons/mypage/camera.svg?react"
 import UploadIcon from "@/assets/icons/mypage/upload.svg?react"
@@ -178,8 +179,8 @@ export const ProfileBasicInfo = () => {
         if (!trimmedNickname) nextErrors.nickname = '닉네임을 입력해 주세요.';
         else if (trimmedNickname.length < 2 || trimmedNickname.length > 10) {
             nextErrors.nickname = '닉네임은 2자 이상 10자 이하로 입력해 주세요.';
-        } else if (!/^[가-힣a-zA-Z0-9]+$/.test(trimmedNickname)) {
-            nextErrors.nickname = '닉네임은 한글·영문·숫자만 사용할 수 있습니다.';
+        } else if (!NICKNAME_PATTERN.test(trimmedNickname)) {
+            nextErrors.nickname = NICKNAME_PATTERN_MESSAGE;
         }
         setErrors(nextErrors);
         if (Object.keys(nextErrors).length > 0) {

@@ -3,6 +3,7 @@ import type { FormEvent, SyntheticEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { authApi } from "@/features/auth/api/auth.api"
 import { ApiError } from "@/shared/api";
+import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from "@/shared/lib/inputValidation";
 import { useErrorStore } from "@/shared/store";
 import type { SignupFormData, SignupFormErrors } from "@/features/auth/types/auth.type";
 
@@ -62,8 +63,8 @@ export const useSignupForm = () => {
         if (!trimmedNickname) nextErrors.nickname = '닉네임을 입력해 주세요.';
         else if (trimmedNickname.length < 2 || trimmedNickname.length > 10) {
             nextErrors.nickname = '닉네임은 2자 이상 10자 이하로 입력해 주세요.';
-        } else if (!/^[\p{L}\p{N}]+$/u.test(trimmedNickname)) {
-            nextErrors.nickname = '닉네임은 문자와 숫자만 사용할 수 있습니다.';
+        } else if (!NICKNAME_PATTERN.test(trimmedNickname)) {
+            nextErrors.nickname = NICKNAME_PATTERN_MESSAGE;
         }
         if (!formData.email.trim()) nextErrors.email = '이메일을 입력해 주세요.';
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
