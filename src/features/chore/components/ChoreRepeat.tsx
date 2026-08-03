@@ -26,6 +26,21 @@ interface ChoreRepeatProps {
   onChange: (updates: Partial<ChoreRepeatProps>) => void;
 }
 
+/** 브라우저 기본 달력 아이콘 대신 노출하는 커스텀 달력 버튼 */
+const DatePickerButton = ({ inputId, label }: { inputId: string; label: string }) => (
+  <button
+    type="button"
+    aria-label={`${label} 달력 열기`}
+    className="flex h-4 w-4 items-center justify-center"
+    onClick={() => {
+      const input = document.getElementById(inputId);
+      if (input instanceof HTMLInputElement) input.showPicker?.();
+    }}
+  >
+    <img src={CalendarIcon} alt="" className="h-full w-full object-contain" />
+  </button>
+);
+
 export const ChoreRepeat = ({
   repeatType,
   customOption,
@@ -158,8 +173,9 @@ export const ChoreRepeat = ({
       </div>
 
       <div className="flex w-full gap-[20px]">
-        <div className="relative flex-1">
+        <div className="flex-1">
           <FormInput
+            id="chore-start-date"
             type="date"
             label="시작일"
             placeholder="yyyy/mm/dd"
@@ -168,22 +184,13 @@ export const ChoreRepeat = ({
             onChange={e => onChange({ startDate: e.target.value })}
             max={dueDate || undefined}
             error={errors.startDate}
+            className="[&::-webkit-calendar-picker-indicator]:hidden"
+            rightAddon={<DatePickerButton inputId="chore-start-date" label="시작일" />}
           />
-          <div className="absolute right-[16px] top-[40px] h-[16px] w-[16px]">
-            <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
-            <input
-              type="date"
-              className="absolute inset-0 cursor-pointer opacity-0"
-              onChange={e => {
-                if (e.target.value) {
-                  onChange({ startDate: e.target.value });
-                }
-              }}
-            />
-          </div>
         </div>
-        <div className="relative flex-1">
+        <div className="flex-1">
           <FormInput
+            id="chore-due-date"
             type="date"
             label="종료일 (선택)"
             placeholder="yyyy/mm/dd"
@@ -191,19 +198,9 @@ export const ChoreRepeat = ({
             onChange={e => onChange({ dueDate: e.target.value })}
             min={startDate || undefined}
             error={errors.dueDate}
+            className="[&::-webkit-calendar-picker-indicator]:hidden"
+            rightAddon={<DatePickerButton inputId="chore-due-date" label="종료일" />}
           />
-          <div className="absolute right-[16px] top-[40px] h-[16px] w-[16px]">
-            <img src={CalendarIcon} alt="달력" className="h-full w-full object-contain" />
-            <input
-              type="date"
-              className="absolute inset-0 cursor-pointer opacity-0"
-              onChange={e => {
-                if (e.target.value) {
-                  onChange({ dueDate: e.target.value });
-                }
-              }}
-            />
-          </div>
         </div>
       </div>
     </section>

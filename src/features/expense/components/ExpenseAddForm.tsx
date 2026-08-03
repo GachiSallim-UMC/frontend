@@ -330,31 +330,27 @@ export const ExpenseAddForm = ({
                 지출일 <RequiredMark />
               </label>
               <div className='relative'>
+                {/* 브라우저 기본 달력 아이콘은 숨기고 커스텀 아이콘만 노출합니다. */}
                 <input
                   id='expense-date'
+                  ref={dateInputRef}
                   type='date'
                   value={expenseDate}
                   onChange={handleDateChange}
                   onBlur={handleDateBlur}
                   min={todayStr}
                   placeholder='yyyy-mm-dd'
-                  className={`w-full h-[50px] px-4 pr-12 rounded-[8px] border outline-none text-button placeholder:text-gray-400 bg-white focus:bg-white focus:ring-2 focus:ring-primary-500 text-gray-800 ${fieldErrors.date ? 'border-red-500' : 'border-gray-100'}`}
+                  className={`w-full h-[50px] px-4 pr-12 rounded-[8px] border outline-none text-button placeholder:text-gray-400 bg-white focus:bg-white focus:ring-2 focus:ring-primary-500 text-gray-800 [&::-webkit-calendar-picker-indicator]:hidden ${fieldErrors.date ? 'border-red-500' : 'border-gray-100'}`}
                 />
 
-                <div
+                <button
+                  type='button'
                   onClick={handleIconClick}
+                  aria-label='달력 열기'
                   className='absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 cursor-pointer flex items-center justify-center'
                 >
-                  <input
-                    ref={dateInputRef}
-                    value={expenseDate}
-                    type='date'
-                    min={todayStr}
-                    onChange={handleDateChange}
-                    className='absolute inset-0 opacity-0 cursor-pointer w-full h-full'
-                  />
-                  <img src={calendarIcon} alt='달력' />
-                </div>
+                  <img src={calendarIcon} alt='' />
+                </button>
               </div>
               {fieldErrors.date && <p className='mt-1.5 text-xs text-red-500'>{fieldErrors.date}</p>}
             </div>
