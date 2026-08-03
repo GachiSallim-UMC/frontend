@@ -1,74 +1,15 @@
-import type { ChangeEvent, FunctionComponent, SVGProps } from 'react';
+import type { ChangeEvent } from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button, FormInput } from '@/shared/components';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
+import { AVATAR_ID_TO_URL, AVATAR_ID_BY_URL } from '@/features/mypage/constants/avatars';
 import { useErrorStore } from '@/shared/store';
 import CameraIcon from "@/assets/icons/mypage/camera.svg?react"
 import UploadIcon from "@/assets/icons/mypage/upload.svg?react"
 import TrashIcon from "@/assets/icons/mypage/trash.svg?react"
 import ProfileIcon from "@/assets/icons/mypage/profile.svg?react"
 import { AvatarSelectionModal } from '@/features/mypage/components/AvatarSelectionModal/AvatarSelectionModal';
-
-import Avatar1 from '@/assets/icons/mypage/Avatar/avatar-1.svg?react';
-import Avatar2 from '@/assets/icons/mypage/Avatar/avatar-2.svg?react';
-import Avatar3 from '@/assets/icons/mypage/Avatar/avatar-3.svg?react';
-import Avatar4 from '@/assets/icons/mypage/Avatar/avatar-4.svg?react';
-import Avatar5 from '@/assets/icons/mypage/Avatar/avatar-5.svg?react';
-import Avatar6 from '@/assets/icons/mypage/Avatar/avatar-6.svg?react';
-import Avatar7 from '@/assets/icons/mypage/Avatar/avatar-7.svg?react';
-import Avatar8 from '@/assets/icons/mypage/Avatar/avatar-8.svg?react';
-import Avatar9 from '@/assets/icons/mypage/Avatar/avatar-9.svg?react';
-import Avatar10 from '@/assets/icons/mypage/Avatar/avatar-10.svg?react';
-
-// 백엔드 profileImage는 URL 문자열만 허용하므로, 아바타 svg를 URL로도 가져와서 매핑한다.
-import Avatar1Url from '@/assets/icons/mypage/Avatar/avatar-1.svg';
-import Avatar2Url from '@/assets/icons/mypage/Avatar/avatar-2.svg';
-import Avatar3Url from '@/assets/icons/mypage/Avatar/avatar-3.svg';
-import Avatar4Url from '@/assets/icons/mypage/Avatar/avatar-4.svg';
-import Avatar5Url from '@/assets/icons/mypage/Avatar/avatar-5.svg';
-import Avatar6Url from '@/assets/icons/mypage/Avatar/avatar-6.svg';
-import Avatar7Url from '@/assets/icons/mypage/Avatar/avatar-7.svg';
-import Avatar8Url from '@/assets/icons/mypage/Avatar/avatar-8.svg';
-import Avatar9Url from '@/assets/icons/mypage/Avatar/avatar-9.svg';
-import Avatar10Url from '@/assets/icons/mypage/Avatar/avatar-10.svg';
-
-const AVATAR_COMPONENTS: Record<string, FunctionComponent<SVGProps<SVGSVGElement>>> = {
-    'avatar-1': Avatar1,
-    'avatar-2': Avatar2,
-    'avatar-3': Avatar3,
-    'avatar-4': Avatar4,
-    'avatar-5': Avatar5,
-    'avatar-6': Avatar6,
-    'avatar-7': Avatar7,
-    'avatar-8': Avatar8,
-    'avatar-9': Avatar9,
-    'avatar-10': Avatar10,
-};
-
-const AVATAR_ID_TO_ASSET_PATH: Record<string, string> = {
-    'avatar-1': Avatar1Url,
-    'avatar-2': Avatar2Url,
-    'avatar-3': Avatar3Url,
-    'avatar-4': Avatar4Url,
-    'avatar-5': Avatar5Url,
-    'avatar-6': Avatar6Url,
-    'avatar-7': Avatar7Url,
-    'avatar-8': Avatar8Url,
-    'avatar-9': Avatar9Url,
-    'avatar-10': Avatar10Url,
-};
-
-// 서버는 절대 URL만 유효한 profileImage로 받아들이므로 origin을 붙여 절대 URL로 변환한다.
-const toAbsoluteUrl = (path: string) => new URL(path, window.location.origin).toString();
-
-const AVATAR_ID_TO_URL: Record<string, string> = Object.fromEntries(
-    Object.entries(AVATAR_ID_TO_ASSET_PATH).map(([id, path]) => [id, toAbsoluteUrl(path)])
-);
-
-const AVATAR_ID_BY_URL: Record<string, string> = Object.fromEntries(
-    Object.entries(AVATAR_ID_TO_URL).map(([id, url]) => [url, id])
-);
 
 export const ProfileBasicInfo = () => {
     const showError = useErrorStore((state) => state.showError);
@@ -126,17 +67,10 @@ export const ProfileBasicInfo = () => {
             return <div className='h-full w-full rounded-full bg-primary-400' />;
         }
 
-        const AvatarSvg = AVATAR_COMPONENTS[profileImage];
-        if (AvatarSvg) {
-            return (
-                <AvatarSvg className="h-full w-full rounded-full border border-gray-100 bg-gray-50 object-cover" />
-            );
-        }
-
         return (
-            <img 
-                src={profileImage} 
-                alt="프로필 이미지" 
+            <img
+                src={profileImage}
+                alt="프로필 이미지"
                 className='h-full w-full rounded-full border border-gray-100 bg-gray-50 object-cover'
             />
         );
