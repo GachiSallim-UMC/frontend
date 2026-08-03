@@ -119,23 +119,11 @@ export const GroupBasicInfo = () => {
         {
           groupId: selectedGroupId,
           body: {
-            name: groupName,
+            name: trimmedGroupName,
             description: description,
             maxMembers: Number(maxMemberCount),
             groupImage: finalGroupImageUrl,
           },
-    updateGroupMutation.mutate(
-      {
-        groupId: selectedGroupId,
-        body: {
-          name: trimmedGroupName,
-          description: description,
-          maxMembers: Number(maxMemberCount),
-        },
-      },
-      {
-        onSuccess: () => {
-          alert('그룹 정보가 수정되었습니다.');
         },
         {
           onSuccess: () => {
@@ -147,7 +135,7 @@ export const GroupBasicInfo = () => {
             alert('그룹 정보 수정에 실패했습니다.');
             setIsUploading(false);
           },
-        },
+        }
       );
     } catch {
       alert('이미지 저장 중 오류가 발생했습니다.');
