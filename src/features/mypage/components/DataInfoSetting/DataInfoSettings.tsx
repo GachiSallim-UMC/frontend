@@ -59,23 +59,6 @@ export const DataInfoSettings = ({ onViewPrivacy, onViewTerms }: DataInfoSetting
                         <div className="flex items-center justify-between px-2 py-4">
                             <div className='flex flex-col gap-1'>
                                 <span className="text-base font-bold text-gray-900">
-                                    캐시 삭제
-                                </span>
-                                <span className='text-sm text-gray-900'>
-                                    임시 저장 데이터를 정리합니다(현재 12.4MB)
-                                </span>
-                            </div>
-                            <Button 
-                                variant="secondary"
-                                size="sm"
-                            > 
-                                삭제 
-                            </Button>
-                        </div>
-            
-                        <div className="flex items-center justify-between px-2 py-4">
-                            <div className='flex flex-col gap-1'>
-                                <span className="text-base font-bold text-gray-900">
                                     개인정보 처리방침
                                 </span>
                                 <span className='text-sm text-gray-900'>
