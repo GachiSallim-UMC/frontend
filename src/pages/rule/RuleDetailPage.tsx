@@ -21,6 +21,8 @@ import {
   StatusBadge,
   UserAvatar,
 } from '@/shared/components/ui';
+import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
+import { ConfirmModal } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { useAuthStore } from '@/shared/store';
@@ -97,11 +99,12 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const updateAgreement = useUpdateRuleAgreement();
   const shareRule = useShareRule();
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const isPending = updateRule.isPending || updateAgreement.isPending;
   const mutationError = updateRule.error ?? updateAgreement.error ?? shareRule.error;
 
-  const handleSave = async () => {
+  const handleSaveClick = () => {
     if (isPending) return;
 
     const nextErrors: FormErrors = {};
@@ -129,6 +132,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
       return;
     }
 
+    setIsSaveModalOpen(true);
+  };
+
+  const handleConfirmSave = async () => {
+    const trimmedTitle = title.trim();
+    const trimmedContent = content.trim();
+    if (!category || !status) return;
+
     try {
       await updateRule.mutateAsync({
         id: rule.id,
@@ -139,6 +150,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           status,
         },
       });
+      setIsSaveModalOpen(false);
       navigate('/rules');
     } catch {
       // mutationError를 폼 하단에 표시한다.
@@ -245,7 +257,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         )}
 
         <FormActions
-          onSave={() => void handleSave()}
+          onSave={handleSaveClick}
           onCancel={() => navigate(-1)}
           rightSlot={<ShareMessengerButton onClick={handleShare} />}
           className="hidden lg:flex"
@@ -327,7 +339,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           <Button
             type="button"
             className="h-11 w-full text-mobile-label font-bold"
-            onClick={() => void handleSave()}
+            onClick={handleSaveClick}
             disabled={isPending}
           >
             저장
@@ -372,6 +384,18 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           </div>
         </Panel>
       </div>
+
+      <ConfirmModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={() => void handleConfirmSave()}
+        icon={<RuleIcon className="size-6" />}
+        title="생활 규칙을 수정할까요?"
+        highlight={title.trim()}
+        description="생활 규칙 데이터를 수정합니다."
+        confirmLabel="수정하기"
+        isPending={isPending}
+      />
     </div>
   );
 };

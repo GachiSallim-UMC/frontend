@@ -12,7 +12,8 @@ import {
   type Item,
 } from '@/features/item';
 import { useGroupMembers } from '@/features/member';
-import { Button, FormActions, ShareMessengerButton } from '@/shared/components/ui';
+import ItemIcon from '@/assets/icons/sidebar/items-active.svg?react';
+import { Button, ConfirmModal, FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { useGroupStore } from '@/shared/store';
@@ -74,6 +75,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const updateItem = useUpdateItem();
   const updateStatus = useUpdateItemStatus();
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const buyerOptions = groupMembers.map(member => ({
     value: member.userId,
@@ -90,7 +92,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const isPending = createItem.isPending || updateItem.isPending || updateStatus.isPending;
   const mutationError = createItem.error ?? updateItem.error ?? updateStatus.error;
 
-  const handleSave = async () => {
+  const handleSaveClick = () => {
     if (isPending) return;
 
     const canPreservePurchasedStatus = editingItem?.status === 'purchased';
@@ -105,6 +107,11 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !category) return;
 
+    setIsSaveModalOpen(true);
+  };
+
+  const handleConfirmSave = async () => {
+    if (!category) return;
     const numericAssigneeId = buyerId ? Number(buyerId) : undefined;
 
     try {
@@ -134,6 +141,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
           ...(memo.trim() ? { memo: memo.trim() } : {}),
         });
       }
+      setIsSaveModalOpen(false);
       navigate('/items');
     } catch {
       // mutationError를 폼 하단에 표시한다.
@@ -264,7 +272,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
             type="button"
             className="h-11 w-full bg-primary-700 text-mobile-body font-bold hover:bg-primary-700"
             isLoading={isPending}
-            onClick={() => void handleSave()}
+            onClick={handleSaveClick}
           >
             {isPending ? '처리 중' : '저장'}
           </Button>
@@ -272,7 +280,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
 
         <FormActions
           className="mt-[30px] hidden lg:flex"
-          onSave={() => void handleSave()}
+          onSave={handleSaveClick}
           onCancel={() => navigate(-1)}
           saveLabel={isPending ? '처리 중' : '저장'}
         />
@@ -311,6 +319,18 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
           </div>
         </Panel>
       </div>
+
+      <ConfirmModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={() => void handleConfirmSave()}
+        icon={<ItemIcon className="size-6" />}
+        title={editingItem ? '공용 물품을 수정할까요?' : '공용 물품을 등록할까요?'}
+        highlight={name.trim()}
+        description={editingItem ? '공용 물품 데이터를 수정합니다.' : '내용으로 공용 물품을 등록합니다.'}
+        confirmLabel={editingItem ? '수정하기' : '저장하기'}
+        isPending={isPending}
+      />
     </div>
   );
 };

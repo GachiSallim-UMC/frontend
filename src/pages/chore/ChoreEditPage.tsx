@@ -233,6 +233,7 @@ export const ChoreEditPage = () => {
         onConfirm={handleConfirmSave}
         choreName={formData.title || choreData.title}
         isSaving={updateMutation.isPending}
+        mode="update"
       />
       <ChoreCancelModal
         isOpen={isCancelModalOpen}

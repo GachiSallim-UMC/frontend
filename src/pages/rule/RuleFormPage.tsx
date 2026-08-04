@@ -8,7 +8,8 @@ import {
   useShareRule,
   useUpdateRule,
 } from '@/features/rule';
-import { Button, FormActions, ShareMessengerButton } from '@/shared/components/ui';
+import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
+import { Button, ConfirmModal, FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 
@@ -22,9 +23,10 @@ export const RuleFormPage = () => {
   const updateRule = useUpdateRule();
   const shareRule = useShareRule();
   const [errors, setErrors] = useState<FormErrors>({});
+  const [pendingShare, setPendingShare] = useState<boolean | null>(null);
   const mutationError = createRule.error ?? updateRule.error ?? shareRule.error;
 
-  const handleSubmit = async (shareAfterSave: boolean) => {
+  const handleSubmitClick = (shareAfterSave: boolean) => {
     if (createRule.isPending || updateRule.isPending || shareRule.isPending) return;
 
     const nextErrors: FormErrors = {};
@@ -39,6 +41,14 @@ export const RuleFormPage = () => {
     if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+
+    setPendingShare(shareAfterSave);
+  };
+
+  const handleConfirmSubmit = async () => {
+    const trimmedTitle = title.trim();
+    const shareAfterSave = pendingShare === true;
+    if (!category || !status) return;
 
     try {
       const created = await createRule.mutateAsync({
@@ -65,6 +75,7 @@ export const RuleFormPage = () => {
         }
         return;
       }
+      setPendingShare(null);
       navigate('/rules');
     } catch {
       // mutationError를 폼 하단에 표시한다.
@@ -156,28 +167,39 @@ export const RuleFormPage = () => {
         )}
 
         <FormActions
-          onSave={() => void handleSubmit(false)}
+          onSave={() => handleSubmitClick(false)}
           onCancel={() => navigate(-1)}
-          rightSlot={<ShareMessengerButton onClick={() => void handleSubmit(true)} />}
+          rightSlot={<ShareMessengerButton onClick={() => handleSubmitClick(true)} />}
           className="hidden lg:flex"
         />
 
         <div className="flex flex-col gap-2.5 lg:hidden">
           <ShareMessengerButton
             className="h-11 text-mobile-label"
-            onClick={() => void handleSubmit(true)}
+            onClick={() => handleSubmitClick(true)}
             disabled={createRule.isPending || updateRule.isPending || shareRule.isPending}
           />
           <Button
             type="button"
             className="h-11 w-full text-mobile-label font-bold"
-            onClick={() => void handleSubmit(false)}
+            onClick={() => handleSubmitClick(false)}
             disabled={createRule.isPending || updateRule.isPending || shareRule.isPending}
           >
             저장
           </Button>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={pendingShare !== null}
+        onClose={() => setPendingShare(null)}
+        onConfirm={() => void handleConfirmSubmit()}
+        icon={<RuleIcon className="size-6" />}
+        title="생활 규칙을 등록할까요?"
+        highlight={title.trim()}
+        description="내용으로 생활 규칙을 등록합니다."
+        isPending={createRule.isPending || updateRule.isPending || shareRule.isPending}
+      />
     </div>
   );
 };
