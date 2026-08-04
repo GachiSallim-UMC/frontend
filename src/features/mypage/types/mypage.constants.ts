@@ -28,7 +28,7 @@ export const START_DAY_OPTIONS: SelectOption<StartDayValue>[] = [
 
 export const DATE_FORMAT_OPTIONS: SelectOption<DateFormatValue>[] = [
   { value: 'YYYY/MM/DD', label: 'YYYY/MM/DD' },
-  { value: 'DD/MM/YY', label: 'DD/MM/YYYY' },
+  { value: 'DD/MM/YY', label: 'DD/MM/YY' },
 ];
 
 export const FONT_SIZE_OPTIONS: SelectOption<FontSizeValue>[] = [
