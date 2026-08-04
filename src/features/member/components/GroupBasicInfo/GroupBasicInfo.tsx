@@ -7,6 +7,8 @@ import { useUpdateGroup } from '../../hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
 import { authApi } from '@/features/auth';
 import { RefreshCw } from 'lucide-react';
+import { IsAdminModal } from '../IsAdminModal';
+import { MemberUpdateModal } from '../MemberUpdateModal';
 
 import CameraIcon from '@/assets/icons/member/camera.svg?react';
 import UploadIcon from '@/assets/icons/member/upload.svg?react';
@@ -35,6 +37,9 @@ export const GroupBasicInfo = () => {
     Partial<Record<'groupName' | 'maxMemberCount' | 'description', string>>
   >({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isAdminAlertOpen, setIsAdminAlertOpen] = useState<boolean>(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
 
   const { data: groupData, refetch } = useQuery({
     queryKey: ['group', selectedGroupId],
@@ -112,7 +117,11 @@ export const GroupBasicInfo = () => {
     if (Object.keys(nextErrors).length > 0) {
       return;
     }
+    setIsUpdateModalOpen(true);
+  };
 
+  const handleConfirmSave = async () => {
+    if (!selectedGroupId) return;
     let finalGroupImageUrl = groupImage;
 
     try {
@@ -129,7 +138,7 @@ export const GroupBasicInfo = () => {
         {
           groupId: selectedGroupId,
           body: {
-            name: trimmedGroupName,
+            name: groupName.trim(),
             description: description,
             maxMembers: Number(maxMemberCount),
             groupImage: finalGroupImageUrl,
@@ -137,12 +146,13 @@ export const GroupBasicInfo = () => {
         },
         {
           onSuccess: () => {
-            alert('그룹 정보가 수정되었습니다.');
             setSelectedFile(null);
             setIsUploading(false);
+            setIsUpdateModalOpen(false);
           },
           onError: () => {
-            alert('그룹 정보 수정에 실패했습니다.');
+            setIsAdminAlertOpen(false);
+            setIsAdminAlertOpen(true);
             setIsUploading(false);
           },
         },
@@ -150,6 +160,7 @@ export const GroupBasicInfo = () => {
     } catch {
       alert('이미지 저장 중 오류가 발생했습니다.');
       setIsUploading(false);
+      setIsUpdateModalOpen(false);
     }
   };
 
@@ -164,7 +175,7 @@ export const GroupBasicInfo = () => {
       queryClient.invalidateQueries({ queryKey: ['group', selectedGroupId] });
     },
     onError: () => {
-      alert('그룹 코드 재발급에 실패했습니다.');
+      setIsAdminAlertOpen(true);
     },
   });
 
@@ -363,6 +374,12 @@ export const GroupBasicInfo = () => {
           </div>
         </div>
       </div>
+      <IsAdminModal isOpen={isAdminAlertOpen} onClose={() => setIsAdminAlertOpen(false)} />
+      <MemberUpdateModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => setIsUpdateModalOpen(false)}
+        onConfirm={handleConfirmSave}
+      />
     </section>
   );
 };

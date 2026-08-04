@@ -16,6 +16,8 @@ export { JoinGroupInput } from './components/JoinGroup/JoinGroupInput';
 export { JoinGroupAction } from './components/JoinGroup/JoinGroupAction';
 
 export { WarningModal } from './components/WarningModal';
+export { MemberUpdateModal } from './components/MemberUpdateModal';
+export { IsAdminModal } from './components/IsAdminModal';
 
 export { useMyGroups } from './hooks/useMyGroups';
 export { useGroupMembers } from './hooks/useGroupMembers';
