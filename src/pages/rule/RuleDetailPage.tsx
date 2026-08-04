@@ -14,15 +14,15 @@ import {
   type RuleAgreementApiStatus,
   type RuleHistoryType,
 } from '@/features/rule';
+import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
 import {
   Button,
+  ConfirmModal,
   FormActions,
   ShareMessengerButton,
   StatusBadge,
   UserAvatar,
 } from '@/shared/components/ui';
-import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
-import { ConfirmModal } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { useAuthStore } from '@/shared/store';

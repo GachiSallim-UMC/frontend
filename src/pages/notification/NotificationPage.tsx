@@ -40,7 +40,7 @@ export const NotificationPage = () => {
             <Button
               variant="secondary"
               onClick={() => markAllAsRead()}
-              className="pt-[16px] pr-[31px] pb-[15px] pl-[30px] h-auto rounded-lg text-[16px] font-normal text-gray-600 leading-normal border-gray-100 hover:bg-gray-100 active:bg-gray-200"
+              className="h-8 rounded-full px-3 text-mobile-label font-bold text-gray-600 leading-normal border-gray-100 hover:bg-gray-100 active:bg-gray-200 lg:h-auto lg:rounded-lg lg:pt-[16px] lg:pr-[31px] lg:pb-[15px] lg:pl-[30px] lg:text-[16px] lg:font-normal"
             >
               전체 읽음 처리
             </Button>

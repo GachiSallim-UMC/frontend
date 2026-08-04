@@ -288,7 +288,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         <Panel
           title="빠른 상태 변경"
           description="목록에서 물품 선택 후 상태만 빠르게 변경할 수 있습니다."
-          className="mt-5 rounded-none border-t border-gray-100 bg-transparent px-0 pb-0 pt-5 shadow-none lg:mt-[30px] lg:h-[167px] lg:overflow-hidden lg:rounded-[18px] lg:border-0 lg:bg-white lg:p-[32px]"
+          className="mt-5 rounded-none border-t border-gray-100 bg-transparent px-0 pb-0 pt-5 shadow-none lg:mt-[30px] lg:min-h-[167px] lg:rounded-[18px] lg:border-0 lg:bg-white lg:p-[32px]"
           headerClassName="mb-2 lg:mb-2.5"
           titleClassName="text-mobile-body leading-[17px] text-gray-700 lg:text-body lg:leading-normal lg:text-gray-800"
           descriptionClassName="hidden leading-[17px] lg:block"
