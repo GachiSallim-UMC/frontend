@@ -174,7 +174,7 @@ export const ChoreEditPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-[300px] w-full items-center justify-center mt-[28px]">
+      <div className="flex h-[300px] w-full items-center justify-center">
         <div className="text-gray-500 font-semibold">데이터를 불러오는 중입니다...</div>
       </div>
     );
@@ -182,14 +182,14 @@ export const ChoreEditPage = () => {
 
   if (isError || !choreData) {
     return (
-      <div className="flex h-[300px] w-full items-center justify-center mt-[28px]">
+      <div className="flex h-[300px] w-full items-center justify-center">
         <div className="text-gray-500 font-semibold">집안일 정보를 찾을 수 없습니다.</div>
       </div>
     );
   }
 
   return (
-    <div className="mt-[28px] h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
+    <div className="h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
       <ChoreBasicInfo
         title={formData.title}
         assigneeId={String(formData.assigneeId)}

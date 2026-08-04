@@ -32,7 +32,7 @@ export const RuleListPage = () => {
   };
 
   return (
-    <section className="w-full px-4 pb-6 pt-4 lg:mt-[28px] lg:h-[472px] lg:rounded-[20px] lg:bg-white lg:p-[30px]">
+    <section className="w-full pb-6 lg:h-[472px] lg:rounded-[20px] lg:bg-white lg:p-[30px]">
       <div className="mb-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden">
         <div className="flex w-max gap-2">
           {MOBILE_CATEGORY_FILTERS.map(option => (

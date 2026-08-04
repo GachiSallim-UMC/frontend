@@ -87,7 +87,7 @@ export const ExpenseListPage = () => {
 
   return (
     <div className='flex w-full min-h-0 bg-gray-50'>
-      <div className='flex flex-col mt-4 lg:mt-[28px] w-full h-full pb-[60px] lg:pb-[80px] px-3 sm:px-4 lg:px-0'>
+      <div className='flex flex-col w-full h-full pb-[60px] lg:pb-[80px]'>
         <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-[17px]'>
           <SummaryCard
             icon={<img src={totalExpenseIcon} alt='총 지출' className='w-[32px] h-[32px]' />}

@@ -1,8 +1,5 @@
-import { useState } from 'react';
-import { Button } from '@/shared/components/ui';
-import { NotificationList, FilterDropdown, useNotifications } from '@/features/notification';
-
-type NotificationFilterKey = 'status' | 'category';
+import { Button, LabelFilterDropdown } from '@/shared/components/ui';
+import { NotificationList, useNotifications } from '@/features/notification';
 
 export const NotificationPage = () => {
   const {
@@ -21,28 +18,22 @@ export const NotificationPage = () => {
     hideNotification,
   } = useNotifications();
 
-  const [openFilter, setOpenFilter] = useState<NotificationFilterKey | null>(null);
-
   return (
     <div className="flex w-full flex-1 min-h-0 bg-gray-50">
-      <div className="flex flex-col w-full h-full pt-[28px] pb-[28px] gap-[28px] px-4 lg:px-0">
+      <div className="flex flex-col w-full h-full pb-[28px] gap-[28px]">
 
-        <div className="w-full flex-1 min-h-0 bg-white rounded-[20px] flex flex-col py-4 shadow-card overflow-hidden lg:max-h-[720px] lg:py-[30px]">
+        <div className="w-full flex-1 min-h-0 bg-white rounded-[20px] flex flex-col py-4 overflow-hidden lg:max-h-[720px] lg:py-[30px]">
           <div className="flex flex-wrap justify-between items-center w-full px-4 mb-[14px] lg:px-[30px]">
             <div className="flex flex-wrap gap-4 z-20">
-              <FilterDropdown
+              <LabelFilterDropdown
                 value={statusFilter}
                 options={statusOptions}
                 onChange={setStatusFilter}
-                isOpen={openFilter === 'status'}
-                onOpenChange={(isOpen) => setOpenFilter(isOpen ? 'status' : null)}
               />
-              <FilterDropdown
+              <LabelFilterDropdown
                 value={categoryFilter}
                 options={categoryOptions}
                 onChange={setCategoryFilter}
-                isOpen={openFilter === 'category'}
-                onOpenChange={(isOpen) => setOpenFilter(isOpen ? 'category' : null)}
               />
             </div>
 

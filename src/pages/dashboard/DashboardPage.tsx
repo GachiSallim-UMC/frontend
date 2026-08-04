@@ -28,7 +28,7 @@ export const DashboardPage = () => {
     }
 
     return (
-        <div className='flex flex-col pt-7'>
+        <div className='flex flex-col'>
             <DashboardSummary 
                 summary={data.summary} 
                 lowSupplies={data.lowSupplies} 

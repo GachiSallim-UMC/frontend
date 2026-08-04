@@ -185,8 +185,8 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   }
 
   return (
-    <div className='flex flex-col mt-4 lg:mt-[28px] w-full flex-1 min-h-0 pb-8 lg:pb-12'>
-      <div className='flex flex-col w-full px-3 sm:px-4 lg:px-0'>
+    <div className='flex flex-col w-full flex-1 min-h-0 pb-8 lg:pb-12'>
+      <div className='flex flex-col w-full'>
         <div className='w-full max-w-[1114px] flex flex-col gap-4 lg:gap-6'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start w-full'>
             <div className='flex flex-col gap-4 lg:gap-6 w-full'>

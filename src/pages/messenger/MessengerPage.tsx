@@ -142,8 +142,8 @@ export const MessengerPage = () => {
 
   return (
     <div className="flex w-full flex-1 min-h-0 bg-gray-50">
-      <div className="flex h-full w-full flex-col px-4 pb-[28px] pt-[28px] lg:px-0">
-        <div className="relative flex w-full flex-1 min-h-0 overflow-hidden rounded-[20px] bg-white shadow-card">
+      <div className="flex h-full w-full flex-col pb-[28px]">
+        <div className="relative flex w-full flex-1 min-h-0 overflow-hidden rounded-[20px] bg-white">
           <div className="relative flex min-w-0 flex-1">
             <ChatRoomListPanel
               rooms={filteredRooms}

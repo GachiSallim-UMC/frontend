@@ -51,7 +51,7 @@ export const ItemListPage = () => {
   } = useItemFilters(items);
 
   return (
-    <div className="w-full px-4 pb-6 pt-4 lg:mt-[28px] lg:px-0 lg:pb-0 lg:pt-0">
+    <div className="w-full pb-6 lg:pb-0">
       <div className="mb-4 grid grid-cols-2 gap-2 lg:mb-[30px] lg:grid-cols-3 lg:gap-[17px]">
         <SummaryCard
           icon={<AllItemsIcon className="size-10 min-[1200px]:size-12" />}
