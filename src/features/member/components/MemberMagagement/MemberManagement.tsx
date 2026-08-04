@@ -68,13 +68,19 @@ export const MemberManagement = () => {
     );
   }
 
+  const sortedMembers = [...members].sort((a, b) => {
+    if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
+    if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
+    return 0;
+  });
+
   return (
     <section className="flex w-full flex-col rounded-2xl bg-white p-7">
       <h3 className="mb-5 text-lg font-bold text-gray-900 leading-snug">멤버 관리</h3>
 
       {/* 멤버 리스트 영역 */}
       <div className="flex flex-col">
-        {members.map((member, index) => {
+        {sortedMembers.map((member, index) => {
           const userName = member.user?.nickname || member.user?.name || '멤버';
           const userAvatarUrl = member.user?.profileImage ?? undefined;
 
@@ -82,7 +88,7 @@ export const MemberManagement = () => {
             <div
               key={member.userId || member.user.id}
               className={`flex items-center justify-between p-3 ${
-                index !== members.length - 1 ? 'border-b border-gray-100' : ''
+                index !== sortedMembers.length - 1 ? 'border-b border-gray-100' : ''
               }`}
             >
               {/* 좌측 */}

@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { Button, FormInput, SelectDropdown } from '@/shared/components';
 import { formatDate, useDateFormat } from '@/shared/lib';
 import { memberApi } from '@/features/member/api/member.api';
 import { useUpdateGroup } from '../../hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
 import { authApi } from '@/features/auth';
+import { RefreshCw } from 'lucide-react';
 
 import CameraIcon from '@/assets/icons/member/camera.svg?react';
 import UploadIcon from '@/assets/icons/member/upload.svg?react';
@@ -22,6 +23,7 @@ export const GroupBasicInfo = () => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const updateGroupMutation = useUpdateGroup();
   const dateFormat = useDateFormat();
+  const queryClient = useQueryClient();
 
   const [groupName, setGroupName] = useState<string>('');
   const [maxMemberCount, setMaxMemberCount] = useState<string>('');
@@ -29,7 +31,9 @@ export const GroupBasicInfo = () => {
   const [groupImage, setGroupImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<Partial<Record<'groupName' | 'maxMemberCount' | 'description', string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<'groupName' | 'maxMemberCount' | 'description', string>>
+  >({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: groupData, refetch } = useQuery({
@@ -93,11 +97,17 @@ export const GroupBasicInfo = () => {
     const trimmedGroupName = groupName.trim();
     const parsedMaxMemberCount = Number(maxMemberCount);
     if (!trimmedGroupName) nextErrors.groupName = '그룹 이름을 입력해 주세요.';
-    else if (trimmedGroupName.length > 40) nextErrors.groupName = '그룹 이름은 40자 이하로 입력해 주세요.';
-    if (!Number.isInteger(parsedMaxMemberCount) || parsedMaxMemberCount < 2 || parsedMaxMemberCount > 12) {
+    else if (trimmedGroupName.length > 40)
+      nextErrors.groupName = '그룹 이름은 40자 이하로 입력해 주세요.';
+    if (
+      !Number.isInteger(parsedMaxMemberCount) ||
+      parsedMaxMemberCount < 2 ||
+      parsedMaxMemberCount > 12
+    ) {
       nextErrors.maxMemberCount = '최대 인원은 2명부터 12명까지 선택해 주세요.';
     }
-    if (description.length > 255) nextErrors.description = '그룹 소개는 255자 이하로 입력해 주세요.';
+    if (description.length > 255)
+      nextErrors.description = '그룹 소개는 255자 이하로 입력해 주세요.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {
       return;
@@ -135,7 +145,7 @@ export const GroupBasicInfo = () => {
             alert('그룹 정보 수정에 실패했습니다.');
             setIsUploading(false);
           },
-        }
+        },
       );
     } catch {
       alert('이미지 저장 중 오류가 발생했습니다.');
@@ -147,6 +157,21 @@ export const GroupBasicInfo = () => {
     if (!groupData?.inviteCode) return;
     navigator.clipboard.writeText(groupData.inviteCode);
     alert('그룹 코드가 복사되었습니다.');
+  };
+
+  const regenerateCodeMutation = useMutation({
+    mutationFn: () => memberApi.regenerateInviteCode(selectedGroupId as string),
+    onSuccess: () => {
+      alert('새로운 그룹 코드가 발급되었습니다.');
+      queryClient.invalidateQueries({ queryKey: ['group', selectedGroupId] });
+    },
+    onError: () => {
+      alert('그룹 코드 재발급에 실패했습니다.');
+    },
+  });
+
+  const handleRegenerateCode = () => {
+    regenerateCodeMutation.mutate();
   };
 
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -313,16 +338,30 @@ export const GroupBasicInfo = () => {
               id="groupCode"
               value={groupData?.inviteCode || ''}
               readOnly
-              className="w-full cursor-default border-gray-100 bg-gray-50 pr-12 text-gray-900 focus:border-gray-100 focus:ring-0"
+              className="w-full cursor-default border-gray-100 bg-gray-50 pr-20 text-gray-900 focus:border-gray-100 focus:ring-0"
             />
-            <button
-              type="button"
-              onClick={handleCopyCode}
-              aria-label="그룹 코드 복사"
-              className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900"
-            >
-              <CopyIcon className="h-5 w-5" />
-            </button>
+            <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1">
+              {/* 새로고침(재발급) 버튼 */}
+              <button
+                type="button"
+                onClick={handleRegenerateCode}
+                disabled={regenerateCodeMutation.isPending}
+                aria-label="그룹 코드 재발급"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-primary-600 transition-colors hover:bg-gray-200 hover:text-gray-900 disabled:opacity-50"
+              >
+                <RefreshCw
+                  className={`h-5 w-5 ${regenerateCodeMutation.isPending ? 'animate-spin' : ''}`}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyCode}
+                aria-label="그룹 코드 복사"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900"
+              >
+                <CopyIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

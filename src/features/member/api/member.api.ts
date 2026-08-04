@@ -134,4 +134,9 @@ export const memberApi = {
     });
     return data;
   },
+
+  regenerateInviteCode: async (groupId: string): Promise<MemberGroupResponse> => {
+    const { data } = await apiClient.post<MemberGroupResponse>(`${BASE}/${groupId}/invite-code`);
+    return data;
+  },
 };
