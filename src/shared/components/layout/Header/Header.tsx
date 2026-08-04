@@ -20,7 +20,7 @@ export const Header = ({
   unreadNotificationCount = 0,
 }: HeaderProps) => {
   return (
-    <header className="z-10 flex h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6">
+    <header className="z-10 hidden h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6 lg:flex">
       {/* 그룹 정보 */}
       <div>
         <h1 className="text-group-title font-semibold text-gray-900">{groupName}</h1>

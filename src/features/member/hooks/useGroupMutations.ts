@@ -109,3 +109,22 @@ export const useUpdateGroupPermissions = () => {
     },
   });
 };
+
+/** 초대 코드 미리보기 조회 훅 */
+export const useInviteInfo = (code: string | undefined) => {
+  return useQuery({
+    queryKey: ['group', 'invite-info', code],
+    queryFn: () => memberApi.getInviteInfo(code!),
+    enabled: !!code,
+    retry: false,
+  });
+};
+
+/** 특정 그룹 상세 정보 조회 훅 */
+export const useGroupDetail = (groupId: string | undefined) => {
+  return useQuery({
+    queryKey: ['group', groupId],
+    queryFn: () => memberApi.getGroupDetail(groupId!),
+    enabled: !!groupId,
+  });
+};
