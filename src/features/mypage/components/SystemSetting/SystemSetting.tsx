@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { SelectDropdown } from '@/shared/components';
 import { Switch } from '@/shared/components';
-import { useAutoLoginStore, useDateFormatStore } from '@/shared/store';
-import { useDateFormatStore, useStartDayStore } from '@/shared/store';
+import { useAutoLoginStore, useDateFormatStore, useStartDayStore } from '@/shared/store';
 import {
   DATE_FORMAT_OPTIONS,
   FONT_SIZE_OPTIONS,
