@@ -164,7 +164,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
 
   return (
     <div className="flex w-full flex-1 bg-white lg:bg-transparent">
-      <div className="mx-auto flex w-full flex-col px-4 pb-6 pt-4 lg:mt-16 lg:block lg:max-w-[1114px] lg:px-0 lg:pb-0 lg:pt-0 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
+      <div className="flex w-full flex-col px-4 pb-6 pt-4 lg:mt-[28px] lg:block lg:max-w-[1114px] lg:px-0 lg:pb-0 lg:pt-0">
         <Panel
           title="물품 정보"
           className="h-auto rounded-none bg-transparent p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:bg-white lg:p-[32px]"

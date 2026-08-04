@@ -9,7 +9,7 @@ import {
   useRules,
   useShareRule,
 } from '@/features/rule';
-import { SelectDropdown } from '@/shared/components/form';
+import { FilterDropdown } from '@/shared/components/ui';
 import { cn } from '@/shared/lib/cn';
 
 const MOBILE_CATEGORY_FILTERS: ReadonlyArray<{
@@ -32,7 +32,7 @@ export const RuleListPage = () => {
   };
 
   return (
-    <section className="mx-auto w-full px-4 pb-6 pt-4 lg:mt-16 lg:h-[472px] lg:max-w-[1114px] lg:rounded-[20px] lg:bg-white lg:p-[30px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
+    <section className="w-full px-4 pb-6 pt-4 lg:mt-[28px] lg:h-[472px] lg:rounded-[20px] lg:bg-white lg:p-[30px]">
       <div className="mb-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden">
         <div className="flex w-max gap-2">
           {MOBILE_CATEGORY_FILTERS.map(option => (
@@ -55,19 +55,17 @@ export const RuleListPage = () => {
 
       <div className="mb-5 hidden flex-wrap items-center justify-between gap-3 lg:flex">
         <div className="flex flex-wrap items-center gap-3">
-          <SelectDropdown
-            value={categoryFilter}
-            onChange={setCategoryFilter}
+          <FilterDropdown
+            defaultLabel="전체 카테고리"
+            value={categoryFilter || 'ALL'}
             options={RULE_CATEGORY_OPTIONS}
-            placeholder="전체 카테고리"
-            className="w-[150px]"
+            onChange={value => setCategoryFilter(value === 'ALL' ? '' : (value as RuleCategory))}
           />
-          <SelectDropdown
-            value={statusFilter}
-            onChange={setStatusFilter}
+          <FilterDropdown
+            defaultLabel="전체 상태"
+            value={statusFilter || 'ALL'}
             options={RULE_STATUS_OPTIONS}
-            placeholder="전체 상태"
-            className="w-[150px]"
+            onChange={value => setStatusFilter(value === 'ALL' ? '' : (value as typeof statusFilter))}
           />
         </div>
         <Link

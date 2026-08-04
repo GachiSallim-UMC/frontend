@@ -24,10 +24,10 @@ export const NotificationPage = () => {
   const [openFilter, setOpenFilter] = useState<NotificationFilterKey | null>(null);
 
   return (
-    <div className="flex justify-center w-full flex-1 min-h-0 bg-gray-50">
-      <div className="flex flex-col items-center w-full h-full pt-[28px] pb-[28px] gap-[28px] px-4 lg:max-w-[1180px]">
+    <div className="flex w-full flex-1 min-h-0 bg-gray-50">
+      <div className="flex flex-col w-full h-full pt-[28px] pb-[28px] gap-[28px] px-4 lg:px-0">
 
-        <div className="w-full flex-1 min-h-0 bg-white rounded-[20px] flex flex-col items-center py-4 shadow-card overflow-hidden lg:max-w-[1114px] lg:max-h-[720px] lg:py-[30px]">
+        <div className="w-full flex-1 min-h-0 bg-white rounded-[20px] flex flex-col py-4 shadow-card overflow-hidden lg:max-h-[720px] lg:py-[30px]">
           <div className="flex flex-wrap justify-between items-center w-full px-4 mb-[14px] lg:px-[30px]">
             <div className="flex flex-wrap gap-4 z-20">
               <FilterDropdown

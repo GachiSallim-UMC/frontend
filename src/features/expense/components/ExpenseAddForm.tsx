@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import arrowIcon from '@/assets/icons/expense/arrow.svg';
 import calendarIcon from '@/assets/icons/expense/calendar.svg';
 import { useSettlementAmounts, useExpenseForm, useShareExpense } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
@@ -10,8 +9,6 @@ import { ShareMessengerButton, Button } from '@/shared/components/';
 import { useErrorStore } from '@/shared/store';
 import { isUnsignedIntegerInput, isValidDateOnly } from '@/shared/lib/inputValidation';
 
-const arrowIconEl = arrowIcon;
-const selectClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border outline-none text-button bg-white appearance-none cursor-pointer';
 const labelClass = 'font-sans text-caption font-bold text-gray-800';
 const cardClass = 'w-full bg-white p-[16px] rounded-[18px] flex flex-col gap-5 lg:p-[32px]';
 const toLocalDateOnly = (date: Date) => {
@@ -161,8 +158,7 @@ export const ExpenseAddForm = ({
     memberRatios: customMemberRatios,
   });
 
-  const handlePayerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handlePayerSelect = (value: string) => {
     setPayerId(value);
     setFieldErrors(previous => ({ ...previous, payerId: undefined }));
     onPayerChange?.(value);
@@ -356,35 +352,16 @@ export const ExpenseAddForm = ({
             </div>
           </div>
 
-          <div className='flex flex-col gap-2'>
-            <label htmlFor='expense-payer' className={labelClass}>
-              선지불자 <RequiredMark />
-            </label>
-            <div className='relative'>
-              <select
-                id='expense-payer'
-                className={`${selectClass} ${fieldErrors.payerId ? 'border-red-500' : 'border-gray-100'} ${!payerId ? 'text-gray-400' : 'text-gray-800'}`}
-                value={payerId}
-                onChange={handlePayerChange}
-                disabled={membersLoading}
-              >
-                <option value='' disabled>
-                  {membersLoading ? '멤버 불러오는 중...' : '선지불자 선택'}
-                </option>
-                {members.map((payer) => (
-                  <option key={payer.id} value={payer.id} className='text-gray-800'>
-                    {payer.name}
-                  </option>
-                ))}
-              </select>
-              <img
-                src={arrowIconEl}
-                alt='화살표'
-                className='absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none'
-              />
-            </div>
-            {fieldErrors.payerId && <p className='mt-1.5 text-xs text-red-500'>{fieldErrors.payerId}</p>}
-          </div>
+          <SelectDropdown
+            label="선지불자"
+            required
+            value={payerId}
+            onChange={handlePayerSelect}
+            options={members.map(payer => ({ value: String(payer.id), label: payer.name }))}
+            placeholder={membersLoading ? '멤버 불러오는 중...' : '선지불자 선택'}
+            error={fieldErrors.payerId}
+            disabled={membersLoading}
+          />
 
           <SelectDropdown
             label="카테고리"

@@ -67,12 +67,12 @@ export const RuleDetailPage = () => {
   if (!id) return <Navigate to="/rules" replace />;
   if (isLoading) {
     return (
-      <p className="mt-4 text-center text-gray-500 lg:mt-16">생활규칙을 불러오는 중입니다.</p>
+      <p className="mt-4 text-center text-gray-500 lg:mt-[28px]">생활규칙을 불러오는 중입니다.</p>
     );
   }
   if (error) {
     return (
-      <div className="mt-4 flex flex-col items-center justify-center gap-3 text-gray-500 lg:mt-16">
+      <div className="mt-4 flex flex-col items-center justify-center gap-3 text-gray-500 lg:mt-[28px]">
         <p>{error instanceof Error ? error.message : '생활규칙을 불러오지 못했습니다.'}</p>
         <button
           type="button"
@@ -175,7 +175,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   };
 
   return (
-    <div className="mx-auto grid min-h-full w-full content-start grid-cols-1 gap-5 bg-white px-4 pb-6 pt-4 lg:mt-16 lg:min-h-0 lg:max-w-[1114px] lg:gap-5 lg:bg-transparent lg:p-0 xl:grid-cols-2 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
+    <div className="grid min-h-full w-full content-start grid-cols-1 gap-5 bg-white px-4 pb-6 pt-4 lg:mt-[28px] lg:min-h-0 lg:max-w-[1114px] lg:gap-5 lg:bg-transparent lg:p-0 xl:grid-cols-2">
       <div className="flex min-w-0 flex-col gap-4 lg:gap-[30px]">
         <Panel
           title="기본 정보"

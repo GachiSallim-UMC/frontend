@@ -83,7 +83,7 @@ export const RuleFormPage = () => {
   };
 
   return (
-    <div className="mx-auto min-h-full w-full bg-white px-4 pb-6 pt-4 lg:mt-16 lg:min-h-0 lg:max-w-[1114px] lg:bg-transparent lg:p-0 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
+    <div className="min-h-full w-full bg-white px-4 pb-6 pt-4 lg:mt-[28px] lg:min-h-0 lg:max-w-[1114px] lg:bg-transparent lg:p-0">
       <div className="flex min-w-0 flex-col gap-4 lg:gap-[30px]">
         <Panel
           title="기본 정보"
