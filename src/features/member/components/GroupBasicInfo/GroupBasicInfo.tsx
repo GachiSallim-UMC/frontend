@@ -156,13 +156,11 @@ export const GroupBasicInfo = () => {
   const handleCopyCode = () => {
     if (!groupData?.inviteCode) return;
     navigator.clipboard.writeText(groupData.inviteCode);
-    alert('그룹 코드가 복사되었습니다.');
   };
 
   const regenerateCodeMutation = useMutation({
     mutationFn: () => memberApi.regenerateInviteCode(selectedGroupId as string),
     onSuccess: () => {
-      alert('새로운 그룹 코드가 발급되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['group', selectedGroupId] });
     },
     onError: () => {
