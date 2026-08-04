@@ -13,7 +13,7 @@ import { isUnsignedIntegerInput, isValidDateOnly } from '@/shared/lib/inputValid
 const arrowIconEl = arrowIcon;
 const selectClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border outline-none text-button bg-white appearance-none cursor-pointer';
 const labelClass = 'font-sans text-caption font-bold text-gray-800';
-const cardClass = 'w-full bg-white p-[16px] rounded-[18px] flex flex-col gap-5';
+const cardClass = 'w-full bg-white p-[16px] rounded-[18px] flex flex-col gap-5 lg:p-[32px]';
 const toLocalDateOnly = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -287,7 +287,7 @@ export const ExpenseAddForm = ({
   };
 
   return (
-    <div className='flex flex-col gap-6 w-full'>
+    <div className='flex flex-col gap-6 w-full lg:gap-[30px]'>
       {isSettled && (
         <div className='w-full bg-red-100 text-red-700 text-caption font-bold p-3 rounded-[8px] text-center'>
           정산이 완료된 내역이라 수정할 수 없습니다.

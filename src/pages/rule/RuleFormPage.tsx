@@ -73,11 +73,11 @@ export const RuleFormPage = () => {
 
   return (
     <div className="mx-auto min-h-full w-full bg-white px-4 pb-6 pt-4 lg:mt-16 lg:min-h-0 lg:max-w-[1114px] lg:bg-transparent lg:p-0 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
-      <div className="flex min-w-0 flex-col gap-4 lg:gap-5">
+      <div className="flex min-w-0 flex-col gap-4 lg:gap-[30px]">
         <Panel
           title="기본 정보"
-          className="h-auto rounded-none p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:p-[30px]"
-          headerClassName="hidden lg:mb-5 lg:flex"
+          className="h-auto rounded-none p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:p-[32px]"
+          headerClassName="hidden lg:mb-6 lg:flex"
           titleClassName="text-gray-800"
         >
           <div className="grid grid-cols-2 gap-x-2 gap-y-4 lg:grid-cols-1 lg:gap-5">
@@ -109,7 +109,7 @@ export const RuleFormPage = () => {
               error={errors.category}
               containerClassName="order-2 gap-2 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 pr-9 text-mobile-label lg:h-[50px] lg:px-3 lg:pr-9 lg:text-button"
+              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
             />
             <TextArea
               label="상세 설명"
@@ -142,7 +142,7 @@ export const RuleFormPage = () => {
               error={errors.status}
               containerClassName="order-3 gap-2 lg:order-4 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 pr-9 text-mobile-label lg:h-[50px] lg:px-3 lg:pr-9 lg:text-button"
+              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
             />
           </div>
         </Panel>

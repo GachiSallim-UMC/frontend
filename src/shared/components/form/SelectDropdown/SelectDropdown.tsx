@@ -55,12 +55,14 @@ export const SelectDropdown = <T extends string>({
           value={value}
           onChange={e => onChange(e.target.value as T)}
           className={cn(
-            'h-[50px] w-full appearance-none rounded-lg border bg-white px-3 pr-9',
+            'h-[50px] w-full appearance-none rounded-lg border bg-white px-3',
             'text-button text-gray-900 transition-colors',
             'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
             error ? 'border-red-500' : 'border-gray-100',
             !value && 'text-gray-500',
             className,
+            // 화살표 아이콘 자리. 호출부가 px-* 를 넘겨도 덮이지 않도록 마지막에 둡니다.
+            'pr-9',
           )}
           {...props}
         >
