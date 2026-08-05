@@ -12,6 +12,7 @@ import {
   type Expense,
 } from '@/features/expense';
 import { memberApi } from '@/features/member';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { requireSelectedGroupId } from '@/shared/api';
 import { useAuthStore, useErrorStore } from '@/shared/store';
 import type { User } from '@/shared/types';
@@ -38,6 +39,8 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   const navigate = useNavigate();
 
   const currentUserId = useAuthStore((state) => state.userId ?? undefined);
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('expense');
 
   const [members, setMembers] = useState<User[]>([]);
   const [membersLoading, setMembersLoading] = useState<boolean>(true);
@@ -188,6 +191,8 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
                 isEditMode={isEditMode}
                 expenseId={savedExpense?.id ? String(savedExpense.id) : id}
                 receiptUrl={receiptObjectKey}
+                onShare={openShare}
+                isSharing={isSharePending}
               />
             </div>
 
@@ -217,6 +222,13 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
           </div>
         </div>
       </div>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
+      />
     </div>
   );
 };

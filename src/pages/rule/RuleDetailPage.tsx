@@ -6,7 +6,6 @@ import {
   useRuleAgreement,
   useRuleDetail,
   useRuleForm,
-  useShareRule,
   useUpdateRule,
   useUpdateRuleAgreement,
   type MyAgreement,
@@ -15,6 +14,7 @@ import {
   type RuleHistoryType,
 } from '@/features/rule';
 import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import {
   Button,
   ConfirmModal,
@@ -97,12 +97,13 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
   const updateAgreement = useUpdateRuleAgreement();
-  const shareRule = useShareRule();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('rule');
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const isPending = updateRule.isPending || updateAgreement.isPending;
-  const mutationError = updateRule.error ?? updateAgreement.error ?? shareRule.error;
+  const mutationError = updateRule.error ?? updateAgreement.error;
 
   const handleSaveClick = () => {
     if (isPending) return;
@@ -170,8 +171,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   };
 
   const handleShare = () => {
-    if (shareRule.isPending) return;
-    shareRule.mutate(rule.id);
+    openShare(rule.id);
   };
 
   return (
@@ -334,7 +334,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           <ShareMessengerButton
             className="h-11 text-mobile-label"
             onClick={handleShare}
-            disabled={shareRule.isPending}
+            disabled={isSharePending}
           />
           <Button
             type="button"
@@ -398,6 +398,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         errorMessage={
           mutationError instanceof Error ? mutationError.message : undefined
         }
+      />
+
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </div>
   );

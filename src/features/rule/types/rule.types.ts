@@ -74,11 +74,6 @@ export interface UpdateRuleAgreementDto {
   status: RuleAgreementApiStatus;
 }
 
-export interface ShareRuleResponse {
-  ruleId: number;
-  messageId: number;
-}
-
 export interface RuleAgreementSummaryResponse {
   totalCount: number;
   agreedCount: number;

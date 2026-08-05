@@ -5,11 +5,10 @@ import {
   RULE_STATUS_OPTIONS,
   useCreateRule,
   useRuleForm,
-  useShareRule,
   useUpdateRule,
 } from '@/features/rule';
 import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
-import { Button, ConfirmModal, FormActions, ShareMessengerButton } from '@/shared/components/ui';
+import { Button, ConfirmModal, FormActions } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 
@@ -21,13 +20,12 @@ export const RuleFormPage = () => {
     useRuleForm();
   const createRule = useCreateRule();
   const updateRule = useUpdateRule();
-  const shareRule = useShareRule();
   const [errors, setErrors] = useState<FormErrors>({});
-  const [pendingShare, setPendingShare] = useState<boolean | null>(null);
-  const mutationError = createRule.error ?? updateRule.error ?? shareRule.error;
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const mutationError = createRule.error ?? updateRule.error;
 
-  const handleSubmitClick = (shareAfterSave: boolean) => {
-    if (createRule.isPending || updateRule.isPending || shareRule.isPending) return;
+  const handleSubmitClick = () => {
+    if (createRule.isPending || updateRule.isPending) return;
 
     const nextErrors: FormErrors = {};
     const trimmedTitle = title.trim();
@@ -42,12 +40,11 @@ export const RuleFormPage = () => {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !category || !status) return;
 
-    setPendingShare(shareAfterSave);
+    setIsSaveModalOpen(true);
   };
 
   const handleConfirmSubmit = async () => {
     const trimmedTitle = title.trim();
-    const shareAfterSave = pendingShare === true;
     if (!category || !status) return;
 
     try {
@@ -67,16 +64,7 @@ export const RuleFormPage = () => {
           },
         });
       }
-      if (shareAfterSave) {
-        try {
-          await shareRule.mutateAsync(String(created.ruleId));
-        } finally {
-          setPendingShare(null);
-          navigate('/rules');
-        }
-        return;
-      }
-      setPendingShare(null);
+      setIsSaveModalOpen(false);
       navigate('/rules');
     } catch {
       // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
@@ -168,23 +156,18 @@ export const RuleFormPage = () => {
         )}
 
         <FormActions
-          onSave={() => handleSubmitClick(false)}
+          onSave={handleSubmitClick}
           onCancel={() => navigate(-1)}
-          rightSlot={<ShareMessengerButton onClick={() => handleSubmitClick(true)} />}
+          rightSlot={null}
           className="hidden lg:flex"
         />
 
         <div className="flex flex-col gap-2.5 lg:hidden">
-          <ShareMessengerButton
-            className="h-11 text-mobile-label"
-            onClick={() => handleSubmitClick(true)}
-            disabled={createRule.isPending || updateRule.isPending || shareRule.isPending}
-          />
           <Button
             type="button"
             className="h-11 w-full text-mobile-label font-bold"
-            onClick={() => handleSubmitClick(false)}
-            disabled={createRule.isPending || updateRule.isPending || shareRule.isPending}
+            onClick={handleSubmitClick}
+            disabled={createRule.isPending || updateRule.isPending}
           >
             저장
           </Button>
@@ -192,14 +175,14 @@ export const RuleFormPage = () => {
       </div>
 
       <ConfirmModal
-        isOpen={pendingShare !== null}
-        onClose={() => setPendingShare(null)}
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
         onConfirm={() => void handleConfirmSubmit()}
         icon={<RuleIcon className="size-6" />}
         title="생활 규칙을 등록할까요?"
         highlight={title.trim()}
         description="내용으로 생활 규칙을 등록합니다."
-        isPending={createRule.isPending || updateRule.isPending || shareRule.isPending}
+        isPending={createRule.isPending || updateRule.isPending}
         errorMessage={
           mutationError instanceof Error ? mutationError.message : undefined
         }

@@ -9,7 +9,6 @@ import type {
   CreateItemDto,
   Item,
   PurchaseItemDto,
-  ShareItemDto,
   SupplyCategory,
   SupplyResponse,
   SupplyStatus,
@@ -176,10 +175,6 @@ export const itemApi = {
 
   purchase: async (id: string, dto: PurchaseItemDto): Promise<void> => {
     await apiClient.post(`${BASE}/${id}/purchase`, dto);
-  },
-
-  share: async (id: string, dto: ShareItemDto): Promise<void> => {
-    await apiClient.post(`${BASE}/${id}/share`, dto);
   },
 
   remove: async (id: string): Promise<void> => {

@@ -146,11 +146,6 @@ export const deleteExpense = async (expenseId: number | string): Promise<void> =
   await apiClient.delete(`/expenses/${expenseId}`);
 };
 
-export const shareExpenseCard = async (expenseId: number | string): Promise<unknown> => {
-  const response = await apiClient.post(`/expenses/${expenseId}/share`);
-  return unwrap(response.data);
-};
-
 export const requestReceiptUploadUrl = async (
   dto: RequestReceiptUploadUrlDto
 ): Promise<ReceiptUploadUrlResponse> => {

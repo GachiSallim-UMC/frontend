@@ -81,11 +81,6 @@ export interface PurchaseItemDto {
   amount: number;
 }
 
-export interface ShareItemDto {
-  chatRoomId: number;
-  content?: string;
-}
-
 export interface SupplyResponse {
   supplyId: number;
   groupId: number;

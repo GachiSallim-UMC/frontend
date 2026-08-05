@@ -13,6 +13,7 @@ import {
 } from '@/features/item';
 import { useGroupMembers } from '@/features/member';
 import ItemIcon from '@/assets/icons/sidebar/items-active.svg?react';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { Button, ConfirmModal, FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
@@ -74,6 +75,8 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const updateStatus = useUpdateItemStatus();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('item');
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
@@ -267,7 +270,12 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         )}
 
         <div className="mt-5 grid gap-2.5 lg:hidden">
-          <ShareMessengerButton className="h-11 border-primary-500 text-mobile-body text-primary-500" />
+          {editingItem && (
+            <ShareMessengerButton
+              className="h-11 border-primary-500 text-mobile-body text-primary-500"
+              onClick={() => openShare(editingItem.id)}
+            />
+          )}
           <Button
             type="button"
             className="h-11 w-full bg-primary-700 text-mobile-body font-bold hover:bg-primary-700"
@@ -283,6 +291,9 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
           onSave={handleSaveClick}
           onCancel={() => navigate(-1)}
           saveLabel={isPending ? '처리 중' : '저장'}
+          rightSlot={
+            editingItem ? <ShareMessengerButton onClick={() => openShare(editingItem.id)} /> : null
+          }
         />
 
         <Panel
@@ -333,6 +344,14 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         errorMessage={
           mutationError instanceof Error ? mutationError.message : undefined
         }
+      />
+
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </div>
   );

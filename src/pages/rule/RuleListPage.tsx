@@ -7,8 +7,8 @@ import {
   type RuleCategory,
   useRuleFilters,
   useRules,
-  useShareRule,
 } from '@/features/rule';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { FilterDropdown, FilterTabGroup } from '@/shared/components/ui';
 import { cn } from '@/shared/lib/cn';
 
@@ -19,14 +19,10 @@ const MOBILE_CATEGORY_FILTERS: { value: RuleCategory | ''; label: string }[] = [
 
 export const RuleListPage = () => {
   const { data = [], isLoading, error, refetch } = useRules();
-  const shareRule = useShareRule();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('rule');
   const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } =
     useRuleFilters(data);
-
-  const handleShare = (id: string) => {
-    if (shareRule.isPending) return;
-    shareRule.mutate(id);
-  };
 
   return (
     <section className="w-full pb-6 lg:h-[472px] lg:rounded-[20px] lg:bg-white lg:p-[30px]">
@@ -94,12 +90,19 @@ export const RuleListPage = () => {
                 key={rule.id}
                 rule={rule}
                 isLast={index === filteredRules.length - 1}
-                onShare={handleShare}
+                onShare={openShare}
               />
             ))}
           </div>
         )}
       </div>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
+      />
     </section>
   );
 };
