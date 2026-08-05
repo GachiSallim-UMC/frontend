@@ -144,7 +144,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
       setIsSaveModalOpen(false);
       navigate('/items');
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
@@ -158,7 +158,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
       });
       navigate('/items');
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
@@ -330,6 +330,9 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         description={editingItem ? '공용 물품 데이터를 수정합니다.' : '내용으로 공용 물품을 등록합니다.'}
         confirmLabel={editingItem ? '수정하기' : '저장하기'}
         isPending={isPending}
+        errorMessage={
+          mutationError instanceof Error ? mutationError.message : undefined
+        }
       />
     </div>
   );

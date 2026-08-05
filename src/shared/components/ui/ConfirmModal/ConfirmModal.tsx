@@ -19,6 +19,12 @@ interface ConfirmModalProps {
   confirmLabel?: string;
   cancelLabel?: string;
   isPending?: boolean;
+  /**
+   * 확인 동작이 실패했을 때 보여줄 메시지.
+   * 모달이 열린 채로 실패하면 페이지 본문의 오류 문구가 모달에 가리므로
+   * 여기에 전달해 모달 안에서 보여줍니다.
+   */
+  errorMessage?: string;
   /** danger는 삭제 등 파괴적 동작 (Figma: Delete 모달) */
   tone?: ConfirmTone;
 }
@@ -51,6 +57,7 @@ export const ConfirmModal = ({
   confirmLabel = '저장하기',
   cancelLabel = '취소',
   isPending = false,
+  errorMessage,
   tone = 'default',
 }: ConfirmModalProps) => {
   const styles = toneStyles[tone];
@@ -77,9 +84,15 @@ export const ConfirmModal = ({
           {highlight && ' '}
           {description}
         </p>
+
+        {errorMessage && (
+          <p role="alert" className="mt-4 text-[13px] leading-[1.5] text-red-700">
+            {errorMessage}
+          </p>
+        )}
       </div>
 
-      <div className="flex items-center gap-5 border-t border-gray-100 px-10 py-[27px]">
+      <div className="flex items-center gap-4 border-t border-gray-100 px-6 py-[27px] lg:gap-5 lg:px-10">
         <button
           type="button"
           onClick={onConfirm}

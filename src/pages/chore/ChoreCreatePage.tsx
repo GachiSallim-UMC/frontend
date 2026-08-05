@@ -67,10 +67,7 @@ export const ChoreCreatePage = () => {
         setIsSaveModalOpen(false);
         navigate('/chores');
       },
-      onError: () => {
-        alert('등록에 실패했습니다. 다시 시도해 주세요.');
-        setIsSaveModalOpen(false);
-      },
+      // 실패 시 모달을 열어둔 채 사유를 모달 안에서 보여준다.
     });
   };
 
@@ -119,6 +116,13 @@ export const ChoreCreatePage = () => {
         onConfirm={handleConfirmSave}
         choreName={formData.title || '새 집안일'}
         isSaving={createMutation.isPending}
+        errorMessage={
+          createMutation.error instanceof Error
+            ? createMutation.error.message
+            : createMutation.isError
+              ? '등록에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
       />
       <ChoreCancelModal
         isOpen={isCancelModalOpen}

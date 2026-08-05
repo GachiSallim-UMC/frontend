@@ -7,6 +7,8 @@ interface ChoreSaveModalProps {
   onConfirm: () => void;
   choreName: string;
   isSaving?: boolean;
+  /** 저장 실패 사유. 모달을 열어둔 채 안에서 보여줍니다. */
+  errorMessage?: string;
   /** 등록/수정에 따라 문구가 달라집니다. */
   mode?: 'create' | 'update';
 }
@@ -17,6 +19,7 @@ export const ChoreSaveModal = ({
   onConfirm,
   choreName,
   isSaving = false,
+  errorMessage,
   mode = 'create',
 }: ChoreSaveModalProps) => {
   const isCreate = mode === 'create';
@@ -32,6 +35,7 @@ export const ChoreSaveModal = ({
       description={isCreate ? '내용으로 집안일을 등록합니다.' : '집안일 데이터를 수정합니다.'}
       confirmLabel={isCreate ? '저장하기' : '수정하기'}
       isPending={isSaving}
+      errorMessage={errorMessage}
     />
   );
 };

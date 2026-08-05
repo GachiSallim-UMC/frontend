@@ -153,7 +153,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
       setIsSaveModalOpen(false);
       navigate('/rules');
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
@@ -165,7 +165,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         dto: { status: agreementStatus },
       });
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
@@ -395,6 +395,9 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         description="생활 규칙 데이터를 수정합니다."
         confirmLabel="수정하기"
         isPending={isPending}
+        errorMessage={
+          mutationError instanceof Error ? mutationError.message : undefined
+        }
       />
     </div>
   );

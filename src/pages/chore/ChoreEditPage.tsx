@@ -111,10 +111,7 @@ export const ChoreEditPage = () => {
           setIsSaveModalOpen(false);
           navigate('/chores');
         },
-        onError: () => {
-          alert('수정에 실패했습니다. 다시 시도해 주세요.');
-          setIsSaveModalOpen(false);
-        },
+        // 실패 시 모달을 열어둔 채 사유를 모달 안에서 보여준다.
       },
     );
   };
@@ -140,10 +137,7 @@ export const ChoreEditPage = () => {
         setIsDeleteModalOpen(false);
         navigate('/chores');
       },
-      onError: () => {
-        alert('삭제에 실패했습니다. 다시 시도해 주세요.');
-        setIsDeleteModalOpen(false);
-      },
+      // 실패 시 모달을 열어둔 채 사유를 모달 안에서 보여준다.
     });
   };
 
@@ -226,6 +220,13 @@ export const ChoreEditPage = () => {
         onConfirm={handleConfirmDelete}
         choreName={choreData.title}
         isDeleting={deleteMutation.isPending}
+        errorMessage={
+          deleteMutation.error instanceof Error
+            ? deleteMutation.error.message
+            : deleteMutation.isError
+              ? '삭제에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
       />
       <ChoreSaveModal
         isOpen={isSaveModalOpen}
@@ -234,6 +235,13 @@ export const ChoreEditPage = () => {
         choreName={formData.title || choreData.title}
         isSaving={updateMutation.isPending}
         mode="update"
+        errorMessage={
+          updateMutation.error instanceof Error
+            ? updateMutation.error.message
+            : updateMutation.isError
+              ? '수정에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
       />
       <ChoreCancelModal
         isOpen={isCancelModalOpen}

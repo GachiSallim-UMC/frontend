@@ -71,6 +71,7 @@ export const RuleFormPage = () => {
         try {
           await shareRule.mutateAsync(String(created.ruleId));
         } finally {
+          setPendingShare(null);
           navigate('/rules');
         }
         return;
@@ -78,7 +79,7 @@ export const RuleFormPage = () => {
       setPendingShare(null);
       navigate('/rules');
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
@@ -199,6 +200,9 @@ export const RuleFormPage = () => {
         highlight={title.trim()}
         description="내용으로 생활 규칙을 등록합니다."
         isPending={createRule.isPending || updateRule.isPending || shareRule.isPending}
+        errorMessage={
+          mutationError instanceof Error ? mutationError.message : undefined
+        }
       />
     </div>
   );
