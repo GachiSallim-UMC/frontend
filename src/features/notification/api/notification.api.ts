@@ -1,4 +1,4 @@
-import { apiClient } from '@/shared/api';
+import { apiClient, withSelectedGroupParams } from '@/shared/api';
 import type { Notification, NotificationResponse } from '../types/notification.type';
 import type { NotificationPreferencesDto } from '@/features/mypage'
 
@@ -93,12 +93,16 @@ const toNotification = (res: NotificationResponse): Notification => ({
 
 export const notificationApi = {
   list: async (): Promise<Notification[]> => {
-    const { data } = await apiClient.get<{ notifications: NotificationResponse[] }>(BASE);
+    const { data } = await apiClient.get<{ notifications: NotificationResponse[] }>(BASE, {
+      params: withSelectedGroupParams(),
+    });
     return data.notifications.map(toNotification);
   },
 
   getUnreadCount: async (): Promise<number> => {
-    const { data } = await apiClient.get<{ unreadCount: number }>(`${BASE}/unread-count`);
+    const { data } = await apiClient.get<{ unreadCount: number }>(`${BASE}/unread-count`, {
+      params: withSelectedGroupParams(),
+    });
     return data.unreadCount;
   },
 
@@ -107,7 +111,11 @@ export const notificationApi = {
   },
 
   markAllAsRead: async (): Promise<number> => {
-    const { data } = await apiClient.patch<{ updatedCount: number }>(`${BASE}/read-all`);
+    const { data } = await apiClient.patch<{ updatedCount: number }>(
+      `${BASE}/read-all`,
+      undefined,
+      { params: withSelectedGroupParams() },
+    );
     return data.updatedCount;
   },
 
