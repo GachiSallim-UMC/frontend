@@ -104,7 +104,7 @@ export const ExpenseListPage = () => {
   };
 
   return (
-    <div className='flex w-full min-h-0 bg-gray-50'>
+    <div className='flex w-full min-h-0 '>
       <div className='flex flex-col w-full h-full pb-[60px] lg:pb-[80px]'>
         <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-[17px]'>
 
