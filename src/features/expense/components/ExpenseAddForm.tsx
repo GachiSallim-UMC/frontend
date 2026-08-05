@@ -4,8 +4,9 @@ import { useSettlementAmounts, useExpenseForm, useShareExpense } from '@/feature
 import type { SettlementMethod } from '@/features/expense';
 import type { Expense, ExpenseCategory } from '@/features/expense';
 import type { User } from '@/shared/types';
+import ExpenseIcon from '@/assets/icons/sidebar/expenses-active.svg?react';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
-import { ShareMessengerButton, Button } from '@/shared/components/';
+import { ShareMessengerButton, Button, ConfirmModal } from '@/shared/components/';
 import { useErrorStore } from '@/shared/store';
 import { isUnsignedIntegerInput, isValidDateOnly } from '@/shared/lib/inputValidation';
 
@@ -78,6 +79,7 @@ export const ExpenseAddForm = ({
 }: ExpenseAddFormProps) => {
   const [currentExpenseId, setCurrentExpenseId] = useState<string | undefined>(expenseId);
   const [fieldErrors, setFieldErrors] = useState<ExpenseFieldErrors>({});
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [memberAmountErrors, setMemberAmountErrors] = useState<Record<string, string>>({});
   const [memberRatioErrors, setMemberRatioErrors] = useState<Record<string, string>>({});
   const { shareExpense, isSharing } = useShareExpense();
@@ -277,9 +279,17 @@ export const ExpenseAddForm = ({
     handleCompleteDirectInput();
   };
 
+  // 검증까지만 하고 확인 모달을 연다. 실제 저장은 모달에서 확인한 뒤 수행.
   const handleSaveClickWithFieldValidation = () => {
     if (!validateForm()) return;
-    handleSaveClickWithGuard();
+    setIsSaveModalOpen(true);
+  };
+
+  // useExpenseForm의 저장은 성공·실패를 모두 전역 모달로 알리고 예외를 던지지 않으므로
+  // 여기서는 확인 모달만 닫는다.
+  const handleConfirmSave = async () => {
+    await handleSaveClickWithGuard();
+    setIsSaveModalOpen(false);
   };
 
   return (
@@ -611,6 +621,17 @@ export const ExpenseAddForm = ({
           disabled={!currentExpenseId || isSharing}
         />
       </div>
+
+      <ConfirmModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={() => void handleConfirmSave()}
+        icon={<ExpenseIcon className="size-6" />}
+        title={isEditMode ? '생활비를 수정할까요?' : '생활비를 등록할까요?'}
+        highlight={title.trim()}
+        description={isEditMode ? '생활비 데이터를 수정합니다.' : '내용으로 생활비를 등록합니다.'}
+        confirmLabel={isEditMode ? '수정하기' : '저장하기'}
+      />
     </div>
   );
 };
