@@ -25,19 +25,27 @@ export const AddGroupPage = () => {
     type: '',
     maxMemberCount: 2,
   });
+  const [errors, setErrors] = useState<Partial<Record<keyof AddGroupDto, string>>>({});
 
   const handleFormChange = (field: keyof AddGroupDto, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setErrors(previous => ({ ...previous, [field]: undefined }));
   };
 
   const handleCreateGroup = () => {
-    if (!formData.name.trim()) {
-      alert('그룹 이름을 입력해주세요.');
-      return;
+    const nextErrors: Partial<Record<keyof AddGroupDto, string>> = {};
+    const trimmedName = formData.name.trim();
+    if (!trimmedName) nextErrors.name = '그룹 이름을 입력해 주세요.';
+    else if (trimmedName.length > 40) nextErrors.name = '그룹 이름은 40자 이하로 입력해 주세요.';
+    if (formData.description.length > 255) {
+      nextErrors.description = '그룹 설명은 255자 이하로 입력해 주세요.';
     }
-
-    if (formData.type === '') {
-      alert('거주 유형을 선택해주세요.');
+    if (!formData.type) nextErrors.type = '거주 유형을 선택해 주세요.';
+    if (!Number.isInteger(formData.maxMemberCount) || formData.maxMemberCount < 2 || formData.maxMemberCount > 12) {
+      nextErrors.maxMemberCount = '최대 인원은 2명부터 12명까지 선택할 수 있습니다.';
+    }
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
       return;
     }
 
@@ -45,6 +53,7 @@ export const AddGroupPage = () => {
       name: formData.name,
       description: formData.description,
       maxMembers: Number(formData.maxMemberCount),
+      residenceType: formData.type || undefined,
     };
 
     createGroupMutation.mutate(requestPayload, {
@@ -96,7 +105,7 @@ export const AddGroupPage = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-primary-100">
-      <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
+      <div className="flex min-h-[696px] w-full max-w-2xl flex-col rounded-3xl bg-white shadow-sm">
         <GroupPageHeader />
         <div className="px-10 py-7">
           <h2 className="mb-5 text-2xl font-bold text-gray-900">새 그룹 만들기</h2>
@@ -104,6 +113,7 @@ export const AddGroupPage = () => {
           <AddGroupInput
             formData={formData}
             onChange={handleFormChange}
+            errors={errors}
             disabled={isCreated || createGroupMutation.isPending}
           />
 

@@ -1,3 +1,4 @@
+import { formatDate } from '@/shared/lib';
 import type {
   CardMessageTypeDto,
   ChatMessage,
@@ -9,6 +10,7 @@ import type {
   ChatShareCard,
   MessageResponse,
   MessageTypeDto,
+  ShareCardType,
 } from '@/features/messenger/types';
 import { CARD_MESSAGE_TYPES } from '@/features/messenger/types';
 
@@ -22,11 +24,8 @@ export const formatTimestamp = (iso: string): string => {
   return `${period} ${displayHour}:${String(minutes).padStart(2, '0')}`;
 };
 
-/** 멤버 목록에 쓰는 가입일 표기 (예: '2026.03.02') */
-const formatJoinedDate = (iso: string): string => {
-  const date = new Date(iso);
-  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
-};
+/** 멤버 목록에 쓰는 가입일 표기 (마이페이지 날짜 형식 설정을 따름) */
+const formatJoinedDate = (iso: string): string => formatDate(iso);
 
 export const mapChatRoomType = (type: ChatRoomListItemResponse['type']): ChatRoomCategory => {
   if (type === 'NOTICE') return 'notice';
@@ -56,6 +55,14 @@ const CARD_TYPE_TO_SHARE_TYPE: Record<CardMessageTypeDto, ChatShareCard['type']>
   CARD_EXPENSE: 'expense',
   CARD_SUPPLY: 'item',
   CARD_RULE: 'rule',
+};
+
+/** 공유 대상 도메인 → 카드 메시지 타입. useShareToMessenger/useChatRoom 양쪽에서 공용으로 씀 */
+export const CARD_TYPE_BY_SHARE_TYPE: Record<ShareCardType, CardMessageTypeDto> = {
+  chore: 'CARD_CHORE',
+  expense: 'CARD_EXPENSE',
+  item: 'CARD_SUPPLY',
+  rule: 'CARD_RULE',
 };
 
 /** 카드 메시지 → ChatShareCard (타입 라벨만, 상세 내용은 pages/messenger에서 보강) */
@@ -112,7 +119,7 @@ const lastMessagePreview = (message: MessageResponse | null): string => {
   return message.content;
 };
 
-/** 목록 응답 → 화면용 ChatRoom (멤버 상세 없음, 알림/고정은 상세 조회 전까지 기본값) */
+/** 목록 응답 → 화면용 ChatRoom (멤버 상세 없음, 알림 설정은 상세 조회 전까지 기본값) */
 export const toChatRoomSummary = (dto: ChatRoomListItemResponse): ChatRoom => ({
   id: dto.id,
   name: dto.name,
@@ -123,7 +130,7 @@ export const toChatRoomSummary = (dto: ChatRoomListItemResponse): ChatRoom => ({
   members: [],
   memberCount: dto.memberCount,
   notificationEnabled: true,
-  isPinned: false,
+  isPinned: dto.isPinned,
 });
 
 /** 상세 응답 → 화면용 ChatRoom (멤버 전체 포함, 요청자 본인 멤버 레코드에서 알림/고정 값을 가져옴) */

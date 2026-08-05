@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { CreateExpenseDto, UpdateExpenseDto, Expense, ExpenseCategory } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
 import { useCreateExpense, useUpdateExpense } from '@/features/expense';
-import { useErrorStore } from '@/shared/store';
+
 
 interface UseExpenseFormProps {
   initialExpense?: Expense;
@@ -25,7 +25,7 @@ export function useExpenseForm({
 }: UseExpenseFormProps) {
   const [title, setTitle] = useState(initialExpense?.title || '');
   const [amount, setAmount] = useState(
-    initialExpense?.amount ? Number(initialExpense.amount).toLocaleString() : ''
+    initialExpense?.amount ? String(Number(initialExpense.amount)) : ''
   );
   const [checkedMembers, setCheckedMembers] = useState<string[]>(
     initialExpense?.shares ? initialExpense.shares.map((s) => s.user.id) : mockUsers.map((u) => u.id)
@@ -79,8 +79,14 @@ export function useExpenseForm({
   };
 
   const numericTotalAmount = Number(amount.replace(/,/g, '')) || 0;
-  const totalCustomSum = Object.values(customMemberAmounts).reduce((acc, cur) => acc + cur, 0);
-  const totalRatioSum = Object.values(customMemberRatios).reduce((acc, cur) => acc + cur, 0);
+  const totalCustomSum = checkedMembers.reduce(
+    (sum, memberId) => sum + (customMemberAmounts[memberId] ?? 0),
+    0,
+  );
+  const totalRatioSum = checkedMembers.reduce(
+    (sum, memberId) => sum + (customMemberRatios[memberId] ?? 0),
+    0,
+  );
 
   const handleCompleteDirectInput = () => {
     if (settlementMethod === 'RATIO') {
@@ -107,24 +113,6 @@ export function useExpenseForm({
   };
 
   const handleSaveClick = async () => {
-    if (!title || !numericTotalAmount || !payerId || !expenseDate) {
-      useErrorStore.getState().showError({
-        title: '알림',
-        message: '필수 정보를 모두 입력해주세요.',
-      });
-      return;
-    }
-
-    const requiresDirectInput = settlementMethod === 'CUSTOM' || settlementMethod === 'RATIO';
-    if (requiresDirectInput && !isDirectInputCompleted) {
-      const label = settlementMethod === 'RATIO' ? '비율' : '직접 입력';
-      useErrorStore.getState().showError({
-        title: '알림',
-        message: `${label} 분담 금액을 확인하고 완료 버튼을 눌러주세요.`,
-      });
-      return;
-    }
-
     try {
       const formattedDate = expenseDate.replace(/\//g, '-');
 
@@ -175,17 +163,13 @@ export function useExpenseForm({
         savedExpense = await createExpenseAsync(createPayload);
       }
 
+      // 완료 알림 모달은 띄우지 않는다. (Figma "공통 모달 C(R)UD 모달" 주석:
+      // "~가 등록되었습니다" 와 같은 확인 모달 사용 X)
       onSave?.(savedExpense);
-      useErrorStore.getState().showError({
-        title: '완료',
-        message: isEditMode ? '수정사항이 저장되었습니다.' : '지출이 등록되었습니다.',
-      });
     } catch (error) {
       console.error(isEditMode ? '지출 수정 실패:' : '지출 등록 실패:', error);
-      useErrorStore.getState().showError({
-        title: '오류',
-        message: isEditMode ? '지출 수정 중 오류가 발생했습니다.' : '지출 등록 중 오류가 발생했습니다.',
-      });
+      // 호출부가 확인 모달 안에 사유를 표시할 수 있도록 그대로 전달한다.
+      throw error;
     }
   };
 

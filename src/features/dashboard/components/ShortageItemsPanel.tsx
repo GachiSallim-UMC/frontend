@@ -11,23 +11,24 @@ import PotIcon from '@/assets/icons/dashboard/shortage/pot.svg?react';
 import ShampooIcon from '@/assets/icons/dashboard/shortage/shampoo.svg?react';
 import TissueIcon from '@/assets/icons/dashboard/shortage/tissue.svg?react';
 
+// 백엔드가 내려주는 SupplyCategory 원본 값(대문자) 기준으로 분기 — item.api.ts의 CATEGORY_FROM_API와 동일한 매핑
 const getItemIcon = (category?: string) => {
     switch (category) {
-        case 'grocery':
+        case 'FOOD':
             return <AppleIcon className="h-7 w-7" />;
-        case 'cleaning':
+        case 'LAUNDRY_CLEANING':
             return <CleanserIcon className="h-7 w-7" />;
-        case 'tool':
+        case 'TOOLS_ETC':
             return <EquipmentIcon className="h-7 w-7" />;
-        case 'medicine':
+        case 'HEALTH_HYGIENE':
             return <MedicineIcon className="h-7 w-7" />;
-        case 'pet':
+        case 'PET_PLANT':
             return <PlantIcon className="h-7 w-7" />;
-        case 'kitchen':
+        case 'KITCHEN':
             return <PotIcon className="h-7 w-7" />;
-        case 'bathroom':
+        case 'BATHROOM':
             return <ShampooIcon className="h-7 w-7" />;
-        case 'daily':
+        case 'DAILY_NECESSITIES':
             return <TissueIcon className="h-7 w-7" />;
         default:
             return <EtcIcon className="h-7 w-7" />;

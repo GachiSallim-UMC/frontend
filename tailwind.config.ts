@@ -67,29 +67,32 @@ const config: Config = {
           800: '#222222',
           900: '#111111',
         },
+        kakao: '#FFE716',
       },
       fontFamily: {
-        sans: [
-          'Pretendard',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'system-ui',
-          'sans-serif',
-        ],
+        sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
         // 로고 제목 전용 (Figma: KBO Dia Gothic)
         logo: ['"KBO Dia Gothic"', 'Pretendard', 'sans-serif'],
       },
       boxShadow: {
         card: '0 1px 4px 0 rgba(0,0,0,0.08)',
         dropdown: '0 4px 16px 0 rgba(0,0,0,0.12)',
+        'mobile-icon': '0 0 2.667px 0 rgba(0,0,0,0.1)',
       },
       // Figma 디자인시스템 Font 섹션의 역할별 타이포 크기 체계
       fontSize: {
+        'mobile-caption': ['10px', '1.4'],
+        'mobile-label': ['12px', '1.4'],
+        'mobile-body': ['14px', '1.45'],
+        'mobile-title': ['18px', '1.4'],
         caption: ['14px', '1.5'], // 보조설명·멤버수·날짜·담당자·배지
         button: ['16px', '1.5'], // 사용자명·주요 버튼·프로필명
         body: ['18px', '1.45'], // 사이드바 메뉴·본문·섹션제목·리스트제목
         'group-title': ['20px', '1.4'], // 그룹명·상단 주요 정보
         'key-number': ['24px', '1.3'], // 대시보드 핵심 숫자·금액·카운트
+      },
+      padding: {
+        safe: 'env(safe-area-inset-bottom)',
       },
     },
   },

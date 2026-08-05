@@ -14,7 +14,6 @@ import type {
   RuleApiStatus,
   RuleDetailResponse,
   RuleListItemResponse,
-  ShareRuleResponse,
   UpdateRuleAgreementDto,
   UpdateRuleDto,
 } from '../types/rule.types';
@@ -55,13 +54,6 @@ const isAgreementSummary = (value: unknown): value is RuleAgreementSummaryRespon
   typeof value.agreedCount === 'number' &&
   typeof value.disagreedCount === 'number' &&
   typeof value.pendingCount === 'number';
-
-const isShareRuleResponse = (value: unknown): value is ShareRuleResponse =>
-  isRecord(value) &&
-  typeof value.ruleId === 'number' &&
-  Number.isSafeInteger(value.ruleId) &&
-  typeof value.messageId === 'number' &&
-  Number.isSafeInteger(value.messageId);
 
 const isRuleListItem = (value: unknown): value is RuleListItemResponse =>
   isRecord(value) &&
@@ -228,18 +220,6 @@ export const ruleApi = {
 
   updateAgreement: async (id: string, dto: UpdateRuleAgreementDto): Promise<void> => {
     await apiClient.put(`${BASE}/${id}/agreements`, dto);
-  },
-
-  share: async (id: string): Promise<ShareRuleResponse> => {
-    const { data } = await apiClient.post<unknown>(`${BASE}/${id}/share`);
-    if (!isShareRuleResponse(data)) {
-      throw new ApiError(
-        502,
-        'INVALID_API_RESPONSE',
-        '생활규칙 메신저 공유 응답 형식이 올바르지 않습니다.',
-      );
-    }
-    return data;
   },
 
   remove: async (id: string): Promise<void> => {

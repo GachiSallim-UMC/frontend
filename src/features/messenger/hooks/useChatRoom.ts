@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import type {
-  CARD_MESSAGE_TYPES,
   ChatFilter,
   ChatMessage,
   ChatRoomCategory,
@@ -8,7 +7,7 @@ import type {
   ChatShareCard,
   ShareCardType,
 } from '@/features/messenger/types';
-import { formatTimestamp } from './messenger.mappers';
+import { CARD_TYPE_BY_SHARE_TYPE, formatTimestamp } from './messenger.mappers';
 import { useChatMessages, useChatRoomDetail, useChatRooms } from './useChatRoomQueries';
 import { useChatSocket } from './useChatSocket';
 import {
@@ -34,13 +33,6 @@ const matchesFilter = (category: ChatRoomCategory, unreadCount: number, filter: 
     default:
       return true;
   }
-};
-
-const CARD_TYPE_BY_SHARE_TYPE: Record<ShareCardType, (typeof CARD_MESSAGE_TYPES)[number]> = {
-  chore: 'CARD_CHORE',
-  expense: 'CARD_EXPENSE',
-  item: 'CARD_SUPPLY',
-  rule: 'CARD_RULE',
 };
 
 type ChatMessageItem = ReturnType<typeof useChatMessages>['messages'][number];
@@ -74,7 +66,7 @@ const groupMessagesBySender = (messages: ChatMessageItem[]): ChatMessageGroup[] 
   return groups;
 };
 
-export const useChatRoom = (groupId: string | null, currentUserId: string) => {
+export const useChatRoom = (groupId: string | null, currentUserId: string, initialRoomId?: string) => {
   const [activeRoomId, setActiveRoomIdState] = useState('');
   const [draft, setDraft] = useState('');
   const [activeShareType, setActiveShareType] = useState<ShareCardType | null>(null);
@@ -115,9 +107,9 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   const removeMemberMutation = useRemoveMember(groupId);
   const transferOwnerMutation = useTransferOwner();
   const sendMessageMutation = useSendMessage();
-  const sendCardMessageMutation = useSendCardMessage();
+  const sendCardMessageMutation = useSendCardMessage(groupId);
   const markAsReadMutation = useMarkAsRead(groupId);
-  const updateMemberSettingsMutation = useUpdateMemberSettings();
+  const updateMemberSettingsMutation = useUpdateMemberSettings(groupId);
 
   // 방을 전환할 때는 항상 읽음 처리도 같이 호출한다 (자동 첫 방 선택, 삭제/나가기 후 다음 방
   // 전환 등 모든 경로에서 빠뜨리기 쉬워서 한 곳으로 모음).
@@ -133,7 +125,8 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   useEffect(() => {
     if (!hasAutoSelectedRef.current && !activeRoomId && rooms.length > 0) {
       hasAutoSelectedRef.current = true;
-      focusRoom(rooms[0].id);
+      const target = initialRoomId && rooms.some(room => room.id === initialRoomId) ? initialRoomId : rooms[0].id;
+      focusRoom(target);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRoomId, rooms]);

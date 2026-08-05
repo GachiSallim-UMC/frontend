@@ -12,6 +12,7 @@ import {
   type Expense,
 } from '@/features/expense';
 import { memberApi } from '@/features/member';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { requireSelectedGroupId } from '@/shared/api';
 import { useAuthStore, useErrorStore } from '@/shared/store';
 import type { User } from '@/shared/types';
@@ -38,6 +39,8 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   const navigate = useNavigate();
 
   const currentUserId = useAuthStore((state) => state.userId ?? undefined);
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('expense');
 
   const [members, setMembers] = useState<User[]>([]);
   const [membersLoading, setMembersLoading] = useState<boolean>(true);
@@ -121,6 +124,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
         if (isMounted) setReceiptViewUrl(viewUrl);
       } catch (err) {
         console.error('영수증 이미지 조회 실패:', err);
+        if (isMounted) setReceiptViewUrl(undefined);
       }
     };
 
@@ -153,22 +157,11 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     }
   };
 
-  const handleSave = async (newExpense: Expense) => {
+  const handleSave = (newExpense: Expense) => {
     setSavedExpense(enrichExpenseWithMembers(newExpense, members));
     setIsSubmitted(true);
-
-    if (!id) {
-      navigate(`/expenses/${newExpense.id}`, { replace: true });
-    }
-
-    if (receiptObjectKey) {
-      try {
-        const viewUrl = await getReceiptViewUrl(newExpense.id);
-        setReceiptViewUrl(viewUrl);
-      } catch (err) {
-        console.error('영수증 조회 URL 갱신 실패:', err);
-      }
-    }
+    // 저장 후에는 목록으로 돌아간다. (집안일·공용물품·생활규칙과 동일)
+    navigate('/expenses');
   };
 
   const handleExpenseRefresh = async () => {
@@ -196,9 +189,9 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   }
 
   return (
-    <div className='flex flex-col items-center mt-4 lg:mt-[28px] w-full flex-1 min-h-0  pb-8 lg:pb-12'>
-      <div className='flex flex-col w-full items-center px-3 sm:px-4'>
-        <div className='w-full max-w-[1200px] flex flex-col gap-4 lg:gap-6'>
+    <div className='flex flex-col w-full flex-1 min-h-0 pb-8 lg:pb-12'>
+      <div className='flex flex-col w-full'>
+        <div className='w-full max-w-[1114px] flex flex-col gap-4 lg:gap-6'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start w-full'>
             <div className='flex flex-col gap-4 lg:gap-6 w-full'>
               <ExpenseAddForm
@@ -210,6 +203,8 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
                 isEditMode={isEditMode}
                 expenseId={savedExpense?.id ? String(savedExpense.id) : id}
                 receiptUrl={receiptObjectKey}
+                onShare={openShare}
+                isSharing={isSharePending}
               />
             </div>
 
@@ -239,6 +234,13 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
           </div>
         </div>
       </div>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
+      />
     </div>
   );
 };

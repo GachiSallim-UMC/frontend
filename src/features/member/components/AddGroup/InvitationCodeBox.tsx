@@ -31,11 +31,12 @@ export const InvitationCodeBox = ({
           <div className="mt-4 flex items-center justify-center text-caption font-bold">
             <span className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             <span className="text-primary-700 tracking-[0.4em]">
-              {(inviteCode || 'ABCDEF').split('').join(' ')}
+              {inviteCode ? inviteCode.split('').join(' ') : '코드 발급 지연'}
             </span>
             <button
               type="button"
               onClick={onCopyCode}
+              disabled={!inviteCode}
               className="ml-3 text-primary-700 transition-opacity hover:opacity-70 h-3.5 w-3.5"
             >
               <CopyIcon />

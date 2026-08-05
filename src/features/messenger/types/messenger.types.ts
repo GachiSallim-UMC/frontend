@@ -123,6 +123,8 @@ export interface ChatRoomListItemResponse {
   lastMessage: MessageResponse | null;
   unreadCount: number;
   memberCount: number;
+  /** 요청자(나) 기준 상단 고정 여부 */
+  isPinned: boolean;
 }
 
 export interface ChatRoomMemberResponse {

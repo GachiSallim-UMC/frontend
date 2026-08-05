@@ -1,4 +1,5 @@
 export * from './Button';
+export * from './ConfirmModal';
 export * from './DataTable';
 export * from './ErrorModal';
 export * from './FilterTabGroup';

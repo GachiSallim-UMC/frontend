@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChoreBasicInfo,
@@ -16,11 +16,7 @@ import {
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
 import { useGroupStore } from '@/shared/store';
-import { ShareItemPickerModal, type ShareableOption } from '@/features/messenger';
-
-/**index에 포함되어 있지 않아 불러올 수 없어서 직접 임포트 하였습니다. */
-import { useSendCardMessage } from '@/features/messenger/hooks/useChatRoomMutations';
-import { useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 
 export const ChoreEditPage = () => {
   const { id = '' } = useParams<{ id: string }>();
@@ -31,28 +27,14 @@ export const ChoreEditPage = () => {
   const { data: members } = useGroupMembers(selectedGroupId);
   const updateMutation = useUpdateChore();
   const deleteMutation = useRemoveChore();
-  const { formData, updateField, getUpdateDto } = useChoreForm();
+  const { formData, errors, updateField, getUpdateDto } = useChoreForm();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const sendCardMessageMutation = useSendCardMessage();
-  const { data: chatRooms = [] } = useChatRooms(selectedGroupId ? String(selectedGroupId) : null);
-
-  const chatRoomOptions: ShareableOption[] = useMemo(() => {
-    return chatRooms.map(room => ({
-      id: String(room.id),
-      title: room.name,
-      subtitle:
-        room.category === 'group'
-          ? '그룹 채팅방'
-          : room.category === 'notice'
-            ? '공지방'
-            : '1:1 채팅방',
-    }));
-  }, [chatRooms]);
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('chore');
 
   const userOptions =
     members?.map(member => ({
@@ -110,10 +92,7 @@ export const ChoreEditPage = () => {
           setIsSaveModalOpen(false);
           navigate('/chores');
         },
-        onError: () => {
-          alert('수정에 실패했습니다. 다시 시도해 주세요.');
-          setIsSaveModalOpen(false);
-        },
+        // 실패 시 모달을 열어둔 채 사유를 모달 안에서 보여준다.
       },
     );
   };
@@ -139,41 +118,18 @@ export const ChoreEditPage = () => {
         setIsDeleteModalOpen(false);
         navigate('/chores');
       },
-      onError: () => {
-        alert('삭제에 실패했습니다. 다시 시도해 주세요.');
-        setIsDeleteModalOpen(false);
-      },
+      // 실패 시 모달을 열어둔 채 사유를 모달 안에서 보여준다.
     });
   };
 
   const handleShareClick = () => {
-    setIsShareModalOpen(true);
-  };
-
-  const handleSelectChatRoom = (optionId: string) => {
     if (!id) return;
-
-    sendCardMessageMutation.mutate(
-      {
-        roomId: optionId,
-        type: 'CARD_CHORE',
-        refId: id,
-      },
-      {
-        onSuccess: () => {
-          setIsShareModalOpen(false);
-          navigate('/messenger');
-        },
-        onError: () => {
-          alert('집안일 공유에 실패했습니다.');
-        },
-      },
-    );
+    openShare(id);
   };
 
   if (isLoading) {
     return (
-      <div className="flex h-[300px] w-full items-center justify-center mt-[28px]">
+      <div className="flex h-[300px] w-full items-center justify-center">
         <div className="text-gray-500 font-semibold">데이터를 불러오는 중입니다...</div>
       </div>
     );
@@ -181,19 +137,20 @@ export const ChoreEditPage = () => {
 
   if (isError || !choreData) {
     return (
-      <div className="flex h-[300px] w-full items-center justify-center mt-[28px]">
+      <div className="flex h-[300px] w-full items-center justify-center">
         <div className="text-gray-500 font-semibold">집안일 정보를 찾을 수 없습니다.</div>
       </div>
     );
   }
 
   return (
-    <div className="mt-[28px] h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
+    <div className="h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
       <ChoreBasicInfo
         title={formData.title}
         assigneeId={String(formData.assigneeId)}
         category={formData.category}
         assigneeOptions={userOptions}
+        errors={errors}
         onChange={handleBasicInfoChange}
       />
       <ChoreRepeat
@@ -203,9 +160,14 @@ export const ChoreEditPage = () => {
         repeatDays={formData.repeatDays}
         startDate={formData.startDate}
         dueDate={formData.dueDate}
+        errors={errors}
         onChange={updateField}
       />
-      <ChoreMemo value={formData.memo} onChange={memo => updateField({ memo })} />
+      <ChoreMemo
+        value={formData.memo}
+        error={errors.memo}
+        onChange={memo => updateField({ memo })}
+      />
       <ChoreFormActions
         onSave={handleSaveClick}
         onCancel={handleCancelClick}
@@ -219,6 +181,13 @@ export const ChoreEditPage = () => {
         onConfirm={handleConfirmDelete}
         choreName={choreData.title}
         isDeleting={deleteMutation.isPending}
+        errorMessage={
+          deleteMutation.error instanceof Error
+            ? deleteMutation.error.message
+            : deleteMutation.isError
+              ? '삭제에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
       />
       <ChoreSaveModal
         isOpen={isSaveModalOpen}
@@ -226,6 +195,14 @@ export const ChoreEditPage = () => {
         onConfirm={handleConfirmSave}
         choreName={formData.title || choreData.title}
         isSaving={updateMutation.isPending}
+        mode="update"
+        errorMessage={
+          updateMutation.error instanceof Error
+            ? updateMutation.error.message
+            : updateMutation.isError
+              ? '수정에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
       />
       <ChoreCancelModal
         isOpen={isCancelModalOpen}
@@ -233,10 +210,11 @@ export const ChoreEditPage = () => {
         onConfirm={handleConfirmCancel}
       />
       <ShareItemPickerModal
-        type={isShareModalOpen ? 'chore' : null}
+        type={activeType}
         options={chatRoomOptions}
         onSelect={handleSelectChatRoom}
-        onClose={() => setIsShareModalOpen(false)}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
       />
     </div>
   );

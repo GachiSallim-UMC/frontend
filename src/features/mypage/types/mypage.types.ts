@@ -1,8 +1,9 @@
+import type { DateFormatValue, StartDayValue } from '@/shared/types/common';
+
+export type { StartDayValue, DateFormatValue };
 export type ThemeValue = 'light' | 'dark';
 export type LanguageValue = 'ko' | 'en';
 export type TimezoneValue = 'seoul';
-export type StartDayValue = 'sunday' | 'monday';
-export type DateFormatValue = 'YYYY/MM/DD' | 'DD/MM/YY';
 export type FontSizeValue = 'large' | 'normal' | 'small';
 
 export type NotificationType =

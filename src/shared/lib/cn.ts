@@ -9,7 +9,21 @@ import { extendTailwindMerge } from 'tailwind-merge';
 const twMerge = extendTailwindMerge({
   extend: {
     classGroups: {
-      'font-size': [{ text: ['caption', 'button', 'body', 'group-title', 'key-number'] }],
+      'font-size': [
+        {
+          text: [
+            'mobile-caption',
+            'mobile-label',
+            'mobile-body',
+            'mobile-title',
+            'caption',
+            'button',
+            'body',
+            'group-title',
+            'key-number',
+          ],
+        },
+      ],
     },
   },
 });

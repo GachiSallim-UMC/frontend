@@ -7,10 +7,16 @@ import { RESIDENCE_OPTIONS } from '../../constants/member.constants';
 interface AddGroupInputProps {
   formData: AddGroupDto;
   onChange: (field: keyof AddGroupDto, value: string | number) => void;
+  errors?: Partial<Record<keyof AddGroupDto, string>>;
   disabled?: boolean;
 }
 
-export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroupInputProps) => {
+export const AddGroupInput = ({
+  formData,
+  onChange,
+  errors = {},
+  disabled = false,
+}: AddGroupInputProps) => {
   const handleDecrease = () => {
     if (formData.maxMemberCount > 2) {
       onChange('maxMemberCount', formData.maxMemberCount - 1);
@@ -35,6 +41,8 @@ export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroup
           onChange={e => onChange('name', e.target.value)}
           disabled={disabled}
           placeholder="예: 우리집 룸메이트, 대학원 쉐어하우스"
+          maxLength={40}
+          error={errors.name}
         />
       </div>
 
@@ -46,6 +54,8 @@ export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroup
           onChange={e => onChange('description', e.target.value)}
           disabled={disabled}
           placeholder="그룹에 대한 간단한 설명 (선택)"
+          maxLength={255}
+          error={errors.description}
         />
       </div>
 
@@ -61,6 +71,7 @@ export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroup
               options={RESIDENCE_OPTIONS}
               onChange={value => onChange('type', value)}
               disabled={disabled}
+              error={errors.type}
             />
           </div>
         </div>
@@ -69,7 +80,7 @@ export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroup
           <label className="text-base font-bold text-gray-800">
             최대 인원 <span className="text-red-700">*</span>
           </label>
-          <div className="flex w-full h-[50px] items-center justify-between rounded-lg border border-gray-100 p-4">
+          <div className={`flex w-full h-[50px] items-center justify-between rounded-lg border p-4 ${errors.maxMemberCount ? 'border-red-500' : 'border-gray-100'}`}>
             <button
               type="button"
               onClick={handleDecrease}
@@ -90,6 +101,7 @@ export const AddGroupInput = ({ formData, onChange, disabled = false }: AddGroup
               <PlusIcon className="h-6 w-6"></PlusIcon>
             </button>
           </div>
+          {errors.maxMemberCount && <p className="text-xs text-red-500">{errors.maxMemberCount}</p>}
         </div>
       </div>
     </div>

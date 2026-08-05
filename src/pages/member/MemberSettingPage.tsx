@@ -47,7 +47,7 @@ export const MemberSettingPage = () => {
 
   return (
     <>
-      <div className="flex w-full flex-col gap-5 py-7">
+      <div className="flex w-full flex-col gap-5 pb-7">
         <GroupBasicInfo />
         <MemberManagement />
         <PermissionSettings />

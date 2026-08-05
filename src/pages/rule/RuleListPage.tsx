@@ -4,40 +4,49 @@ import {
   RULE_CATEGORY_OPTIONS,
   RULE_STATUS_OPTIONS,
   RuleListRow,
+  type RuleCategory,
   useRuleFilters,
   useRules,
-  useShareRule,
 } from '@/features/rule';
-import { SelectDropdown } from '@/shared/components/form';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
+import { FilterDropdown, FilterTabGroup } from '@/shared/components/ui';
+import { cn } from '@/shared/lib/cn';
+
+const MOBILE_CATEGORY_FILTERS: { value: RuleCategory | ''; label: string }[] = [
+  { value: '', label: '전체' },
+  ...RULE_CATEGORY_OPTIONS,
+];
 
 export const RuleListPage = () => {
   const { data = [], isLoading, error, refetch } = useRules();
-  const shareRule = useShareRule();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('rule');
   const { categoryFilter, setCategoryFilter, statusFilter, setStatusFilter, filteredRules } =
     useRuleFilters(data);
 
-  const handleShare = (id: string) => {
-    if (shareRule.isPending) return;
-    shareRule.mutate(id);
-  };
-
   return (
-    <section className="mx-auto mt-16 h-[472px] w-full max-w-[1114px] rounded-[20px] bg-white p-[30px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <section className="w-full pb-6 lg:h-[472px] lg:rounded-[20px] lg:bg-white lg:p-[30px]">
+      <FilterTabGroup
+        tabs={MOBILE_CATEGORY_FILTERS}
+        value={categoryFilter}
+        onChange={setCategoryFilter}
+        className="mb-4 gap-2 overflow-x-auto [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+        buttonClassName="h-8 shrink-0 rounded-full px-4 text-mobile-label font-bold"
+      />
+
+      <div className="mb-5 hidden flex-wrap items-center justify-between gap-3 lg:flex">
         <div className="flex flex-wrap items-center gap-3">
-          <SelectDropdown
-            value={categoryFilter}
-            onChange={setCategoryFilter}
+          <FilterDropdown
+            defaultLabel="전체 카테고리"
+            value={categoryFilter || 'ALL'}
             options={RULE_CATEGORY_OPTIONS}
-            placeholder="전체 카테고리"
-            className="w-[150px]"
+            onChange={value => setCategoryFilter(value === 'ALL' ? '' : (value as RuleCategory))}
           />
-          <SelectDropdown
-            value={statusFilter}
-            onChange={setStatusFilter}
+          <FilterDropdown
+            defaultLabel="전체 상태"
+            value={statusFilter || 'ALL'}
             options={RULE_STATUS_OPTIONS}
-            placeholder="전체 상태"
-            className="w-[150px]"
+            onChange={value => setStatusFilter(value === 'ALL' ? '' : (value as typeof statusFilter))}
           />
         </div>
         <Link
@@ -49,7 +58,12 @@ export const RuleListPage = () => {
         </Link>
       </div>
 
-      <div className="flex h-[342px] w-full flex-col overflow-hidden rounded-[10px] border border-gray-100 bg-white">
+      <div
+        className={cn(
+          'flex w-full flex-col overflow-hidden rounded-lg bg-white lg:h-[342px] lg:min-h-0 lg:rounded-[10px] lg:border lg:border-gray-100',
+          (isLoading || error || filteredRules.length === 0) && 'min-h-[246px]',
+        )}
+      >
         {isLoading ? (
           <p className="flex h-full items-center justify-center text-gray-500">
             생활규칙을 불러오는 중입니다.
@@ -70,18 +84,25 @@ export const RuleListPage = () => {
             등록된 생활 규칙이 없습니다.
           </p>
         ) : (
-          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto [&::-webkit-scrollbar]:w-[5px]">
+          <div className="overflow-x-hidden lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:[&::-webkit-scrollbar]:w-[5px]">
             {filteredRules.map((rule, index) => (
               <RuleListRow
                 key={rule.id}
                 rule={rule}
                 isLast={index === filteredRules.length - 1}
-                onShare={handleShare}
+                onShare={openShare}
               />
             ))}
           </div>
         )}
       </div>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
+      />
     </section>
   );
 };

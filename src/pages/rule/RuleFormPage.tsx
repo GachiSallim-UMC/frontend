@@ -5,14 +5,14 @@ import {
   RULE_STATUS_OPTIONS,
   useCreateRule,
   useRuleForm,
-  useShareRule,
   useUpdateRule,
 } from '@/features/rule';
-import { FormActions, ShareMessengerButton } from '@/shared/components/ui';
+import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
+import { Button, ConfirmModal, FormActions } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 
-type FormErrors = Partial<Record<'title' | 'category' | 'status', string>>;
+type FormErrors = Partial<Record<'title' | 'category' | 'content' | 'status', string>>;
 
 export const RuleFormPage = () => {
   const navigate = useNavigate();
@@ -20,12 +20,12 @@ export const RuleFormPage = () => {
     useRuleForm();
   const createRule = useCreateRule();
   const updateRule = useUpdateRule();
-  const shareRule = useShareRule();
   const [errors, setErrors] = useState<FormErrors>({});
-  const mutationError = createRule.error ?? updateRule.error ?? shareRule.error;
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const mutationError = createRule.error ?? updateRule.error;
 
-  const handleSubmit = async (shareAfterSave: boolean) => {
-    if (createRule.isPending || updateRule.isPending || shareRule.isPending) return;
+  const handleSubmitClick = () => {
+    if (createRule.isPending || updateRule.isPending) return;
 
     const nextErrors: FormErrors = {};
     const trimmedTitle = title.trim();
@@ -35,9 +35,17 @@ export const RuleFormPage = () => {
       nextErrors.title = '규칙 제목은 30자 이하로 입력해 주세요.';
     }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
+    if (!content.trim()) nextErrors.content = '상세 설명을 입력해 주세요.';
     if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+
+    setIsSaveModalOpen(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    const trimmedTitle = title.trim();
+    if (!category || !status) return;
 
     try {
       const created = await createRule.mutateAsync({
@@ -56,74 +64,85 @@ export const RuleFormPage = () => {
           },
         });
       }
-      if (shareAfterSave) {
-        try {
-          await shareRule.mutateAsync(String(created.ruleId));
-        } finally {
-          navigate('/rules');
-        }
-        return;
-      }
+      setIsSaveModalOpen(false);
       navigate('/rules');
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
   return (
-    <div className="mx-auto mt-16 w-full max-w-[1114px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
-      <div className="flex min-w-0 flex-col gap-5">
+    <div className="min-h-full w-full bg-white pb-6 lg:min-h-0 lg:max-w-[1114px] lg:bg-transparent lg:p-0">
+      <div className="flex min-w-0 flex-col gap-4 lg:gap-[30px]">
         <Panel
           title="기본 정보"
-          className="h-[500px] rounded-[18px] p-[30px] shadow-none"
-          headerClassName="mb-5"
+          className="h-auto rounded-none p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:p-[32px]"
+          headerClassName="hidden lg:mb-6 lg:flex"
           titleClassName="text-gray-800"
         >
-          <div className="grid gap-5">
+          <div className="grid grid-cols-2 gap-x-2 gap-y-4 lg:grid-cols-1 lg:gap-5">
             <FormInput
               label="규칙 제목"
               required
               maxLength={30}
               placeholder="예: 밤 11시 이후 조용히 하기"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={e => {
+                setTitle(e.target.value);
+                setErrors(previous => ({ ...previous, title: undefined }));
+              }}
               error={errors.title}
-              containerClassName="gap-1"
+              containerClassName="order-1 col-span-2 gap-2 lg:col-span-1 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="px-4"
+              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:text-button"
             />
             <SelectDropdown
               label="카테고리"
               required
               value={category}
-              onChange={setCategory}
+              onChange={value => {
+                setCategory(value);
+                setErrors(previous => ({ ...previous, category: undefined }));
+              }}
               options={RULE_CATEGORY_OPTIONS}
               placeholder="카테고리 선택"
               error={errors.category}
-              containerClassName="gap-1"
+              containerClassName="order-2 gap-2 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
+              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
             />
             <TextArea
               label="상세 설명"
+              mobileLabel="메모"
+              required
               placeholder="규칙에 대한 자세한 설명, 예외 상황 등"
               maxLength={200}
               showCount
               countInside
+              countClassName="hidden lg:block"
               value={content}
-              onChange={e => setContent(e.target.value)}
-              containerClassName="gap-1"
+              onChange={e => {
+                setContent(e.target.value);
+                setErrors(previous => ({ ...previous, content: undefined }));
+              }}
+              error={errors.content}
+              containerClassName="order-4 col-span-2 gap-2 lg:order-3 lg:col-span-1 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="block h-[100px] px-4 pb-9 pt-4"
+              className="block h-[88px] px-4 py-3 text-mobile-label lg:h-[100px] lg:pb-9 lg:pt-4 lg:text-button"
             />
             <SelectDropdown
               label="적용 상태"
               required
               value={status}
-              onChange={setStatus}
+              onChange={value => {
+                setStatus(value);
+                setErrors(previous => ({ ...previous, status: undefined }));
+              }}
               options={RULE_STATUS_OPTIONS}
               error={errors.status}
-              containerClassName="gap-1"
+              containerClassName="order-3 gap-2 lg:order-4 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
+              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
             />
           </div>
         </Panel>
@@ -137,11 +156,37 @@ export const RuleFormPage = () => {
         )}
 
         <FormActions
-          onSave={() => void handleSubmit(false)}
+          onSave={handleSubmitClick}
           onCancel={() => navigate(-1)}
-          rightSlot={<ShareMessengerButton onClick={() => void handleSubmit(true)} />}
+          rightSlot={null}
+          className="hidden lg:flex"
         />
+
+        <div className="flex flex-col gap-2.5 lg:hidden">
+          <Button
+            type="button"
+            className="h-11 w-full text-mobile-label font-bold"
+            onClick={handleSubmitClick}
+            disabled={createRule.isPending || updateRule.isPending}
+          >
+            저장
+          </Button>
+        </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={() => void handleConfirmSubmit()}
+        icon={<RuleIcon className="size-6" />}
+        title="생활 규칙을 등록할까요?"
+        highlight={title.trim()}
+        description="내용으로 생활 규칙을 등록합니다."
+        isPending={createRule.isPending || updateRule.isPending}
+        errorMessage={
+          mutationError instanceof Error ? mutationError.message : undefined
+        }
+      />
     </div>
   );
 };

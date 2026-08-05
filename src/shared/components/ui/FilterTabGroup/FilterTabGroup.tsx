@@ -10,6 +10,9 @@ interface FilterTabGroupProps<T extends string> {
   value: T | T[];
   onChange: (value: T) => void;
   className?: string;
+  buttonClassName?: string;
+  activeClassName?: string;
+  inactiveClassName?: string;
 }
 
 export const FilterTabGroup = <T extends string>({
@@ -17,6 +20,9 @@ export const FilterTabGroup = <T extends string>({
   value,
   onChange,
   className,
+  buttonClassName,
+  activeClassName,
+  inactiveClassName,
 }: FilterTabGroupProps<T>) => {
   return (
     <div className={cn('flex items-center gap-1', className)}>
@@ -33,6 +39,8 @@ export const FilterTabGroup = <T extends string>({
               isActive
                 ? 'border-primary-500 bg-primary-100 text-primary-500'
                 : 'border-gray-100 bg-white text-gray-500 hover:bg-gray-100',
+              buttonClassName,
+              isActive ? activeClassName : inactiveClassName,
             )}
           >
             {tab.label}
