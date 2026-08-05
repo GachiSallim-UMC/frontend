@@ -109,7 +109,7 @@ export const useChatRoom = (groupId: string | null, currentUserId: string, initi
   const sendMessageMutation = useSendMessage();
   const sendCardMessageMutation = useSendCardMessage(groupId);
   const markAsReadMutation = useMarkAsRead(groupId);
-  const updateMemberSettingsMutation = useUpdateMemberSettings();
+  const updateMemberSettingsMutation = useUpdateMemberSettings(groupId);
 
   // 방을 전환할 때는 항상 읽음 처리도 같이 호출한다 (자동 첫 방 선택, 삭제/나가기 후 다음 방
   // 전환 등 모든 경로에서 빠뜨리기 쉬워서 한 곳으로 모음).

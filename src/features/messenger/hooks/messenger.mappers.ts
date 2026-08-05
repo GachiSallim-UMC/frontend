@@ -119,7 +119,7 @@ const lastMessagePreview = (message: MessageResponse | null): string => {
   return message.content;
 };
 
-/** 목록 응답 → 화면용 ChatRoom (멤버 상세 없음, 알림/고정은 상세 조회 전까지 기본값) */
+/** 목록 응답 → 화면용 ChatRoom (멤버 상세 없음, 알림 설정은 상세 조회 전까지 기본값) */
 export const toChatRoomSummary = (dto: ChatRoomListItemResponse): ChatRoom => ({
   id: dto.id,
   name: dto.name,
@@ -130,7 +130,7 @@ export const toChatRoomSummary = (dto: ChatRoomListItemResponse): ChatRoom => ({
   members: [],
   memberCount: dto.memberCount,
   notificationEnabled: true,
-  isPinned: false,
+  isPinned: dto.isPinned,
 });
 
 /** 상세 응답 → 화면용 ChatRoom (멤버 전체 포함, 요청자 본인 멤버 레코드에서 알림/고정 값을 가져옴) */
