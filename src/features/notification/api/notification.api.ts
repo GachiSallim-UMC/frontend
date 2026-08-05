@@ -1,6 +1,5 @@
 import { apiClient, withSelectedGroupParams } from '@/shared/api';
 import type { Notification, NotificationResponse } from '../types/notification.type';
-import type { NotificationPreferencesDto } from '@/features/mypage'
 
 const BASE = '/notifications';
 
@@ -121,14 +120,5 @@ export const notificationApi = {
 
   hide: async (notificationId: string): Promise<void> => {
     await apiClient.delete(`${BASE}/${notificationId}`);
-  },
-
-  getPreferences: async (): Promise<NotificationPreferencesDto> => {
-    const { data } = await apiClient.get(`${BASE}/preferences`);
-    return data; 
-  },
-  updatePreferences: async (payload: NotificationPreferencesDto): Promise<NotificationPreferencesDto> => {
-    const { data } = await apiClient.patch(`${BASE}/preferences`, payload);
-    return data;
   },
 };
