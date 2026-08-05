@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { CheckboxGroup, type CheckboxOption } from '@/shared/components';
-import { type PermissionType, type MemberRole, useGroupMembers } from '@/features/member';
+import { type PermissionType } from '@/features/member';
 import { memberApi } from '@/features/member/api/member.api';
-import { useGroupStore, useAuthStore } from '@/shared/store';
-import { IsAdminModal } from '@/features/member/components/IsAdminModal';
+import { useGroupStore } from '@/shared/store';
 
 export type PermissionKey =
   | 'allowChoreRegistration'
@@ -17,16 +16,19 @@ const PERMISSION_LEFT_OPTIONS: CheckboxOption<PermissionType>[] = [
   { value: 'allowSettlementRegistration', label: '멤버의 정산 등록 허용' },
 ];
 
-export const PermissionSettings = () => {
+interface PermissionSettingsProps {
+  isAdmin?: boolean;
+  onUnauthorized?: () => void;
+}
+
+export const PermissionSettings = ({
+  isAdmin = false,
+  onUnauthorized,
+}: PermissionSettingsProps) => {
   const queryClient = useQueryClient();
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
-  const myUserId = useAuthStore(s => s.userId);
   const [selectedPermissions, setSelectedPermissions] = useState<PermissionType[]>([]);
-  const [isAdminAlertOpen, setIsAdminAlertOpen] = useState(false);
-
-  const { data: members } = useGroupMembers(selectedGroupId);
-  const myInfo = members?.find(member => member.userId === myUserId);
-  const isAdmin = (myInfo?.role as MemberRole) === 'ADMIN';
+  const [permissionError, setPermissionError] = useState<string | null>(null);
 
   const { data: permissionsData } = useQuery({
     queryKey: ['group-permissions', selectedGroupId],
@@ -39,10 +41,10 @@ export const PermissionSettings = () => {
       memberApi.updateGroupPermissions({ groupId: selectedGroupId as string, payload }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group-permissions', selectedGroupId] });
+      setPermissionError(null);
     },
-    onError: error => {
-      alert('권한 설정 변경에 실패했습니다.');
-      console.error(error);
+    onError: () => {
+      setPermissionError('권한 설정 변경에 실패했습니다.');
     },
   });
 
@@ -60,10 +62,10 @@ export const PermissionSettings = () => {
 
   const handlePermissionsChange = (newPermissions: PermissionKey[]) => {
     if (!isAdmin) {
-      setIsAdminAlertOpen(true);
+      if (onUnauthorized) onUnauthorized();
       return;
     }
-
+    setPermissionError(null);
     setSelectedPermissions(newPermissions);
 
     if (!selectedGroupId) return;
@@ -92,7 +94,7 @@ export const PermissionSettings = () => {
           />
         ))}
       </div>
-      <IsAdminModal isOpen={isAdminAlertOpen} onClose={() => setIsAdminAlertOpen(false)} />
+      {permissionError && <span className="mt-4 text-sm text-red-700">{permissionError}</span>}
     </section>
   );
 };

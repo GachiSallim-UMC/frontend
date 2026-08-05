@@ -26,6 +26,8 @@ export const AddGroupPage = () => {
     maxMemberCount: 2,
   });
   const [errors, setErrors] = useState<Partial<Record<keyof AddGroupDto, string>>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
 
   const handleFormChange = (field: keyof AddGroupDto, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -41,7 +43,11 @@ export const AddGroupPage = () => {
       nextErrors.description = '그룹 설명은 255자 이하로 입력해 주세요.';
     }
     if (!formData.type) nextErrors.type = '거주 유형을 선택해 주세요.';
-    if (!Number.isInteger(formData.maxMemberCount) || formData.maxMemberCount < 2 || formData.maxMemberCount > 12) {
+    if (
+      !Number.isInteger(formData.maxMemberCount) ||
+      formData.maxMemberCount < 2 ||
+      formData.maxMemberCount > 12
+    ) {
       nextErrors.maxMemberCount = '최대 인원은 2명부터 12명까지 선택할 수 있습니다.';
     }
     setErrors(nextErrors);
@@ -74,19 +80,16 @@ export const AddGroupPage = () => {
         }
         setIsCreated(true);
       },
-      onError: error => {
-        alert('그룹 생성에 실패했습니다. 다시 시도해주세요.');
-        console.error(error);
+      onError: () => {
+        setSubmitError('그룹 생성에 실패했습니다. 다시 시도해주세요.');
       },
     });
   };
 
   const handleEnterDashboard = () => {
     const currentGroupId = useGroupStore.getState().selectedGroupId;
-    console.log('현재 스토어에 저장된 그룹 ID:', currentGroupId);
-
     if (!currentGroupId) {
-      alert('그룹 정보가 아직 반영되지 않았습니다. 잠시 후 다시 시도해주세요.');
+      setSubmitError('그룹 정보가 아직 반영되지 않았습니다. 잠시 후 다시 시도해주세요.');
       return;
     }
 
@@ -100,7 +103,10 @@ export const AddGroupPage = () => {
   const handleCopyCode = () => {
     if (!inviteCode) return;
     navigator.clipboard.writeText(inviteCode);
-    alert('초대 코드가 복사되었습니다.');
+    setCopyMessage('초대 코드가 복사되었습니다.');
+    setTimeout(() => {
+      setCopyMessage(null);
+    }, 3000);
   };
 
   return (
@@ -122,6 +128,12 @@ export const AddGroupPage = () => {
             inviteCode={inviteCode}
             onCopyCode={handleCopyCode}
           />
+          {copyMessage && (
+            <div className="mb-3 text-center text-sm text-primary-600">{copyMessage}</div>
+          )}
+          {submitError && (
+            <div className="mb-3 text-center text-sm text-red-700">{submitError}</div>
+          )}
 
           <AddGroupActions
             isCreated={isCreated}

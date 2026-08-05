@@ -6,6 +6,8 @@ interface WarningModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  isSaving?: boolean;
+  errorMessage?: string | null;
 }
 
 const GROUP_DELETE_AGREE_OPTIONS = [
@@ -21,7 +23,13 @@ const GROUP_DELETE_AGREE_OPTIONS = [
   },
 ];
 
-export const WarningModal = ({ isOpen, onClose, onConfirm }: WarningModalProps) => {
+export const WarningModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  isSaving,
+  errorMessage,
+}: WarningModalProps) => {
   const [checkedValues, setCheckedValues] = useState<string[]>([]);
 
   useEffect(() => {
@@ -81,6 +89,11 @@ export const WarningModal = ({ isOpen, onClose, onConfirm }: WarningModalProps) 
           className="[&_input]:!h-5 [&_input]:!w-5 [&_label]:gap-3"
         />
       </div>
+      {errorMessage && (
+        <div className="mt-4 px-[40px] text-center text-sm font-medium text-red-500">
+          {errorMessage}
+        </div>
+      )}
 
       {/* 버튼 그룹 */}
       <div className="mt-auto flex items-center justify-center w-full gap-5 border-t border-gray-100 px-[40px] py-[27px]">
@@ -88,6 +101,7 @@ export const WarningModal = ({ isOpen, onClose, onConfirm }: WarningModalProps) 
           variant="primary"
           size="lg"
           disabled={!isValid}
+          isLoading={isSaving}
           onClick={onConfirm}
           className="flex-[2] !bg-red-700 font-bold !border-red-700 hover:!bg-red-500"
         >

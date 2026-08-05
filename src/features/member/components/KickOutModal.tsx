@@ -7,6 +7,7 @@ interface KickOutModalProps {
   onConfirm: () => void;
   isSaving?: boolean;
   memberName?: string;
+  errorMessage?: string | null;
 }
 
 export const KickOutModal = ({
@@ -15,6 +16,7 @@ export const KickOutModal = ({
   onConfirm,
   isSaving = false,
   memberName,
+  errorMessage,
 }: KickOutModalProps) => {
   return (
     <ConfirmModal
@@ -24,7 +26,12 @@ export const KickOutModal = ({
       icon={<SettingIcon className="size-6 [&_*]:!fill-current" />}
       title="멤버를 내보내시겠습니까?"
       highlight={memberName}
-      description="님은 그룹에서 제거됩니다."
+      description={
+        <div className="flex flex-col items-center gap-1">
+          <span>님은 그룹에서 제거됩니다.</span>
+          {errorMessage && <span className="text-sm text-red-700">{errorMessage}</span>}
+        </div>
+      }
       confirmLabel="내보내기"
       isPending={isSaving}
       tone="danger"

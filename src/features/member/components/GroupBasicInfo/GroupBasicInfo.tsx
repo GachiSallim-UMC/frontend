@@ -7,7 +7,6 @@ import { useUpdateGroup } from '../../hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
 import { authApi } from '@/features/auth';
 import { RefreshCw } from 'lucide-react';
-import { IsAdminModal } from '../IsAdminModal';
 import { MemberUpdateModal } from '../MemberUpdateModal';
 
 import CameraIcon from '@/assets/icons/member/camera.svg?react';
@@ -23,9 +22,10 @@ import EtcIcon from '@/assets/icons/member/ResidenceType/etc.svg?react';
 
 interface MemberManagementProps {
   isAdmin?: boolean;
+  onUnauthorized?: () => void;
 }
 
-export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
+export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManagementProps) => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const updateGroupMutation = useUpdateGroup();
   const dateFormat = useDateFormat();
@@ -42,8 +42,9 @@ export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
   >({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [isAdminAlertOpen, setIsAdminAlertOpen] = useState<boolean>(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [codeError, setCodeError] = useState<string | undefined>(undefined);
 
   const { data: groupData, refetch } = useQuery({
     queryKey: ['group', selectedGroupId],
@@ -101,7 +102,7 @@ export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
 
   const handleSave = async () => {
     if (!isAdmin) {
-      setIsAdminAlertOpen(true);
+      if (onUnauthorized) onUnauthorized();
       return;
     }
 
@@ -126,11 +127,13 @@ export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
     if (Object.keys(nextErrors).length > 0) {
       return;
     }
+    setSaveError(null);
     setIsUpdateModalOpen(true);
   };
 
   const handleConfirmSave = async () => {
     if (!selectedGroupId) return;
+    setSaveError(null);
     let finalGroupImageUrl = groupImage;
 
     try {
@@ -160,16 +163,14 @@ export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
             setIsUpdateModalOpen(false);
           },
           onError: () => {
-            setIsAdminAlertOpen(false);
-            setIsAdminAlertOpen(true);
+            setSaveError('그룹 정보 수정에 실패했습니다. 다시 시도해 주세요.');
             setIsUploading(false);
           },
         },
       );
     } catch {
-      alert('이미지 저장 중 오류가 발생했습니다.');
+      setSaveError('이미지 저장 중 오류가 발생했습니다.');
       setIsUploading(false);
-      setIsUpdateModalOpen(false);
     }
   };
 
@@ -182,17 +183,19 @@ export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
     mutationFn: () => memberApi.regenerateInviteCode(selectedGroupId as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group', selectedGroupId] });
+      setCodeError(undefined);
     },
     onError: () => {
-      setIsAdminAlertOpen(true);
+      setCodeError('초대 코드 재발급에 실패했습니다.');
     },
   });
 
   const handleRegenerateCode = () => {
     if (!isAdmin) {
-      setIsAdminAlertOpen(true);
+      if (onUnauthorized) onUnauthorized();
       return;
     }
+    setCodeError(undefined);
     regenerateCodeMutation.mutate();
   };
 
@@ -361,6 +364,7 @@ export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
               value={groupData?.inviteCode || ''}
               readOnly
               className="w-full cursor-default border-gray-100 bg-gray-50 pr-20 text-gray-900 focus:border-gray-100 focus:ring-0"
+              error={codeError}
             />
             <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1">
               {/* 새로고침(재발급) 버튼 */}
@@ -387,12 +391,15 @@ export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
           </div>
         </div>
       </div>
-      <IsAdminModal isOpen={isAdminAlertOpen} onClose={() => setIsAdminAlertOpen(false)} />
       <MemberUpdateModal
         isOpen={isUpdateModalOpen}
-        onClose={() => setIsUpdateModalOpen(false)}
+        onClose={() => {
+          setIsUpdateModalOpen(false);
+          setSaveError(null);
+        }}
         onConfirm={handleConfirmSave}
         isSaving={updateGroupMutation.isPending || isUploading}
+        errorMessage={saveError}
       />
     </section>
   );

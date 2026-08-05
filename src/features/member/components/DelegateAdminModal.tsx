@@ -7,6 +7,7 @@ interface DelegateModalProps {
   onConfirm: () => void;
   isSaving?: boolean;
   memberName?: string;
+  errorMessage?: string | null;
 }
 
 export const DelegateAdminModal = ({
@@ -15,6 +16,7 @@ export const DelegateAdminModal = ({
   onConfirm,
   isSaving = false,
   memberName,
+  errorMessage,
 }: DelegateModalProps) => {
   return (
     <ConfirmModal
@@ -24,7 +26,12 @@ export const DelegateAdminModal = ({
       icon={<SettingIcon className="size-6 [&_*]:!fill-current" />}
       title="관리자 권한을 위임할까요?"
       highlight={memberName}
-      description="님에게 그룹 관리 권한이 부여됩니다."
+      description={
+        <div className="flex flex-col items-center gap-1">
+          <span>님에게 그룹 관리 권한이 부여됩니다.</span>
+          {errorMessage && <span className="text-sm text-red-700">{errorMessage}</span>}
+        </div>
+      }
       confirmLabel="위임하기"
       isPending={isSaving}
       tone="default"

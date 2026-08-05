@@ -7,35 +7,39 @@ import {
 } from '@/features/member/hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
 import { useQueryClient } from '@tanstack/react-query';
-import { IsAdminModal } from '@/features/member/components/IsAdminModal';
 import { DelegateAdminModal } from '@/features/member/components/DelegateAdminModal';
 import { KickOutModal } from '@/features/member/components/KickOutModal';
 
 interface MemberManagementProps {
   isAdmin?: boolean;
+  onUnauthorized?: () => void;
 }
 
-export const MemberManagement = ({ isAdmin = false }: MemberManagementProps) => {
+export const MemberManagement = ({ isAdmin = false, onUnauthorized }: MemberManagementProps) => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const { data: members, isLoading, isError } = useGroupMembers(selectedGroupId);
   const updateRoleMutation = useUpdateMemberRole();
   const removeMemberMutation = useRemoveGroupMember();
   const queryClient = useQueryClient();
 
-  const [isAdminAlertOpen, setIsAdminAlertOpen] = useState(false);
   const [delegateTarget, setDelegateTarget] = useState({ isOpen: false, userId: '', name: '' });
   const [kickOutTarget, setKickOutTarget] = useState({ isOpen: false, userId: '', name: '' });
 
+  const [delegateError, setDelegateError] = useState<string | null>(null);
+  const [kickOutError, setKickOutError] = useState<string | null>(null);
+
   const handleDelegateAdminClick = (userId: string, name: string) => {
     if (!isAdmin) {
-      setIsAdminAlertOpen(true);
+      if (onUnauthorized) onUnauthorized();
       return;
     }
+    setDelegateError(null);
     setDelegateTarget({ isOpen: true, userId, name });
   };
 
   const handleConfirmDelegate = () => {
     if (!selectedGroupId || !delegateTarget.userId) return;
+    setDelegateError(null);
 
     updateRoleMutation.mutate(
       { groupId: selectedGroupId, userId: delegateTarget.userId, role: 'ADMIN' },
@@ -44,22 +48,27 @@ export const MemberManagement = ({ isAdmin = false }: MemberManagementProps) => 
           queryClient.invalidateQueries({
             queryKey: GROUP_MEMBER_QUERY_KEYS.list(selectedGroupId),
           });
+          setDelegateTarget({ isOpen: false, userId: '', name: '' });
         },
-        onError: () => alert('권한 위임에 실패했습니다.'),
+        onError: () => {
+          setDelegateError('권한 위임에 실패했습니다.');
+        },
       },
     );
   };
 
   const handleKickOutClick = (userId: string, name: string) => {
     if (!isAdmin) {
-      setIsAdminAlertOpen(true);
+      if (onUnauthorized) onUnauthorized();
       return;
     }
+    setKickOutError(null);
     setKickOutTarget({ isOpen: true, userId, name });
   };
 
   const handleConfirmKickOut = () => {
     if (!selectedGroupId || !kickOutTarget.userId) return;
+    setKickOutError(null);
 
     removeMemberMutation.mutate(
       { groupId: selectedGroupId, userId: kickOutTarget.userId },
@@ -70,7 +79,9 @@ export const MemberManagement = ({ isAdmin = false }: MemberManagementProps) => 
           });
           setKickOutTarget({ isOpen: false, userId: '', name: '' });
         },
-        onError: () => alert('멤버 내보내기에 실패했습니다.'),
+        onError: () => {
+          setKickOutError('멤버 내보내기에 실패했습니다.');
+        },
       },
     );
   };
@@ -157,20 +168,27 @@ export const MemberManagement = ({ isAdmin = false }: MemberManagementProps) => 
           );
         })}
       </div>
-      <IsAdminModal isOpen={isAdminAlertOpen} onClose={() => setIsAdminAlertOpen(false)} />
       <DelegateAdminModal
         isOpen={delegateTarget.isOpen}
         memberName={delegateTarget.name}
-        onClose={() => setDelegateTarget(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => {
+          setDelegateTarget(prev => ({ ...prev, isOpen: false }));
+          setDelegateError(null);
+        }}
         onConfirm={handleConfirmDelegate}
         isSaving={updateRoleMutation.isPending}
+        errorMessage={delegateError}
       />
       <KickOutModal
         isOpen={kickOutTarget.isOpen}
         memberName={kickOutTarget.name}
-        onClose={() => setKickOutTarget(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => {
+          setKickOutTarget(prev => ({ ...prev, isOpen: false }));
+          setKickOutError(null);
+        }}
         onConfirm={handleConfirmKickOut}
         isSaving={removeMemberMutation.isPending}
+        errorMessage={kickOutError}
       />
     </section>
   );

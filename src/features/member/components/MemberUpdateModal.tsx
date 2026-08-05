@@ -6,6 +6,7 @@ interface MemberUpdateModalProps {
   onClose: () => void;
   onConfirm: () => void;
   isSaving?: boolean;
+  errorMessage?: string | null;
 }
 
 export const MemberUpdateModal = ({
@@ -13,6 +14,7 @@ export const MemberUpdateModal = ({
   onClose,
   onConfirm,
   isSaving = false,
+  errorMessage,
 }: MemberUpdateModalProps) => {
   return (
     <ConfirmModal
@@ -21,7 +23,12 @@ export const MemberUpdateModal = ({
       onConfirm={onConfirm}
       icon={<SettingIcon className="size-6 [&_*]:!fill-current" />}
       title="그룹 설정을 수정할까요?"
-      description="입력하신 내용으로 그룹 데이터를 수정합니다."
+      description={
+        <div className="flex flex-col items-center gap-1">
+          <span>입력하신 내용으로 그룹 데이터를 수정합니다.</span>
+          {errorMessage && <span className="text-sm text-red-700">{errorMessage}</span>}
+        </div>
+      }
       confirmLabel="수정하기"
       isPending={isSaving}
       tone="edit"
