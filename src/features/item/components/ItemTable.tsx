@@ -8,6 +8,7 @@ import type { Item, ItemCategory } from '../types/item.types';
 
 interface ItemTableProps {
   items: Item[];
+  onShare?: (item: Item) => void;
 }
 
 const GRID_COLUMNS = 'grid-cols-[1.24fr_1.15fr_1.58fr_1.25fr_1.71fr_1fr]';
@@ -24,7 +25,7 @@ const MOBILE_CATEGORY_LABEL: Record<ItemCategory, string> = {
   etc: '기타',
 };
 
-export const ItemTable = ({ items }: ItemTableProps) => {
+export const ItemTable = ({ items, onShare }: ItemTableProps) => {
   const dateFormat = useDateFormat();
 
   return (
@@ -70,6 +71,7 @@ export const ItemTable = ({ items }: ItemTableProps) => {
                 <button
                   type="button"
                   aria-label={`${item.name} 공유`}
+                  onClick={() => onShare?.(item)}
                   className="flex size-7 items-center justify-center transition-colors hover:text-gray-500"
                 >
                   <ShareIcon className="size-7" />
@@ -149,6 +151,7 @@ export const ItemTable = ({ items }: ItemTableProps) => {
                       <button
                         type="button"
                         aria-label="공유"
+                        onClick={() => onShare?.(item)}
                         className="flex size-[39px] items-center justify-center transition-colors hover:text-gray-500"
                       >
                         <ShareIcon className="size-[39px]" />

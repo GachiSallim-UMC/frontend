@@ -6,7 +6,6 @@ import {
   useRuleAgreement,
   useRuleDetail,
   useRuleForm,
-  useShareRule,
   useUpdateRule,
   useUpdateRuleAgreement,
   type MyAgreement,
@@ -14,8 +13,11 @@ import {
   type RuleAgreementApiStatus,
   type RuleHistoryType,
 } from '@/features/rule';
+import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import {
   Button,
+  ConfirmModal,
   FormActions,
   ShareMessengerButton,
   StatusBadge,
@@ -65,12 +67,12 @@ export const RuleDetailPage = () => {
   if (!id) return <Navigate to="/rules" replace />;
   if (isLoading) {
     return (
-      <p className="mt-4 text-center text-gray-500 lg:mt-16">생활규칙을 불러오는 중입니다.</p>
+      <p className="text-center text-gray-500">생활규칙을 불러오는 중입니다.</p>
     );
   }
   if (error) {
     return (
-      <div className="mt-4 flex flex-col items-center justify-center gap-3 text-gray-500 lg:mt-16">
+      <div className="flex flex-col items-center justify-center gap-3 text-gray-500">
         <p>{error instanceof Error ? error.message : '생활규칙을 불러오지 못했습니다.'}</p>
         <button
           type="button"
@@ -95,13 +97,15 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
   const updateAgreement = useUpdateRuleAgreement();
-  const shareRule = useShareRule();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('rule');
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const isPending = updateRule.isPending || updateAgreement.isPending;
-  const mutationError = updateRule.error ?? updateAgreement.error ?? shareRule.error;
+  const mutationError = updateRule.error ?? updateAgreement.error;
 
-  const handleSave = async () => {
+  const handleSaveClick = () => {
     if (isPending) return;
 
     const nextErrors: FormErrors = {};
@@ -129,6 +133,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
       return;
     }
 
+    setIsSaveModalOpen(true);
+  };
+
+  const handleConfirmSave = async () => {
+    const trimmedTitle = title.trim();
+    const trimmedContent = content.trim();
+    if (!category || !status) return;
+
     try {
       await updateRule.mutateAsync({
         id: rule.id,
@@ -139,9 +151,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           status,
         },
       });
+      setIsSaveModalOpen(false);
       navigate('/rules');
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
@@ -153,22 +166,21 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         dto: { status: agreementStatus },
       });
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
   const handleShare = () => {
-    if (shareRule.isPending) return;
-    shareRule.mutate(rule.id);
+    openShare(rule.id);
   };
 
   return (
-    <div className="mx-auto grid min-h-full w-full content-start grid-cols-1 gap-5 bg-white px-4 pb-6 pt-4 lg:mt-16 lg:min-h-0 lg:max-w-[1114px] lg:gap-5 lg:bg-transparent lg:p-0 xl:grid-cols-2 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
-      <div className="flex min-w-0 flex-col gap-4 lg:gap-5">
+    <div className="grid min-h-full w-full content-start grid-cols-1 gap-5 bg-white pb-6 lg:min-h-0 lg:max-w-[1114px] lg:gap-5 lg:bg-transparent lg:p-0 xl:grid-cols-2">
+      <div className="flex min-w-0 flex-col gap-4 lg:gap-[30px]">
         <Panel
           title="기본 정보"
-          className="h-auto rounded-none p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:p-[30px]"
-          headerClassName="hidden lg:mb-5 lg:flex"
+          className="h-auto rounded-none p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:p-[32px]"
+          headerClassName="hidden lg:mb-6 lg:flex"
           titleClassName="text-gray-800"
         >
           <div className="grid grid-cols-2 gap-x-2 gap-y-4 lg:grid-cols-1 lg:gap-5">
@@ -198,7 +210,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               error={errors.category}
               containerClassName="order-2 gap-2 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 pr-9 text-mobile-label lg:h-[50px] lg:px-3 lg:pr-9 lg:text-button"
+              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
             />
             <TextArea
               label="상세 설명"
@@ -231,7 +243,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               error={errors.status}
               containerClassName="order-3 gap-2 lg:order-4 lg:gap-1"
               labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 pr-9 text-mobile-label lg:h-[50px] lg:px-3 lg:pr-9 lg:text-button"
+              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
             />
           </div>
         </Panel>
@@ -245,7 +257,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         )}
 
         <FormActions
-          onSave={() => void handleSave()}
+          onSave={handleSaveClick}
           onCancel={() => navigate(-1)}
           rightSlot={<ShareMessengerButton onClick={handleShare} />}
           className="hidden lg:flex"
@@ -256,7 +268,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         <Panel
           title="동의 현황"
           description="멤버들이 규칙에 동의하면 상태가 업데이트 됩니다."
-          className="h-auto rounded-none p-0 shadow-none lg:h-[435px] lg:rounded-[18px] lg:p-[30px]"
+          className="h-auto rounded-none p-0 shadow-none lg:h-[435px] lg:rounded-[18px] lg:p-[32px]"
           headerClassName="hidden lg:mb-2.5 lg:flex"
           titleClassName="text-gray-800"
           descriptionClassName="leading-[17px]"
@@ -322,12 +334,12 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           <ShareMessengerButton
             className="h-11 text-mobile-label"
             onClick={handleShare}
-            disabled={shareRule.isPending}
+            disabled={isSharePending}
           />
           <Button
             type="button"
             className="h-11 w-full text-mobile-label font-bold"
-            onClick={() => void handleSave()}
+            onClick={handleSaveClick}
             disabled={isPending}
           >
             저장
@@ -336,7 +348,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
         <Panel
           title="규칙 히스토리"
-          className="h-auto rounded-none border-t border-gray-100 px-0 pb-0 pt-4 shadow-none lg:h-[306px] lg:rounded-[18px] lg:border-0 lg:p-[30px]"
+          className="h-auto rounded-none border-t border-gray-100 px-0 pb-0 pt-4 shadow-none lg:h-[306px] lg:rounded-[18px] lg:border-0 lg:p-[32px]"
           headerClassName="mb-2.5"
           titleClassName="text-gray-800"
         >
@@ -372,6 +384,29 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           </div>
         </Panel>
       </div>
+
+      <ConfirmModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={() => void handleConfirmSave()}
+        icon={<RuleIcon className="size-6" />}
+        title="생활 규칙을 수정할까요?"
+        highlight={title.trim()}
+        description="생활 규칙 데이터를 수정합니다."
+        confirmLabel="수정하기"
+        isPending={isPending}
+        errorMessage={
+          mutationError instanceof Error ? mutationError.message : undefined
+        }
+      />
+
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
+      />
     </div>
   );
 };

@@ -15,8 +15,6 @@ import type {
   DayOfWeek,
   GetChoresParams,
   RepeatType,
-  ShareChoreDto,
-  ShareChoreResponse,
   UpdateChoreDto,
   IncompleteChoreResponse,
 } from '../types/chore.types';
@@ -187,11 +185,6 @@ export const choreApi = {
 
   incomplete: async (id: string): Promise<IncompleteChoreResponse> => {
     const { data } = await apiClient.patch<IncompleteChoreResponse>(`${BASE}/${id}/incomplete`);
-    return data;
-  },
-
-  share: async (id: string, dto: ShareChoreDto): Promise<ShareChoreResponse> => {
-    const { data } = await apiClient.post<ShareChoreResponse>(`${BASE}/${id}/share`, dto);
     return data;
   },
 };

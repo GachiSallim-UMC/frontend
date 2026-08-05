@@ -1,44 +1,51 @@
-import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
-import { cn } from '@/shared/lib';
+import { cn, useDropdown } from '@/shared/lib';
 
 export interface FilterOption {
   label: string;
   value: string;
 }
 
+const MENU_MAX_HEIGHT = 260;
+
 interface FilterDropdownProps {
   defaultLabel: string;
   value: string;
   options: FilterOption[];
   onChange: (value: string) => void;
+  /** "전체"에 해당하는 값. 이 값이면 비활성(강조 없음)으로 표시합니다. */
+  allValue?: string;
 }
 
-export const FilterDropdown = ({ defaultLabel, value, options, onChange }: FilterDropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+export const FilterDropdown = ({
+  defaultLabel,
+  value,
+  options,
+  onChange,
+  allValue = 'ALL',
+}: FilterDropdownProps) => {
+  const { isOpen, dropUp, containerRef, toggle, close } = useDropdown({
+    menuMaxHeight: MENU_MAX_HEIGHT,
+  });
 
-  const isActive = value !== 'ALL' && value !== undefined && value !== '';
+  const isActive = value !== allValue && value !== undefined && value !== '';
   const selectedOption = options.find(opt => opt.value === value);
   const displayText = isActive && selectedOption ? selectedOption.label : defaultLabel;
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
+    <div className="relative inline-block shrink-0 text-left" ref={containerRef}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        onClick={toggle}
         className={cn(
-          'flex h-[50px] w-[160px] justify-between items-center whitespace-nowrap rounded-lg border pl-[34px] pr-[16px] text-button font-normal transition-colors',
+          // 모바일은 목록 필터 pill과 같은 형태, lg부터 Figma 필터 드롭다운 규격.
+          // 좌우 패딩을 같게 둡니다. 한쪽만 34px이면 긴 라벨에서 내용이 폭을 넘겨
+          // 오른쪽으로 쏠려 보입니다. (예: "전체 카테고리")
+          'flex items-center justify-between gap-1 whitespace-nowrap border font-normal transition-colors',
+          'h-8 rounded-full px-3 text-mobile-label font-bold',
+          'lg:h-[50px] lg:w-[160px] lg:rounded-lg lg:px-4 lg:text-button lg:font-normal',
           isActive || isOpen
             ? 'border-primary-500 bg-primary-100 text-primary-500'
             : 'border-gray-100 bg-white text-gray-500 hover:bg-gray-100',
@@ -47,7 +54,7 @@ export const FilterDropdown = ({ defaultLabel, value, options, onChange }: Filte
         {displayText}
         <ChevronDown
           className={cn(
-            'h-6 w-6 shrink-0 transition-transform',
+            'size-4 shrink-0 transition-transform lg:size-6',
             isOpen && 'rotate-180',
             isActive || isOpen ? 'text-primary-500' : 'text-gray-400',
           )}
@@ -56,29 +63,39 @@ export const FilterDropdown = ({ defaultLabel, value, options, onChange }: Filte
 
       {/* 드롭다운 메뉴 창 */}
       {isOpen && (
-        <div className="absolute left-0 z-10 mt-2 w-48 origin-top-left overflow-hidden rounded-lg border border-gray-100 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <ul
+          role="listbox"
+          aria-label={defaultLabel}
+          style={{ maxHeight: MENU_MAX_HEIGHT }}
+          className={cn(
+            'absolute left-0 z-10 min-w-full origin-top-left overflow-y-auto rounded-lg border border-gray-100 bg-white shadow-dropdown lg:w-48',
+            dropUp ? 'bottom-full mb-2' : 'top-full mt-2',
+          )}
+        >
           {options.map(option => {
             const isSelected = value === option.value;
             return (
-              <button
+              <li
                 key={option.value}
+                role="option"
+                aria-selected={isSelected}
                 onClick={() => {
                   onChange(option.value);
-                  setIsOpen(false);
+                  close();
                 }}
                 className={cn(
-                  'flex w-full items-center justify-between px-4 py-3 text-button font-normal transition-colors',
+                  'flex cursor-pointer items-center justify-between gap-2 whitespace-nowrap px-4 py-2.5 text-mobile-label font-normal transition-colors lg:py-3 lg:text-button',
                   isSelected
                     ? 'bg-primary-100 text-primary-500'
                     : 'text-gray-500 hover:bg-gray-100',
                 )}
               >
                 {option.label}
-                {isSelected && <Check className="h-5 w-5 text-primary-500" />}
-              </button>
+                {isSelected && <Check className="size-4 shrink-0 text-primary-500 lg:size-5" />}
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
     </div>
   );

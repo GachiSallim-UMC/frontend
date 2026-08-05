@@ -47,7 +47,9 @@ export const PageLayout = ({
         />
         <main
           className={cn(
-            'flex min-h-0 flex-1 flex-col overflow-x-hidden lg:overflow-y-auto lg:px-6 lg:pb-6',
+            // 사이드바·상단바와 본문 사이 공통 여백. 페이지에서 다시 지정하지 않습니다.
+            'flex min-h-0 flex-1 flex-col overflow-x-hidden px-4 pt-4',
+            'lg:overflow-y-auto lg:px-6 lg:pb-6 lg:pt-[28px]',
             hasMobileBottomNavigation
               ? 'pb-[calc(3.5rem+env(safe-area-inset-bottom))]'
               : 'pb-[env(safe-area-inset-bottom)]',

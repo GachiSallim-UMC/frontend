@@ -78,19 +78,20 @@ export const useSendMessage = () => {
 };
 
 /** 카드(공유) 메시지 전송 */
-export const useSendCardMessage = () => {
+export const useSendCardMessage = (groupId: string | null) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ roomId, type, refId, content }: { roomId: string; type: CardMessageTypeDto; refId: string; content?: string }) =>
       messengerApi.sendCardMessage(roomId, { type, refId, content }),
     onSuccess: (_data, { roomId }) => {
       queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.messages(roomId) });
+      queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.rooms(groupId) });
     },
   });
 };
 
 /** 내 알림/상단고정 설정 변경 */
-export const useUpdateMemberSettings = () => {
+export const useUpdateMemberSettings = (groupId: string | null) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -104,6 +105,8 @@ export const useUpdateMemberSettings = () => {
     }) => messengerApi.updateMemberSettings(roomId, { notificationEnabled, isPinned }),
     onSuccess: (_data, { roomId }) => {
       queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.roomDetail(roomId) });
+      // 상단 고정은 방 목록 정렬에 쓰이므로 목록 쿼리도 같이 갱신한다
+      queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.rooms(groupId) });
     },
   });
 };
