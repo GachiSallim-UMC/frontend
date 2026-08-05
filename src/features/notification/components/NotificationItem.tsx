@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Circle, X } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import type { Notification } from '@/features/notification/types';
@@ -39,14 +39,8 @@ export const NotificationItem: FC<NotificationItemProps> = ({
 
   return (
     <div className="w-full border-b border-gray-100 last:border-b-0">
-      {/* 모바일: 행 전체 탭 = 읽음 처리 + 이동, 숨기기 버튼만 별도 노출 (Figma엔 액션 아이콘 없음) */}
-      <div
-        onClick={handleGo}
-        className={cn(
-          'flex w-full items-start gap-3 bg-white px-4 py-[13px] transition-colors active:bg-gray-50 lg:hidden',
-          route && 'cursor-pointer',
-        )}
-      >
+      {/* 모바일: 이동 가능한 텍스트 영역만 Link/button으로 (RuleListRow·ActivityItem과 동일하게 키보드·스크린리더 접근 가능하도록) */}
+      <div className="flex w-full items-start gap-3 bg-white px-4 py-[13px] lg:hidden">
         <Circle
           className={cn('mt-[3px] size-2 shrink-0', isRead ? 'text-gray-100' : 'text-primary-600')}
           fill="currentColor"
@@ -55,17 +49,33 @@ export const NotificationItem: FC<NotificationItemProps> = ({
           aria-label={isRead ? '읽음' : '읽지 않음'}
         />
 
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-mobile-label font-bold text-gray-800">{title}</p>
-          <p className="mt-1.5 text-mobile-label text-gray-800">{message}</p>
-          <p className="mt-1.5 text-mobile-caption text-gray-400">{time}</p>
-        </div>
+        {route ? (
+          <Link
+            to={route}
+            onClick={handleMarkAsRead}
+            className="min-w-0 flex-1 rounded-md transition-colors active:bg-gray-50"
+          >
+            <p className="truncate text-mobile-label font-bold text-gray-800">{title}</p>
+            <p className="mt-1.5 line-clamp-2 text-mobile-label text-gray-800">{message}</p>
+            <p className="mt-1.5 text-mobile-caption text-gray-400">{time}</p>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={handleMarkAsRead}
+            className="min-w-0 flex-1 rounded-md text-left transition-colors active:bg-gray-50"
+          >
+            <p className="truncate text-mobile-label font-bold text-gray-800">{title}</p>
+            <p className="mt-1.5 line-clamp-2 text-mobile-label text-gray-800">{message}</p>
+            <p className="mt-1.5 text-mobile-caption text-gray-400">{time}</p>
+          </button>
+        )}
 
         <button
           type="button"
           onClick={handleHide}
           aria-label="알림 숨기기"
-          className="flex size-6 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-gray-600"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:text-gray-600"
         >
           <X className="size-4" />
         </button>
