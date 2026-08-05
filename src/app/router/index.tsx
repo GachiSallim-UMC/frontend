@@ -7,7 +7,7 @@ import { RequireGroup } from './RequireGroup';
 import { ExpenseListPage, ExpenseAddPage } from '@/pages/expense';
 import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { RuleListPage, RuleFormPage, RuleDetailRoute } from '@/pages/rule';
-import { NotificationPage } from '@/pages/notification';
+import { NotificationPage, NotificationRedirectPage } from '@/pages/notification';
 import { ChoreListPage } from '@/pages/chore/ChoreListPage';
 import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
 import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
@@ -67,6 +67,7 @@ export const router = createBrowserRouter([
               { path: '/rules/:id', element: <RuleDetailRoute /> },
               { path: '/messenger', element: <MessengerPage /> },
               { path: '/notifications', element: <NotificationPage /> },
+              { path: '/notifications/:id', element: <NotificationRedirectPage /> },
               { path: '/activity', element: <ActivityPage /> },
               { path: '/mypage', element: <MyPage /> },
               { path: '/group/settings', element: <MemberSettingPage /> },
