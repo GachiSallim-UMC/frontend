@@ -154,22 +154,11 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     }
   };
 
-  const handleSave = async (newExpense: Expense) => {
+  const handleSave = (newExpense: Expense) => {
     setSavedExpense(enrichExpenseWithMembers(newExpense, members));
     setIsSubmitted(true);
-
-    if (!id) {
-      navigate(`/expenses/${newExpense.id}`, { replace: true });
-    }
-
-    if (receiptObjectKey) {
-      try {
-        const viewUrl = await getReceiptViewUrl(newExpense.id);
-        setReceiptViewUrl(viewUrl);
-      } catch (err) {
-        console.error('영수증 조회 URL 갱신 실패:', err);
-      }
-    }
+    // 저장 후에는 목록으로 돌아간다. (집안일·공용물품·생활규칙과 동일)
+    navigate('/expenses');
   };
 
   const handleCancel = () => {
