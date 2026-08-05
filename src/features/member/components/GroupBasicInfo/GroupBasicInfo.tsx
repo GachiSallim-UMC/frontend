@@ -230,7 +230,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
   };
 
   return (
-    <section className="flex w-full items-start gap-23 rounded-2xl bg-white p-7">
+    <section className="flex w-full flex-col items-center gap-8 md:flex-row md:items-start md:gap-23 rounded-2xl bg-white p-5 md:p-7">
       <input
         type="file"
         ref={fileInputRef}
@@ -239,8 +239,8 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
         className="hidden"
       />
       {/* 좌측: 프로필 */}
-      <div className="mx-20 flex shrink-0 flex-col items-center justify-center pt-2">
-        <div className="relative mb-4 h-36 w-36">
+      <div className="md:mx-20 flex shrink-0 flex-col items-center justify-center md:pt-2">
+        <div className="relative mb-3 h-32 w-32 md:mb-4 md:h-36 md:w-36">
           {groupImage ? (
             <img
               src={groupImage}
@@ -285,16 +285,44 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
           </div>
         </div>
         <span className="text-xl font-bold text-gray-900">{groupName}</span>
-        <span className="text-sm text-gray-600">{formattedDate}</span>
+        <span className="text-sm text-gray-400">생성일: {formattedDate}</span>
+
+        {/* 모바일 전용 -> 데스크탑에서는 숨김*/}
+        <div className="mt-3 flex items-center justify-center gap-2 md:hidden">
+          <span className="text-base font-bold uppercase tracking-widest text-primary-600">
+            {groupData?.inviteCode || ''}
+          </span>
+          <button
+            type="button"
+            onClick={handleRegenerateCode}
+            disabled={regenerateCodeMutation.isPending}
+            aria-label="그룹 코드 재발급"
+            className="flex items-center justify-center text-primary-600 transition-colors hover:text-gray-900 disabled:opacity-50"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${regenerateCodeMutation.isPending ? 'animate-spin' : ''}`}
+            />
+          </button>
+          <button
+            type="button"
+            onClick={handleCopyCode}
+            aria-label="그룹 코드 복사"
+            className="flex items-center justify-center text-primary-600 transition-colors hover:text-primary-700"
+          >
+            <CopyIcon className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* 우측: 그룹 기본 정보 */}
-      <div className="flex flex-1 flex-col">
-        <h3 className="mb-5 text-lg font-bold text-gray-900 leading-snug">그룹 기본 정보</h3>
+      <div className="flex w-full flex-1 flex-col">
+        <h3 className="mb-5 hidden text-lg font-bold text-gray-900 leading-snug md:block">
+          그룹 기본 정보
+        </h3>
 
         {/* 그룹 이름 & 최대 인원 */}
-        <div className="mb-5 grid grid-cols-2 gap-5">
-          <div className="flex flex-col">
+        <div className="flex w-full flex-col gap-5 md:mb-5 md:grid md:grid-cols-2">
+          <div className="order-1 flex h-full flex-col justify-end md:order-1">
             <label htmlFor="groupName" className="mb-1 text-sm font-bold text-gray-900">
               그룹 이름
             </label>
@@ -310,51 +338,64 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
               error={errors.groupName}
             />
           </div>
-          <SelectDropdown
-            id="maxMembers"
-            label="최대 인원"
-            value={maxMemberCount}
-            onChange={value => {
-              setMaxMemberCount(value);
-              setErrors(previous => ({ ...previous, maxMemberCount: undefined }));
-            }}
-            options={maxMemberOptions}
-            placeholder="인원 선택"
-            error={errors.maxMemberCount}
-          />
-        </div>
 
-        {/* 그룹 소개 & 저장 */}
-        <div className="mb-5 flex items-end gap-5">
-          <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="description" className="mb-1 text-sm font-bold text-gray-900">
-              그룹 소개
-            </label>
-            <FormInput
-              id="description"
-              value={description}
-              onChange={e => {
-                setDescription(e.target.value);
-                setErrors(previous => ({ ...previous, description: undefined }));
-              }}
-              placeholder="그룹을 소개하는 한 줄 평을 적어주세요"
-              maxLength={255}
-              error={errors.description}
-            />
+          {/* 그룹 소개 & 저장 */}
+          <div className="order-2 md:order-3 flex flex-col md:col-span-2 md:flex-row md:items-end md:gap-5">
+            <div className="flex flex-1 flex-col gap-1">
+              <label htmlFor="description" className="mb-1 text-sm font-bold text-gray-900">
+                그룹 소개
+              </label>
+              <FormInput
+                id="description"
+                value={description}
+                onChange={e => {
+                  setDescription(e.target.value);
+                  setErrors(previous => ({ ...previous, description: undefined }));
+                }}
+                placeholder="그룹을 소개하는 한 줄 평을 적어주세요"
+                maxLength={255}
+                error={errors.description}
+              />
+            </div>
+
+            <Button
+              onClick={handleSave}
+              variant="primary"
+              className="hidden md:flex w-32 shrink-0 font-bold h-[50px]"
+              isLoading={updateGroupMutation.isPending || isUploading}
+            >
+              저장
+            </Button>
           </div>
 
-          <Button
-            onClick={handleSave}
-            variant="primary"
-            className="w-32 shrink-0 font-bold h-[50px]"
-            isLoading={updateGroupMutation.isPending || isUploading}
-          >
-            저장
-          </Button>
+          <div className="order-3 flex h-full flex-col justify-end md:order-2">
+            <SelectDropdown
+              id="maxMembers"
+              label="최대 인원"
+              value={maxMemberCount}
+              onChange={value => {
+                setMaxMemberCount(value);
+                setErrors(previous => ({ ...previous, maxMemberCount: undefined }));
+              }}
+              options={maxMemberOptions}
+              placeholder="인원 선택"
+              error={errors.maxMemberCount}
+            />
+          </div>
+          <div className="order-4 mt-2 md:hidden">
+            <Button
+              onClick={handleSave}
+              variant="primary"
+              className="h-[50px] w-full font-bold"
+              isLoading={updateGroupMutation.isPending || isUploading}
+            >
+              저장
+            </Button>
+          </div>
         </div>
 
         {/* 그룹 코드 */}
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="hidden flex flex-1 flex-col gap-1 md:flex">
           <label htmlFor="groupCode" className="mb-1 text-sm font-bold text-gray-900">
             그룹 코드
           </label>
