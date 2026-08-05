@@ -2,16 +2,19 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { NOTIFICATION_CATEGORIES, notificationApi } from '@/features/notification/api/notification.api';
 import { REALTIME_POLL_INTERVAL_MS } from '@/shared/lib';
+import { useGroupStore } from '@/shared/store';
 import { useMarkAllNotificationsRead } from './useMarkAllNotificationsRead';
 
 export const NOTIFICATION_QUERY_KEYS = {
   all: ['notifications'] as const,
-  list: () => [...NOTIFICATION_QUERY_KEYS.all, 'list'] as const,
-  unreadCount: () => [...NOTIFICATION_QUERY_KEYS.all, 'unread-count'] as const,
+  list: (groupId: string | null) => [...NOTIFICATION_QUERY_KEYS.all, 'list', groupId] as const,
+  unreadCount: (groupId: string | null) =>
+    [...NOTIFICATION_QUERY_KEYS.all, 'unread-count', groupId] as const,
 };
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
+  const groupId = useGroupStore(state => state.selectedGroupId);
   const [statusFilter, setStatusFilter] = useState('전체');
   const [categoryFilter, setCategoryFilter] = useState('전체');
 
@@ -22,7 +25,7 @@ export const useNotifications = () => {
     isError,
     refetch,
   } = useQuery({
-    queryKey: NOTIFICATION_QUERY_KEYS.list(),
+    queryKey: NOTIFICATION_QUERY_KEYS.list(groupId),
     queryFn: notificationApi.list,
     refetchInterval: REALTIME_POLL_INTERVAL_MS,
     meta: { skipGlobalError: true }, // 에러는 isError로 인라인 표시하므로 전역 모달 생략
