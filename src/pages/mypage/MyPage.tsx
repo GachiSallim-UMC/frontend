@@ -15,13 +15,13 @@ import { MyPageTermsPage } from "@/pages/mypage/MyPageTermsPage";
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   return (
-    <div className="flex h-screen w-full bg-primary-50 p-7">
+    <div className="flex min-h-0 w-full flex-1 bg-primary-50 pb-7">
 
       <div className="flex flex-1 flex-col overflow-hidden">
 
-        <main className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto">
 
-          <div className="mx-auto flex w-full flex-col gap-6 pb-12">
+          <div className="flex w-full flex-col gap-6 pb-12">
 
             <ProfileBasicInfo />
             <PasswordChangeForm />
@@ -34,7 +34,7 @@ import { MyPageTermsPage } from "@/pages/mypage/MyPageTermsPage";
             <MyPageButtonGroup />
 
           </div>
-        </main>
+        </div>
       </div>
 
       <MyPagePrivacyPage isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />

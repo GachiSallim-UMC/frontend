@@ -42,8 +42,9 @@ export const ChoreFilterBar = ({
     }
   };
   return (
-    <div className="flex w-full items-center justify-between">
-      <div className="flex items-center gap-[12px]">
+    <div className="flex w-full items-center justify-between gap-3">
+      {/* 드롭다운 메뉴가 잘리지 않도록 가로 스크롤 대신 줄바꿈으로 처리합니다. */}
+      <div className="flex min-w-0 flex-wrap items-center gap-2 lg:flex-nowrap lg:gap-[12px]">
         <FilterDropdown
           defaultLabel="전체 상태"
           value={filter.status || 'ALL'}
@@ -68,12 +69,16 @@ export const ChoreFilterBar = ({
         />
         <SearchInput
           placeholder="집안일 검색"
-          className="w-[230px]"
+          className="hidden lg:flex lg:w-[230px]"
           value={filter?.keyword || ''}
           onChange={e => onFilterChange({ ...(filter || {}), keyword: e.target.value })}
         />
       </div>
-      <Button leftIcon={<Plus size={24} />} onClick={() => navigate('/chores/new')}>
+      <Button
+        className="hidden lg:inline-flex"
+        leftIcon={<Plus size={24} />}
+        onClick={() => navigate('/chores/new')}
+      >
         집안일 등록
       </Button>
     </div>

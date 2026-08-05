@@ -9,13 +9,10 @@ import {
   useRules,
 } from '@/features/rule';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
-import { SelectDropdown } from '@/shared/components/form';
+import { FilterDropdown, FilterTabGroup } from '@/shared/components/ui';
 import { cn } from '@/shared/lib/cn';
 
-const MOBILE_CATEGORY_FILTERS: ReadonlyArray<{
-  value: RuleCategory | '';
-  label: string;
-}> = [
+const MOBILE_CATEGORY_FILTERS: { value: RuleCategory | ''; label: string }[] = [
   { value: '', label: '전체' },
   ...RULE_CATEGORY_OPTIONS,
 ];
@@ -28,42 +25,28 @@ export const RuleListPage = () => {
     useRuleFilters(data);
 
   return (
-    <section className="mx-auto w-full px-4 pb-6 pt-4 lg:mt-16 lg:h-[472px] lg:max-w-[1114px] lg:rounded-[20px] lg:bg-white lg:p-[30px] min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
-      <div className="mb-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden">
-        <div className="flex w-max gap-2">
-          {MOBILE_CATEGORY_FILTERS.map(option => (
-            <button
-              key={option.value || 'all'}
-              type="button"
-              onClick={() => setCategoryFilter(option.value)}
-              className={cn(
-                'h-8 shrink-0 rounded-full border px-4 text-mobile-label font-bold transition-colors',
-                categoryFilter === option.value
-                  ? 'border-primary-400 bg-primary-50 text-primary-400'
-                  : 'border-gray-100 bg-white text-gray-600',
-              )}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
+    <section className="w-full pb-6 lg:h-[472px] lg:rounded-[20px] lg:bg-white lg:p-[30px]">
+      <FilterTabGroup
+        tabs={MOBILE_CATEGORY_FILTERS}
+        value={categoryFilter}
+        onChange={setCategoryFilter}
+        className="mb-4 gap-2 overflow-x-auto [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+        buttonClassName="h-8 shrink-0 rounded-full px-4 text-mobile-label font-bold"
+      />
 
       <div className="mb-5 hidden flex-wrap items-center justify-between gap-3 lg:flex">
         <div className="flex flex-wrap items-center gap-3">
-          <SelectDropdown
-            value={categoryFilter}
-            onChange={setCategoryFilter}
+          <FilterDropdown
+            defaultLabel="전체 카테고리"
+            value={categoryFilter || 'ALL'}
             options={RULE_CATEGORY_OPTIONS}
-            placeholder="전체 카테고리"
-            className="w-[150px]"
+            onChange={value => setCategoryFilter(value === 'ALL' ? '' : (value as RuleCategory))}
           />
-          <SelectDropdown
-            value={statusFilter}
-            onChange={setStatusFilter}
+          <FilterDropdown
+            defaultLabel="전체 상태"
+            value={statusFilter || 'ALL'}
             options={RULE_STATUS_OPTIONS}
-            placeholder="전체 상태"
-            className="w-[150px]"
+            onChange={value => setStatusFilter(value === 'ALL' ? '' : (value as typeof statusFilter))}
           />
         </div>
         <Link

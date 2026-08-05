@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import type { CreateExpenseDto, UpdateExpenseDto, Expense, ExpenseCategory } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
 import { createExpense, updateExpense } from '@/features/expense';
-import { useErrorStore } from '@/shared/store';
 
 interface UseExpenseFormProps {
   initialExpense?: Expense;
@@ -160,17 +159,13 @@ export function useExpenseForm({
         savedExpense = await createExpense(createPayload);
       }
 
+      // 완료 알림 모달은 띄우지 않는다. (Figma "공통 모달 C(R)UD 모달" 주석:
+      // "~가 등록되었습니다" 와 같은 확인 모달 사용 X)
       onSave?.(savedExpense);
-      useErrorStore.getState().showError({
-        title: '완료',
-        message: isEditMode ? '수정사항이 저장되었습니다.' : '지출이 등록되었습니다.',
-      });
     } catch (error) {
       console.error(isEditMode ? '지출 수정 실패:' : '지출 등록 실패:', error);
-      useErrorStore.getState().showError({
-        title: '오류',
-        message: isEditMode ? '지출 수정 중 오류가 발생했습니다.' : '지출 등록 중 오류가 발생했습니다.',
-      });
+      // 호출부가 확인 모달 안에 사유를 표시할 수 있도록 그대로 전달한다.
+      throw error;
     }
   };
 

@@ -88,8 +88,8 @@ export const ExpenseListPage = () => {
   };
 
   return (
-    <div className='flex justify-center w-full  min-h-0 bg-gray-50'>
-      <div className='flex flex-col mt-4 lg:mt-[28px] w-full max-w-[1114px] h-full pt-4 lg:pt-[28px] pb-[60px] lg:pb-[80px] px-3 sm:px-4 lg:px-0'>
+    <div className='flex w-full min-h-0 bg-gray-50'>
+      <div className='flex flex-col w-full h-full pb-[60px] lg:pb-[80px]'>
         <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-[17px]'>
           <SummaryCard
             icon={<img src={totalExpenseIcon} alt='총 지출' className='w-[32px] h-[32px]' />}
@@ -129,7 +129,7 @@ export const ExpenseListPage = () => {
           />
         </div>
 
-        <div className='w-full lg:w-[1114px] h-auto mt-4 lg:mt-[30px] mb-6 lg:mb-10 rounded-[16px] lg:rounded-[20px] bg-white flex flex-col pb-6 lg:pb-8'>
+        <div className='w-full h-auto mt-4 lg:mt-[30px] mb-6 lg:mb-10 rounded-[16px] lg:rounded-[20px] bg-white flex flex-col pb-6 lg:pb-8'>
           <div className='w-full px-3 sm:px-4 lg:px-[30px] pt-4 lg:pt-[30px]'>
             <ExpenseFilter
               activeFilter={activeFilter}

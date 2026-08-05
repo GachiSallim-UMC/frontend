@@ -92,10 +92,7 @@ export const ChoreEditPage = () => {
           setIsSaveModalOpen(false);
           navigate('/chores');
         },
-        onError: () => {
-          alert('수정에 실패했습니다. 다시 시도해 주세요.');
-          setIsSaveModalOpen(false);
-        },
+        // 실패 시 모달을 열어둔 채 사유를 모달 안에서 보여준다.
       },
     );
   };
@@ -121,10 +118,7 @@ export const ChoreEditPage = () => {
         setIsDeleteModalOpen(false);
         navigate('/chores');
       },
-      onError: () => {
-        alert('삭제에 실패했습니다. 다시 시도해 주세요.');
-        setIsDeleteModalOpen(false);
-      },
+      // 실패 시 모달을 열어둔 채 사유를 모달 안에서 보여준다.
     });
   };
 
@@ -135,7 +129,7 @@ export const ChoreEditPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-[300px] w-full items-center justify-center mt-[28px]">
+      <div className="flex h-[300px] w-full items-center justify-center">
         <div className="text-gray-500 font-semibold">데이터를 불러오는 중입니다...</div>
       </div>
     );
@@ -143,14 +137,14 @@ export const ChoreEditPage = () => {
 
   if (isError || !choreData) {
     return (
-      <div className="flex h-[300px] w-full items-center justify-center mt-[28px]">
+      <div className="flex h-[300px] w-full items-center justify-center">
         <div className="text-gray-500 font-semibold">집안일 정보를 찾을 수 없습니다.</div>
       </div>
     );
   }
 
   return (
-    <div className="mt-[28px] h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
+    <div className="h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
       <ChoreBasicInfo
         title={formData.title}
         assigneeId={String(formData.assigneeId)}
@@ -187,6 +181,13 @@ export const ChoreEditPage = () => {
         onConfirm={handleConfirmDelete}
         choreName={choreData.title}
         isDeleting={deleteMutation.isPending}
+        errorMessage={
+          deleteMutation.error instanceof Error
+            ? deleteMutation.error.message
+            : deleteMutation.isError
+              ? '삭제에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
       />
       <ChoreSaveModal
         isOpen={isSaveModalOpen}
@@ -194,6 +195,14 @@ export const ChoreEditPage = () => {
         onConfirm={handleConfirmSave}
         choreName={formData.title || choreData.title}
         isSaving={updateMutation.isPending}
+        mode="update"
+        errorMessage={
+          updateMutation.error instanceof Error
+            ? updateMutation.error.message
+            : updateMutation.isError
+              ? '수정에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
       />
       <ChoreCancelModal
         isOpen={isCancelModalOpen}

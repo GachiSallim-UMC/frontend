@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import arrowIcon from '@/assets/icons/expense/arrow.svg';
 import calendarIcon from '@/assets/icons/expense/calendar.svg';
 import { useSettlementAmounts, useExpenseForm } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
 import type { Expense, ExpenseCategory } from '@/features/expense';
 import type { User } from '@/shared/types';
+import ExpenseIcon from '@/assets/icons/sidebar/expenses-active.svg?react';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
-import { ShareMessengerButton, Button } from '@/shared/components/';
+import { ShareMessengerButton, Button, ConfirmModal } from '@/shared/components/';
 import { useErrorStore } from '@/shared/store';
 import { isUnsignedIntegerInput, isValidDateOnly } from '@/shared/lib/inputValidation';
 
-const arrowIconEl = arrowIcon;
-const selectClass = 'w-full h-[50px] px-4 pr-12 rounded-[8px] border outline-none text-button bg-white appearance-none cursor-pointer';
 const labelClass = 'font-sans text-caption font-bold text-gray-800';
-const cardClass = 'w-full bg-white p-[16px] rounded-[18px] flex flex-col gap-5';
+const cardClass = 'w-full bg-white p-[16px] rounded-[18px] flex flex-col gap-5 lg:p-[32px]';
 const toLocalDateOnly = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -86,6 +84,9 @@ export const ExpenseAddForm = ({
 }: ExpenseAddFormProps) => {
   const [currentExpenseId, setCurrentExpenseId] = useState<string | undefined>(expenseId);
   const [fieldErrors, setFieldErrors] = useState<ExpenseFieldErrors>({});
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | undefined>(undefined);
   const [memberAmountErrors, setMemberAmountErrors] = useState<Record<string, string>>({});
   const [memberRatioErrors, setMemberRatioErrors] = useState<Record<string, string>>({});
 
@@ -165,8 +166,7 @@ export const ExpenseAddForm = ({
     memberRatios: customMemberRatios,
   });
 
-  const handlePayerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handlePayerSelect = (value: string) => {
     setPayerId(value);
     setFieldErrors(previous => ({ ...previous, payerId: undefined }));
     onPayerChange?.(value);
@@ -190,7 +190,7 @@ export const ExpenseAddForm = ({
     if (settlementMethod !== 'EQUAL') setIsDirectInputCompleted(false);
   };
 
-  const handleSaveClickWithGuard = () => {
+  const handleSaveClickWithGuard = async () => {
     if (isSettled) {
       useErrorStore.getState().showError({
         title: '알림',
@@ -198,7 +198,8 @@ export const ExpenseAddForm = ({
       });
       return;
     }
-    handleSaveClick();
+    // 저장 실패를 호출부에서 잡을 수 있도록 반드시 Promise를 넘긴다.
+    await handleSaveClick();
   };
 
   const isCustom = settlementMethod === 'CUSTOM';
@@ -285,13 +286,34 @@ export const ExpenseAddForm = ({
     handleCompleteDirectInput();
   };
 
+  // 검증까지만 하고 확인 모달을 연다. 실제 저장은 모달에서 확인한 뒤 수행.
   const handleSaveClickWithFieldValidation = () => {
     if (!validateForm()) return;
-    handleSaveClickWithGuard();
+    setSaveErrorMessage(undefined);
+    setIsSaveModalOpen(true);
+  };
+
+  const handleConfirmSave = async () => {
+    setIsSaving(true);
+    try {
+      await handleSaveClickWithGuard();
+      setIsSaveModalOpen(false);
+    } catch (error) {
+      // 실패 시 모달을 열어둔 채 사유를 모달 안에서 보여준다.
+      setSaveErrorMessage(
+        error instanceof Error
+          ? error.message
+          : isEditMode
+            ? '지출 수정 중 오류가 발생했습니다.'
+            : '지출 등록 중 오류가 발생했습니다.',
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <div className='flex flex-col gap-6 w-full'>
+    <div className='flex flex-col gap-6 w-full lg:gap-[30px]'>
       {isSettled && (
         <div className='w-full bg-red-100 text-red-700 text-caption font-bold p-3 rounded-[8px] text-center'>
           정산이 완료된 내역이라 수정할 수 없습니다.
@@ -360,35 +382,16 @@ export const ExpenseAddForm = ({
             </div>
           </div>
 
-          <div className='flex flex-col gap-2'>
-            <label htmlFor='expense-payer' className={labelClass}>
-              선지불자 <RequiredMark />
-            </label>
-            <div className='relative'>
-              <select
-                id='expense-payer'
-                className={`${selectClass} ${fieldErrors.payerId ? 'border-red-500' : 'border-gray-100'} ${!payerId ? 'text-gray-400' : 'text-gray-800'}`}
-                value={payerId}
-                onChange={handlePayerChange}
-                disabled={membersLoading}
-              >
-                <option value='' disabled>
-                  {membersLoading ? '멤버 불러오는 중...' : '선지불자 선택'}
-                </option>
-                {members.map((payer) => (
-                  <option key={payer.id} value={payer.id} className='text-gray-800'>
-                    {payer.name}
-                  </option>
-                ))}
-              </select>
-              <img
-                src={arrowIconEl}
-                alt='화살표'
-                className='absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none'
-              />
-            </div>
-            {fieldErrors.payerId && <p className='mt-1.5 text-xs text-red-500'>{fieldErrors.payerId}</p>}
-          </div>
+          <SelectDropdown
+            label="선지불자"
+            required
+            value={payerId}
+            onChange={handlePayerSelect}
+            options={members.map(payer => ({ value: String(payer.id), label: payer.name }))}
+            placeholder={membersLoading ? '멤버 불러오는 중...' : '선지불자 선택'}
+            error={fieldErrors.payerId}
+            disabled={membersLoading}
+          />
 
           <SelectDropdown
             label="카테고리"
@@ -640,6 +643,19 @@ export const ExpenseAddForm = ({
           />
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={() => void handleConfirmSave()}
+        icon={<ExpenseIcon className="size-6" />}
+        title={isEditMode ? '생활비를 수정할까요?' : '생활비를 등록할까요?'}
+        highlight={title.trim()}
+        description={isEditMode ? '생활비 데이터를 수정합니다.' : '내용으로 생활비를 등록합니다.'}
+        confirmLabel={isEditMode ? '수정하기' : '저장하기'}
+        isPending={isSaving}
+        errorMessage={saveErrorMessage}
+      />
     </div>
   );
 };

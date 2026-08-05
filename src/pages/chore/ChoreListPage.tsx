@@ -111,7 +111,7 @@ export const ChoreListPage = () => {
   };
 
   return (
-    <div className="mt-[28px] flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
+    <div className="flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
       <ChoreFilterBar
         filter={filter as ChoreFilter}
         onFilterChange={f => setFilter(f as ExtendedChoreFilter)}

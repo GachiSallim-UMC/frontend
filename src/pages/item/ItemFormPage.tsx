@@ -12,8 +12,9 @@ import {
   type Item,
 } from '@/features/item';
 import { useGroupMembers } from '@/features/member';
+import ItemIcon from '@/assets/icons/sidebar/items-active.svg?react';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
-import { Button, FormActions, ShareMessengerButton } from '@/shared/components/ui';
+import { Button, ConfirmModal, FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { useGroupStore } from '@/shared/store';
@@ -77,6 +78,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
     useShareToMessenger('item');
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const buyerOptions = groupMembers.map(member => ({
     value: member.userId,
@@ -93,7 +95,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const isPending = createItem.isPending || updateItem.isPending || updateStatus.isPending;
   const mutationError = createItem.error ?? updateItem.error ?? updateStatus.error;
 
-  const handleSave = async () => {
+  const handleSaveClick = () => {
     if (isPending) return;
 
     const canPreservePurchasedStatus = editingItem?.status === 'purchased';
@@ -108,6 +110,11 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !category) return;
 
+    setIsSaveModalOpen(true);
+  };
+
+  const handleConfirmSave = async () => {
+    if (!category) return;
     const numericAssigneeId = buyerId ? Number(buyerId) : undefined;
 
     try {
@@ -137,9 +144,10 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
           ...(memo.trim() ? { memo: memo.trim() } : {}),
         });
       }
+      setIsSaveModalOpen(false);
       navigate('/items');
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
@@ -153,17 +161,17 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
       });
       navigate('/items');
     } catch {
-      // mutationError를 폼 하단에 표시한다.
+      // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
     }
   };
 
   return (
     <div className="flex w-full flex-1 bg-white lg:bg-transparent">
-      <div className="mx-auto flex w-full flex-col px-4 pb-6 pt-4 lg:mt-16 lg:block lg:max-w-[1114px] lg:px-0 lg:pb-0 lg:pt-0 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
+      <div className="flex w-full flex-col pb-6 lg:block lg:max-w-[1114px] lg:pb-0">
         <Panel
           title="물품 정보"
-          className="h-auto rounded-none bg-transparent p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:bg-white lg:p-[30px]"
-          headerClassName="hidden lg:mb-5 lg:flex"
+          className="h-auto rounded-none bg-transparent p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:bg-white lg:p-[32px]"
+          headerClassName="hidden lg:mb-6 lg:flex"
           titleClassName="text-gray-800"
         >
           <div className="grid gap-4 lg:gap-5">
@@ -272,7 +280,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
             type="button"
             className="h-11 w-full bg-primary-700 text-mobile-body font-bold hover:bg-primary-700"
             isLoading={isPending}
-            onClick={() => void handleSave()}
+            onClick={handleSaveClick}
           >
             {isPending ? '처리 중' : '저장'}
           </Button>
@@ -280,7 +288,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
 
         <FormActions
           className="mt-[30px] hidden lg:flex"
-          onSave={() => void handleSave()}
+          onSave={handleSaveClick}
           onCancel={() => navigate(-1)}
           saveLabel={isPending ? '처리 중' : '저장'}
           rightSlot={
@@ -291,7 +299,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         <Panel
           title="빠른 상태 변경"
           description="목록에서 물품 선택 후 상태만 빠르게 변경할 수 있습니다."
-          className="mt-5 rounded-none border-t border-gray-100 bg-transparent px-0 pb-0 pt-5 shadow-none lg:mt-[30px] lg:h-[167px] lg:overflow-hidden lg:rounded-[18px] lg:border-0 lg:bg-white lg:p-[30px]"
+          className="mt-5 rounded-none border-t border-gray-100 bg-transparent px-0 pb-0 pt-5 shadow-none lg:mt-[30px] lg:min-h-[167px] lg:rounded-[18px] lg:border-0 lg:bg-white lg:p-[32px]"
           headerClassName="mb-2 lg:mb-2.5"
           titleClassName="text-mobile-body leading-[17px] text-gray-700 lg:text-body lg:leading-normal lg:text-gray-800"
           descriptionClassName="hidden leading-[17px] lg:block"
@@ -322,6 +330,22 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
           </div>
         </Panel>
       </div>
+
+      <ConfirmModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onConfirm={() => void handleConfirmSave()}
+        icon={<ItemIcon className="size-6" />}
+        title={editingItem ? '공용 물품을 수정할까요?' : '공용 물품을 등록할까요?'}
+        highlight={name.trim()}
+        description={editingItem ? '공용 물품 데이터를 수정합니다.' : '내용으로 공용 물품을 등록합니다.'}
+        confirmLabel={editingItem ? '수정하기' : '저장하기'}
+        isPending={isPending}
+        errorMessage={
+          mutationError instanceof Error ? mutationError.message : undefined
+        }
+      />
+
       <ShareItemPickerModal
         type={activeType}
         options={chatRoomOptions}

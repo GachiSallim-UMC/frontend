@@ -12,8 +12,7 @@ import {
 } from '@/features/item';
 import { useGroupMembers } from '@/features/member';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
-import { SelectDropdown } from '@/shared/components/form';
-import { FilterTabGroup, SearchInput, SummaryCard } from '@/shared/components/ui';
+import { FilterDropdown, FilterTabGroup, SearchInput, SummaryCard } from '@/shared/components/ui';
 import { useGroupStore } from '@/shared/store';
 
 const MOBILE_ITEM_STATUS_FILTER_TABS = ITEM_STATUS_FILTER_TABS.map(tab =>
@@ -55,7 +54,7 @@ export const ItemListPage = () => {
     useShareToMessenger('item');
 
   return (
-    <div className="mx-auto w-full px-4 pb-6 pt-4 lg:mt-16 lg:max-w-[1114px] lg:px-0 lg:pb-0 lg:pt-0 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
+    <div className="w-full pb-6 lg:pb-0">
       <div className="mb-4 grid grid-cols-2 gap-2 lg:mb-[30px] lg:grid-cols-3 lg:gap-[17px]">
         <SummaryCard
           icon={<AllItemsIcon className="size-10 min-[1200px]:size-12" />}
@@ -96,7 +95,9 @@ export const ItemListPage = () => {
       </div>
 
       <section className="bg-transparent lg:min-h-[558px] lg:rounded-[20px] lg:bg-white lg:p-[30px] min-[1200px]:h-[558px]">
-        <div className="mb-4 flex items-center lg:mb-5 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_152px] lg:gap-3 min-[1200px]:flex min-[1200px]:flex-nowrap min-[1200px]:justify-between">
+        {/* lg에서는 2줄(상태 탭 / 카테고리·검색·등록)로 배치. 첫 칸은 드롭다운 폭에
+            맞춰 auto로 두어야 검색창이 남는 공간을 채웁니다. */}
+        <div className="mb-4 flex items-center lg:mb-5 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_152px] lg:gap-3 min-[1200px]:flex min-[1200px]:flex-nowrap min-[1200px]:justify-between">
           <FilterTabGroup
             tabs={MOBILE_ITEM_STATUS_FILTER_TABS}
             value={statusFilter}
@@ -111,14 +112,14 @@ export const ItemListPage = () => {
               onChange={setStatusFilter}
               className="hidden gap-3 lg:col-span-3 lg:flex lg:w-fit [&>button]:justify-center [&>button]:px-0 [&>button:first-child]:w-[148px] [&>button:not(:first-child)]:w-[106px]"
             />
-            <SelectDropdown
-              value={categoryFilter}
-              onChange={setCategoryFilter}
-              options={ITEM_CATEGORY_OPTIONS}
-              placeholder="전체 카테고리"
-              containerClassName="hidden lg:flex lg:w-full min-[1200px]:w-auto"
-              className="w-full min-[1200px]:w-[clamp(165px,calc(16.25vw-43px),191px)]"
-            />
+            <div className="hidden lg:flex">
+              <FilterDropdown
+                defaultLabel="전체 카테고리"
+                value={categoryFilter || 'ALL'}
+                options={ITEM_CATEGORY_OPTIONS}
+                onChange={value => setCategoryFilter(value === 'ALL' ? '' : (value as typeof categoryFilter))}
+              />
+            </div>
             <SearchInput
               className="hidden w-full lg:flex min-[1200px]:w-[clamp(165px,calc(16.25vw-43px),191px)]"
               placeholder="물품 검색"

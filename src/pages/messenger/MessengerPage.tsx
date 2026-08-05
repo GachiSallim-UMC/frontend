@@ -143,9 +143,9 @@ export const MessengerPage = () => {
     me?.nickname ?? groupMembers.find(member => member.userId === currentUserId)?.user.nickname ?? '';
 
   return (
-    <div className="flex w-full flex-1 min-h-0 justify-center bg-gray-50">
-      <div className="flex h-full w-full flex-col items-center px-4 pb-[28px] pt-[28px] lg:max-w-[1180px]">
-        <div className="relative flex w-full flex-1 min-h-0 overflow-hidden rounded-[20px] bg-white shadow-card lg:max-w-[1114px]">
+    <div className="flex w-full flex-1 min-h-0 bg-gray-50">
+      <div className="flex h-full w-full flex-col pb-[28px]">
+        <div className="relative flex w-full flex-1 min-h-0 overflow-hidden rounded-[20px] bg-white">
           <div className="relative flex min-w-0 flex-1">
             <ChatRoomListPanel
               rooms={filteredRooms}

@@ -1,8 +1,5 @@
-import { useState } from 'react';
-import { Button } from '@/shared/components/ui';
-import { NotificationList, FilterDropdown, useNotifications } from '@/features/notification';
-
-type NotificationFilterKey = 'status' | 'category';
+import { Button, LabelFilterDropdown } from '@/shared/components/ui';
+import { NotificationList, useNotifications } from '@/features/notification';
 
 export const NotificationPage = () => {
   const {
@@ -21,35 +18,29 @@ export const NotificationPage = () => {
     hideNotification,
   } = useNotifications();
 
-  const [openFilter, setOpenFilter] = useState<NotificationFilterKey | null>(null);
-
   return (
-    <div className="flex justify-center w-full flex-1 min-h-0 bg-gray-50">
-      <div className="flex flex-col items-center w-full h-full pt-[28px] pb-[28px] gap-[28px] px-4 lg:max-w-[1180px]">
+    <div className="flex w-full flex-1 min-h-0 bg-gray-50">
+      <div className="flex flex-col w-full h-full pb-[28px] gap-[28px]">
 
-        <div className="w-full flex-1 min-h-0 bg-white rounded-[20px] flex flex-col items-center py-4 shadow-card overflow-hidden lg:max-w-[1114px] lg:max-h-[720px] lg:py-[30px]">
+        <div className="w-full flex-1 min-h-0 bg-white rounded-[20px] flex flex-col py-4 overflow-hidden lg:max-h-[720px] lg:py-[30px]">
           <div className="flex flex-wrap justify-between items-center w-full px-4 mb-[14px] lg:px-[30px]">
             <div className="flex flex-wrap gap-4 z-20">
-              <FilterDropdown
+              <LabelFilterDropdown
                 value={statusFilter}
                 options={statusOptions}
                 onChange={setStatusFilter}
-                isOpen={openFilter === 'status'}
-                onOpenChange={(isOpen) => setOpenFilter(isOpen ? 'status' : null)}
               />
-              <FilterDropdown
+              <LabelFilterDropdown
                 value={categoryFilter}
                 options={categoryOptions}
                 onChange={setCategoryFilter}
-                isOpen={openFilter === 'category'}
-                onOpenChange={(isOpen) => setOpenFilter(isOpen ? 'category' : null)}
               />
             </div>
 
             <Button
               variant="secondary"
               onClick={() => markAllAsRead()}
-              className="pt-[16px] pr-[31px] pb-[15px] pl-[30px] h-auto rounded-lg text-[16px] font-normal text-gray-600 leading-normal border-gray-100 hover:bg-gray-100 active:bg-gray-200"
+              className="h-8 rounded-full px-3 text-mobile-label font-bold text-gray-600 leading-normal border-gray-100 hover:bg-gray-100 active:bg-gray-200 lg:h-auto lg:rounded-lg lg:pt-[16px] lg:pr-[31px] lg:pb-[15px] lg:pl-[30px] lg:text-[16px] lg:font-normal"
             >
               전체 읽음 처리
             </Button>
