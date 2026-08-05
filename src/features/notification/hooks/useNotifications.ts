@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { NOTIFICATION_CATEGORIES, notificationApi } from '@/features/notification/api/notification.api';
 import { REALTIME_POLL_INTERVAL_MS } from '@/shared/lib';
+import { useMarkAllNotificationsRead } from './useMarkAllNotificationsRead';
 
 export const NOTIFICATION_QUERY_KEYS = {
   all: ['notifications'] as const,
@@ -50,10 +51,7 @@ export const useNotifications = () => {
     onSuccess: invalidateList,
   });
 
-  const markAllAsReadMutation = useMutation({
-    mutationFn: notificationApi.markAllAsRead,
-    onSuccess: invalidateList,
-  });
+  const { markAllAsRead } = useMarkAllNotificationsRead();
 
   const hideMutation = useMutation({
     mutationFn: (id: string) => notificationApi.hide(id),
@@ -72,7 +70,7 @@ export const useNotifications = () => {
     categoryOptions,
     filteredNotifications,
     markAsRead: markAsReadMutation.mutate,
-    markAllAsRead: markAllAsReadMutation.mutate,
+    markAllAsRead,
     hideNotification: hideMutation.mutate,
   };
 };
