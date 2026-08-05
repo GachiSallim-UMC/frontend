@@ -4,7 +4,6 @@ import { itemApi } from '../api/item.api';
 import type {
   CreateItemDto,
   PurchaseItemDto,
-  ShareItemDto,
   UpdateItemDto,
   UpdateItemStatusDto,
 } from '../types/item.types';
@@ -60,11 +59,6 @@ export const usePurchaseItem = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ITEM_KEYS.all }),
   });
 };
-
-export const useShareItem = () =>
-  useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: ShareItemDto }) => itemApi.share(id, dto),
-  });
 
 export const useDeleteItem = () => {
   const queryClient = useQueryClient();

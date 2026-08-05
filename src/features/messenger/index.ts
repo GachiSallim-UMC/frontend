@@ -26,6 +26,7 @@ export { TransferOwnerModal } from './components/TransferOwnerModal';
 export { useChatRoom } from './hooks/useChatRoom';
 export { useChatRooms, useUnreadMessageCount } from './hooks/useChatRoomQueries';
 export { useSendCardMessage } from './hooks/useChatRoomMutations';
+export { useShareToMessenger } from './hooks/useShareToMessenger';
 export type {
   ChatFilter,
   ChatMessage,

@@ -11,6 +11,7 @@ import {
   useItems,
 } from '@/features/item';
 import { useGroupMembers } from '@/features/member';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { SelectDropdown } from '@/shared/components/form';
 import { FilterTabGroup, SearchInput, SummaryCard } from '@/shared/components/ui';
 import { useGroupStore } from '@/shared/store';
@@ -50,6 +51,8 @@ export const ItemListPage = () => {
     shortCount,
     emptyCount,
   } = useItemFilters(items);
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('item');
 
   return (
     <div className="mx-auto w-full px-4 pb-6 pt-4 lg:mt-16 lg:max-w-[1114px] lg:px-0 lg:pb-0 lg:pt-0 min-[1440px]:w-[calc(100%-18px)] min-[1440px]:max-w-none">
@@ -148,9 +151,16 @@ export const ItemListPage = () => {
             </button>
           </div>
         ) : (
-          <ItemTable items={filteredItems} />
+          <ItemTable items={filteredItems} onShare={item => openShare(String(item.id))} />
         )}
       </section>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
+      />
     </div>
   );
 };

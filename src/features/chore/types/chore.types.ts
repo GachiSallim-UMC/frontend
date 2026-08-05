@@ -124,23 +124,6 @@ export interface CreateChoreDto {
 
 export type UpdateChoreDto = Omit<CreateChoreDto, 'groupId'>;
 
-export interface ShareChoreDto {
-  chatRoomId: number;
-  content?: string;
-}
-
-export interface ShareChoreResponse {
-  choreId: number;
-  chatMessageId: number;
-  shareCard: {
-    title: string;
-    assignee: string;
-    dueDate: string | null;
-    status: ChoreApiStatus;
-  };
-  sentAt: string;
-}
-
 export interface ChoreFilter {
   status?: ChoreApiStatus;
   assigneeId?: number;

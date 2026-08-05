@@ -78,13 +78,14 @@ export const useSendMessage = () => {
 };
 
 /** 카드(공유) 메시지 전송 */
-export const useSendCardMessage = () => {
+export const useSendCardMessage = (groupId: string | null) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ roomId, type, refId, content }: { roomId: string; type: CardMessageTypeDto; refId: string; content?: string }) =>
       messengerApi.sendCardMessage(roomId, { type, refId, content }),
     onSuccess: (_data, { roomId }) => {
       queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.messages(roomId) });
+      queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.rooms(groupId) });
     },
   });
 };

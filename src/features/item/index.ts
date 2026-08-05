@@ -17,7 +17,6 @@ export {
   useDeleteItem,
   useItems,
   usePurchaseItem,
-  useShareItem,
   useUpdateItem,
   useUpdateItemStatus,
 } from './hooks/useItems';
@@ -30,7 +29,6 @@ export type {
   ItemCategory,
   ItemUser,
   PurchaseItemDto,
-  ShareItemDto,
   SupplyCategory,
   SupplyPurchaseCategory,
   SupplyStatus,

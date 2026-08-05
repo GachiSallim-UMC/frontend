@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import arrowIcon from '@/assets/icons/expense/arrow.svg';
 import calendarIcon from '@/assets/icons/expense/calendar.svg';
-import { useSettlementAmounts, useExpenseForm, useShareExpense } from '@/features/expense';
+import { useSettlementAmounts, useExpenseForm } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
 import type { Expense, ExpenseCategory } from '@/features/expense';
 import type { User } from '@/shared/types';
@@ -64,6 +64,9 @@ interface ExpenseAddFormProps {
   isEditMode?: boolean;
   expenseId?: string;
   receiptUrl?: string;
+  /** 저장된 지출을 메신저에 공유 — 방 목록 조회/전송은 상위 페이지(useShareToMessenger)가 담당 */
+  onShare?: (expenseId: string) => void;
+  isSharing?: boolean;
 }
 
 export const ExpenseAddForm = ({
@@ -78,12 +81,13 @@ export const ExpenseAddForm = ({
   isEditMode = false,
   expenseId,
   receiptUrl,
+  onShare,
+  isSharing,
 }: ExpenseAddFormProps) => {
   const [currentExpenseId, setCurrentExpenseId] = useState<string | undefined>(expenseId);
   const [fieldErrors, setFieldErrors] = useState<ExpenseFieldErrors>({});
   const [memberAmountErrors, setMemberAmountErrors] = useState<Record<string, string>>({});
   const [memberRatioErrors, setMemberRatioErrors] = useState<Record<string, string>>({});
-  const { shareExpense, isSharing } = useShareExpense();
 
   const isSettled = isEditMode && initialExpense?.status === 'paid';
 
@@ -627,12 +631,14 @@ export const ExpenseAddForm = ({
           </Button>
         </div>
 
-        <ShareMessengerButton
-          label={isSharing ? '공유 중...' : '메신저에 공유'}
-          onClick={() => shareExpense(currentExpenseId)}
-          className="w-full sm:w-[189px]"
-          disabled={!currentExpenseId || isSharing}
-        />
+        {currentExpenseId && (
+          <ShareMessengerButton
+            label={isSharing ? '공유 중...' : '메신저에 공유'}
+            onClick={() => onShare?.(currentExpenseId)}
+            className="w-full sm:w-[189px]"
+            disabled={isSharing}
+          />
+        )}
       </div>
     </div>
   );

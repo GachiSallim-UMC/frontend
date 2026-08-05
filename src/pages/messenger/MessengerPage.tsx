@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   ChatBubble,
   ChatHeader,
@@ -29,6 +30,7 @@ export const MessengerPage = () => {
   const groupId = useGroupStore(s => s.selectedGroupId);
   const currentUserId = useAuthStore(s => s.userId) ?? '';
   const numericGroupId = groupId ? Number(groupId) : undefined;
+  const initialRoomId = (useLocation().state as { roomId?: string } | null)?.roomId;
 
   const { data: groupMembers } = useGroupMembers(groupId);
   const { data: me } = useMe();
@@ -101,7 +103,7 @@ export const MessengerPage = () => {
 
     toggleNotification,
     togglePin,
-  } = useChatRoom(groupId, currentUserId);
+  } = useChatRoom(groupId, currentUserId, initialRoomId);
 
   const messageListRef = useRef<HTMLDivElement>(null);
 

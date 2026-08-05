@@ -5,10 +5,9 @@ import {
   RULE_STATUS_OPTIONS,
   useCreateRule,
   useRuleForm,
-  useShareRule,
   useUpdateRule,
 } from '@/features/rule';
-import { Button, FormActions, ShareMessengerButton } from '@/shared/components/ui';
+import { Button, FormActions } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 
@@ -20,12 +19,11 @@ export const RuleFormPage = () => {
     useRuleForm();
   const createRule = useCreateRule();
   const updateRule = useUpdateRule();
-  const shareRule = useShareRule();
   const [errors, setErrors] = useState<FormErrors>({});
-  const mutationError = createRule.error ?? updateRule.error ?? shareRule.error;
+  const mutationError = createRule.error ?? updateRule.error;
 
-  const handleSubmit = async (shareAfterSave: boolean) => {
-    if (createRule.isPending || updateRule.isPending || shareRule.isPending) return;
+  const handleSubmit = async () => {
+    if (createRule.isPending || updateRule.isPending) return;
 
     const nextErrors: FormErrors = {};
     const trimmedTitle = title.trim();
@@ -56,14 +54,6 @@ export const RuleFormPage = () => {
             status,
           },
         });
-      }
-      if (shareAfterSave) {
-        try {
-          await shareRule.mutateAsync(String(created.ruleId));
-        } finally {
-          navigate('/rules');
-        }
-        return;
       }
       navigate('/rules');
     } catch {
@@ -156,23 +146,18 @@ export const RuleFormPage = () => {
         )}
 
         <FormActions
-          onSave={() => void handleSubmit(false)}
+          onSave={() => void handleSubmit()}
           onCancel={() => navigate(-1)}
-          rightSlot={<ShareMessengerButton onClick={() => void handleSubmit(true)} />}
+          rightSlot={null}
           className="hidden lg:flex"
         />
 
         <div className="flex flex-col gap-2.5 lg:hidden">
-          <ShareMessengerButton
-            className="h-11 text-mobile-label"
-            onClick={() => void handleSubmit(true)}
-            disabled={createRule.isPending || updateRule.isPending || shareRule.isPending}
-          />
           <Button
             type="button"
             className="h-11 w-full text-mobile-label font-bold"
-            onClick={() => void handleSubmit(false)}
-            disabled={createRule.isPending || updateRule.isPending || shareRule.isPending}
+            onClick={() => void handleSubmit()}
+            disabled={createRule.isPending || updateRule.isPending}
           >
             저장
           </Button>

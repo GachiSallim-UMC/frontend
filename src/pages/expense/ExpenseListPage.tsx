@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ExpenseTable, useShareExpense } from '@/features/expense';
+import { ExpenseTable } from '@/features/expense';
 import { ExpenseFilter } from '@/features/expense/components/ExpenseFilter';
 import type { ExpenseFilter as ExpenseFilterValue } from '@/features/expense';
 import { useExpenseList, useExpenseSummary } from '@/features/expense';
 import type { Expense } from '@/features/expense';
 import { memberApi } from '@/features/member';
+import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { requireSelectedGroupId } from '@/shared/api';
 import { useAuthStore } from '@/shared/store';
 import type { User } from '@/shared/types';
@@ -30,7 +31,8 @@ function enrichExpenseWithMembers(expense: Expense, memberList: User[]): Expense
 export const ExpenseListPage = () => {
   const [activeFilter, setActiveFilter] = useState<ExpenseFilterValue>('TOTAL');
   const navigate = useNavigate();
-  const { shareExpense } = useShareExpense();
+  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
+    useShareToMessenger('expense');
 
   const currentUserId = useAuthStore((state) => state.userId ?? undefined);
 
@@ -82,7 +84,7 @@ export const ExpenseListPage = () => {
   };
 
   const handleShareExpense = (expense: Expense) => {
-    shareExpense(expense.id);
+    openShare(String(expense.id));
   };
 
   return (
@@ -150,6 +152,13 @@ export const ExpenseListPage = () => {
           </div>
         </div>
       </div>
+      <ShareItemPickerModal
+        type={activeType}
+        options={chatRoomOptions}
+        onSelect={handleSelectChatRoom}
+        onClose={closeShare}
+        isSubmitting={isSharePending}
+      />
     </div>
   );
 };
