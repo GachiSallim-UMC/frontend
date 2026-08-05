@@ -1,4 +1,4 @@
-import ChoreIcon from '@/assets/icons/sidebar/chores-active.svg?react';
+import ChoreIcon from '@/assets/icons/sidebar/chores.svg?react';
 import { ConfirmModal } from '@/shared/components';
 
 interface ChoreSaveModalProps {
@@ -36,6 +36,7 @@ export const ChoreSaveModal = ({
       confirmLabel={isCreate ? '저장하기' : '수정하기'}
       isPending={isSaving}
       errorMessage={errorMessage}
+      tone={isCreate ? 'default' : 'edit'}
     />
   );
 };

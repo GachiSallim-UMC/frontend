@@ -12,7 +12,7 @@ import {
   type Item,
 } from '@/features/item';
 import { useGroupMembers } from '@/features/member';
-import ItemIcon from '@/assets/icons/sidebar/items-active.svg?react';
+import ItemIcon from '@/assets/icons/sidebar/items.svg?react';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { Button, ConfirmModal, FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
@@ -75,8 +75,14 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const createItem = useCreateItem();
   const updateItem = useUpdateItem();
   const updateStatus = useUpdateItemStatus();
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
-    useShareToMessenger('item');
+  const {
+    activeType,
+    chatRoomOptions,
+    openShare,
+    closeShare,
+    handleSelectChatRoom,
+    isSharePending,
+  } = useShareToMessenger('item');
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
@@ -338,12 +344,13 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         icon={<ItemIcon className="size-6" />}
         title={editingItem ? '공용 물품을 수정할까요?' : '공용 물품을 등록할까요?'}
         highlight={name.trim()}
-        description={editingItem ? '공용 물품 데이터를 수정합니다.' : '내용으로 공용 물품을 등록합니다.'}
+        description={
+          editingItem ? '공용 물품 데이터를 수정합니다.' : '내용으로 공용 물품을 등록합니다.'
+        }
         confirmLabel={editingItem ? '수정하기' : '저장하기'}
         isPending={isPending}
-        errorMessage={
-          mutationError instanceof Error ? mutationError.message : undefined
-        }
+        errorMessage={mutationError instanceof Error ? mutationError.message : undefined}
+        tone={editingItem ? 'edit' : 'default'}
       />
 
       <ShareItemPickerModal

@@ -1,4 +1,4 @@
-import ChoreIcon from '@/assets/icons/sidebar/chores-active.svg?react';
+import ChoreIcon from '@/assets/icons/sidebar/chores.svg?react';
 import { ConfirmModal } from '@/shared/components';
 
 interface ChoreDeleteModalProps {
