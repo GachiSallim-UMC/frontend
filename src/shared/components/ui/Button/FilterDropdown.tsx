@@ -40,10 +40,12 @@ export const FilterDropdown = ({
         aria-expanded={isOpen}
         onClick={toggle}
         className={cn(
-          // 모바일은 목록 필터 pill과 같은 형태, lg부터 Figma 필터 드롭다운 규격
+          // 모바일은 목록 필터 pill과 같은 형태, lg부터 Figma 필터 드롭다운 규격.
+          // 좌우 패딩을 같게 둡니다. 한쪽만 34px이면 긴 라벨에서 내용이 폭을 넘겨
+          // 오른쪽으로 쏠려 보입니다. (예: "전체 카테고리")
           'flex items-center justify-between gap-1 whitespace-nowrap border font-normal transition-colors',
           'h-8 rounded-full px-3 text-mobile-label font-bold',
-          'lg:h-[50px] lg:w-[160px] lg:gap-0 lg:rounded-lg lg:pl-[34px] lg:pr-[16px] lg:text-button lg:font-normal',
+          'lg:h-[50px] lg:w-[160px] lg:rounded-lg lg:px-4 lg:text-button lg:font-normal',
           isActive || isOpen
             ? 'border-primary-500 bg-primary-100 text-primary-500'
             : 'border-gray-100 bg-white text-gray-500 hover:bg-gray-100',

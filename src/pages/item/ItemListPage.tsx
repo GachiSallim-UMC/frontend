@@ -92,7 +92,9 @@ export const ItemListPage = () => {
       </div>
 
       <section className="bg-transparent lg:min-h-[558px] lg:rounded-[20px] lg:bg-white lg:p-[30px] min-[1200px]:h-[558px]">
-        <div className="mb-4 flex items-center lg:mb-5 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_152px] lg:gap-3 min-[1200px]:flex min-[1200px]:flex-nowrap min-[1200px]:justify-between">
+        {/* lg에서는 2줄(상태 탭 / 카테고리·검색·등록)로 배치. 첫 칸은 드롭다운 폭에
+            맞춰 auto로 두어야 검색창이 남는 공간을 채웁니다. */}
+        <div className="mb-4 flex items-center lg:mb-5 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_152px] lg:gap-3 min-[1200px]:flex min-[1200px]:flex-nowrap min-[1200px]:justify-between">
           <FilterTabGroup
             tabs={MOBILE_ITEM_STATUS_FILTER_TABS}
             value={statusFilter}
