@@ -47,7 +47,7 @@ export const WarningModal = ({ isOpen, onClose, onConfirm }: WarningModalProps) 
           <TrashIcon className="h-[30px] w-[30px] text-red-500" />
         </div>
         <div className="mt-[20px] flex flex-col text-center items-center">
-          <h1 className="mb-1 text-[24px] text-gray-900 font-bold">그룹을 삭제하시겠습니까?</h1>
+          <h1 className="text-[24px] text-gray-900 font-bold">그룹을 삭제하시겠습니까?</h1>
           <p className="text-[14px] font-medium text-gray-600">
             삭제 전 아래 내용을 꼭 확인해주세요.
           </p>
@@ -89,7 +89,7 @@ export const WarningModal = ({ isOpen, onClose, onConfirm }: WarningModalProps) 
           size="lg"
           disabled={!isValid}
           onClick={onConfirm}
-          className="flex-[2] !bg-red-700 !border-red-700 hover:!bg-red-500"
+          className="flex-[2] !bg-red-700 font-bold !border-red-700 hover:!bg-red-500"
         >
           그룹 삭제
         </Button>
@@ -98,7 +98,7 @@ export const WarningModal = ({ isOpen, onClose, onConfirm }: WarningModalProps) 
           variant="secondary"
           size="lg"
           onClick={onClose}
-          className="flex-1 !bg-gray-200 text-white !border-gray-200 hover:!bg-gray-300"
+          className="flex-1 !bg-gray-200 font-bold text-white !border-gray-200 hover:!bg-gray-300"
         >
           취소
         </Button>

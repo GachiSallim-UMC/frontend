@@ -6,19 +6,31 @@ import {
   PermissionSettings,
   WarningModal,
   useDeleteGroup,
+  useGroupMembers,
+  IsAdminModal,
 } from '@/features/member';
 import { Button } from '@/shared/components';
 import CrossIcon from '@/assets/icons/member/cross.svg?react';
-import { useGroupStore } from '@/shared/store';
+import { useGroupStore, useAuthStore } from '@/shared/store';
 
 export const MemberSettingPage = () => {
   const navigate = useNavigate();
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
+  const [isAdminAlertOpen, setIsAdminAlertOpen] = useState(false);
 
   const deleteGroupMutation = useDeleteGroup();
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
+  const myUserId = useAuthStore(s => s.userId);
+
+  const { data: members } = useGroupMembers(selectedGroupId);
+  const myInfo = members?.find(member => member.userId === myUserId);
+  const isAdmin = myInfo?.role === 'ADMIN';
 
   const handleWithdrawClick = () => {
+    if (!isAdmin) {
+      setIsAdminAlertOpen(true);
+      return;
+    }
     setIsWithdrawalModalOpen(true);
   };
 
@@ -38,7 +50,7 @@ export const MemberSettingPage = () => {
         navigate('/group');
       },
       onError: error => {
-        alert('그룹 삭제에 실패했습니다. 권한을 확인해주세요.');
+        setIsAdminAlertOpen(true);
         console.error(error);
         setIsWithdrawalModalOpen(false);
       },
@@ -48,8 +60,8 @@ export const MemberSettingPage = () => {
   return (
     <>
       <div className="flex w-full flex-col gap-5 py-7">
-        <GroupBasicInfo />
-        <MemberManagement />
+        <GroupBasicInfo isAdmin={isAdmin} />
+        <MemberManagement isAdmin={isAdmin} />
         <PermissionSettings />
         <Button
           variant="danger"
@@ -57,7 +69,7 @@ export const MemberSettingPage = () => {
           leftIcon={<CrossIcon className="h-5 w-5" />}
           className="w-full"
           onClick={handleWithdrawClick}
-          isLoading={deleteGroupMutation.isPending}
+          isLoading={false}
         >
           그룹 삭제
         </Button>
@@ -67,6 +79,7 @@ export const MemberSettingPage = () => {
         onClose={handleCloseModal}
         onConfirm={handleConfirmWithdraw}
       />
+      <IsAdminModal isOpen={isAdminAlertOpen} onClose={() => setIsAdminAlertOpen(false)} />
     </>
   );
 };

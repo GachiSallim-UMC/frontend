@@ -35,7 +35,7 @@ export const IsAdminModal = ({ isOpen, onClose }: AdminAlertModalProps) => {
           variant="primary"
           size="lg"
           onClick={onClose}
-          className="flex-1 h-[50px] w-full !bg-red-700 !border-red-700 text-[16px] hover:!bg-red-500"
+          className="flex-1 font-bold h-[50px] w-full !bg-red-700 !border-red-700 text-[16px] hover:!bg-red-500"
         >
           확인
         </Button>

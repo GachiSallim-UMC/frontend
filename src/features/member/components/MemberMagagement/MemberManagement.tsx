@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { UserAvatar } from '@/shared/components';
 import { useGroupMembers, GROUP_MEMBER_QUERY_KEYS } from '@/features/member/hooks/useGroupMembers';
 import {
@@ -6,50 +7,72 @@ import {
 } from '@/features/member/hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
 import { useQueryClient } from '@tanstack/react-query';
+import { IsAdminModal } from '@/features/member/components/IsAdminModal';
+import { DelegateAdminModal } from '@/features/member/components/DelegateAdminModal';
+import { KickOutModal } from '@/features/member/components/KickOutModal';
 
-export const MemberManagement = () => {
+interface MemberManagementProps {
+  isAdmin?: boolean;
+}
+
+export const MemberManagement = ({ isAdmin = false }: MemberManagementProps) => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const { data: members, isLoading, isError } = useGroupMembers(selectedGroupId);
   const updateRoleMutation = useUpdateMemberRole();
   const removeMemberMutation = useRemoveGroupMember();
   const queryClient = useQueryClient();
 
-  const handleDelegateAdmin = (userId: string, name: string) => {
-    if (!selectedGroupId) return;
+  const [isAdminAlertOpen, setIsAdminAlertOpen] = useState(false);
+  const [delegateTarget, setDelegateTarget] = useState({ isOpen: false, userId: '', name: '' });
+  const [kickOutTarget, setKickOutTarget] = useState({ isOpen: false, userId: '', name: '' });
 
-    if (window.confirm(`${name}님에게 관리자 권한을 위임하시겠습니까?`)) {
-      updateRoleMutation.mutate(
-        { groupId: selectedGroupId, userId, role: 'ADMIN' },
-        {
-          onSuccess: () => {
-            alert(`${name}님이 관리자로 지정되었습니다.`);
-            queryClient.invalidateQueries({
-              queryKey: GROUP_MEMBER_QUERY_KEYS.list(selectedGroupId),
-            });
-          },
-          onError: () => alert('권한 위임에 실패했습니다.'),
-        },
-      );
+  const handleDelegateAdminClick = (userId: string, name: string) => {
+    if (!isAdmin) {
+      setIsAdminAlertOpen(true);
+      return;
     }
+    setDelegateTarget({ isOpen: true, userId, name });
   };
 
-  const handleKickOut = (userId: string, name: string) => {
-    if (!selectedGroupId) return;
+  const handleConfirmDelegate = () => {
+    if (!selectedGroupId || !delegateTarget.userId) return;
 
-    if (window.confirm(`${name}님을 내보내시겠습니까?`)) {
-      removeMemberMutation.mutate(
-        { groupId: selectedGroupId, userId },
-        {
-          onSuccess: () => {
-            alert(`${name}님이 그룹에서 내보내졌습니다.`);
-            queryClient.invalidateQueries({
-              queryKey: GROUP_MEMBER_QUERY_KEYS.list(selectedGroupId),
-            });
-          },
-          onError: () => alert('멤버 내보내기에 실패했습니다.'),
+    updateRoleMutation.mutate(
+      { groupId: selectedGroupId, userId: delegateTarget.userId, role: 'ADMIN' },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: GROUP_MEMBER_QUERY_KEYS.list(selectedGroupId),
+          });
         },
-      );
+        onError: () => alert('권한 위임에 실패했습니다.'),
+      },
+    );
+  };
+
+  const handleKickOutClick = (userId: string, name: string) => {
+    if (!isAdmin) {
+      setIsAdminAlertOpen(true);
+      return;
     }
+    setKickOutTarget({ isOpen: true, userId, name });
+  };
+
+  const handleConfirmKickOut = () => {
+    if (!selectedGroupId || !kickOutTarget.userId) return;
+
+    removeMemberMutation.mutate(
+      { groupId: selectedGroupId, userId: kickOutTarget.userId },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: GROUP_MEMBER_QUERY_KEYS.list(selectedGroupId),
+          });
+          setKickOutTarget({ isOpen: false, userId: '', name: '' });
+        },
+        onError: () => alert('멤버 내보내기에 실패했습니다.'),
+      },
+    );
   };
 
   if (isLoading) {
@@ -112,14 +135,14 @@ export const MemberManagement = () => {
                   <div className="ml-6 flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => handleDelegateAdmin(member.userId, userName)}
+                      onClick={() => handleDelegateAdminClick(member.userId, userName)}
                       className="rounded-md border border-gray-100 bg-white px-3 py-1 text-xs text-gray-900 transition-colors hover:bg-gray-100"
                     >
                       관리자 위임
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleKickOut(member.userId, userName)}
+                      onClick={() => handleKickOutClick(member.userId, userName)}
                       className="rounded-md border border-gray-100 bg-white px-3 py-1 text-xs text-gray-900 transition-colors hover:bg-gray-100"
                     >
                       내보내기
@@ -134,6 +157,21 @@ export const MemberManagement = () => {
           );
         })}
       </div>
+      <IsAdminModal isOpen={isAdminAlertOpen} onClose={() => setIsAdminAlertOpen(false)} />
+      <DelegateAdminModal
+        isOpen={delegateTarget.isOpen}
+        memberName={delegateTarget.name}
+        onClose={() => setDelegateTarget(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={handleConfirmDelegate}
+        isSaving={updateRoleMutation.isPending}
+      />
+      <KickOutModal
+        isOpen={kickOutTarget.isOpen}
+        memberName={kickOutTarget.name}
+        onClose={() => setKickOutTarget(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={handleConfirmKickOut}
+        isSaving={removeMemberMutation.isPending}
+      />
     </section>
   );
 };

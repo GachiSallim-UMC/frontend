@@ -4,6 +4,7 @@ import { CheckboxGroup, type CheckboxOption } from '@/shared/components';
 import { type PermissionType, type MemberRole, useGroupMembers } from '@/features/member';
 import { memberApi } from '@/features/member/api/member.api';
 import { useGroupStore, useAuthStore } from '@/shared/store';
+import { IsAdminModal } from '@/features/member/components/IsAdminModal';
 
 export type PermissionKey =
   | 'allowChoreRegistration'
@@ -21,9 +22,10 @@ export const PermissionSettings = () => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const myUserId = useAuthStore(s => s.userId);
   const [selectedPermissions, setSelectedPermissions] = useState<PermissionType[]>([]);
+  const [isAdminAlertOpen, setIsAdminAlertOpen] = useState(false);
 
   const { data: members } = useGroupMembers(selectedGroupId);
-  const myInfo = members.find(member => member.userId === myUserId);
+  const myInfo = members?.find(member => member.userId === myUserId);
   const isAdmin = (myInfo?.role as MemberRole) === 'ADMIN';
 
   const { data: permissionsData } = useQuery({
@@ -58,7 +60,7 @@ export const PermissionSettings = () => {
 
   const handlePermissionsChange = (newPermissions: PermissionKey[]) => {
     if (!isAdmin) {
-      alert('관리자만 권한을 설정할 수 있습니다.');
+      setIsAdminAlertOpen(true);
       return;
     }
 
@@ -90,6 +92,7 @@ export const PermissionSettings = () => {
           />
         ))}
       </div>
+      <IsAdminModal isOpen={isAdminAlertOpen} onClose={() => setIsAdminAlertOpen(false)} />
     </section>
   );
 };

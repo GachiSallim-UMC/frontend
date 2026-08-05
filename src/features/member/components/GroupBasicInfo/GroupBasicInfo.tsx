@@ -21,7 +21,11 @@ import FamilyIcon from '@/assets/icons/member/ResidenceType/family.svg?react';
 import BoardingIcon from '@/assets/icons/member/ResidenceType/boarding.svg?react';
 import EtcIcon from '@/assets/icons/member/ResidenceType/etc.svg?react';
 
-export const GroupBasicInfo = () => {
+interface MemberManagementProps {
+  isAdmin?: boolean;
+}
+
+export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const updateGroupMutation = useUpdateGroup();
   const dateFormat = useDateFormat();
@@ -96,6 +100,11 @@ export const GroupBasicInfo = () => {
   };
 
   const handleSave = async () => {
+    if (!isAdmin) {
+      setIsAdminAlertOpen(true);
+      return;
+    }
+
     if (!selectedGroupId) return;
 
     const nextErrors: typeof errors = {};
@@ -180,6 +189,10 @@ export const GroupBasicInfo = () => {
   });
 
   const handleRegenerateCode = () => {
+    if (!isAdmin) {
+      setIsAdminAlertOpen(true);
+      return;
+    }
     regenerateCodeMutation.mutate();
   };
 
@@ -331,7 +344,7 @@ export const GroupBasicInfo = () => {
             onClick={handleSave}
             variant="primary"
             className="w-32 shrink-0 font-bold h-[50px]"
-            isLoading={updateGroupMutation.isPending || isUploading}
+            isLoading={false}
           >
             저장
           </Button>
@@ -379,6 +392,7 @@ export const GroupBasicInfo = () => {
         isOpen={isUpdateModalOpen}
         onClose={() => setIsUpdateModalOpen(false)}
         onConfirm={handleConfirmSave}
+        isSaving={updateGroupMutation.isPending || isUploading}
       />
     </section>
   );
