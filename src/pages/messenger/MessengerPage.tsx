@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import {
   ChatBubble,
   ChatHeader,
@@ -30,7 +30,10 @@ export const MessengerPage = () => {
   const groupId = useGroupStore(s => s.selectedGroupId);
   const currentUserId = useAuthStore(s => s.userId) ?? '';
   const numericGroupId = groupId ? Number(groupId) : undefined;
-  const initialRoomId = (useLocation().state as { roomId?: string } | null)?.roomId;
+  const [searchParams] = useSearchParams();
+  // 메신저 공유(useShareToMessenger)는 state로, 알림 클릭(NEW_MESSAGE)은 쿼리스트링으로 roomId를 넘긴다.
+  const initialRoomId =
+    (useLocation().state as { roomId?: string } | null)?.roomId ?? searchParams.get('roomId') ?? undefined;
 
   const { data: groupMembers } = useGroupMembers(groupId);
   const { data: me } = useMe();
