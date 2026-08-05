@@ -7,7 +7,7 @@ import {
   useRuleForm,
   useUpdateRule,
 } from '@/features/rule';
-import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
+import RuleIcon from '@/assets/icons/sidebar/rules.svg?react';
 import { Button, ConfirmModal, FormActions } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
@@ -183,9 +183,7 @@ export const RuleFormPage = () => {
         highlight={title.trim()}
         description="내용으로 생활 규칙을 등록합니다."
         isPending={createRule.isPending || updateRule.isPending}
-        errorMessage={
-          mutationError instanceof Error ? mutationError.message : undefined
-        }
+        errorMessage={mutationError instanceof Error ? mutationError.message : undefined}
       />
     </div>
   );

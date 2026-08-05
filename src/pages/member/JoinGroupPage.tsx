@@ -33,6 +33,8 @@ export const JoinGroupPage = () => {
   };
 
   const handleConfirmCode = async () => {
+    setInviteCodeError(undefined);
+
     if (!/^[A-HJ-NP-Z2-9]{6}$/.test(inviteCode)) {
       setInviteCodeError('초대 코드를 정확히 6자리로 입력해 주세요.');
       return;
@@ -58,11 +60,10 @@ export const JoinGroupPage = () => {
 
       setFoundGroup(groupPreview);
       setShowPreview(true);
-    } catch (error) {
-      alert('유효하지 않은 초대 코드이거나 만료되었습니다.');
+    } catch {
+      setInviteCodeError('유효하지 않은 초대 코드이거나 만료되었습니다.');
       setShowPreview(false);
       setFoundGroup(null);
-      console.error(error);
     } finally {
       setIsChecking(false);
     }
@@ -70,6 +71,7 @@ export const JoinGroupPage = () => {
 
   const handleJoinGroup = () => {
     if (!inviteCode) return;
+    setInviteCodeError(undefined);
 
     joinGroupMutation.mutate(
       { inviteCode },
@@ -78,9 +80,8 @@ export const JoinGroupPage = () => {
           setSelectedGroupId(res.id);
           navigate('/dashboard');
         },
-        onError: error => {
-          alert('가입에 실패했거나 이미 가입된 그룹입니다.');
-          console.error(error);
+        onError: () => {
+          setInviteCodeError('가입에 실패했거나 이미 가입된 그룹입니다.');
         },
       },
     );

@@ -1,43 +1,89 @@
+import { useState } from 'react';
 import { UserAvatar } from '@/shared/components';
-import { useGroupMembers } from '@/features/member/hooks/useGroupMembers';
+import { useGroupMembers, GROUP_MEMBER_QUERY_KEYS } from '@/features/member/hooks/useGroupMembers';
 import {
   useUpdateMemberRole,
   useRemoveGroupMember,
 } from '@/features/member/hooks/useGroupMutations';
 import { useGroupStore } from '@/shared/store';
+import { useQueryClient } from '@tanstack/react-query';
+import { DelegateAdminModal } from '@/features/member/components/DelegateAdminModal';
+import { KickOutModal } from '@/features/member/components/KickOutModal';
 
-export const MemberManagement = () => {
+interface MemberManagementProps {
+  isAdmin?: boolean;
+  onUnauthorized?: () => void;
+}
+
+export const MemberManagement = ({ isAdmin = false, onUnauthorized }: MemberManagementProps) => {
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
   const { data: members, isLoading, isError } = useGroupMembers(selectedGroupId);
   const updateRoleMutation = useUpdateMemberRole();
   const removeMemberMutation = useRemoveGroupMember();
+  const queryClient = useQueryClient();
 
-  const handleDelegateAdmin = (userId: string, name: string) => {
-    if (!selectedGroupId) return;
+  const [delegateTarget, setDelegateTarget] = useState({ isOpen: false, userId: '', name: '' });
+  const [kickOutTarget, setKickOutTarget] = useState({ isOpen: false, userId: '', name: '' });
 
-    if (window.confirm(`${name}님에게 관리자 권한을 위임하시겠습니까?`)) {
-      updateRoleMutation.mutate(
-        { groupId: selectedGroupId, userId, role: 'ADMIN' },
-        {
-          onSuccess: () => alert(`${name}님이 관리자로 지정되었습니다.`),
-          onError: () => alert('권한 위임에 실패했습니다.'),
-        },
-      );
+  const [delegateError, setDelegateError] = useState<string | null>(null);
+  const [kickOutError, setKickOutError] = useState<string | null>(null);
+
+  const handleDelegateAdminClick = (userId: string, name: string) => {
+    if (!isAdmin) {
+      if (onUnauthorized) onUnauthorized();
+      return;
     }
+    setDelegateError(null);
+    setDelegateTarget({ isOpen: true, userId, name });
   };
 
-  const handleKickOut = (userId: string, name: string) => {
-    if (!selectedGroupId) return;
+  const handleConfirmDelegate = () => {
+    if (!selectedGroupId || !delegateTarget.userId) return;
+    setDelegateError(null);
 
-    if (window.confirm(`${name}님을 내보내시겠습니까?`)) {
-      removeMemberMutation.mutate(
-        { groupId: selectedGroupId, userId },
-        {
-          onSuccess: () => alert(`${name}님이 그룹에서 내보내졌습니다.`),
-          onError: () => alert('멤버 내보내기에 실패했습니다.'),
+    updateRoleMutation.mutate(
+      { groupId: selectedGroupId, userId: delegateTarget.userId, role: 'ADMIN' },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: GROUP_MEMBER_QUERY_KEYS.list(selectedGroupId),
+          });
+          setDelegateTarget({ isOpen: false, userId: '', name: '' });
         },
-      );
+        onError: () => {
+          setDelegateError('권한 위임에 실패했습니다.');
+        },
+      },
+    );
+  };
+
+  const handleKickOutClick = (userId: string, name: string) => {
+    if (!isAdmin) {
+      if (onUnauthorized) onUnauthorized();
+      return;
     }
+    setKickOutError(null);
+    setKickOutTarget({ isOpen: true, userId, name });
+  };
+
+  const handleConfirmKickOut = () => {
+    if (!selectedGroupId || !kickOutTarget.userId) return;
+    setKickOutError(null);
+
+    removeMemberMutation.mutate(
+      { groupId: selectedGroupId, userId: kickOutTarget.userId },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: GROUP_MEMBER_QUERY_KEYS.list(selectedGroupId),
+          });
+          setKickOutTarget({ isOpen: false, userId: '', name: '' });
+        },
+        onError: () => {
+          setKickOutError('멤버 내보내기에 실패했습니다.');
+        },
+      },
+    );
   };
 
   if (isLoading) {
@@ -56,13 +102,19 @@ export const MemberManagement = () => {
     );
   }
 
+  const sortedMembers = [...members].sort((a, b) => {
+    if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
+    if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
+    return 0;
+  });
+
   return (
     <section className="flex w-full flex-col rounded-2xl bg-white p-7">
       <h3 className="mb-5 text-lg font-bold text-gray-900 leading-snug">멤버 관리</h3>
 
       {/* 멤버 리스트 영역 */}
       <div className="flex flex-col">
-        {members.map((member, index) => {
+        {sortedMembers.map((member, index) => {
           const userName = member.user?.nickname || member.user?.name || '멤버';
           const userAvatarUrl = member.user?.profileImage ?? undefined;
 
@@ -70,7 +122,7 @@ export const MemberManagement = () => {
             <div
               key={member.userId || member.user.id}
               className={`flex items-center justify-between p-3 ${
-                index !== members.length - 1 ? 'border-b border-gray-100' : ''
+                index !== sortedMembers.length - 1 ? 'border-b border-gray-100' : ''
               }`}
             >
               {/* 좌측 */}
@@ -94,14 +146,14 @@ export const MemberManagement = () => {
                   <div className="ml-6 flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => handleDelegateAdmin(member.userId, userName)}
+                      onClick={() => handleDelegateAdminClick(member.userId, userName)}
                       className="rounded-md border border-gray-100 bg-white px-3 py-1 text-xs text-gray-900 transition-colors hover:bg-gray-100"
                     >
                       관리자 위임
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleKickOut(member.userId, userName)}
+                      onClick={() => handleKickOutClick(member.userId, userName)}
                       className="rounded-md border border-gray-100 bg-white px-3 py-1 text-xs text-gray-900 transition-colors hover:bg-gray-100"
                     >
                       내보내기
@@ -116,6 +168,28 @@ export const MemberManagement = () => {
           );
         })}
       </div>
+      <DelegateAdminModal
+        isOpen={delegateTarget.isOpen}
+        memberName={delegateTarget.name}
+        onClose={() => {
+          setDelegateTarget(prev => ({ ...prev, isOpen: false }));
+          setDelegateError(null);
+        }}
+        onConfirm={handleConfirmDelegate}
+        isSaving={updateRoleMutation.isPending}
+        errorMessage={delegateError}
+      />
+      <KickOutModal
+        isOpen={kickOutTarget.isOpen}
+        memberName={kickOutTarget.name}
+        onClose={() => {
+          setKickOutTarget(prev => ({ ...prev, isOpen: false }));
+          setKickOutError(null);
+        }}
+        onConfirm={handleConfirmKickOut}
+        isSaving={removeMemberMutation.isPending}
+        errorMessage={kickOutError}
+      />
     </section>
   );
 };

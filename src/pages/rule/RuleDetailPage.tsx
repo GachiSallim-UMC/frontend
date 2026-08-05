@@ -13,7 +13,7 @@ import {
   type RuleAgreementApiStatus,
   type RuleHistoryType,
 } from '@/features/rule';
-import RuleIcon from '@/assets/icons/sidebar/rules-active.svg?react';
+import RuleIcon from '@/assets/icons/sidebar/rules.svg?react';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import {
   Button,
@@ -66,9 +66,7 @@ export const RuleDetailPage = () => {
 
   if (!id) return <Navigate to="/rules" replace />;
   if (isLoading) {
-    return (
-      <p className="text-center text-gray-500">생활규칙을 불러오는 중입니다.</p>
-    );
+    return <p className="text-center text-gray-500">생활규칙을 불러오는 중입니다.</p>;
   }
   if (error) {
     return (
@@ -97,8 +95,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
   const updateAgreement = useUpdateRuleAgreement();
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
-    useShareToMessenger('rule');
+  const {
+    activeType,
+    chatRoomOptions,
+    openShare,
+    closeShare,
+    handleSelectChatRoom,
+    isSharePending,
+  } = useShareToMessenger('rule');
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
@@ -395,9 +399,8 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         description="생활 규칙 데이터를 수정합니다."
         confirmLabel="수정하기"
         isPending={isPending}
-        errorMessage={
-          mutationError instanceof Error ? mutationError.message : undefined
-        }
+        errorMessage={mutationError instanceof Error ? mutationError.message : undefined}
+        tone="edit"
       />
 
       <ShareItemPickerModal

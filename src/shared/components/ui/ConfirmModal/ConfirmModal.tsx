@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Modal } from '@/shared/components/ui/Modal';
 import { cn } from '@/shared/lib/cn';
 
-type ConfirmTone = 'default' | 'danger';
+type ConfirmTone = 'default' | 'danger' | 'edit';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -39,6 +39,11 @@ const toneStyles: Record<ConfirmTone, { iconBg: string; iconColor: string; confi
     iconBg: 'bg-red-100',
     iconColor: 'text-red-700',
     confirm: 'bg-red-700 hover:bg-red-500',
+  },
+  edit: {
+    iconBg: 'bg-orange-100',
+    iconColor: 'text-orange-700',
+    confirm: 'bg-orange-700 hover:bg-orange-500',
   },
 };
 

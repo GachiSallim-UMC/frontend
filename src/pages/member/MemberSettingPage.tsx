@@ -6,29 +6,48 @@ import {
   PermissionSettings,
   WarningModal,
   useDeleteGroup,
+  useGroupMembers,
+  IsAdminModal,
 } from '@/features/member';
 import { Button } from '@/shared/components';
 import CrossIcon from '@/assets/icons/member/cross.svg?react';
-import { useGroupStore } from '@/shared/store';
+import { useGroupStore, useAuthStore } from '@/shared/store';
 
 export const MemberSettingPage = () => {
   const navigate = useNavigate();
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
+  const [isAdminAlertOpen, setIsAdminAlertOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const deleteGroupMutation = useDeleteGroup();
   const selectedGroupId = useGroupStore(s => s.selectedGroupId);
+  const myUserId = useAuthStore(s => s.userId);
+
+  const { data: members } = useGroupMembers(selectedGroupId);
+  const myInfo = members?.find(member => member.userId === myUserId);
+  const isAdmin = myInfo?.role === 'ADMIN';
+
+  const handleUnauthorized = () => {
+    setIsAdminAlertOpen(true);
+  };
 
   const handleWithdrawClick = () => {
+    if (!isAdmin) {
+      setIsAdminAlertOpen(true);
+      return;
+    }
+    setDeleteError(null);
     setIsWithdrawalModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsWithdrawalModalOpen(false);
+    setDeleteError(null);
   };
 
   const handleConfirmWithdraw = () => {
     if (!selectedGroupId) {
-      alert('선택된 그룹 정보가 없습니다.');
+      setDeleteError('선택된 그룹 정보가 없습니다.');
       return;
     }
 
@@ -37,20 +56,18 @@ export const MemberSettingPage = () => {
         setIsWithdrawalModalOpen(false);
         navigate('/group');
       },
-      onError: error => {
-        alert('그룹 삭제에 실패했습니다. 권한을 확인해주세요.');
-        console.error(error);
-        setIsWithdrawalModalOpen(false);
+      onError: () => {
+        setDeleteError('그룹 삭제에 실패했습니다. 다시 시도해 주세요.');
       },
     });
   };
 
   return (
     <>
-      <div className="flex w-full flex-col gap-5 pb-7">
-        <GroupBasicInfo />
-        <MemberManagement />
-        <PermissionSettings />
+      <div className="flex w-full flex-col gap-5 py-7">
+        <GroupBasicInfo isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
+        <MemberManagement isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
+        <PermissionSettings isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
         <Button
           variant="danger"
           size="lg"
@@ -66,7 +83,10 @@ export const MemberSettingPage = () => {
         isOpen={isWithdrawalModalOpen}
         onClose={handleCloseModal}
         onConfirm={handleConfirmWithdraw}
+        isSaving={deleteGroupMutation.isPending}
+        errorMessage={deleteError}
       />
+      <IsAdminModal isOpen={isAdminAlertOpen} onClose={() => setIsAdminAlertOpen(false)} />
     </>
   );
 };

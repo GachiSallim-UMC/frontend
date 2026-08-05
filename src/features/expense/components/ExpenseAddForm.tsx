@@ -4,7 +4,7 @@ import { useSettlementAmounts, useExpenseForm } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
 import type { Expense, ExpenseCategory } from '@/features/expense';
 import type { User } from '@/shared/types';
-import ExpenseIcon from '@/assets/icons/sidebar/expenses-active.svg?react';
+import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { ShareMessengerButton, Button, ConfirmModal } from '@/shared/components/';
 import { useErrorStore } from '@/shared/store';
@@ -19,7 +19,7 @@ const toLocalDateOnly = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 const todayStr = toLocalDateOnly(new Date());
-const RequiredMark = () => <span className='font-sans font-bold text-caption text-red-700'>*</span>;
+const RequiredMark = () => <span className="font-sans font-bold text-caption text-red-700">*</span>;
 const MEMO_MAX_LENGTH = 255;
 const MAX_EXPENSE_AMOUNT = 2_147_483_647;
 
@@ -214,7 +214,8 @@ export const ExpenseAddForm = ({
         const value = customMemberAmounts[id];
         if (value === undefined) nextAmountErrors[id] = '금액을 입력해 주세요.';
         else if (!Number.isSafeInteger(value) || value < 0 || value > MAX_EXPENSE_AMOUNT) {
-          nextAmountErrors[id] = `0부터 ${MAX_EXPENSE_AMOUNT.toLocaleString()} 사이의 정수를 입력해 주세요.`;
+          nextAmountErrors[id] =
+            `0부터 ${MAX_EXPENSE_AMOUNT.toLocaleString()} 사이의 정수를 입력해 주세요.`;
         }
       });
     }
@@ -253,7 +254,8 @@ export const ExpenseAddForm = ({
     else if (expenseDate < todayStr) nextErrors.date = '지출일은 오늘 이후로 선택해 주세요.';
     if (!payerId) nextErrors.payerId = '선지불자를 선택해 주세요.';
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
-    if (checkedMembers.length === 0) nextErrors.members = '정산 대상 멤버를 한 명 이상 선택해 주세요.';
+    if (checkedMembers.length === 0)
+      nextErrors.members = '정산 대상 멤버를 한 명 이상 선택해 주세요.';
     if (memo.length > MEMO_MAX_LENGTH) {
       nextErrors.memo = `메모는 ${MEMO_MAX_LENGTH}자 이하로 입력해 주세요.`;
     }
@@ -275,7 +277,10 @@ export const ExpenseAddForm = ({
       return;
     }
     if (isCustom && totalCustomSum !== numericTotalAmount) {
-      setFieldErrors(previous => ({ ...previous, members: '멤버별 금액 합계가 총금액과 일치해야 합니다.' }));
+      setFieldErrors(previous => ({
+        ...previous,
+        members: '멤버별 금액 합계가 총금액과 일치해야 합니다.',
+      }));
       return;
     }
     if (isRatio && totalRatioSum !== 100) {
@@ -313,31 +318,34 @@ export const ExpenseAddForm = ({
   };
 
   return (
-    <div className='flex flex-col gap-6 w-full lg:gap-[30px]'>
+    <div className="flex flex-col gap-6 w-full lg:gap-[30px]">
       {isSettled && (
-        <div className='w-full bg-red-100 text-red-700 text-caption font-bold p-3 rounded-[8px] text-center'>
+        <div className="w-full bg-red-100 text-red-700 text-caption font-bold p-3 rounded-[8px] text-center">
           정산이 완료된 내역이라 수정할 수 없습니다.
         </div>
       )}
 
-      <fieldset disabled={isSettled} className={`flex flex-col gap-6 w-full ${isSettled ? 'opacity-60' : ''}`}>
+      <fieldset
+        disabled={isSettled}
+        className={`flex flex-col gap-6 w-full ${isSettled ? 'opacity-60' : ''}`}
+      >
         <div className={cardClass}>
-          <h2 className='font-sans text-body font-bold text-gray-800'>기본 정보</h2>
+          <h2 className="font-sans text-body font-bold text-gray-800">기본 정보</h2>
 
           <FormInput
             label="항목명"
             required
             value={title}
-            onChange={(e) => {
+            onChange={e => {
               setTitle(e.target.value);
               setFieldErrors(previous => ({ ...previous, title: undefined }));
             }}
             maxLength={100}
-            placeholder='예: 마트 장보기, 전기요금'
+            placeholder="예: 마트 장보기, 전기요금"
             error={fieldErrors.title}
           />
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormInput
               label="금액"
               required
@@ -346,39 +354,41 @@ export const ExpenseAddForm = ({
               pattern="[0-9]*"
               maxLength={10}
               value={amount}
-              onChange={(e) => handleAmountChange(e.target.value)}
-              placeholder='0'
+              onChange={e => handleAmountChange(e.target.value)}
+              placeholder="0"
               error={fieldErrors.amount}
             />
 
-            <div className='flex flex-col gap-2'>
-              <label htmlFor='expense-date' className={labelClass}>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="expense-date" className={labelClass}>
                 지출일 <RequiredMark />
               </label>
-              <div className='relative'>
+              <div className="relative">
                 {/* 브라우저 기본 달력 아이콘은 숨기고 커스텀 아이콘만 노출합니다. */}
                 <input
-                  id='expense-date'
+                  id="expense-date"
                   ref={dateInputRef}
-                  type='date'
+                  type="date"
                   value={expenseDate}
                   onChange={handleDateChange}
                   onBlur={handleDateBlur}
                   min={todayStr}
-                  placeholder='yyyy-mm-dd'
+                  placeholder="yyyy-mm-dd"
                   className={`w-full h-[50px] px-4 pr-12 rounded-[8px] border outline-none text-button placeholder:text-gray-400 bg-white focus:bg-white focus:ring-2 focus:ring-primary-500 text-gray-800 [&::-webkit-calendar-picker-indicator]:hidden ${fieldErrors.date ? 'border-red-500' : 'border-gray-100'}`}
                 />
 
                 <button
-                  type='button'
+                  type="button"
                   onClick={handleIconClick}
-                  aria-label='달력 열기'
-                  className='absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 cursor-pointer flex items-center justify-center'
+                  aria-label="달력 열기"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 cursor-pointer flex items-center justify-center"
                 >
-                  <img src={calendarIcon} alt='' />
+                  <img src={calendarIcon} alt="" />
                 </button>
               </div>
-              {fieldErrors.date && <p className='mt-1.5 text-xs text-red-500'>{fieldErrors.date}</p>}
+              {fieldErrors.date && (
+                <p className="mt-1.5 text-xs text-red-500">{fieldErrors.date}</p>
+              )}
             </div>
           </div>
 
@@ -397,7 +407,7 @@ export const ExpenseAddForm = ({
             label="카테고리"
             required
             value={category}
-            onChange={(v) => {
+            onChange={v => {
               setCategory(v as ExpenseCategory);
               setFieldErrors(previous => ({ ...previous, category: undefined }));
             }}
@@ -408,13 +418,13 @@ export const ExpenseAddForm = ({
         </div>
 
         <div className={cardClass}>
-          <h2 className='font-sans text-body font-bold text-gray-800'>정산 방식</h2>
+          <h2 className="font-sans text-body font-bold text-gray-800">정산 방식</h2>
 
           <SelectDropdown
             label="분담 방식"
             required
             value={settlementMethod}
-            onChange={(v) => {
+            onChange={v => {
               handleMethodChange(v as SettlementMethod);
               setFieldErrors(previous => ({ ...previous, members: undefined }));
               setMemberAmountErrors({});
@@ -424,26 +434,27 @@ export const ExpenseAddForm = ({
             placeholder=""
           />
 
-          <div className='flex flex-col gap-2'>
-            <div className='flex items-center justify-between'>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
               <label className={labelClass}>
                 정산 대상 멤버 <RequiredMark />
               </label>
               {(isCustom || isRatio) && !isDirectInputCompleted && (
-                <div className='flex items-center gap-3'>
+                <div className="flex items-center gap-3">
                   {isRatio ? (
-                    <span className='text-caption text-gray-600'>
-                      합계: <strong className='text-gray-800'>{totalRatioSum}%</strong> / 100%
+                    <span className="text-caption text-gray-600">
+                      합계: <strong className="text-gray-800">{totalRatioSum}%</strong> / 100%
                     </span>
                   ) : (
-                    <span className='text-caption text-gray-600'>
-                      합계: <strong className='text-gray-800'>{formatWon(totalCustomSum)}</strong> / 총액: {formatWon(numericTotalAmount)}
+                    <span className="text-caption text-gray-600">
+                      합계: <strong className="text-gray-800">{formatWon(totalCustomSum)}</strong> /
+                      총액: {formatWon(numericTotalAmount)}
                     </span>
                   )}
                   <button
-                    type='button'
+                    type="button"
                     onClick={handleCompleteDirectInputWithValidation}
-                    className='px-3 py-1 bg-gray-800 text-white rounded text-caption font-bold hover:bg-gray-700'
+                    className="px-3 py-1 bg-gray-800 text-white rounded text-caption font-bold hover:bg-gray-700"
                   >
                     완료
                   </button>
@@ -451,9 +462,9 @@ export const ExpenseAddForm = ({
               )}
               {(isCustom || isRatio) && isDirectInputCompleted && (
                 <button
-                  type='button'
+                  type="button"
                   onClick={() => setIsDirectInputCompleted(false)}
-                  className='px-3 py-1 border border-gray-300 text-gray-700 rounded text-caption hover:bg-gray-50'
+                  className="px-3 py-1 border border-gray-300 text-gray-700 rounded text-caption hover:bg-gray-50"
                 >
                   수정하기
                 </button>
@@ -461,54 +472,69 @@ export const ExpenseAddForm = ({
             </div>
 
             {warningMessage && (
-              <div className='w-full px-4 py-2 text-orange-700 text-caption font-bold flex items-center justify-between'>
+              <div className="w-full px-4 py-2 text-orange-700 text-caption font-bold flex items-center justify-between">
                 <span>{warningMessage}</span>
-                <button onClick={() => setWarningMessage(null)} className='text-orange-700 font-bold'>✕</button>
+                <button
+                  onClick={() => setWarningMessage(null)}
+                  className="text-orange-700 font-bold"
+                >
+                  ✕
+                </button>
               </div>
             )}
 
-            <div className={`flex flex-col gap-1.5 rounded-lg ${fieldErrors.members ? 'border border-red-500 p-2' : ''}`}>
+            <div
+              className={`flex flex-col gap-1.5 rounded-lg ${fieldErrors.members ? 'border border-red-500 p-2' : ''}`}
+            >
               {membersLoading ? (
-                <div className='text-caption text-gray-400 py-2'>멤버 목록을 불러오는 중...</div>
+                <div className="text-caption text-gray-400 py-2">멤버 목록을 불러오는 중...</div>
               ) : (
-                members.map((user) => (
-                  <div key={user.id} className='flex min-h-[28px] items-center justify-between text-button text-gray-800'>
-                    <div className='flex w-full flex-wrap items-center gap-2'>
+                members.map(user => (
+                  <div
+                    key={user.id}
+                    className="flex min-h-[28px] items-center justify-between text-button text-gray-800"
+                  >
+                    <div className="flex w-full flex-wrap items-center gap-2">
                       <label
                         htmlFor={`member-${user.id}`}
-                        className='flex items-center gap-2 cursor-pointer font-normal text-button text-gray-800'
+                        className="flex items-center gap-2 cursor-pointer font-normal text-button text-gray-800"
                       >
                         <input
                           id={`member-${user.id}`}
-                          type='checkbox'
+                          type="checkbox"
                           checked={checkedMembers.includes(user.id)}
                           onChange={() => {
                             toggleMember(user.id);
                             setFieldErrors(previous => ({ ...previous, members: undefined }));
                           }}
-                          className='w-4 h-4 rounded border-gray-100 accent-gray-800'
+                          className="w-4 h-4 rounded border-gray-100 accent-gray-800"
                         />
                         <span>{user.name}</span>
                       </label>
 
                       {settlementMethod === 'EQUAL' && (
-                        <span className='text-gray-800 font-normal text-button'>- {formatWon(settlementAmounts[user.id] ?? 0)}</span>
+                        <span className="text-gray-800 font-normal text-button">
+                          - {formatWon(settlementAmounts[user.id] ?? 0)}
+                        </span>
                       )}
 
                       {isCustom && checkedMembers.includes(user.id) && !isDirectInputCompleted && (
-                        <div className='flex items-center gap-2 ml-2'>
-                          <span className='text-gray-800 font-normal text-button'>-</span>
+                        <div className="flex items-center gap-2 ml-2">
+                          <span className="text-gray-800 font-normal text-button">-</span>
                           <input
-                            type='text'
-                            inputMode='numeric'
-                            pattern='[0-9]*'
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             maxLength={10}
-                            placeholder='금액'
+                            placeholder="금액"
                             value={customMemberAmounts[user.id] ?? ''}
-                            onChange={(e) => {
+                            onChange={e => {
                               const input = e.target.value;
                               if (!isUnsignedIntegerInput(input)) {
-                                setMemberAmountErrors(previous => ({ ...previous, [user.id]: '숫자만 입력해 주세요.' }));
+                                setMemberAmountErrors(previous => ({
+                                  ...previous,
+                                  [user.id]: '숫자만 입력해 주세요.',
+                                }));
                                 return;
                               }
                               if (input && Number(input) > MAX_EXPENSE_AMOUNT) {
@@ -518,7 +544,7 @@ export const ExpenseAddForm = ({
                                 }));
                                 return;
                               }
-                              setCustomMemberAmounts((previous) => {
+                              setCustomMemberAmounts(previous => {
                                 const next = { ...previous };
                                 if (input === '') delete next[user.id];
                                 else next[user.id] = Number(input);
@@ -533,28 +559,38 @@ export const ExpenseAddForm = ({
                             }}
                             className={`w-[80px] h-[26px] px-2 rounded border text-right text-caption text-gray-800 font-normal bg-white outline-none focus:border-gray-400 ${memberAmountErrors[user.id] ? 'border-red-500' : 'border-gray-200'}`}
                           />
-                          {memberAmountErrors[user.id] && <span className='text-xs text-red-500'>{memberAmountErrors[user.id]}</span>}
+                          {memberAmountErrors[user.id] && (
+                            <span className="text-xs text-red-500">
+                              {memberAmountErrors[user.id]}
+                            </span>
+                          )}
                         </div>
                       )}
 
-                      {isCustom && (isDirectInputCompleted || !checkedMembers.includes(user.id)) && (
-                        <span className='text-gray-800 font-normal text-button'>- {formatWon(settlementAmounts[user.id] ?? 0)}</span>
-                      )}
+                      {isCustom &&
+                        (isDirectInputCompleted || !checkedMembers.includes(user.id)) && (
+                          <span className="text-gray-800 font-normal text-button">
+                            - {formatWon(settlementAmounts[user.id] ?? 0)}
+                          </span>
+                        )}
 
                       {isRatio && checkedMembers.includes(user.id) && !isDirectInputCompleted && (
-                        <div className='flex items-center gap-2 ml-2'>
-                          <span className='text-gray-800 font-normal text-button'>-</span>
+                        <div className="flex items-center gap-2 ml-2">
+                          <span className="text-gray-800 font-normal text-button">-</span>
                           <input
-                            type='text'
-                            inputMode='numeric'
-                            pattern='[0-9]*'
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             maxLength={3}
-                            placeholder='비율'
+                            placeholder="비율"
                             value={customMemberRatios[user.id] ?? ''}
-                            onChange={(e) => {
+                            onChange={e => {
                               const input = e.target.value;
                               if (!isUnsignedIntegerInput(input)) {
-                                setMemberRatioErrors(previous => ({ ...previous, [user.id]: '숫자만 입력해 주세요.' }));
+                                setMemberRatioErrors(previous => ({
+                                  ...previous,
+                                  [user.id]: '숫자만 입력해 주세요.',
+                                }));
                                 return;
                               }
                               if (input && Number(input) > 100) {
@@ -564,7 +600,7 @@ export const ExpenseAddForm = ({
                                 }));
                                 return;
                               }
-                              setCustomMemberRatios((previous) => {
+                              setCustomMemberRatios(previous => {
                                 const next = { ...previous };
                                 if (input === '') delete next[user.id];
                                 else next[user.id] = Number(input);
@@ -579,14 +615,19 @@ export const ExpenseAddForm = ({
                             }}
                             className={`w-[60px] h-[26px] px-2 rounded border text-right text-caption text-gray-800 font-normal bg-white outline-none focus:border-gray-400 ${memberRatioErrors[user.id] ? 'border-red-500' : 'border-gray-200'}`}
                           />
-                          {memberRatioErrors[user.id] && <span className='text-xs text-red-500'>{memberRatioErrors[user.id]}</span>}
-                          <span className='text-gray-800 font-normal text-button'>%</span>
+                          {memberRatioErrors[user.id] && (
+                            <span className="text-xs text-red-500">
+                              {memberRatioErrors[user.id]}
+                            </span>
+                          )}
+                          <span className="text-gray-800 font-normal text-button">%</span>
                         </div>
                       )}
 
                       {isRatio && (isDirectInputCompleted || !checkedMembers.includes(user.id)) && (
-                        <span className='text-gray-800 font-normal text-button'>
-                          - {customMemberRatios[user.id] || 0}% ({formatWon(settlementAmounts[user.id] ?? 0)})
+                        <span className="text-gray-800 font-normal text-button">
+                          - {customMemberRatios[user.id] || 0}% (
+                          {formatWon(settlementAmounts[user.id] ?? 0)})
                         </span>
                       )}
                     </div>
@@ -594,17 +635,17 @@ export const ExpenseAddForm = ({
                 ))
               )}
             </div>
-            {fieldErrors.members && <p className='text-xs text-red-500'>{fieldErrors.members}</p>}
+            {fieldErrors.members && <p className="text-xs text-red-500">{fieldErrors.members}</p>}
           </div>
 
           <TextArea
             label="메모"
             value={memo}
-            onChange={(e) => {
+            onChange={e => {
               setMemo(e.target.value);
               setFieldErrors(previous => ({ ...previous, memo: undefined }));
             }}
-            placeholder='예: 장보기, 전기요금'
+            placeholder="예: 장보기, 전기요금"
             maxLength={MEMO_MAX_LENGTH}
             error={fieldErrors.memo}
             showCount
@@ -613,8 +654,8 @@ export const ExpenseAddForm = ({
         </div>
       </fieldset>
 
-      <div className='flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full pt-4 pb-8 mt-2'>
-        <div className='flex items-center gap-3'>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full pt-4 pb-8 mt-2">
+        <div className="flex items-center gap-3">
           <Button
             variant="primary"
             size="md"
@@ -624,12 +665,7 @@ export const ExpenseAddForm = ({
           >
             {isEditMode ? '수정하기' : '저장'}
           </Button>
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={onCancel}
-            className="flex-1 sm:w-[150px]"
-          >
+          <Button variant="secondary" size="md" onClick={onCancel} className="flex-1 sm:w-[150px]">
             취소
           </Button>
         </div>
@@ -655,6 +691,7 @@ export const ExpenseAddForm = ({
         confirmLabel={isEditMode ? '수정하기' : '저장하기'}
         isPending={isSaving}
         errorMessage={saveErrorMessage}
+        tone={isEditMode ? 'edit' : 'default'}
       />
     </div>
   );
