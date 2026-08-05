@@ -112,22 +112,25 @@ export function ExpenseDetailCard({
               </div>
             ) : (
               shares.map((share) => {
-                const isPayer = share.user.id === expense.payer?.id;
+                const isPayer =
+                  String(share.user.id) === String(expense.payer?.id);
+
+                const isPaid = Boolean(share.isPaid);
 
                 let badgeVariant: 'done' | 'pending' = 'pending';
                 let badgeLabel = '미납';
 
-                if (isPayer) {
-                  badgeVariant = 'done';
-                  badgeLabel = '선지불';
-                } else if (share.isPaid) {
+                if (isPaid) {
                   badgeVariant = 'done';
                   badgeLabel = '완료';
+                } else if (isPayer) {
+                  badgeVariant = 'done';
+                  badgeLabel = '선지불';
                 }
 
                 return (
                   <div
-                    key={share.user.id}
+                    key={share.id}
                     className="p-2 border-b border-gray-100 last:border-gray-900 last:border-b-[2px] flex justify-between items-center"
                   >
                     <span>{share.user.name}</span>

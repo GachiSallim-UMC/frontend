@@ -27,21 +27,22 @@ export function useCreatePayLink() {
 
     try {
       const result = await createPayLink(share.id);
+
       console.log('paylink 응답:', result);
+      console.log('deepLinkUrl:', result.deepLinkUrl);
+      console.log('status:', result.status);
 
-      const payUrl = result?.paylink ?? result?.url;
-      console.log('추출된 payUrl:', payUrl);
+      if (!result.deepLinkUrl) {
+        throw new Error('송금 링크가 응답에 없습니다.');
+      }
 
-    
-      if (payUrl) {
-         window.open(payUrl, '_blank');
-       }
+      window.location.href = result.deepLinkUrl;
     } catch (err) {
       console.error('송금 링크 생성 실패:', err);
 
       useErrorStore.getState().showError({
         title: '오류',
-        message: '송금 링크 생성 중 오류가 발생했습니다.',
+        message: '송금 링크를 불러오지 못했습니다.',
       });
     } finally {
       setIsLoading(false);

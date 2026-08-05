@@ -8,6 +8,7 @@ import type {
   UpdateExpenseDto,
   RequestReceiptUploadUrlDto,
   ReceiptUploadUrlResponse,
+  PayLinkResponse,
 } from '@/features/expense';
 import type { ExpenseStatus } from '@/shared/types';
 
@@ -64,7 +65,12 @@ export function toExpense(rawResponse: unknown): Expense {
           isPaid: toSplitIsPaid(s.status as string),
         };
       })
-    : undefined;
+    : [];
+
+  const allSharesPaid = shares.length > 0 && shares.every((s) => s.isPaid);
+  const derivedStatus: ExpenseStatus = allSharesPaid
+    ? 'paid'
+    : toExpenseStatus(raw.status as string);
 
   return {
     id: raw.id as string | number,
@@ -81,8 +87,8 @@ export function toExpense(rawResponse: unknown): Expense {
     payerId: payerIdStr,
     splitType: (raw.splitType as Expense['splitType']) ?? 'EQUAL',
     category: (raw.category as ExpenseCategory) ?? 'ETC',
-    status: toExpenseStatus(raw.status as string),
-    shares: shares ?? [],
+    status: derivedStatus,
+    shares,
     memo: (raw.memo as string) ?? undefined,
   } as Expense;
 }
@@ -117,9 +123,11 @@ export const calculateExpenseSplit = async (data: CalculateExpenseDto): Promise<
   return unwrap(response.data) as Record<string, any>;
 };
 
-export const createPayLink = async (splitId: number | string): Promise<Record<string, any>> => {
+export const createPayLink = async (
+  splitId: number | string
+): Promise<PayLinkResponse> => {
   const response = await apiClient.post(`/expenses/splits/${splitId}/paylink`);
-  return unwrap(response.data) as Record<string, any>;
+  return response.data;
 };
 
 export const settleExpenseSplit = async (

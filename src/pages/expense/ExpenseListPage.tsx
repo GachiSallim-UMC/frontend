@@ -42,9 +42,11 @@ export const ExpenseListPage = () => {
 
     const fetchMembers = async () => {
       setMembersLoading(true);
+
       try {
         const groupId = requireSelectedGroupId();
         const rawMembers = await memberApi.getGroupMembers(groupId);
+
         const mapped: User[] = rawMembers.map((m) => ({
           id: m.user.id,
           name: m.user.nickname || m.user.name,
@@ -52,11 +54,16 @@ export const ExpenseListPage = () => {
           email: '',
           avatarUrl: m.user.profileImage ?? undefined,
         }));
-        if (isMounted) setMembers(mapped);
+
+        if (isMounted) {
+          setMembers(mapped);
+        }
       } catch (err) {
         console.error('그룹 멤버 조회 실패:', err);
       } finally {
-        if (isMounted) setMembersLoading(false);
+        if (isMounted) {
+          setMembersLoading(false);
+        }
       }
     };
 
@@ -70,12 +77,21 @@ export const ExpenseListPage = () => {
   const { expenses, isLoading, error } = useExpenseList(activeFilter);
 
   const enrichedExpenses = useMemo(
-    () => expenses.map((expense) => enrichExpenseWithMembers(expense, members)),
+    () =>
+      expenses.map((expense) =>
+        enrichExpenseWithMembers(expense, members)
+      ),
     [expenses, members]
   );
 
-  const { totalExpense, receiveAmount, receiveCount, payAmount, payCount, uniquePayerCount } =
-    useExpenseSummary(enrichedExpenses, currentUserId);
+  const {
+    totalExpense,
+    receiveAmount,
+    receiveCount,
+    payAmount,
+    payCount,
+    uniquePayerCount,
+  } = useExpenseSummary(enrichedExpenses, currentUserId);
 
   const handleEditExpense = (expense: Expense) => {
     navigate(`/expenses/${expense.id}`);
@@ -86,14 +102,20 @@ export const ExpenseListPage = () => {
   };
 
   return (
-    <div className='flex justify-center w-full  min-h-0 bg-gray-50'>
-      <div className='flex flex-col mt-4 lg:mt-[28px] w-full max-w-[1114px] h-full pt-4 lg:pt-[28px] pb-[60px] lg:pb-[80px] px-3 sm:px-4 lg:px-0'>
-        <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-[17px]'>
+    <div className="flex justify-center w-full min-h-0 bg-gray-50">
+      <div className="flex flex-col mt-4 lg:mt-[28px] w-full max-w-[1114px] h-full pt-4 lg:pt-[28px] pb-[60px] lg:pb-[80px] px-3 sm:px-4 lg:px-0">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-[17px]">
           <SummaryCard
-            icon={<img src={totalExpenseIcon} alt='총 지출' className='w-[32px] h-[32px]' />}
+            icon={
+              <img
+                src={totalExpenseIcon}
+                alt="총 지출"
+                className="w-[32px] h-[32px]"
+              />
+            }
             iconBg="bg-orange-100"
             iconClassName="size-[77px]"
-            label='이번 달 총 지출'
+            label="이번 달 총 지출"
             value={`${totalExpense.toLocaleString()}원`}
             subText={`${uniquePayerCount}명 기준`}
             className="h-[147px] px-6 py-0 shadow-none"
@@ -101,11 +123,18 @@ export const ExpenseListPage = () => {
             valueClassName="leading-[37px]"
             subTextClassName="mt-0.5 leading-[19px]"
           />
+
           <SummaryCard
-            icon={<img src={receiveIcon} alt='받을 금액' className='w-[32px] h-[32px]' />}
+            icon={
+              <img
+                src={receiveIcon}
+                alt="받을 금액"
+                className="w-[32px] h-[32px]"
+              />
+            }
             iconBg="bg-orange-100"
             iconClassName="size-[77px]"
-            label='내가 받아야 할 금액'
+            label="내가 받아야 할 금액"
             value={`${receiveAmount.toLocaleString()}원`}
             subText={`${receiveCount}건 미정산`}
             className="h-[147px] px-6 py-0 shadow-none"
@@ -113,11 +142,18 @@ export const ExpenseListPage = () => {
             valueClassName="leading-[37px]"
             subTextClassName="mt-0.5 leading-[19px]"
           />
+
           <SummaryCard
-            icon={<img src={payIcon} alt='낼 금액' className='w-[32px] h-[32px]' />}
+            icon={
+              <img
+                src={payIcon}
+                alt="낼 금액"
+                className="w-[32px] h-[32px]"
+              />
+            }
             iconBg="bg-orange-100"
             iconClassName="size-[77px]"
-            label='내가 내야 할 금액'
+            label="내가 내야 할 금액"
             value={`${payAmount.toLocaleString()}원`}
             subText={`${payCount}건 미정산`}
             className="h-[147px] px-6 py-0 shadow-none"
@@ -127,19 +163,23 @@ export const ExpenseListPage = () => {
           />
         </div>
 
-        <div className='w-full lg:w-[1114px] h-auto mt-4 lg:mt-[30px] mb-6 lg:mb-10 rounded-[16px] lg:rounded-[20px] bg-white flex flex-col pb-6 lg:pb-8'>
-          <div className='w-full px-3 sm:px-4 lg:px-[30px] pt-4 lg:pt-[30px]'>
+        <div className="w-full lg:w-[1114px] h-auto mt-4 lg:mt-[30px] mb-6 lg:mb-10 rounded-[16px] lg:rounded-[20px] bg-white flex flex-col pb-6 lg:pb-8">
+          <div className="w-full px-3 sm:px-4 lg:px-[30px] pt-4 lg:pt-[30px]">
             <ExpenseFilter
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
             />
           </div>
 
-          <div className='mt-4 lg:mt-[20px] px-3 sm:px-4 lg:px-[30px] pb-4 flex flex-col items-start w-full overflow-x-auto'>
+          <div className="mt-4 lg:mt-[20px] px-3 sm:px-4 lg:px-[30px] pb-4 flex flex-col items-start w-full overflow-x-auto">
             {isLoading || membersLoading ? (
-              <div className='w-full py-12 lg:py-20 text-center text-gray-400'>지출 목록을 불러오는 중...</div>
+              <div className="w-full py-12 lg:py-20 text-center text-gray-400">
+                지출 목록을 불러오는 중...
+              </div>
             ) : error ? (
-              <div className='w-full py-12 lg:py-20 text-center text-red-500'>{error}</div>
+              <div className="w-full py-12 lg:py-20 text-center text-red-500">
+                {error}
+              </div>
             ) : (
               <ExpenseTable
                 expenses={enrichedExpenses}

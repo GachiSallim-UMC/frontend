@@ -47,6 +47,10 @@ export interface ExpenseParticipant {
   percentage?: number;
 }
 
+export interface PayLinkResponse {
+  deepLinkUrl: string;
+  status: string;
+}
 export const expenseKeys = {
   all: ['expenses'] as const,
   lists: () => [...expenseKeys.all, 'list'] as const,
