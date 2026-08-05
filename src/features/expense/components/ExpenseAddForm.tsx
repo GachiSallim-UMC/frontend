@@ -80,6 +80,8 @@ export const ExpenseAddForm = ({
   const [currentExpenseId, setCurrentExpenseId] = useState<string | undefined>(expenseId);
   const [fieldErrors, setFieldErrors] = useState<ExpenseFieldErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | undefined>(undefined);
   const [memberAmountErrors, setMemberAmountErrors] = useState<Record<string, string>>({});
   const [memberRatioErrors, setMemberRatioErrors] = useState<Record<string, string>>({});
   const { shareExpense, isSharing } = useShareExpense();
@@ -184,7 +186,7 @@ export const ExpenseAddForm = ({
     if (settlementMethod !== 'EQUAL') setIsDirectInputCompleted(false);
   };
 
-  const handleSaveClickWithGuard = () => {
+  const handleSaveClickWithGuard = async () => {
     if (isSettled) {
       useErrorStore.getState().showError({
         title: '알림',
@@ -192,7 +194,8 @@ export const ExpenseAddForm = ({
       });
       return;
     }
-    handleSaveClick();
+    // 저장 실패를 호출부에서 잡을 수 있도록 반드시 Promise를 넘긴다.
+    await handleSaveClick();
   };
 
   const isCustom = settlementMethod === 'CUSTOM';
@@ -282,14 +285,27 @@ export const ExpenseAddForm = ({
   // 검증까지만 하고 확인 모달을 연다. 실제 저장은 모달에서 확인한 뒤 수행.
   const handleSaveClickWithFieldValidation = () => {
     if (!validateForm()) return;
+    setSaveErrorMessage(undefined);
     setIsSaveModalOpen(true);
   };
 
-  // useExpenseForm의 저장은 성공·실패를 모두 전역 모달로 알리고 예외를 던지지 않으므로
-  // 여기서는 확인 모달만 닫는다.
   const handleConfirmSave = async () => {
-    await handleSaveClickWithGuard();
-    setIsSaveModalOpen(false);
+    setIsSaving(true);
+    try {
+      await handleSaveClickWithGuard();
+      setIsSaveModalOpen(false);
+    } catch (error) {
+      // 실패 시 모달을 열어둔 채 사유를 모달 안에서 보여준다.
+      setSaveErrorMessage(
+        error instanceof Error
+          ? error.message
+          : isEditMode
+            ? '지출 수정 중 오류가 발생했습니다.'
+            : '지출 등록 중 오류가 발생했습니다.',
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -631,6 +647,8 @@ export const ExpenseAddForm = ({
         highlight={title.trim()}
         description={isEditMode ? '생활비 데이터를 수정합니다.' : '내용으로 생활비를 등록합니다.'}
         confirmLabel={isEditMode ? '수정하기' : '저장하기'}
+        isPending={isSaving}
+        errorMessage={saveErrorMessage}
       />
     </div>
   );
