@@ -69,7 +69,7 @@ export const MemberSettingPage = () => {
           leftIcon={<CrossIcon className="h-5 w-5" />}
           className="w-full"
           onClick={handleWithdrawClick}
-          isLoading={false}
+          isLoading={deleteGroupMutation.isPending}
         >
           그룹 삭제
         </Button>

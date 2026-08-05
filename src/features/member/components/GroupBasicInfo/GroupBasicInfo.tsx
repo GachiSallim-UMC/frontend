@@ -344,7 +344,7 @@ export const GroupBasicInfo = ({ isAdmin = false }: MemberManagementProps) => {
             onClick={handleSave}
             variant="primary"
             className="w-32 shrink-0 font-bold h-[50px]"
-            isLoading={false}
+            isLoading={updateGroupMutation.isPending || isUploading}
           >
             저장
           </Button>
