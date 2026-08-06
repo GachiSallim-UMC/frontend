@@ -218,11 +218,16 @@ export const useChatRoom = (groupId: string | null, currentUserId: string, initi
     setActiveShareType(null);
   };
 
-  const createRoom = ({ name, category }: { name: string; category: ChatRoomCategory; memberIds: string[] }) => {
+  const createRoom = ({ name, category, memberIds }: { name: string; category: ChatRoomCategory; memberIds: string[] }) => {
     createRoomMutation.mutate(
       { name, category },
       {
-        onSuccess: room => {
+        // 초대가 끝나기 전에 방을 포커스하면 상세 조회가 초대 반영 전 스냅샷을 받아와서
+        // 새로고침 전까지 방금 초대한 멤버가 안 보이는 문제가 있었다. 초대 완료까지 기다린 뒤 포커스한다.
+        onSuccess: async room => {
+          if (memberIds.length > 0) {
+            await inviteMembersMutation.mutateAsync({ roomId: room.id, userIds: memberIds });
+          }
           focusRoom(room.id);
           setIsCreateRoomOpen(false);
         },
