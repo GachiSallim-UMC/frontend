@@ -86,7 +86,7 @@ export const PermissionSettings = ({
       </h3>
 
       <div
-        className="grid grid-cols-1 rounded-xl border border-gray-100 bg-white 
+        className="grid grid-cols-1 rounded-lg border border-gray-100 bg-white 
       px-3 md:grid-cols-3 md:gap-x-6 md:rounded-none md:border-none md:bg-transparent md:p-0"
       >
         {PERMISSION_LEFT_OPTIONS.map((option, index) => (

@@ -298,7 +298,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
         <span className="text-[10px] md:text-[14px] text-gray-400">생성일: {formattedDate}</span>
 
         {/* 모바일 전용 -> 데스크탑에서는 숨김*/}
-        <div className="mt-[6px] flex items-center justify-center gap-2 md:hidden">
+        <div className="mt-[3px] flex items-center justify-center gap-1.5 md:hidden">
           <span className="text-[12px] font-bold uppercase tracking-widest text-primary-700">
             {groupData?.inviteCode || ''}
           </span>
@@ -325,7 +325,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
       </div>
 
       {/* 우측: 그룹 기본 정보 */}
-      <div className="flex w-full flex-1 flex-col mt-[20px] md:mt-0">
+      <div className="flex w-full flex-1 flex-col mt-[15px] md:mt-0">
         <h3 className="mb-5 hidden text-lg font-bold text-gray-900 leading-snug md:block">
           그룹 기본 정보
         </h3>

@@ -115,7 +115,7 @@ export const MemberManagement = ({ isAdmin = false, onUnauthorized }: MemberMana
       </h3>
 
       {/* 멤버 리스트 영역 */}
-      <div className="flex flex-col rounded-xl border border-gray-100 bg-white px-[8px] md:rounded-none md:border-none md:bg-transparent md:p-0">
+      <div className="flex flex-col rounded-lg border border-gray-100 bg-white px-[8px] md:rounded-none md:border-none md:bg-transparent md:p-0">
         {sortedMembers.map((member, index) => {
           const userName = member.user?.nickname || member.user?.name || '멤버';
           const userAvatarUrl = member.user?.profileImage ?? undefined;
