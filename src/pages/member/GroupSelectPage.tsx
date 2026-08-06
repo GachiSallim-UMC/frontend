@@ -1,32 +1,47 @@
-import { GroupList, GroupActionBox } from '@/features/member';
-import { GroupPageHeader } from './GroupPageHeader';
+import { Link } from 'react-router-dom';
+import {
+  GroupActionBox,
+  GroupEmptyState,
+  GroupList,
+  GroupOrDivider,
+  useMyGroups,
+} from '@/features/member';
+import { GroupPageShell } from './GroupPageShell';
 
 export const GroupSelectPage = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-primary-100">
-      <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
-        <GroupPageHeader />
+  // 목록 자체는 GroupList가 다시 조회하지만, React Query 캐시를 공유하므로 추가 요청은 없습니다.
+  const { data: groups, isLoading, isError } = useMyGroups();
+  const hasNoGroup = !isLoading && !isError && groups.length === 0;
 
-        <div className="flex-1 overflow-y-auto pt-5 pb-18 px-10">
-          {/*타이틀 영역*/}
+  return (
+    <GroupPageShell
+      title="내 그룹"
+      action={
+        <Link to="/group/settings" className="text-mobile-body text-gray-400">
+          설정
+        </Link>
+      }
+    >
+      {hasNoGroup ? (
+        <GroupEmptyState />
+      ) : (
+        <>
           <div className="mb-5">
-            <h1 className="mb-1 text-2xl font-bold text-gray-900">어느 그룹으로 들어갈까요?</h1>
-            <p className="text-sm font-medium text-gray-600">
-              참여 중인 그룹을 선택하거나 새 그룹을 만들어보세요.
+            <h1 className="mb-0.5 text-base font-bold tracking-[0.04em] text-gray-900 lg:mb-1 lg:text-2xl lg:tracking-normal">
+              어느 그룹으로 들어갈까요?
+            </h1>
+            <p className="text-mobile-label font-medium text-gray-600 lg:text-sm">
+              기존 그룹에 참여하거나 새 그룹을 만들어보세요.
             </p>
           </div>
 
           <GroupList />
 
-          {/* 구분선 */}
-          <div className="relative py-6 flex items-center justify-center">
-            <div className="absolute inset-x-0 h-px bg-gray-200" />
-            <span className="relative bg-white px-3 text-xs font-bold text-gray-200">또는</span>
-          </div>
+          <GroupOrDivider />
 
           <GroupActionBox />
-        </div>
-      </div>
-    </div>
+        </>
+      )}
+    </GroupPageShell>
   );
 };
