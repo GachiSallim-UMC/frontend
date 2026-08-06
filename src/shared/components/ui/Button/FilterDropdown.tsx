@@ -15,6 +15,10 @@ interface FilterDropdownProps {
   onChange: (value: string) => void;
   /** "전체"에 해당하는 값. 이 값이면 비활성(강조 없음)으로 표시합니다. */
   allValue?: string;
+  /** 기본 모바일 pill 스타일과 다른 규격이 필요한 화면(예: 활동내역)에서 트리거 버튼 스타일을 오버라이드. */
+  triggerClassName?: string;
+  /** 바깥 wrapper(기본 inline-block shrink-0) 오버라이드. flex-1로 폭을 균등 분배할 때 사용. */
+  containerClassName?: string;
 }
 
 export const FilterDropdown = ({
@@ -23,6 +27,8 @@ export const FilterDropdown = ({
   options,
   onChange,
   allValue = 'ALL',
+  triggerClassName,
+  containerClassName,
 }: FilterDropdownProps) => {
   const { isOpen, dropUp, containerRef, toggle, close } = useDropdown({
     menuMaxHeight: MENU_MAX_HEIGHT,
@@ -33,7 +39,7 @@ export const FilterDropdown = ({
   const displayText = isActive && selectedOption ? selectedOption.label : defaultLabel;
 
   return (
-    <div className="relative inline-block shrink-0 text-left" ref={containerRef}>
+    <div className={cn('relative inline-block shrink-0 text-left', containerClassName)} ref={containerRef}>
       <button
         type="button"
         aria-haspopup="listbox"
@@ -49,6 +55,7 @@ export const FilterDropdown = ({
           isActive || isOpen
             ? 'border-primary-500 bg-primary-100 text-primary-500'
             : 'border-gray-100 bg-white text-gray-500 hover:bg-gray-100',
+          triggerClassName,
         )}
       >
         {displayText}
