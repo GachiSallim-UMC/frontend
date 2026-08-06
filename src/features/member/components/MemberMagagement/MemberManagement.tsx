@@ -109,11 +109,13 @@ export const MemberManagement = ({ isAdmin = false, onUnauthorized }: MemberMana
   });
 
   return (
-    <section className="flex w-full flex-col rounded-2xl bg-white p-7">
-      <h3 className="mb-5 text-lg font-bold text-gray-900 leading-snug">멤버 관리</h3>
+    <section className="flex w-full flex-col bg-transparent px-4 pt-0 md:rounded-2xl md:bg-white md:p-7">
+      <h3 className="md:mb-5 mb-[8px] text-[14px] md:text-lg font-bold text-gray-900 leading-snug">
+        멤버 관리
+      </h3>
 
       {/* 멤버 리스트 영역 */}
-      <div className="flex flex-col">
+      <div className="flex flex-col rounded-xl border border-gray-100 bg-white px-[8px] md:rounded-none md:border-none md:bg-transparent md:p-0">
         {sortedMembers.map((member, index) => {
           const userName = member.user?.nickname || member.user?.name || '멤버';
           const userAvatarUrl = member.user?.profileImage ?? undefined;
@@ -121,40 +123,57 @@ export const MemberManagement = ({ isAdmin = false, onUnauthorized }: MemberMana
           return (
             <div
               key={member.userId || member.user.id}
-              className={`flex items-center justify-between p-3 ${
+              className={`flex h-[56px] md:h-auto items-center justify-between p-3 ${
                 index !== sortedMembers.length - 1 ? 'border-b border-gray-100' : ''
               }`}
             >
               {/* 좌측 */}
-              <div className="flex items-center">
-                <UserAvatar name={userName} avatarUrl={userAvatarUrl} size="lg" className="mr-2" />
+              <div className="flex flex-1 items-center justify-between md:flex-none md:justify-start">
+                <div className="flex items-center">
+                  {/**모바일용 아바타 - sm */}
+                  <UserAvatar
+                    name={userName}
+                    avatarUrl={userAvatarUrl}
+                    size="sm"
+                    className="mr-2 md:hidden"
+                  />
+                  {/* 데스크탑용 아바타 - lg */}
+                  <UserAvatar
+                    name={userName}
+                    avatarUrl={userAvatarUrl}
+                    size="lg"
+                    className="mr-2 hidden md:block"
+                  />
 
-                <div className="flex items-center gap-6">
-                  <span className="text-base font-bold text-gray-900">{userName}</span>
+                  <div className="flex items-center gap-2 md:gap-6">
+                    <span className="md:text-base text-[12px] font-bold text-gray-900">
+                      {userName}
+                    </span>
 
-                  <span
-                    className={`flex h-6 w-14 items-center justify-center rounded-md px-2 py-1 text-xs text-white ${
-                      member.role === 'ADMIN' ? 'bg-primary-600' : 'bg-gray-400'
-                    }`}
-                  >
-                    {member.role === 'ADMIN' ? '관리자' : '멤버'}
-                  </span>
+                    <span
+                      className={`flex h-[20px] w-[46px] md:h-6 md:w-14 items-center justify-center rounded-md px-1 md:px-2 py-1 text-[10px] md:text-xs text-white ${
+                        member.role === 'ADMIN' ? 'bg-primary-600' : 'bg-gray-400'
+                      }`}
+                    >
+                      {member.role === 'ADMIN' ? '관리자' : '멤버'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* 관리자 위임 / 내보내기 버튼 */}
                 {member.role === 'MEMBER' && (
-                  <div className="ml-6 flex items-center gap-2">
+                  <div className="md:ml-6 ml-2 flex items-center gap-1.5 md:gap-2">
                     <button
                       type="button"
                       onClick={() => handleDelegateAdminClick(member.userId, userName)}
-                      className="rounded-md border border-gray-100 bg-white px-3 py-1 text-xs text-gray-900 transition-colors hover:bg-gray-100"
+                      className="rounded-md border border-gray-100 bg-white px-2 py-1 md:px-3 text-[10px] md:text-xs text-gray-900 transition-colors hover:bg-gray-100"
                     >
                       관리자 위임
                     </button>
                     <button
                       type="button"
                       onClick={() => handleKickOutClick(member.userId, userName)}
-                      className="rounded-md border border-gray-100 bg-white px-3 py-1 text-xs text-gray-900 transition-colors hover:bg-gray-100"
+                      className="rounded-md border border-gray-100 bg-white px-2 md:px-3 py-1 text-[10px] md:text-xs text-gray-900 transition-colors hover:bg-gray-100"
                     >
                       내보내기
                     </button>
@@ -163,7 +182,11 @@ export const MemberManagement = ({ isAdmin = false, onUnauthorized }: MemberMana
               </div>
 
               {/* 우측 영역: 가입일 */}
-              {member.joinedAt && <span className="text-sm text-gray-500">{member.joinedAt}</span>}
+              {member.joinedAt && (
+                <span className="hidden text-[12px] text-gray-500 md:block">
+                  {member.joinedAt.split(/[T ]/)[0]}
+                </span>
+              )}
             </div>
           );
         })}
@@ -190,6 +213,7 @@ export const MemberManagement = ({ isAdmin = false, onUnauthorized }: MemberMana
         isSaving={removeMemberMutation.isPending}
         errorMessage={kickOutError}
       />
+      <div className="mt-5 w-full border-b border-gray-100 md:hidden" />
     </section>
   );
 };

@@ -201,10 +201,15 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
 
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const bottomSheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        (!bottomSheetRef.current || !bottomSheetRef.current.contains(event.target as Node))
+      ) {
         setIsMenuOpen(false);
       }
     };
@@ -230,7 +235,10 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
   };
 
   return (
-    <section className="flex w-full flex-col items-center gap-8 md:flex-row md:items-start md:gap-23 rounded-2xl bg-white p-5 md:p-7">
+    <section
+      className="mx-auto flex w-full max-w-[390px] flex-col items-center bg-transparent
+    px-4 pt-0 md:max-w-none md:flex-row md:items-start md:gap-23 md:rounded-2xl md:bg-white md:p-7"
+    >
       <input
         type="file"
         ref={fileInputRef}
@@ -240,7 +248,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
       />
       {/* 좌측: 프로필 */}
       <div className="md:mx-20 flex shrink-0 flex-col items-center justify-center md:pt-2">
-        <div className="relative mb-3 h-32 w-32 md:mb-4 md:h-36 md:w-36">
+        <div className="relative mb-[10px] h-[100px] w-[100px] md:mb-4 md:h-[156px] md:w-[156px]">
           {groupImage ? (
             <img
               src={groupImage}
@@ -258,14 +266,14 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
             <button
               aria-label="프로필 이미지 변경"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white shadow-md transition-colors hover:bg-gray-100"
+              className="flex h-[30px] w-[30px] md:h-[40px] md:w-[40px] items-center justify-center rounded-full border border-gray-100 bg-white shadow-md transition-colors hover:bg-gray-100"
             >
-              <CameraIcon className="h-6 w-6 text-gray-700" />
+              <CameraIcon className="h-[18px] w-[18px] md:h-[24px] md:w-[24px] text-gray-700" />
             </button>
 
-            {/* 팝업 드롭다운 창 */}
+            {/* 팝업 드롭다운 창 -> 데스크탑 전용*/}
             {isMenuOpen && (
-              <div className="absolute left-12 top-0 z-20 flex w-[180px] flex-col rounded-lg bg-white py-2 shadow-lg ring-1 ring-gray-900 ring-dropdown">
+              <div className="absolute left-12 top-0 z-20 md:flex hidden w-[180px] flex-col rounded-lg bg-white py-2 shadow-lg ring-1 ring-gray-900 ring-dropdown">
                 <button
                   onClick={handleUploadClick}
                   className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-100"
@@ -284,12 +292,14 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
             )}
           </div>
         </div>
-        <span className="text-xl font-bold text-gray-900">{groupName}</span>
-        <span className="text-sm text-gray-400">생성일: {formattedDate}</span>
+        <span className="text-[16px] md:text-[20px] font-bold text-gray-900">
+          {groupData?.name || ''}
+        </span>
+        <span className="text-[10px] md:text-[14px] text-gray-400">생성일: {formattedDate}</span>
 
         {/* 모바일 전용 -> 데스크탑에서는 숨김*/}
-        <div className="mt-3 flex items-center justify-center gap-2 md:hidden">
-          <span className="text-base font-bold uppercase tracking-widest text-primary-600">
+        <div className="mt-[6px] flex items-center justify-center gap-2 md:hidden">
+          <span className="text-[12px] font-bold uppercase tracking-widest text-primary-700">
             {groupData?.inviteCode || ''}
           </span>
           <button
@@ -297,33 +307,33 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
             onClick={handleRegenerateCode}
             disabled={regenerateCodeMutation.isPending}
             aria-label="그룹 코드 재발급"
-            className="flex items-center justify-center text-primary-600 transition-colors hover:text-gray-900 disabled:opacity-50"
+            className="flex items-center justify-center text-primary-700 transition-colors hover:text-gray-900 disabled:opacity-50"
           >
             <RefreshCw
-              className={`h-4 w-4 ${regenerateCodeMutation.isPending ? 'animate-spin' : ''}`}
+              className={`h-[12px] w-[12px] ${regenerateCodeMutation.isPending ? 'animate-spin' : ''}`}
             />
           </button>
           <button
             type="button"
             onClick={handleCopyCode}
             aria-label="그룹 코드 복사"
-            className="flex items-center justify-center text-primary-600 transition-colors hover:text-primary-700"
+            className="flex items-center justify-center text-primary-700 transition-colors hover:text-primary-600"
           >
-            <CopyIcon className="h-4 w-4" />
+            <CopyIcon className="h-[12px] w-[12px]" />
           </button>
         </div>
       </div>
 
       {/* 우측: 그룹 기본 정보 */}
-      <div className="flex w-full flex-1 flex-col">
+      <div className="flex w-full flex-1 flex-col mt-[20px] md:mt-0">
         <h3 className="mb-5 hidden text-lg font-bold text-gray-900 leading-snug md:block">
           그룹 기본 정보
         </h3>
 
         {/* 그룹 이름 & 최대 인원 */}
-        <div className="flex w-full flex-col gap-5 md:mb-5 md:grid md:grid-cols-2">
+        <div className="flex w-full flex-col gap-[10px] md:mb-5 md:grid md:grid-cols-2">
           <div className="order-1 flex h-full flex-col justify-end md:order-1">
-            <label htmlFor="groupName" className="mb-1 text-sm font-bold text-gray-900">
+            <label htmlFor="groupName" className="mb-1 text-[14px] font-bold text-gray-900">
               그룹 이름
             </label>
             <FormInput
@@ -336,13 +346,14 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
               placeholder="그룹 이름을 입력해주세요"
               maxLength={40}
               error={errors.groupName}
+              className="h-[44px] md:h-[50px] text-[12px] md:text-[16px]"
             />
           </div>
 
           {/* 그룹 소개 & 저장 */}
           <div className="order-2 md:order-3 flex flex-col md:col-span-2 md:flex-row md:items-end md:gap-5">
             <div className="flex flex-1 flex-col gap-1">
-              <label htmlFor="description" className="mb-1 text-sm font-bold text-gray-900">
+              <label htmlFor="description" className="mb-1 text-[14px] font-bold text-gray-900">
                 그룹 소개
               </label>
               <FormInput
@@ -355,6 +366,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
                 placeholder="그룹을 소개하는 한 줄 평을 적어주세요"
                 maxLength={255}
                 error={errors.description}
+                className="h-[44px] md:h-[50px] text-[12px] md:text-[16px]"
               />
             </div>
 
@@ -380,13 +392,14 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
               options={maxMemberOptions}
               placeholder="인원 선택"
               error={errors.maxMemberCount}
+              className="h-[44px] md:h-[50px] text-[12px] md:text-[16px]"
             />
           </div>
-          <div className="order-4 mt-2 md:hidden">
+          <div className="order-4 mt-[10px] md:hidden">
             <Button
               onClick={handleSave}
               variant="primary"
-              className="h-[50px] w-full font-bold"
+              className="h-[44px] w-full font-bold text-[14px]"
               isLoading={updateGroupMutation.isPending || isUploading}
             >
               저장
@@ -442,6 +455,47 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
         isSaving={updateGroupMutation.isPending || isUploading}
         errorMessage={saveError}
       />
+      <div className="mt-5 w-full border-b border-gray-100 md:hidden" />
+
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-gray-900/60 md:hidden">
+          <div className="absolute inset-0" onClick={() => setIsMenuOpen(false)} />
+          <div
+            ref={bottomSheetRef}
+            className="relative w-full rounded-t-[12px] bg-white px-4 pb-[21px] pt-3"
+          >
+            <div className="mx-auto mb-6 h-[4px] w-[68px] rounded-full bg-gray-200" />
+            {/* 버튼 리스트 */}
+            <div className="flex flex-col">
+              <button
+                type="button"
+                onClick={handleUploadClick}
+                className="flex items-center gap-4 border-b border-gray-100 py-4 text-[16px] text-gray-900 transition-colors hover:bg-gray-100 active:bg-gray-200"
+              >
+                <UploadIcon className="h-6 w-6" />
+                사진 업로드
+              </button>
+
+              <button
+                type="button"
+                onClick={handleImageDelete}
+                className="flex items-center gap-4 py-4 text-[16px] text-red-700 transition-colors hover:bg-red-100 active:bg-red-300"
+              >
+                <TrashIcon className="h-6 w-6 text-red-700" />
+                사진 삭제
+              </button>
+            </div>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => setIsMenuOpen(false)}
+              className="mt-2 w-full !h-[44px] !rounded-xl !text-[14px] !font-bold !text-gray-700"
+            >
+              취소
+            </Button>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
