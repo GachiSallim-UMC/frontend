@@ -92,7 +92,8 @@ export const useActivityLog = () => {
       let changed = false;
       const next = new Map(prev);
       logs.forEach(log => {
-        if (!next.has(log.user.id)) {
+        // 기존 id도 닉네임이 바뀌었으면 최신값으로 갱신 (세션 중 개명 대응)
+        if (next.get(log.user.id) !== log.user.nickname) {
           next.set(log.user.id, log.user.nickname);
           changed = true;
         }
