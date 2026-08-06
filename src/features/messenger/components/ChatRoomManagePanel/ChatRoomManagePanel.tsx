@@ -58,7 +58,7 @@ export const ChatRoomManagePanel = ({
       </div>
 
       <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-5">
-        <div className="flex h-[76px] items-center gap-2.5 rounded-lg border border-gray-100 px-4">
+        <div className="flex h-[76px] shrink-0 items-center gap-2.5 rounded-lg border border-gray-100 px-4">
           {CATEGORY_THUMBNAIL[room.category] ? (
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-200">
               <img src={CATEGORY_THUMBNAIL[room.category]} alt="" className="h-[38px] w-[38px]" />
