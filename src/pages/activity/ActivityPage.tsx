@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { Calendar } from 'lucide-react';
 import { ActivityList, useActivityLog } from '@/features/activity';
 import { LabelFilterDropdown } from '@/shared/components/ui';
 
@@ -56,6 +57,7 @@ export const ActivityPage = () => {
               onChange={setPeriodFilter}
               containerClassName={MOBILE_DROPDOWN_CONTAINER_CLASS}
               triggerClassName={MOBILE_DROPDOWN_TRIGGER_CLASS}
+              mobileIcon={<Calendar className="size-4 shrink-0 text-gray-400" />}
             />
           </div>
           <div className="mt-5 min-h-0 flex-1 overflow-y-auto px-4 lg:px-[30px]">

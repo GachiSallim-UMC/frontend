@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { FilterDropdown } from './FilterDropdown';
 
 interface LabelFilterDropdownProps {
@@ -8,6 +9,7 @@ interface LabelFilterDropdownProps {
   onChange: (value: string) => void;
   triggerClassName?: string;
   containerClassName?: string;
+  mobileIcon?: ReactNode;
 }
 
 /**
@@ -20,6 +22,7 @@ export const LabelFilterDropdown = ({
   onChange,
   triggerClassName,
   containerClassName,
+  mobileIcon,
 }: LabelFilterDropdownProps) => {
   const [allLabel = '전체'] = options;
 
@@ -33,6 +36,7 @@ export const LabelFilterDropdown = ({
       onChange={onChange}
       triggerClassName={triggerClassName}
       containerClassName={containerClassName}
+      mobileIcon={mobileIcon}
     />
   );
 };

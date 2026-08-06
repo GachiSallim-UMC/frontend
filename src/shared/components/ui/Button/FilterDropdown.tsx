@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { cn, useDropdown } from '@/shared/lib';
 
@@ -19,6 +20,8 @@ interface FilterDropdownProps {
   triggerClassName?: string;
   /** 바깥 wrapper(기본 inline-block shrink-0) 오버라이드. flex-1로 폭을 균등 분배할 때 사용. */
   containerClassName?: string;
+  /** 모바일(lg 미만)에서 기본 화살표 대신 보여줄 아이콘 (예: 활동내역 기간 필터의 캘린더 아이콘). lg 이상은 항상 기본 화살표. */
+  mobileIcon?: ReactNode;
 }
 
 export const FilterDropdown = ({
@@ -29,6 +32,7 @@ export const FilterDropdown = ({
   allValue = 'ALL',
   triggerClassName,
   containerClassName,
+  mobileIcon,
 }: FilterDropdownProps) => {
   const { isOpen, dropUp, containerRef, toggle, close } = useDropdown({
     menuMaxHeight: MENU_MAX_HEIGHT,
@@ -59,9 +63,11 @@ export const FilterDropdown = ({
         )}
       >
         {displayText}
+        {mobileIcon && <span className="lg:hidden">{mobileIcon}</span>}
         <ChevronDown
           className={cn(
             'size-4 shrink-0 transition-transform lg:size-6',
+            mobileIcon && 'hidden lg:block',
             isOpen && 'rotate-180',
             isActive || isOpen ? 'text-primary-500' : 'text-gray-400',
           )}
