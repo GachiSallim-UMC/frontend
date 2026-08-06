@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SelectDropdown } from '@/shared/components';
 import { Switch } from '@/shared/components';
-import { useDateFormatStore, useStartDayStore } from '@/shared/store';
+import { useAutoLoginStore, useDateFormatStore, useStartDayStore } from '@/shared/store';
 import {
   DATE_FORMAT_OPTIONS,
   FONT_SIZE_OPTIONS,
@@ -31,9 +31,9 @@ export const SystemSetting = () => {
     const [fontSize, setFontSize] = useState<FontSizeValue>('normal');
 
     // 토글 스위치 상태 관리
-  const [autoLogin, setAutoLogin] = useState<boolean>(true);
-  const [soundVibration, setSoundVibration] = useState<boolean>(true);
-  const [dataSaver, setDataSaver] = useState<boolean>(false);
+  // 꺼져 있으면 세션이 sessionStorage에 저장되어 탭·브라우저를 닫으면 로그아웃됨
+  const autoLogin = useAutoLoginStore(state => state.autoLogin);
+  const setAutoLogin = useAutoLoginStore(state => state.setAutoLogin);
 
   return (
     <section className='flex w-full flex-col rounded-2xl bg-white p-7'>
@@ -63,30 +63,6 @@ export const SystemSetting = () => {
                     </span>
                 </div>
                 <Switch checked={autoLogin} onChange={setAutoLogin} />
-            </div>
-
-            <div className="flex items-center justify-between px-2 py-4">
-                <div className='flex flex-col gap-1'>
-                    <span className="text-base font-bold text-gray-900">
-                        알림 소리 · 진동 
-                    </span>
-                    <span className='text-sm text-gray-900'>
-                        새 알림 도착 시 소리와 진동으로 안내합니다.
-                    </span>
-                </div>
-                <Switch checked={soundVibration} onChange={setSoundVibration} />
-            </div>
-
-            <div className="flex items-center justify-between px-2 py-4">
-                <div className='flex flex-col gap-1'>
-                    <span className="text-base font-bold text-gray-900">
-                        데이터 절약 모드
-                    </span>
-                    <span className='text-sm text-gray-900'>
-                        이미지·프로필 사진을 저화질로 불러옵니다.
-                    </span>
-                </div>
-                <Switch checked={dataSaver} onChange={setDataSaver} />
             </div>
 
         </div>

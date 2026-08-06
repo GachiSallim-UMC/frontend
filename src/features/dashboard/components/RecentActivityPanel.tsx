@@ -50,6 +50,7 @@ export const RecentActivityPanel = ({ activities }: RecentActivityPanelProps) =>
                     <TimelineItem
                         key={activity.activityId}
                         actorName={activity.actorName}
+                        actorAvatarUrl={activity.actorProfileImage ?? undefined}
                         description={activity.message}
                         timestamp={getRelativeTime(activity.createdAt)}
                         isFirst={index === 0}

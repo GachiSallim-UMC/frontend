@@ -1,7 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ResetPasswordForm, type ResetPasswordFormData } from '@/features/auth';
-import { authApi } from '@/features/auth/api/auth.api'; 
+import { ResetPasswordForm, authApi, type ResetPasswordFormData } from '@/features/auth';
 import { useErrorStore } from '@/shared/store/useErrorStore';
 
 export const ResetPasswordPage = () => {
@@ -82,7 +81,7 @@ export const ResetPasswordPage = () => {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
-            <div className="h-[696px] w-full max-w-lg rounded-3xl bg-white px-10 pt-10 pb-8 flex flex-col justify-center">
+            <div className="h-[696px] w-full max-w-lg rounded-3xl bg-white px-10 pb-8 pt-10 flex flex-col">
                 <ResetPasswordForm 
                     formData={formData}
                     onChange={handleFormDataChange}

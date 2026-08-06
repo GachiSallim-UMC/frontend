@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import type { StateStorage } from 'zustand/middleware';
+import { useAutoLoginStore } from './useAutoLoginStore';
 
 interface AuthState {
   accessToken: string | null;
@@ -40,6 +42,28 @@ const getExpiresAt = (expiresIn?: number): number | null =>
   typeof expiresIn === 'number' && Number.isFinite(expiresIn) && expiresIn > 0
     ? Date.now() + expiresIn * 1000
     : null;
+
+/**
+ * 마이페이지 "자동 로그인 유지" 설정에 따라 세션 저장소를 고른다.
+ * 켜져 있으면 localStorage(브라우저를 껐다 켜도 유지), 꺼져 있으면
+ * sessionStorage(탭·브라우저를 닫으면 소멸)를 사용한다.
+ */
+const authStorage: StateStorage = {
+  getItem: name => localStorage.getItem(name) ?? sessionStorage.getItem(name),
+  setItem: (name, value) => {
+    if (useAutoLoginStore.getState().autoLogin) {
+      sessionStorage.removeItem(name);
+      localStorage.setItem(name, value);
+    } else {
+      localStorage.removeItem(name);
+      sessionStorage.setItem(name, value);
+    }
+  },
+  removeItem: name => {
+    localStorage.removeItem(name);
+    sessionStorage.removeItem(name);
+  },
+};
 
 export const useAuthStore = create<AuthState>()(
   persist<AuthState, [], [], PersistedAuthState>(
@@ -93,6 +117,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'gachi-salim-auth',
       version: 1,
+      storage: createJSONStorage(() => authStorage),
       // refresh token은 백엔드가 JSON으로 반환하므로 세션 유지에 필요한 값만 저장합니다.
       // 사용하지 않는 ID token은 localStorage에 남기지 않습니다.
       partialize: state => ({
@@ -122,3 +147,8 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
+
+// "자동 로그인 유지"를 껐다 켜면, 이미 로그인된 세션도 즉시 올바른 저장소(로컬/세션)로 옮겨쓴다.
+useAutoLoginStore.subscribe(() => {
+  useAuthStore.setState(state => ({ ...state }));
+});

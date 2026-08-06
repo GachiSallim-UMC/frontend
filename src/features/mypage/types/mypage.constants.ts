@@ -10,13 +10,11 @@ import type {
 } from '@/features/mypage/types/mypage.types'
 
 export const THEME_OPTIONS: SelectOption<ThemeValue>[] = [
-  { value: 'light', label: '라이트 모드' },
-  { value: 'dark', label: '다크 모드' },
+  { value: 'light', label: '라이트 모드' }
 ];
 
 export const LANGUAGE_OPTIONS: SelectOption<LanguageValue>[] = [
-  { value: 'ko', label: '한국어' },
-  { value: 'en', label: 'English' },
+  { value: 'ko', label: '한국어' }
 ];
 
 export const TIMEZONE_OPTIONS: SelectOption<TimezoneValue>[] = [
@@ -34,9 +32,7 @@ export const DATE_FORMAT_OPTIONS: SelectOption<DateFormatValue>[] = [
 ];
 
 export const FONT_SIZE_OPTIONS: SelectOption<FontSizeValue>[] = [
-  { value: 'large', label: '크게' },
   { value: 'normal', label: '보통' },
-  { value: 'small', label: '작게' },
 ];
 
 export const NOTIFICATION_LEFT_OPTIONS: CheckboxOption<NotificationType>[] = [
