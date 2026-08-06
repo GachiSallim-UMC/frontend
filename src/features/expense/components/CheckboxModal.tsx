@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Modal } from '@/shared/components';
 
 interface MemberItem {
@@ -26,15 +26,17 @@ export const CheckboxModal = ({
   onSubmit,
 }: CheckboxModalProps) => {
   const [selectedIds, setSelectedIds] = useState<(number | string)[]>([]);
+  const wasOpen = useRef(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !wasOpen.current) {
       setSelectedIds(
         members
           .filter((member) => member.isPaid)
           .map((member) => member.id)
       );
     }
+    wasOpen.current = isOpen;
   }, [isOpen, members]);
 
   const handleToggle = (id: number | string) => {

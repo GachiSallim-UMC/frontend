@@ -30,7 +30,7 @@ export const settleMyExpenseShare = async (
 
   try {
     await settleExpenseSplit(Number(myShare.id), {
-      isBulkComplete: true,
+      isBulkComplete: false,
     });
 
     useErrorStore.getState().showError({
@@ -144,7 +144,7 @@ export const useExpenseSettle = (
     try {
       for (const splitId of selectedSplitIds) {
         await settleExpenseSplit(Number(splitId), {
-          isBulkComplete: true,
+          isBulkComplete: false,
         });
       }
 

@@ -113,12 +113,12 @@ export function ExpenseDetailCard({
                 let badgeVariant: 'done' | 'pending' = 'pending';
                 let badgeLabel = '미납';
 
-                if (isPaid) {
-                  badgeVariant = 'done';
-                  badgeLabel = '완료';
-                } else if (isPayer) {
+                if (isPayer) {
                   badgeVariant = 'done';
                   badgeLabel = '선지불';
+                } else if (isPaid) {
+                  badgeVariant = 'done';
+                  badgeLabel = '완료';
                 }
 
                 return (
