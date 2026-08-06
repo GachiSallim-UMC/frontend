@@ -9,6 +9,8 @@ export const NICKNAME_PATTERN_MESSAGE = '닉네임은 한글·영문·숫자만 
 
 export const isUnsignedIntegerInput = (value: string) => /^\d*$/.test(value);
 
+export const isDateOnlyInputValue = (value: string) => value === '' || DATE_ONLY_PATTERN.test(value);
+
 export const isValidDateOnly = (value: string) => {
   const match = DATE_ONLY_PATTERN.exec(value);
   if (!match) return false;

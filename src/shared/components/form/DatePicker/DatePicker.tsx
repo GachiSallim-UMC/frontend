@@ -1,6 +1,7 @@
-import type { InputHTMLAttributes } from 'react';
+import type { ChangeEvent, InputHTMLAttributes } from 'react';
 import { Calendar } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
+import { isDateOnlyInputValue } from '@/shared/lib/inputValidation';
 
 interface DatePickerProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
@@ -14,9 +15,14 @@ export const DatePicker = ({
   required,
   className,
   id,
+  onChange,
   ...props
 }: DatePickerProps) => {
   const inputId = id ?? label?.replace(/\s/g, '-').toLowerCase();
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!isDateOnlyInputValue(event.currentTarget.value)) return;
+    onChange?.(event);
+  };
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -30,6 +36,7 @@ export const DatePicker = ({
         <input
           id={inputId}
           type="date"
+          onChange={handleChange}
           className={cn(
             'h-[50px] w-full rounded-lg border bg-white px-3 pr-10',
             'text-button text-gray-900 transition-colors',
