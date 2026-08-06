@@ -11,8 +11,9 @@ type ActivityItemProps = Pick<ActivityLog, 'description' | 'createdAt' | 'route'
 
 const getItemClassName = (isLast: boolean) =>
   cn(
-    'relative flex min-h-[56px] w-full flex-col justify-center gap-[5px] bg-white px-4',
-    'lg:min-h-[69px] lg:border-t lg:border-gray-100 lg:px-[29px] lg:first:border-t-0 lg:last:border-b',
+    // justify-center는 min-h를 넘는 긴 텍스트에서 위쪽 여백이 사라지므로 실제 padding으로 고정
+    'relative flex min-h-[56px] w-full flex-col gap-[5px] bg-white px-4 py-[7px]',
+    'lg:min-h-[69px] lg:border-t lg:border-gray-100 lg:px-[29px] lg:py-[13.5px] lg:first:border-t-0 lg:last:border-b',
     !isLast && 'after:absolute after:bottom-0 after:left-4 after:right-4 after:h-px after:bg-gray-100 lg:after:hidden',
   );
 
