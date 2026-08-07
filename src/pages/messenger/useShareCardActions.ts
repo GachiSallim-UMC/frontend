@@ -68,6 +68,10 @@ export const useShareCardActions = (
         await completeChore.mutateAsync(message.refId);
       } else if (type === 'rule') {
         const rule = shareSourceData.rules.find(item => item.id === message.refId);
+        // rules 캐시가 AGREED가 아닌 다른 값으로 갱신되면, 다른 화면에서 상태가 바뀐 것이므로 ref도 함께 지운다.
+        if (rule && rule.myAgreementStatus !== 'AGREED') {
+          agreedRuleIdsRef.current.delete(message.refId);
+        }
         const alreadyAgreed =
           agreedRuleIdsRef.current.has(message.refId) || rule?.myAgreementStatus === 'AGREED';
         if (!alreadyAgreed) {
