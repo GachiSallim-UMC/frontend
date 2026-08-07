@@ -68,7 +68,7 @@ export const CreateChatRoomModal = ({
       onClose={onClose}
       dismissible={false}
       closeOnOverlayClick
-      className="max-w-[500px] rounded-[28px] p-0"
+      className="flex max-w-[500px] flex-col rounded-[28px] p-0"
     >
       <div className="flex h-[78px] shrink-0 items-center gap-2 border-b border-gray-100 px-[30px]">
         <button type="button" onClick={onClose} aria-label="닫기" className="text-gray-900">
@@ -77,7 +77,8 @@ export const CreateChatRoomModal = ({
         <h2 className="text-[20px] font-bold leading-[normal] tracking-[0.8px] text-gray-900">새 채팅방 만들기</h2>
       </div>
 
-      <div className="flex flex-col gap-6 px-10 pt-6">
+      {/* 헤더/버튼 영역은 항상 보이도록 고정하고, 내용이 길어지면 이 영역만 스크롤되게 한다 */}
+      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-10 pt-6">
         <div className="flex flex-col gap-2">
           <label htmlFor="new-room-name" className="text-[16px] font-bold leading-[normal] text-gray-800">
             채팅방 이름
@@ -125,7 +126,7 @@ export const CreateChatRoomModal = ({
         </div>
       </div>
 
-      <div className="mt-6 flex items-center gap-5 border-t border-gray-100 px-10 py-[26px]">
+      <div className="flex shrink-0 items-center gap-5 border-t border-gray-100 px-10 py-[26px]">
         <button
           type="button"
           onClick={handleCreate}
