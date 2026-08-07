@@ -2,7 +2,6 @@ import { useState, type ComponentProps, type ComponentType } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   RULE_CATEGORY_OPTIONS,
-  RULE_STATUS_OPTIONS,
   useRuleAgreement,
   useRuleDetail,
   useRuleForm,
@@ -58,7 +57,7 @@ const AGREEMENT_SUBLABEL: Record<MyAgreement, string> = {
   pending: '미응답',
 };
 
-type FormErrors = Partial<Record<'title' | 'category' | 'content' | 'status', string>>;
+type FormErrors = Partial<Record<'title' | 'category' | 'content', string>>;
 
 export const RuleDetailPage = () => {
   const { id = '' } = useParams();
@@ -90,8 +89,7 @@ export const RuleDetailPage = () => {
 const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const navigate = useNavigate();
   const currentUserId = useAuthStore(state => state.userId);
-  const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
-    useRuleForm(rule);
+  const { title, setTitle, category, setCategory, content, setContent } = useRuleForm(rule);
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
   const updateAgreement = useUpdateRuleAgreement();
@@ -122,15 +120,13 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
     }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!trimmedContent) nextErrors.content = '상세 설명을 입력해 주세요.';
-    if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+    if (Object.keys(nextErrors).length > 0 || !category) return;
 
     const hasChanges =
       trimmedTitle !== rule.title.trim() ||
       category !== rule.category ||
-      trimmedContent !== (rule.content ?? '').trim() ||
-      status !== rule.status;
+      trimmedContent !== (rule.content ?? '').trim();
 
     if (!hasChanges) {
       navigate('/rules');
@@ -143,7 +139,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const handleConfirmSave = async () => {
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
-    if (!category || !status) return;
+    if (!category) return;
 
     try {
       await updateRule.mutateAsync({
@@ -152,7 +148,6 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           title: trimmedTitle,
           category,
           content: trimmedContent,
-          status,
         },
       });
       setIsSaveModalOpen(false);
@@ -235,20 +230,12 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               labelClassName="leading-[17px] text-gray-800"
               className="block h-[88px] px-4 py-3 text-mobile-label lg:h-[100px] lg:pb-9 lg:pt-4 lg:text-button"
             />
-            <SelectDropdown
-              label="적용 상태"
-              required
-              value={status}
-              onChange={value => {
-                setStatus(value);
-                setErrors(previous => ({ ...previous, status: undefined }));
-              }}
-              options={RULE_STATUS_OPTIONS}
-              error={errors.status}
-              containerClassName="order-3 gap-2 lg:order-4 lg:gap-1"
-              labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
-            />
+            <div className="order-3 flex flex-col gap-2 lg:order-4 lg:gap-1">
+              <span className="text-caption font-bold leading-[17px] text-gray-800">적용 상태</span>
+              <div className="flex h-11 items-center lg:h-[50px]">
+                <StatusBadge variant={rule.status} />
+              </div>
+            </div>
           </div>
         </Panel>
 
