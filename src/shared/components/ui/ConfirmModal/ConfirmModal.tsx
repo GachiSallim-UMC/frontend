@@ -72,38 +72,44 @@ export const ConfirmModal = ({
       isOpen={isOpen}
       onClose={onClose}
       dismissible={false}
-      className="w-full max-w-[500px] overflow-hidden rounded-[28px] p-0"
+      className="w-[357px] max-w-[calc(100vw-32px)] min-h-[202px] flex flex-col justify-between overflow-hidden rounded-[20px] p-0
+      lg:block lg:h-auto lg:w-full lg:max-w-[500px] lg:rounded-[28px]"
     >
-      <div className="flex flex-col items-center px-6 pb-8 pt-10 text-center">
+      <div className="shrink-0 flex flex-col items-center px-4 pt-[20px] lg:px-6 lg:pb-8 lg:pt-10 text-center">
         <span
-          className={cn('flex size-[72px] items-center justify-center rounded-full', styles.iconBg)}
+          className={cn(
+            'flex size-[48px] lg:size-[72px] items-center justify-center rounded-full',
+            styles.iconBg,
+          )}
         >
           <span className={cn('flex size-6 items-center justify-center', styles.iconColor)}>
             {icon}
           </span>
         </span>
 
-        <h2 className="mt-5 text-[20px] font-bold leading-normal text-gray-900">{title}</h2>
-        <p className="mt-1 text-[13px] leading-[1.5] text-gray-600">
+        <h2 className="mt-[16px] text-[18px] lg:mt-5 lg:text-[20px] font-bold leading-tight lg:leading-normal text-gray-900">
+          {title}
+        </h2>
+        <p className="mt-[2px] text-[13px] leading-tight lg:mt-1 lg:leading-[1.5] text-gray-600">
           {highlight && <span className="font-bold text-gray-800">“{highlight}”</span>}
           {highlight && ' '}
           {description}
         </p>
 
         {errorMessage && (
-          <p role="alert" className="mt-4 text-[13px] leading-[1.5] text-red-700">
+          <p role="alert" className="mt-2 lg:mt-4 text-[13px] leading-[1.5] text-red-700">
             {errorMessage}
           </p>
         )}
       </div>
 
-      <div className="flex items-center gap-4 border-t border-gray-100 px-6 py-[27px] lg:gap-5 lg:px-10">
+      <div className="shrink-0 flex items-center gap-[16px] border-t-0 lg:border-t lg:border-gray-100 px-4 pb-[16px] lg:py-[27px] lg:gap-5 lg:px-10">
         <button
           type="button"
           onClick={onConfirm}
           disabled={isPending}
           className={cn(
-            'h-[58px] flex-[26] rounded-lg text-button font-bold text-white transition-colors',
+            'h-[44px] flex-1 lg:h-[58px] lg:flex-[26] rounded-lg text-[14px] lg:text-button font-bold text-white transition-colors',
             'disabled:cursor-not-allowed disabled:opacity-50',
             styles.confirm,
           )}
@@ -115,7 +121,7 @@ export const ConfirmModal = ({
           onClick={onClose}
           disabled={isPending}
           className={cn(
-            'h-[58px] flex-[14] rounded-lg bg-gray-200 text-button font-bold text-white transition-colors',
+            'h-[44px] flex-1 lg:h-[58px] lg:flex-[14] rounded-lg bg-gray-200 text-[14px] lg:text-button font-bold text-white transition-colors',
             'hover:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50',
           )}
         >

@@ -8,7 +8,11 @@ import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { ShareMessengerButton, Button, ConfirmModal } from '@/shared/components/';
 import { useErrorStore } from '@/shared/store';
-import { isUnsignedIntegerInput, isValidDateOnly } from '@/shared/lib/inputValidation';
+import {
+  isDateOnlyInputValue,
+  isUnsignedIntegerInput,
+  isValidDateOnly,
+} from '@/shared/lib/inputValidation';
 
 const labelClass = 'font-sans text-caption font-bold text-gray-800';
 const cardClass = 'w-full bg-white p-[16px] rounded-[18px] flex flex-col gap-5 lg:p-[32px]';
@@ -102,7 +106,8 @@ export const ExpenseAddForm = ({
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setExpenseDate(e.target.value);
+    if (!isDateOnlyInputValue(e.currentTarget.value)) return;
+    setExpenseDate(e.currentTarget.value);
     setFieldErrors(previous => ({ ...previous, date: undefined }));
   };
 

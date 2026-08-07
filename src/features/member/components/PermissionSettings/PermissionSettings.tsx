@@ -80,21 +80,38 @@ export const PermissionSettings = ({
   };
 
   return (
-    <section className="flex w-full flex-col rounded-2xl bg-white p-7">
-      <h3 className="mb-5 text-lg font-bold text-gray-900 leading-snug">권한 설정</h3>
+    <section className="flex w-full flex-col bg-transparent px-4 pt-0 lg:rounded-2xl lg:bg-white lg:p-7">
+      <h3 className="mb-[8px] lg:mb-5 text-[14px] lg:text-lg font-bold text-gray-900 leading-snug">
+        권한 설정
+      </h3>
 
-      <div className="grid grid-cols-1 gap-y-4 md:grid-cols-3 md:gap-x-6">
-        {PERMISSION_LEFT_OPTIONS.map(option => (
-          <CheckboxGroup
+      <div
+        className="grid grid-cols-1 rounded-lg border border-gray-100 bg-white 
+      px-3 lg:grid-cols-3 lg:gap-x-6 lg:rounded-none lg:border-none lg:bg-transparent lg:p-0"
+      >
+        {PERMISSION_LEFT_OPTIONS.map((option, index) => (
+          <div
             key={option.value}
-            direction="col"
-            options={[option]}
-            value={selectedPermissions}
-            onChange={handlePermissionsChange}
-          />
+            className={`flex h-[44px] items-center lg:h-auto lg:block
+            ${
+              index !== PERMISSION_LEFT_OPTIONS.length - 1
+                ? 'border-b border-gray-100 lg:border-none'
+                : ''
+            }`}
+          >
+            <CheckboxGroup
+              key={option.value}
+              direction="col"
+              options={[option]}
+              value={selectedPermissions}
+              onChange={handlePermissionsChange}
+              size="sm"
+            />
+          </div>
         ))}
       </div>
       {permissionError && <span className="mt-4 text-sm text-red-700">{permissionError}</span>}
+      <div className="mt-5 w-full border-b border-gray-100 lg:hidden" />
     </section>
   );
 };
