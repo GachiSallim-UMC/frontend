@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { CheckboxGroup } from '@/shared/components';
+import { CheckboxGroup, Switch } from '@/shared/components';
 import { useErrorStore } from '@/shared/store';
-import { NOTIFICATION_LEFT_OPTIONS, NOTIFICATION_RIGHT_OPTIONS } from '@/features/mypage/types/mypage.constants';
+import { NOTIFICATION_LEFT_OPTIONS, NOTIFICATION_RIGHT_OPTIONS, NOTIFICATION_OPTIONS } from '@/features/mypage/types/mypage.constants';
 import type { NotificationPreferencesDto, NotificationType } from '@/features/mypage/types/mypage.types';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
 
@@ -80,13 +80,34 @@ export const NotificationSettings = () => {
     return <div className="p-7 text-gray-500">알림 설정을 불러오는 중입니다...</div>;
   }
 
+  const toggleAlert = (type: NotificationType) => {
+    const next = selectedAlerts.includes(type)
+      ? selectedAlerts.filter(alert => alert !== type)
+      : [...selectedAlerts, type];
+    handleAlertChange(next);
+  };
+
     return (
-        <section className='flex w-full flex-col rounded-2xl bg-white p-7'>
-            <h3 className='mb-5 text-lg font-bold text-gray-900 leading-snug'>
+        <section className='flex w-full flex-col lg:rounded-2xl lg:bg-white lg:p-7'>
+            <h3 className='mb-2 text-mobile-label font-bold text-gray-700 lg:mb-5 lg:text-lg lg:text-gray-900 lg:leading-snug'>
                 알림 설정
             </h3>
 
-            <div className='grid grid-cols-2 gap-x-46'>
+            {/* 모바일: 스위치 목록 */}
+            <div className="flex flex-col divide-y divide-gray-100 rounded-lg border border-gray-100 bg-white lg:hidden">
+                {NOTIFICATION_OPTIONS.map(option => (
+                    <div key={option.value} className="flex items-center justify-between px-4 py-2.5">
+                        <span className="text-mobile-label font-bold text-gray-700">{option.label}</span>
+                        <Switch
+                            checked={selectedAlerts.includes(option.value)}
+                            onChange={() => toggleAlert(option.value)}
+                        />
+                    </div>
+                ))}
+            </div>
+
+            {/* 데스크톱: 체크박스 2열 */}
+            <div className='hidden grid-cols-2 gap-x-46 lg:grid'>
                 {/* 좌측 체크박스 그룹 */}
                 <CheckboxGroup
                     direction="col"

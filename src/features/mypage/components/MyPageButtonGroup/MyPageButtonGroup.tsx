@@ -36,13 +36,13 @@ export const MyPageButtonGroup = () => {
 
     return (
         <>
-            <div className="flex w-full items-center gap-5">
+            <div className="flex w-full flex-col gap-2 lg:flex-row lg:items-center lg:gap-5">
                 <Button
                     variant='secondary'
                     size="lg"
-                    className='flex-1'
+                    className='h-11 border-red-700 text-mobile-body text-red-700 hover:bg-red-100 lg:h-12 lg:flex-1 lg:border-gray-100 lg:text-base lg:text-gray-500 lg:hover:bg-gray-100'
                     leftIcon={
-                        <LogoutIcon className='h-5 w-5' />
+                        <LogoutIcon className='hidden h-5 w-5 lg:block' />
                     }
                     disabled={isLoggingOut || isWithdrawing}
                     onClick={handleLogout}
@@ -53,9 +53,9 @@ export const MyPageButtonGroup = () => {
                 <Button
                     variant='danger'
                     size="lg"
-                    className='flex-1'
+                    className='h-11 text-mobile-body lg:h-12 lg:flex-1 lg:text-base'
                     leftIcon={
-                        <CrossIcon className='h-5 w-5' />
+                        <CrossIcon className='hidden h-5 w-5 lg:block' />
                     }
                     onClick={() => setIsWithdrawalModalOpen(true)}
                     disabled={isLoggingOut || isWithdrawing}
