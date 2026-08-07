@@ -26,6 +26,8 @@ export const useShareCardActions = (
   const shareCardCacheRef = useRef(new Map<string, ChatShareCard>());
   // 공유 카드 액션 버튼 연타 방지용 — 처리 중인 메시지 id 집합
   const [pendingActionIds, setPendingActionIds] = useState<Set<string>>(new Set());
+  // 동의 완료한 규칙 id — rules 목록 캐시가 갱신되기 전에 다시 눌러도 중복 요청되지 않도록 즉시 기록
+  const agreedRuleIdsRef = useRef(new Set<string>());
 
   // 카드 메시지는 refId로 실제 집안일/생활비/물품/규칙 데이터를 찾아 상세 내용을 보강
   const enrichedMessageGroups = messageGroups.map(group => ({
@@ -65,7 +67,13 @@ export const useShareCardActions = (
       if (type === 'chore') {
         await completeChore.mutateAsync(message.refId);
       } else if (type === 'rule') {
-        await updateRuleAgreement.mutateAsync({ id: message.refId, dto: { status: 'AGREED' } });
+        const rule = shareSourceData.rules.find(item => item.id === message.refId);
+        const alreadyAgreed =
+          agreedRuleIdsRef.current.has(message.refId) || rule?.myAgreementStatus === 'AGREED';
+        if (!alreadyAgreed) {
+          await updateRuleAgreement.mutateAsync({ id: message.refId, dto: { status: 'AGREED' } });
+          agreedRuleIdsRef.current.add(message.refId);
+        }
       } else if (type === 'expense') {
         const expense = shareSourceData.expenses.find(item => item.id === message.refId);
         if (expense) await settleMyExpenseShare(expense, currentUserId);
