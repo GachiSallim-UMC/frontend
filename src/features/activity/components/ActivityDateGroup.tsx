@@ -20,6 +20,7 @@ export const ActivityDateGroup: FC<ActivityDateGroupProps> = ({ dateLabel, logs 
             description={log.description}
             createdAt={log.createdAt}
             route={log.route}
+            user={log.user}
             isLast={index === logs.length - 1}
           />
         ))}
