@@ -80,24 +80,24 @@ export const PermissionSettings = ({
   };
 
   return (
-    <section className="flex w-full flex-col bg-transparent px-4 pt-0 md:rounded-2xl md:bg-white md:p-7">
-      <h3 className="mb-[8px] md:mb-5 text-[14px] md:text-lg font-bold text-gray-900 leading-snug">
+    <section className="flex w-full flex-col bg-transparent px-4 pt-0 lg:rounded-2xl lg:bg-white lg:p-7">
+      <h3 className="mb-[8px] lg:mb-5 text-[14px] lg:text-lg font-bold text-gray-900 leading-snug">
         권한 설정
       </h3>
 
       <div
         className="grid grid-cols-1 rounded-lg border border-gray-100 bg-white 
-      px-3 md:grid-cols-3 md:gap-x-6 md:rounded-none md:border-none md:bg-transparent md:p-0"
+      px-3 lg:grid-cols-3 lg:gap-x-6 lg:rounded-none lg:border-none lg:bg-transparent lg:p-0"
       >
         {PERMISSION_LEFT_OPTIONS.map((option, index) => (
           <div
             key={option.value}
-            className={`flex h-[44px] items-center md:h-auto md:block 
-            [&_span]:!text-[12px] [&_span]:!text-gray-700 md:[&_span]:!text-[16px] md:[&_span]:!text-gray-900
-            [&_input]:!h-[16px] [&_input]:!w-[16px] md:[&_input]:!h-[20px] md:[&_input]:!w-[20px]
+            className={`flex h-[44px] items-center lg:h-auto lg:block 
+            [&_span]:!text-[12px] [&_span]:!text-gray-700 lg:[&_span]:!text-[16px] lg:[&_span]:!text-gray-900
+            [&_input]:!h-[16px] [&_input]:!w-[16px] lg:[&_input]:!h-[20px] lg:[&_input]:!w-[20px]
             ${
               index !== PERMISSION_LEFT_OPTIONS.length - 1
-                ? 'border-b border-gray-100 md:border-none'
+                ? 'border-b border-gray-100 lg:border-none'
                 : ''
             }`}
           >
@@ -112,7 +112,7 @@ export const PermissionSettings = ({
         ))}
       </div>
       {permissionError && <span className="mt-4 text-sm text-red-700">{permissionError}</span>}
-      <div className="mt-5 w-full border-b border-gray-100 md:hidden" />
+      <div className="mt-5 w-full border-b border-gray-100 lg:hidden" />
     </section>
   );
 };

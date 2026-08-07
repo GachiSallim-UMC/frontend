@@ -237,7 +237,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
   return (
     <section
       className="mx-auto flex w-full max-w-[390px] flex-col items-center bg-transparent
-    px-4 pt-0 md:max-w-none md:flex-row md:items-start md:gap-23 md:rounded-2xl md:bg-white md:p-7"
+    px-4 pt-0 lg:max-w-none lg:flex-row lg:items-start lg:gap-23 lg:rounded-2xl lg:bg-white lg:p-7"
     >
       <input
         type="file"
@@ -247,8 +247,8 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
         className="hidden"
       />
       {/* 좌측: 프로필 */}
-      <div className="md:mx-20 flex shrink-0 flex-col items-center justify-center md:pt-2">
-        <div className="relative mb-[10px] h-[100px] w-[100px] md:mb-4 md:h-[156px] md:w-[156px]">
+      <div className="lg:mx-20 flex shrink-0 flex-col items-center justify-center lg:pt-2">
+        <div className="relative mb-[10px] h-[100px] w-[100px] lg:mb-4 lg:h-[156px] lg:w-[156px]">
           {groupImage ? (
             <img
               src={groupImage}
@@ -266,14 +266,14 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
             <button
               aria-label="프로필 이미지 변경"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex h-[30px] w-[30px] md:h-[40px] md:w-[40px] items-center justify-center rounded-full border border-gray-100 bg-white shadow-md transition-colors hover:bg-gray-100"
+              className="flex h-[30px] w-[30px] lg:h-[40px] lg:w-[40px] items-center justify-center rounded-full border border-gray-100 bg-white shadow-md transition-colors hover:bg-gray-100"
             >
-              <CameraIcon className="h-[18px] w-[18px] md:h-[24px] md:w-[24px] text-gray-700" />
+              <CameraIcon className="h-[18px] w-[18px] lg:h-[24px] lg:w-[24px] text-gray-700" />
             </button>
 
             {/* 팝업 드롭다운 창 -> 데스크탑 전용*/}
             {isMenuOpen && (
-              <div className="absolute left-12 top-0 z-20 md:flex hidden w-[180px] flex-col rounded-lg bg-white py-2 shadow-lg ring-1 ring-gray-900 ring-dropdown">
+              <div className="absolute left-12 top-0 z-20 lg:flex hidden w-[180px] flex-col rounded-lg bg-white py-2 shadow-lg ring-1 ring-gray-900 ring-dropdown">
                 <button
                   onClick={handleUploadClick}
                   className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-100"
@@ -292,13 +292,13 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
             )}
           </div>
         </div>
-        <span className="text-[16px] md:text-[20px] font-bold text-gray-900">
+        <span className="text-[16px] lg:text-[20px] font-bold text-gray-900">
           {groupData?.name || ''}
         </span>
-        <span className="text-[10px] md:text-[14px] text-gray-400">생성일: {formattedDate}</span>
+        <span className="text-[10px] lg:text-[14px] text-gray-400">생성일: {formattedDate}</span>
 
         {/* 모바일 전용 -> 데스크탑에서는 숨김*/}
-        <div className="mt-[3px] flex items-center justify-center gap-1.5 md:hidden">
+        <div className="mt-[3px] flex items-center justify-center gap-1.5 lg:hidden">
           <span className="text-[12px] font-bold uppercase tracking-widest text-primary-700">
             {groupData?.inviteCode || ''}
           </span>
@@ -325,14 +325,14 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
       </div>
 
       {/* 우측: 그룹 기본 정보 */}
-      <div className="flex w-full flex-1 flex-col mt-[15px] md:mt-0">
-        <h3 className="mb-5 hidden text-lg font-bold text-gray-900 leading-snug md:block">
+      <div className="flex w-full flex-1 flex-col mt-[15px] lg:mt-0">
+        <h3 className="mb-5 hidden text-lg font-bold text-gray-900 leading-snug lg:block">
           그룹 기본 정보
         </h3>
 
         {/* 그룹 이름 & 최대 인원 */}
-        <div className="flex w-full flex-col gap-[10px] md:mb-5 md:grid md:grid-cols-2">
-          <div className="order-1 flex h-full flex-col justify-end md:order-1">
+        <div className="flex w-full flex-col gap-[10px] lg:mb-5 lg:grid lg:grid-cols-2">
+          <div className="order-1 flex h-full flex-col justify-end lg:order-1">
             <label htmlFor="groupName" className="mb-1 text-[14px] font-bold text-gray-900">
               그룹 이름
             </label>
@@ -346,12 +346,12 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
               placeholder="그룹 이름을 입력해주세요"
               maxLength={40}
               error={errors.groupName}
-              className="h-[44px] md:h-[50px] text-[12px] md:text-[16px]"
+              className="h-[44px] lg:h-[50px] text-[12px] lg:text-[16px]"
             />
           </div>
 
           {/* 그룹 소개 & 저장 */}
-          <div className="order-2 md:order-3 flex flex-col md:col-span-2 md:flex-row md:items-end md:gap-5">
+          <div className="order-2 lg:order-3 flex flex-col lg:col-span-2 lg:flex-row lg:items-end lg:gap-5">
             <div className="flex flex-1 flex-col gap-1">
               <label htmlFor="description" className="mb-1 text-[14px] font-bold text-gray-900">
                 그룹 소개
@@ -366,21 +366,21 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
                 placeholder="그룹을 소개하는 한 줄 평을 적어주세요"
                 maxLength={255}
                 error={errors.description}
-                className="h-[44px] md:h-[50px] text-[12px] md:text-[16px]"
+                className="h-[44px] lg:h-[50px] text-[12px] lg:text-[16px]"
               />
             </div>
 
             <Button
               onClick={handleSave}
               variant="primary"
-              className="hidden md:flex w-32 shrink-0 font-bold h-[50px]"
+              className="hidden lg:flex w-32 shrink-0 font-bold h-[50px]"
               isLoading={updateGroupMutation.isPending || isUploading}
             >
               저장
             </Button>
           </div>
 
-          <div className="order-3 flex h-full flex-col justify-end md:order-2">
+          <div className="order-3 flex h-full flex-col justify-end lg:order-2">
             <SelectDropdown
               id="maxMembers"
               label="최대 인원"
@@ -392,10 +392,10 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
               options={maxMemberOptions}
               placeholder="인원 선택"
               error={errors.maxMemberCount}
-              className="h-[44px] md:h-[50px] text-[12px] md:text-[16px]"
+              className="h-[44px] lg:h-[50px] text-[12px] lg:text-[16px]"
             />
           </div>
-          <div className="order-4 mt-[10px] md:hidden">
+          <div className="order-4 mt-[10px] lg:hidden">
             <Button
               onClick={handleSave}
               variant="primary"
@@ -408,7 +408,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
         </div>
 
         {/* 그룹 코드 */}
-        <div className="hidden flex flex-1 flex-col gap-1 md:flex">
+        <div className="hidden flex flex-1 flex-col gap-1 lg:flex">
           <label htmlFor="groupCode" className="mb-1 text-sm font-bold text-gray-900">
             그룹 코드
           </label>
@@ -455,10 +455,10 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
         isSaving={updateGroupMutation.isPending || isUploading}
         errorMessage={saveError}
       />
-      <div className="mt-5 w-full border-b border-gray-100 md:hidden" />
+      <div className="mt-5 w-full border-b border-gray-100 lg:hidden" />
 
       {isMenuOpen && (
-        <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-gray-900/60 md:hidden">
+        <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-gray-900/60 lg:hidden">
           <div className="absolute inset-0" onClick={() => setIsMenuOpen(false)} />
           <div
             ref={bottomSheetRef}

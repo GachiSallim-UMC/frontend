@@ -64,16 +64,16 @@ export const MemberSettingPage = () => {
 
   return (
     <>
-      <div className="flex w-full flex-col gap-5 pt-[16px] pb-7 md:py-7">
+      <div className="flex w-full flex-col gap-5 pt-[16px] pb-7 lg:py-7">
         <GroupBasicInfo isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
         <MemberManagement isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
         <PermissionSettings isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
-        <div className="w-full px-4 md:px-0">
+        <div className="w-full px-4 lg:px-0">
           <Button
             variant="danger"
             size="lg"
-            leftIcon={<CrossIcon className="md:h-6 md:w-6 h-5 w-5" />}
-            className="w-full !h-[44px] md:!h-[50px] !text-[14px] md:!text-[16px]"
+            leftIcon={<CrossIcon className="lg:h-6 lg:w-6 h-5 w-5" />}
+            className="w-full !h-[44px] lg:!h-[50px] !text-[14px] lg:!text-[16px]"
             onClick={handleWithdrawClick}
             isLoading={deleteGroupMutation.isPending}
           >

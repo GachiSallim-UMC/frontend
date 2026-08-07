@@ -44,7 +44,7 @@ export const WarningModal = ({
 
   return (
     <>
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <Modal
           isOpen={isOpen}
           onClose={onClose}
@@ -122,7 +122,7 @@ export const WarningModal = ({
         </Modal>
       </div>
 
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <ConfirmModal
           isOpen={isOpen}
           onClose={onClose}
