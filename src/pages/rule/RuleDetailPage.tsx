@@ -319,7 +319,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                     key={option.value}
                     type="button"
                     disabled={isPending}
-                    onClick={() => void handleAgreement(option.apiStatus)}
+                    onClick={() => {
+                      if (myAgreement === option.value) return;
+                      void handleAgreement(option.apiStatus);
+                    }}
                     className={
                       myAgreement === option.value
                         ? 'h-9 min-w-0 flex-1 rounded bg-gray-900 text-mobile-label font-normal text-white disabled:cursor-not-allowed disabled:opacity-50 lg:h-[45px] lg:w-[92px] lg:flex-none lg:text-button'
