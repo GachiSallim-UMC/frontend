@@ -63,11 +63,11 @@ export const ChoreRepeat = ({
   };
 
   return (
-    <section className="flex w-full flex-col gap-[20px] rounded-[18px] bg-white p-[30px]">
-      <h2 className="text-[18px] font-bold text-gray-800">반복 주기</h2>
+    <section className="flex w-full flex-col bg-transparent gap-[16px] lg:gap-[20px] lg:rounded-[18px] lg:bg-white lg:p-[30px]">
+      <h2 className="hidden text-[18px] font-bold text-gray-800 lg:block">반복 주기</h2>
 
-      <div className="flex w-full gap-[20px]">
-        <div className="flex flex-1 flex-col gap-[20px]">
+      <div className="flex w-full flex-col gap-[16px] lg:flex-row lg:gap-[20px]">
+        <div className="flex flex-1 flex-col gap-[16px] lg:gap-[20px]">
           <SelectDropdown<RepeatType | ''>
             label="반복 유형"
             required
@@ -82,6 +82,7 @@ export const ChoreRepeat = ({
                 repeatDays: [],
               });
             }}
+            inputSize="sm"
           />
 
           {repeatType === 'CUSTOM' && (
@@ -97,6 +98,7 @@ export const ChoreRepeat = ({
                   repeatDays: [],
                 });
               }}
+              inputSize="sm"
             />
           )}
 
@@ -119,6 +121,7 @@ export const ChoreRepeat = ({
                   onChange({ repeatInterval: val });
                 }
               }}
+              inputSize="sm"
             />
           )}
           {repeatType === 'CUSTOM' && customOption === 'EVERY_N_WEEKS' && (
@@ -127,6 +130,7 @@ export const ChoreRepeat = ({
               options={WEEK_OPTIONS}
               value={repeatInterval}
               onChange={value => onChange({ repeatInterval: value })}
+              inputSize="sm"
             />
           )}
           {repeatType === 'CUSTOM' && customOption === 'EVERY_N_MONTHS' && (
@@ -135,6 +139,7 @@ export const ChoreRepeat = ({
               options={MONTH_OPTIONS}
               value={repeatInterval}
               onChange={value => onChange({ repeatInterval: value })}
+              inputSize="sm"
             />
           )}
         </div>
@@ -143,9 +148,9 @@ export const ChoreRepeat = ({
           <label className="text-caption font-bold text-gray-800">
             반복 요일 {isDaysEnabled ? ' ' : '(매주 선택 시)'}
           </label>
-          <div className="flex h-[50px] items-center gap-4">
+          <div className="flex lg:h-[50px] items-center gap-[12px] lg:gap-4">
             {DAYS.map(day => (
-              <label key={day.value} className="flex items-center gap-2">
+              <label key={day.value} className="flex items-center gap-1 lg:gap-2">
                 <input
                   type="checkbox"
                   checked={repeatDays.includes(day.value as DayOfWeek)}
@@ -161,7 +166,7 @@ export const ChoreRepeat = ({
                     "
                 />
                 <span
-                  className={`text-[16px] ${!isDaysEnabled ? 'text-gray-400' : 'text-gray-700'}`}
+                  className={`text-[12px] lg:text-[16px] ${!isDaysEnabled ? 'text-gray-400' : 'text-gray-700'}`}
                 >
                   {day.label}
                 </span>
@@ -172,7 +177,7 @@ export const ChoreRepeat = ({
         </div>
       </div>
 
-      <div className="flex w-full gap-[20px]">
+      <div className="flex w-full gap-[8px] lg:gap-[20px]">
         <div className="flex-1">
           <FormInput
             id="chore-start-date"
@@ -186,6 +191,7 @@ export const ChoreRepeat = ({
             error={errors.startDate}
             className="[&::-webkit-calendar-picker-indicator]:hidden"
             rightAddon={<DatePickerButton inputId="chore-start-date" label="시작일" />}
+            inputSize="sm"
           />
         </div>
         <div className="flex-1">
@@ -200,6 +206,7 @@ export const ChoreRepeat = ({
             error={errors.dueDate}
             className="[&::-webkit-calendar-picker-indicator]:hidden"
             rightAddon={<DatePickerButton inputId="chore-due-date" label="종료일" />}
+            inputSize="sm"
           />
         </div>
       </div>

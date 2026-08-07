@@ -64,7 +64,7 @@ export const MemberSettingPage = () => {
 
   return (
     <>
-      <div className="flex w-full flex-col gap-5 pt-[16px] pb-7 lg:py-7">
+      <div className="flex w-full flex-col gap-5 pt-[4px] pb-7 lg:p-0">
         <GroupBasicInfo isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
         <MemberManagement isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
         <PermissionSettings isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
