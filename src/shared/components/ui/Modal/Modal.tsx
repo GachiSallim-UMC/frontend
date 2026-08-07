@@ -34,28 +34,32 @@ export const Modal = ({
     >
       <div
         className={cn(
-          // 내용이 화면보다 길어질 수 있는 모바일에서 위/아래가 잘리지 않도록, 넘치면 모달 자체가 스크롤되게 한다
-          'flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col overflow-y-auto rounded-[20px] bg-white p-6 shadow-dropdown',
+          // 내용이 화면보다 길어질 수 있는 모바일에서 위/아래가 잘리지 않도록, 넘치면 모달 자체가 스크롤되게 한다.
+          // 스크롤은 아래 안쪽 div가 담당하고, 이 바깥 div는 overflow-hidden으로 둥근 모서리 클리핑만 맡는다 —
+          // 스크롤 컨테이너에 직접 rounded를 주면 일부 브라우저(Windows Chrome 등)에서 스크롤바가 모서리 밖으로 삐져나온다.
+          'flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col overflow-hidden rounded-[20px] bg-white p-6 shadow-dropdown',
           className,
         )}
         onClick={e => e.stopPropagation()}
       >
-        {(title || dismissible) && (
-          <div className="mb-4 flex items-center justify-between">
-            {title && <h3 className="text-[18px] font-bold leading-[normal] text-gray-900">{title}</h3>}
-            {dismissible && (
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="닫기"
-                className="text-gray-400 transition-colors hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            )}
-          </div>
-        )}
-        {children}
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          {(title || dismissible) && (
+            <div className="mb-4 flex items-center justify-between">
+              {title && <h3 className="text-[18px] font-bold leading-[normal] text-gray-900">{title}</h3>}
+              {dismissible && (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="닫기"
+                  className="text-gray-400 transition-colors hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+          )}
+          {children}
+        </div>
       </div>
     </div>
   );
