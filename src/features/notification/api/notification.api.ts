@@ -36,7 +36,7 @@ const NOTIFICATION_TYPE_META: Record<NotificationType, { category: string; getRo
   },
   NEW_MESSAGE: {
     category: '메신저',
-    getRoute: () => '/messenger',
+    getRoute: refId => (refId !== null ? `/messenger?roomId=${refId}` : '/messenger'),
   },
   GROUP_INVITE: {
     category: '그룹',
