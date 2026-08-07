@@ -20,6 +20,7 @@ interface SelectDropdownProps<T extends string>
   required?: boolean;
   containerClassName?: string;
   labelClassName?: string;
+  optionClassName?: string;
 }
 
 /**
@@ -39,6 +40,7 @@ export const SelectDropdown = <T extends string>({
   required,
   containerClassName,
   labelClassName,
+  optionClassName,
   className,
   id,
   disabled,
@@ -192,6 +194,7 @@ export const SelectDropdown = <T extends string>({
                     'flex cursor-pointer items-center justify-between gap-2 px-3 py-2 text-mobile-label transition-colors lg:py-2.5 lg:text-button',
                     isSelected ? 'bg-primary-100 text-primary-500' : 'text-gray-600',
                     isActive && !isSelected && 'bg-gray-100',
+                    optionClassName,
                   )}
                 >
                   <span className="truncate">{option.label}</span>

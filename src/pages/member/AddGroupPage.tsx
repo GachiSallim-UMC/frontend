@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GroupPageShell } from './GroupPageShell';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   type AddGroupDto,
   AddGroupActions,
@@ -15,7 +14,6 @@ export const AddGroupPage = () => {
   const navigate = useNavigate();
   const createGroupMutation = useCreateGroup();
   const setSelectedGroupId = useGroupStore(s => s.setSelectedGroupId);
-  const queryClient = useQueryClient();
 
   const [isCreated, setIsCreated] = useState<boolean>(false);
   const [inviteCode, setInviteCode] = useState<string>('');
@@ -70,8 +68,6 @@ export const AddGroupPage = () => {
         if (newGroupId) {
           setSelectedGroupId(newGroupId);
         }
-
-        queryClient.invalidateQueries({ queryKey: ['my-groups'] });
 
         if (newInviteCode) {
           setInviteCode(newInviteCode);

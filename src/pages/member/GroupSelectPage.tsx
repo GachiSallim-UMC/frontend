@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import {
   GroupActionBox,
   GroupEmptyState,
@@ -14,14 +13,7 @@ export const GroupSelectPage = () => {
   const hasNoGroup = !isLoading && !isError && groups.length === 0;
 
   return (
-    <GroupPageShell
-      title="내 그룹"
-      action={
-        <Link to="/group/settings" className="text-mobile-body text-gray-400">
-          설정
-        </Link>
-      }
-    >
+    <GroupPageShell title="내 그룹">
       {hasNoGroup ? (
         <GroupEmptyState />
       ) : (

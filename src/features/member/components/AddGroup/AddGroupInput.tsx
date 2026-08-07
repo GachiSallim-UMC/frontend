@@ -64,6 +64,7 @@ export const AddGroupInput = ({
           onChange={value => onChange('type', value)}
           disabled={disabled}
           error={errors.type}
+          optionClassName="text-mobile-body lg:text-button"
         />
       </div>
 
@@ -78,6 +79,7 @@ export const AddGroupInput = ({
           onChange={value => onChange('maxMemberCount', Number(value))}
           disabled={disabled}
           error={errors.maxMemberCount}
+          optionClassName="text-mobile-body lg:text-button"
         />
       </div>
     </div>
