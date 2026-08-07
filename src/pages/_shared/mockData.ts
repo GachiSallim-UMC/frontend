@@ -536,6 +536,7 @@ export const chatMessages: ChatMessage[] = [
     senderId: 'u2',
     senderName: '김영희',
     timestamp: '오전 10:05',
+    createdAt: '2026-06-25T10:05:00+09:00',
     isMine: false,
     content: '오늘 마트 다녀왔어요. 장보기 비용 등록했습니다!',
   },
@@ -545,6 +546,7 @@ export const chatMessages: ChatMessage[] = [
     senderId: 'u2',
     senderName: '김영희',
     timestamp: '오전 10:06',
+    createdAt: '2026-06-25T10:06:00+09:00',
     isMine: false,
     shareCard: {
       type: 'expense',
@@ -564,6 +566,7 @@ export const chatMessages: ChatMessage[] = [
     senderId: 'u3',
     senderName: '이철수',
     timestamp: '오전 10:20',
+    createdAt: '2026-06-25T10:20:00+09:00',
     isMine: false,
     content: '세제도 부족한 것 같던데 확인해볼게요',
   },
@@ -573,6 +576,7 @@ export const chatMessages: ChatMessage[] = [
     senderId: 'u3',
     senderName: '이철수',
     timestamp: '오전 10:21',
+    createdAt: '2026-06-25T10:21:00+09:00',
     isMine: false,
     shareCard: {
       type: 'item',
@@ -588,6 +592,7 @@ export const chatMessages: ChatMessage[] = [
     senderId: 'u1',
     senderName: '홍길동',
     timestamp: '오전 10:30',
+    createdAt: '2026-06-25T10:30:00+09:00',
     isMine: true,
     content: '구매 완료했어요. 곧 채울게요!',
   },
@@ -597,6 +602,7 @@ export const chatMessages: ChatMessage[] = [
     senderId: 'u1',
     senderName: '홍길동',
     timestamp: '오전 10:31',
+    createdAt: '2026-06-25T10:31:00+09:00',
     isMine: true,
     shareCard: {
       type: 'chore',
@@ -615,6 +621,7 @@ export const chatMessages: ChatMessage[] = [
     senderId: 'u1',
     senderName: '홍길동',
     timestamp: '오전 10:32',
+    createdAt: '2026-06-25T10:32:00+09:00',
     isMine: true,
     shareCard: {
       type: 'rule',

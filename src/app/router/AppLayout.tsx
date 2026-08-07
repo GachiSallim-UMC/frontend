@@ -4,7 +4,7 @@ import { useGroupStore } from '@/shared/store';
 import { useMyGroups } from '@/features/member';
 import { useMe } from '@/features/auth';
 import { useUnreadMessageCount } from '@/features/messenger';
-import { useUnreadNotificationCount } from '@/features/notification';
+import { useMarkAllNotificationsRead, useUnreadNotificationCount } from '@/features/notification';
 
 /** 사이드바 + 헤더가 있는 공통 레이아웃으로 라우트 children을 감쌉니다. */
 export const AppLayout = () => {
@@ -14,6 +14,7 @@ export const AppLayout = () => {
   const selectedGroup = groups.find(g => g.id === selectedGroupId);
   const unreadMessageCount = useUnreadMessageCount(selectedGroupId);
   const { unreadCount } = useUnreadNotificationCount();
+  const { markAllAsRead: markAllNotificationsRead } = useMarkAllNotificationsRead();
 
   return (
     <PageLayout
@@ -26,6 +27,7 @@ export const AppLayout = () => {
       }
       unreadMessageCount={unreadMessageCount}
       unreadNotificationCount={unreadCount}
+      onMarkAllNotificationsRead={markAllNotificationsRead}
     >
       <Outlet />
     </PageLayout>

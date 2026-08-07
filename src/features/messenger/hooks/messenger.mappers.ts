@@ -97,6 +97,7 @@ export const toChatMessage = (
     senderName: dto.sender?.nickname ?? fallbackSender?.name ?? dto.senderId,
     senderAvatarUrl: dto.sender?.profileImage ?? fallbackSender?.avatarUrl ?? undefined,
     timestamp: formatTimestamp(dto.createdAt),
+    createdAt: dto.createdAt,
     isMine: dto.senderId === currentUserId,
     content: cardType ? undefined : dto.content || undefined,
     shareCard: cardType ? toShareCard(dto, cardType) : undefined,

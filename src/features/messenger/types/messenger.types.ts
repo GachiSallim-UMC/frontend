@@ -23,7 +23,10 @@ export interface ChatMessage {
   senderId: string;
   senderName: string;
   senderAvatarUrl?: string;
+  /** 시:분 표시용 (예: '오전 10:06') */
   timestamp: string;
+  /** 날짜 구분선 계산용 원본 ISO 시각 */
+  createdAt: string;
   isMine: boolean;
   content?: string;
   shareCard?: ChatShareCard;
