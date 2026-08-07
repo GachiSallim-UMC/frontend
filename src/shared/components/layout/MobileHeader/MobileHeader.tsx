@@ -8,6 +8,8 @@ import { UserAvatar } from '@/shared/components/ui/UserAvatar';
 interface MobileHeaderProps {
   user: { name: string; avatarUrl?: string };
   unreadNotificationCount?: number;
+  /** 알림 페이지 헤더의 "전체 읽음" 액션 — 링크가 아닌 클릭 액션이라 라우트 액션 설정과 별도로 받습니다. */
+  onMarkAllNotificationsRead?: () => void;
 }
 
 interface MobileRouteHeader {
@@ -61,7 +63,11 @@ const getRouteHeader = (pathname: string): MobileRouteHeader => {
   return { title: '같이살림', backTo: '/dashboard' };
 };
 
-export const MobileHeader = ({ user, unreadNotificationCount = 0 }: MobileHeaderProps) => {
+export const MobileHeader = ({
+  user,
+  unreadNotificationCount = 0,
+  onMarkAllNotificationsRead,
+}: MobileHeaderProps) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const routeHeader = getRouteHeader(pathname);
@@ -133,14 +139,24 @@ export const MobileHeader = ({ user, unreadNotificationCount = 0 }: MobileHeader
           {routeHeader.title}
         </h1>
         <div className="justify-self-end">
-          {routeHeader.action && (
-            <Link
-              to={routeHeader.action.to}
-              className="flex items-center text-mobile-body font-normal text-primary-400"
+          {pathname === '/notifications' ? (
+            <button
+              type="button"
+              onClick={onMarkAllNotificationsRead}
+              className="whitespace-nowrap text-mobile-label text-gray-200"
             >
-              <Plus className="size-4" />
-              {routeHeader.action.label}
-            </Link>
+              전체 읽음
+            </button>
+          ) : (
+            routeHeader.action && (
+              <Link
+                to={routeHeader.action.to}
+                className="flex items-center text-mobile-body font-normal text-primary-400"
+              >
+                <Plus className="size-4" />
+                {routeHeader.action.label}
+              </Link>
+            )
           )}
         </div>
       </div>
