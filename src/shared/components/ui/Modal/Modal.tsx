@@ -33,7 +33,11 @@ export const Modal = ({
       onClick={overlayClosable ? onClose : undefined}
     >
       <div
-        className={cn('w-full max-w-md rounded-[20px] bg-white p-6 shadow-dropdown', className)}
+        className={cn(
+          // 내용이 화면보다 길어질 수 있는 모바일에서 위/아래가 잘리지 않도록, 넘치면 모달 자체가 스크롤되게 한다
+          'flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col overflow-y-auto rounded-[20px] bg-white p-6 shadow-dropdown',
+          className,
+        )}
         onClick={e => e.stopPropagation()}
       >
         {(title || dismissible) && (
