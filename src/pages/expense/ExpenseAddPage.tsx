@@ -9,11 +9,14 @@ import {
   requestReceiptUploadUrl,
   uploadReceiptToS3,
   getReceiptViewUrl,
+  useDeleteExpense,
   type Expense,
 } from '@/features/expense';
+import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
 import { memberApi } from '@/features/member';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { requireSelectedGroupId } from '@/shared/api';
+import { ConfirmModal } from '@/shared/components/ui';
 import { useAuthStore, useErrorStore } from '@/shared/store';
 import type { User } from '@/shared/types';
 
@@ -48,8 +51,15 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   const [savedExpense, setSavedExpense] = useState<Expense | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(!!id);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(!!id);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const deleteExpense = useDeleteExpense();
 
   const isEditMode = !!id || !!savedExpense;
+  const canDeleteExpense = Boolean(
+    savedExpense?.createdById &&
+      currentUserId &&
+      savedExpense.createdById === String(currentUserId),
+  );
 
   const [receiptObjectKey, setReceiptObjectKey] = useState<string | undefined>(undefined);
   const [receiptViewUrl, setReceiptViewUrl] = useState<string | undefined>(undefined);
@@ -180,6 +190,24 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     navigate(-1);
   };
 
+  const handleDeleteClick = () => {
+    deleteExpense.reset();
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const targetId = savedExpense?.id ?? id;
+    if (!targetId || !canDeleteExpense) return;
+
+    try {
+      await deleteExpense.mutateAsync(targetId);
+      setIsDeleteModalOpen(false);
+      navigate('/expenses');
+    } catch {
+      // 실패 시 모달을 유지해 백엔드 권한/삭제 오류를 표시합니다.
+    }
+  };
+
   if (id && isLoading) {
     return (
       <div className='flex justify-center items-center w-full flex-1 min-h-[300px] lg:min-h-[400px] text-gray-400'>
@@ -200,6 +228,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
                 initialExpense={savedExpense}
                 onSave={handleSave}
                 onCancel={handleCancel}
+                onDelete={canDeleteExpense ? handleDeleteClick : undefined}
                 isEditMode={isEditMode}
                 expenseId={savedExpense?.id ? String(savedExpense.id) : id}
                 receiptUrl={receiptObjectKey}
@@ -240,6 +269,25 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
         isSubmitting={isSharePending}
+      />
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => void handleConfirmDelete()}
+        icon={<ExpenseIcon className="size-6" />}
+        title="정말 삭제하시겠어요?"
+        highlight={savedExpense?.title}
+        description="데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다."
+        confirmLabel="영구 삭제"
+        isPending={deleteExpense.isPending}
+        errorMessage={
+          deleteExpense.error instanceof Error
+            ? deleteExpense.error.message
+            : deleteExpense.isError
+              ? '생활비 삭제에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
+        tone="danger"
       />
     </div>
   );

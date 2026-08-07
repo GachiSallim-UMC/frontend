@@ -4,6 +4,7 @@ import {
   ITEM_CATEGORY_OPTIONS,
   ITEM_STATUS_OPTIONS,
   useCreateItem,
+  useDeleteItem,
   useItemForm,
   useItems,
   useQuickItemStatus,
@@ -17,7 +18,7 @@ import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger'
 import { Button, ConfirmModal, FormActions, ShareMessengerButton } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
-import { useGroupStore } from '@/shared/store';
+import { useAuthStore, useGroupStore } from '@/shared/store';
 
 type FormErrors = Partial<Record<'name' | 'category' | 'status' | 'memo', string>>;
 
@@ -53,6 +54,7 @@ interface ItemFormContentProps {
 const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const navigate = useNavigate();
   const groupId = useGroupStore(state => state.selectedGroupId);
+  const currentUserId = useAuthStore(state => state.userId);
   const {
     name,
     setName,
@@ -73,6 +75,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   } = useQuickItemStatus();
   const { data: groupMembers, error: groupMembersError } = useGroupMembers(groupId);
   const createItem = useCreateItem();
+  const deleteItem = useDeleteItem();
   const updateItem = useUpdateItem();
   const updateStatus = useUpdateItemStatus();
   const {
@@ -85,6 +88,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   } = useShareToMessenger('item');
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const buyerOptions = groupMembers.map(member => ({
     value: member.userId,
@@ -98,7 +102,15 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
     });
   }
 
-  const isPending = createItem.isPending || updateItem.isPending || updateStatus.isPending;
+  const isGroupAdmin = groupMembers.some(
+    member => member.userId === currentUserId && member.role === 'ADMIN',
+  );
+  const isItemCreator = Boolean(
+    editingItem?.createdBy?.id && currentUserId && editingItem.createdBy.id === currentUserId,
+  );
+  const canDeleteItem = Boolean(editingItem && (isItemCreator || isGroupAdmin));
+  const isPending =
+    createItem.isPending || updateItem.isPending || updateStatus.isPending || deleteItem.isPending;
   const mutationError = createItem.error ?? updateItem.error ?? updateStatus.error;
 
   const handleSaveClick = () => {
@@ -168,6 +180,24 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
       navigate('/items');
     } catch {
       // 실패 시 모달을 열어둔 채 errorMessage로 사유를 보여준다.
+    }
+  };
+
+  const handleDeleteClick = () => {
+    if (!canDeleteItem) return;
+    deleteItem.reset();
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!editingItem || !canDeleteItem) return;
+
+    try {
+      await deleteItem.mutateAsync(editingItem.id);
+      setIsDeleteModalOpen(false);
+      navigate('/items');
+    } catch {
+      // 실패 시 모달을 유지해 백엔드 권한/삭제 오류를 표시합니다.
     }
   };
 
@@ -290,13 +320,25 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
           >
             {isPending ? '처리 중' : '저장'}
           </Button>
+          {canDeleteItem && (
+            <Button
+              type="button"
+              className="h-11 w-full border-0 bg-red-700 text-mobile-body font-bold text-white hover:bg-red-500"
+              disabled={isPending}
+              onClick={handleDeleteClick}
+            >
+              삭제
+            </Button>
+          )}
         </div>
 
         <FormActions
           className="mt-[30px] hidden lg:flex"
           onSave={handleSaveClick}
           onCancel={() => navigate(-1)}
+          onDelete={canDeleteItem ? handleDeleteClick : undefined}
           saveLabel={isPending ? '처리 중' : '저장'}
+          isSubmitting={isPending}
           rightSlot={
             editingItem ? <ShareMessengerButton onClick={() => openShare(editingItem.id)} /> : null
           }
@@ -351,6 +393,26 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         isPending={isPending}
         errorMessage={mutationError instanceof Error ? mutationError.message : undefined}
         tone={editingItem ? 'edit' : 'default'}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => void handleConfirmDelete()}
+        icon={<ItemIcon className="size-6" />}
+        title="정말 삭제하시겠어요?"
+        highlight={editingItem?.name}
+        description="데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다."
+        confirmLabel="영구 삭제"
+        isPending={deleteItem.isPending}
+        errorMessage={
+          deleteItem.error instanceof Error
+            ? deleteItem.error.message
+            : deleteItem.isError
+              ? '공용물품 삭제에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
+        tone="danger"
       />
 
       <ShareItemPickerModal

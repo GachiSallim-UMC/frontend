@@ -77,6 +77,10 @@ export function toExpense(rawResponse: unknown): Expense {
     title: (raw.title as string) ?? '',
     amount: (raw.totalAmount as number) ?? 0,
     date: (raw.date as string) ?? (raw.createdAt as string) ?? '',
+    createdById:
+      typeof raw.createdBy === 'string' || typeof raw.createdBy === 'number'
+        ? String(raw.createdBy)
+        : undefined,
     payer: {
       id: payerIdStr,
       name: '',

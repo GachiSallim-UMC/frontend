@@ -32,6 +32,8 @@ export interface Expense {
   title: string;
   amount: number;
   payer: User;
+  /** 삭제 권한 판정에 사용하는 정산 등록자 ID (선결제자와 다를 수 있음) */
+  createdById?: string;
   date: string;
   splitType: SplitType;
   category: ExpenseCategory;

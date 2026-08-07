@@ -4,6 +4,7 @@ import {
   RULE_CATEGORY_OPTIONS,
   RULE_STATUS_OPTIONS,
   useRuleAgreement,
+  useDeleteRule,
   useRuleDetail,
   useRuleForm,
   useUpdateRule,
@@ -94,6 +95,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
     useRuleForm(rule);
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
+  const deleteRule = useDeleteRule();
   const updateAgreement = useUpdateRuleAgreement();
   const {
     activeType,
@@ -105,8 +107,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   } = useShareToMessenger('rule');
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const isPending = updateRule.isPending || updateAgreement.isPending;
+  const canDeleteRule = Boolean(currentUserId && rule.registeredBy.id === currentUserId);
+  const isPending = updateRule.isPending || updateAgreement.isPending || deleteRule.isPending;
   const mutationError = updateRule.error ?? updateAgreement.error;
 
   const handleSaveClick = () => {
@@ -176,6 +180,24 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
   const handleShare = () => {
     openShare(rule.id);
+  };
+
+  const handleDeleteClick = () => {
+    if (!canDeleteRule) return;
+    deleteRule.reset();
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!canDeleteRule) return;
+
+    try {
+      await deleteRule.mutateAsync(rule.id);
+      setIsDeleteModalOpen(false);
+      navigate('/rules');
+    } catch {
+      // 실패 시 모달을 유지해 백엔드 권한/삭제 오류를 표시합니다.
+    }
   };
 
   return (
@@ -263,8 +285,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         <FormActions
           onSave={handleSaveClick}
           onCancel={() => navigate(-1)}
+          onDelete={canDeleteRule ? handleDeleteClick : undefined}
           rightSlot={<ShareMessengerButton onClick={handleShare} />}
           className="hidden lg:flex"
+          isSubmitting={isPending}
         />
       </div>
 
@@ -348,6 +372,16 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           >
             저장
           </Button>
+          {canDeleteRule && (
+            <Button
+              type="button"
+              className="h-11 w-full border-0 bg-red-700 text-mobile-label font-bold text-white hover:bg-red-500"
+              onClick={handleDeleteClick}
+              disabled={isPending}
+            >
+              삭제
+            </Button>
+          )}
         </div>
 
         <Panel
@@ -401,6 +435,26 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         isPending={isPending}
         errorMessage={mutationError instanceof Error ? mutationError.message : undefined}
         tone="edit"
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => void handleConfirmDelete()}
+        icon={<RuleIcon className="size-6" />}
+        title="정말 삭제하시겠어요?"
+        highlight={rule.title}
+        description="데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다."
+        confirmLabel="영구 삭제"
+        isPending={deleteRule.isPending}
+        errorMessage={
+          deleteRule.error instanceof Error
+            ? deleteRule.error.message
+            : deleteRule.isError
+              ? '생활규칙 삭제에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
+        tone="danger"
       />
 
       <ShareItemPickerModal
