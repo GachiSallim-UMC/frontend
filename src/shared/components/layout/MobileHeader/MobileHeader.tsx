@@ -55,7 +55,7 @@ const getRouteHeader = (pathname: string): MobileRouteHeader => {
   if (pathname.startsWith('/rules/')) return { title: '규칙 상세', backTo: '/rules' };
   if (pathname === '/messenger') return { title: '메신저', backTo: '/dashboard' };
   if (pathname === '/notifications') return { title: '알림', backTo: '/dashboard' };
-  if (pathname === '/activity') return { title: '활동 내역', backTo: '/dashboard' };
+  if (pathname === '/activity') return { title: '최근 활동 내역', backTo: '/dashboard' };
   if (pathname === '/mypage') return { title: '마이페이지', backTo: '/dashboard' };
   if (pathname === '/group/settings') return { title: '그룹 설정', backTo: '/mypage' };
   return { title: '같이살림', backTo: '/dashboard' };

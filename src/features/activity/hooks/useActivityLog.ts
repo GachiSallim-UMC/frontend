@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { REALTIME_POLL_INTERVAL_MS } from '@/shared/lib';
 import { activityApi } from '../api/activity.api';
 import { groupByDate, matchesPeriod } from '../lib/activityDate';
-import type { ActivityCategory, ActivityLog } from '../types/activity.type';
+import type { ActivityCategory } from '../types/activity.type';
 
 interface ActivityMemberOption {
   id: number;
@@ -38,12 +38,7 @@ const ACTIVITY_LOG_KEYS = {
 };
 
 /** 닉네임은 유일하지 않을 수 있어(동명이인) 필터 매칭용 라벨을 id 기준으로 유일하게 만듦 */
-const getMemberOptions = (logs: ActivityLog[]): ActivityMemberOption[] => {
-  const seen = new Map<number, string>();
-  logs.forEach(log => {
-    if (!seen.has(log.user.id)) seen.set(log.user.id, log.user.nickname);
-  });
-
+const buildMemberOptions = (seen: Map<number, string>): ActivityMemberOption[] => {
   const nicknameCounts = new Map<string, number>();
   seen.forEach(nickname => nicknameCounts.set(nickname, (nicknameCounts.get(nickname) ?? 0) + 1));
 
@@ -61,6 +56,7 @@ export const useActivityLog = () => {
   const [typeFilter, setTypeFilterOption] = useState<TypeFilterOption>(TYPE_FILTER_OPTIONS[0]);
   const [memberFilter, setMemberFilterOption] = useState<ActivityMemberOption | null>(null);
   const [periodFilter, setPeriodFilter] = useState<string>(PERIOD_OPTIONS[0]);
+  const [seenMembers, setSeenMembers] = useState<Map<number, string>>(new Map());
 
   const {
     data,
@@ -88,7 +84,25 @@ export const useActivityLog = () => {
   });
 
   const logs = useMemo(() => data?.pages.flatMap(page => page.data) ?? [], [data]);
-  const memberOptionsList = useMemo(() => getMemberOptions(logs), [logs]);
+
+  // logs는 멤버 필터로 이미 좁혀진 응답이라, 옵션을 필터와 무관하게 유지하려면 누적이 필요하다.
+  useEffect(() => {
+    if (logs.length === 0) return;
+    setSeenMembers(prev => {
+      let changed = false;
+      const next = new Map(prev);
+      logs.forEach(log => {
+        // 기존 id도 닉네임이 바뀌었으면 최신값으로 갱신 (세션 중 개명 대응)
+        if (next.get(log.user.id) !== log.user.nickname) {
+          next.set(log.user.id, log.user.nickname);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [logs]);
+
+  const memberOptionsList = useMemo(() => buildMemberOptions(seenMembers), [seenMembers]);
 
   const groupedLogs = useMemo(() => {
     const filtered = logs.filter(log => matchesPeriod(log.createdAt, periodFilter));
