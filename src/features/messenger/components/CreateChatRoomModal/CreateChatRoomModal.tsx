@@ -68,7 +68,7 @@ export const CreateChatRoomModal = ({
       onClose={onClose}
       dismissible={false}
       closeOnOverlayClick
-      className="flex max-w-[500px] flex-col rounded-[28px] p-0"
+      className="max-w-[500px] rounded-[28px] p-0"
     >
       <div className="flex h-[78px] shrink-0 items-center gap-2 border-b border-gray-100 px-[30px]">
         <button type="button" onClick={onClose} aria-label="닫기" className="text-gray-900">
