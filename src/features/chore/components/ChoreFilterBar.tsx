@@ -44,7 +44,7 @@ export const ChoreFilterBar = ({
   return (
     <div className="flex w-full items-center justify-between gap-3">
       {/* 드롭다운 메뉴가 잘리지 않도록 가로 스크롤 대신 줄바꿈으로 처리합니다. */}
-      <div className="flex min-w-0 flex-wrap items-center gap-2 lg:flex-nowrap lg:gap-[12px]">
+      <div className="flex min-w-0 flex-wrap items-center gap-1 lg:flex-nowrap lg:gap-[12px]">
         <FilterDropdown
           defaultLabel="전체 상태"
           value={filter.status || 'ALL'}
