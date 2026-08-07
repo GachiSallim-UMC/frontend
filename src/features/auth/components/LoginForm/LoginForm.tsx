@@ -4,6 +4,8 @@ import { FormInput } from '@/shared/components/form';
 import { Button } from '@/shared/components/ui';
 import EyeOnIcon from '@/assets/icons/login/eye-on.svg?react';
 import EyeOffIcon from '@/assets/icons/login/eye-off.svg?react';
+import MailIcon from '@/assets/icons/login/mail.svg?react';
+import LockIcon from '@/assets/icons/login/lock.svg?react';
 
 interface LoginFormProps {
     onSubmit?: (credentials: { email: string; password: string }) => void;
@@ -35,7 +37,7 @@ export const LoginForm = ({ onSubmit, isSubmitting = false, errorMessage }: Logi
             <form noValidate onSubmit={handleSubmit} className= "flex flex-col">
                 {/* 이메일 입력 영역*/}
                 <div>
-                    <label className="mb-2 block text-base font-bold text-gray-800">이메일</label>
+                    <label className="mb-2 block text-mobile-body font-bold text-gray-700 lg:text-base lg:text-gray-800">이메일</label>
                     <FormInput
                         type="email"
                         placeholder="이메일 주소를 입력해주세요"
@@ -45,11 +47,12 @@ export const LoginForm = ({ onSubmit, isSubmitting = false, errorMessage }: Logi
                             setErrors(previous => ({ ...previous, email: undefined }));
                         }}
                         error={errors.email}
+                        leftAddon={<MailIcon className="h-[18px] w-[18px]" />}
                     />
                 </div>
-                
+
                 <div>
-                    <label className="mt-4 mb-2 block text-base font-bold text-gray-800">비밀번호</label>
+                    <label className="mt-4 mb-2 block text-mobile-body font-bold text-gray-700 lg:text-base lg:text-gray-800">비밀번호</label>
                     <FormInput
                         type={showPassword ? "text" : "password"}
                         placeholder="비밀번호를 입력해주세요"
@@ -59,7 +62,7 @@ export const LoginForm = ({ onSubmit, isSubmitting = false, errorMessage }: Logi
                             setErrors(previous => ({ ...previous, password: undefined }));
                         }}
                         error={errors.password}
-
+                        leftAddon={<LockIcon className="h-[18px] w-[18px]" />}
                         rightAddon={
                             <button
                                 type="button"
@@ -78,12 +81,12 @@ export const LoginForm = ({ onSubmit, isSubmitting = false, errorMessage }: Logi
                     variant="primary"
                     size="md"
                     isLoading={isSubmitting}
-                    className="mt-5 mb-5 w-full h-14 font-bold"
+                    className="mt-4 mb-5 h-11 w-full text-mobile-body font-bold lg:h-14 lg:text-button"
                 >
                     로그인
                 </Button>
                 {errorMessage && (
-                    <p className="-mt-3 mb-3 text-center text-sm text-red-500">{errorMessage}</p>
+                    <p className="-mt-3 mb-3 text-center text-mobile-label text-red-500 lg:text-sm">{errorMessage}</p>
                 )}
             </form>
         </div>

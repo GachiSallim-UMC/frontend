@@ -142,6 +142,22 @@ export const useSignupForm = () => {
         }
     }
 
+    // 인증번호 재전송
+    const handleResendCode = async () => {
+        try {
+            await authApi.signup({
+                email: formData.email,
+                password: formData.password,
+                name: formData.name,
+                nickname: formData.nickname,
+            });
+            setIsCodeError(false);
+            alert('인증번호를 다시 보냈습니다.');
+        } catch {
+            showError({ title: '전송 실패', message: '인증번호 재전송에 실패했습니다. 다시 시도해주세요.' });
+        }
+    };
+
     const handleFinalSubmit = (e: FormEvent) => {
         e.preventDefault();
         
@@ -181,7 +197,8 @@ export const useSignupForm = () => {
         handleConfirmEmail,
         handleSubmitInfo,
         isCodeError,
-        isVerified,      
-        handleFinalSubmit
+        isVerified,
+        handleFinalSubmit,
+        handleResendCode,
     };
 };

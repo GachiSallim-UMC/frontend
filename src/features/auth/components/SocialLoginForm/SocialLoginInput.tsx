@@ -45,32 +45,35 @@ export const SocialLoginInput = ({
                 <form onSubmit={handleSubmit} className="flex flex-col">
                     {/* 이름 영역 */}
                     <div className="mb-4">
-                        <label className="mt-5 mb-2 block text-base font-bold text-gray-800">
+                        <label className="mt-4 mb-1 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
                             이름
                             <span className="text-red-700">*</span>
                             </label>
                         <FormInput
                             type="text"
+                            maxLength={30}
                             placeholder="이름을 입력해주세요"
                             value={formData.name}
                             onChange={handleChange('name')}
                         />
+                        <p className="mt-1.5 text-mobile-caption text-gray-500 lg:mt-1 lg:text-base lg:text-gray-400">최대 30자</p>
                     </div>
 
                     {/* 닉네임 영역 */}
                     <div className="mb-4">
-                        <label className="mt-5 mb-2 block text-base font-bold text-gray-800">
+                        <label className="mb-1 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
                             닉네임
                             <span className="text-red-700">*</span>
                             </label>
                         <FormInput
                             type="text"
+                            maxLength={10}
                             placeholder="닉네임을 입력해주세요"
                             value={formData.nickname}
                             onChange={handleChange('nickname')}
                             className="mb-2"
                         />
-                        <p className="text-base text-gray-400">2~10자 · 공백,특수문자 사용 불가</p>
+                        <p className="text-mobile-caption text-gray-500 lg:text-base lg:text-gray-400">2~10자 · 공백,특수문자 사용 불가</p>
                     </div>
 
                     {/* 약관 동의 체크박스 */}
@@ -82,7 +85,7 @@ export const SocialLoginInput = ({
                                 {
                                 value: 'terms',
                                 label: (
-                                    <span className="text-base text-gray-500 font-medium select-none">
+                                    <span className="text-mobile-body font-medium text-gray-500 select-none lg:text-base">
                                         <Link to="/terms" state={{formData}} className="text-primary-500 hover:underline">이용약관</Link>
                                         {' '}및{' '}
                                         <Link to="/privacy" state={{formData}} className="text-primary-500 hover:underline">개인정보처리방침</Link>
@@ -100,6 +103,7 @@ export const SocialLoginInput = ({
                         variant="primary"
                         size="md"
                         disabled={!isFormValid || isSubmitting}
+                        className="h-11 w-full text-mobile-body font-bold lg:h-[50px] lg:text-button"
                     >
                         {isSubmitting ? '처리 중...' : '시작하기'}
                     </Button>

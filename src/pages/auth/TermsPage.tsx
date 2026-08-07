@@ -21,13 +21,13 @@ export const TermsPage = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-primary-100">
-            <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
+        <div className="flex min-h-dvh flex-col bg-white lg:min-h-screen lg:items-center lg:justify-center lg:bg-primary-100">
+            <div className="flex w-full flex-1 flex-col lg:h-[696px] lg:max-w-2xl lg:flex-none lg:overflow-hidden lg:rounded-3xl lg:bg-white lg:shadow-sm">
                 <TermsHeader onBack={handleCancel}/>
                 <TermsContent />
-                <TermsButtonGroup 
-                    onAgree={handleAgree} 
-                    onCancel={handleCancel} 
+                <TermsButtonGroup
+                    onAgree={handleAgree}
+                    onCancel={handleCancel}
                 />
             </div>
         </div>

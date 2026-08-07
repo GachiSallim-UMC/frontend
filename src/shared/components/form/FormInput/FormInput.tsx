@@ -4,6 +4,7 @@ import { cn } from '@/shared/lib/cn';
 interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  errorIcon?: ReactNode;
   hint?: string;
   required?: boolean;
   leftAddon?: ReactNode;
@@ -15,6 +16,7 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const FormInput = ({
   label,
   error,
+  errorIcon,
   hint,
   required,
   leftAddon,
@@ -59,7 +61,12 @@ export const FormInput = ({
         />
         {rightAddon && <span className="absolute right-3 text-gray-400">{rightAddon}</span>}
       </div>
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && (
+        <p className="flex items-center gap-1 text-xs text-red-500">
+          {errorIcon}
+          {error}
+        </p>
+      )}
       {hint && !error && <p className="text-xs text-gray-400">{hint}</p>}
     </div>
   );

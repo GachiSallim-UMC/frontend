@@ -2,6 +2,7 @@ import type { ChangeEvent, FormEvent } from 'react';
 import type { ResetPasswordFormData } from '@/features/auth';
 import { FormInput } from '@/shared/components/form';
 import { Button } from '@/shared/components/ui';
+import WarningIcon from "@/assets/icons/login/warning.svg?react"
 
 interface ResetPasswordFormProps {
     formData: ResetPasswordFormData;
@@ -26,53 +27,47 @@ export const ResetPasswordForm = ({
         formData.newPassword === formData.newPasswordConfirm;
 
     return (
-        <div className="flex w-full flex-col">
-            <div className="mb-8 flex flex-col items-center">
-                <h1 className="font-logo text-3xl font-medium tracking-wider text-gray-900">
-                    같이살림
-                </h1>
-                <p className="text-sm font-medium text-gray-600 mt-2">
-                    비밀번호 재설정
+        <form onSubmit={onSubmit} className="flex w-full flex-col">
+            <div className="mb-4">
+                <label className="mb-1.5 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
+                    새 비밀번호 <span className="text-red-700">*</span>
+                </label>
+                <FormInput
+                    type="password"
+                    placeholder="비밀번호를 입력해주세요"
+                    value={formData.newPassword}
+                    onChange={onChange('newPassword')}
+                    disabled={isLoading}
+                    errorIcon={<WarningIcon className="size-3.5 shrink-0" />}
+                />
+                <p className="mt-1.5 text-mobile-caption text-gray-500 lg:mt-1 lg:text-base lg:text-gray-400">
+                    * 영문 대문자·소문자·숫자를 포함한 8~16자의 비밀번호 입력
                 </p>
             </div>
 
-            <form onSubmit={onSubmit} className="flex flex-col">
+            <div className="mb-5 lg:mb-8">
+                <label className="mb-1.5 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
+                    비밀번호 재입력 <span className="text-red-700">*</span>
+                </label>
+                <FormInput
+                    type="password"
+                    placeholder="비밀번호를 다시 입력해주세요"
+                    value={formData.newPasswordConfirm}
+                    onChange={onChange('newPasswordConfirm')}
+                    disabled={isLoading}
+                    errorIcon={<WarningIcon className="size-3.5 shrink-0" />}
+                />
+            </div>
 
-                <div className="mb-4">
-                    <label className="mb-2 block text-base font-bold text-gray-800">새 비밀번호</label>
-                    <FormInput
-                        type="password"
-                        placeholder="새 비밀번호를 입력해주세요"
-                        value={formData.newPassword}
-                        onChange={onChange('newPassword')}
-                        disabled={isLoading}
-                    />
-                    <p className="mt-1 text-base text-gray-400">
-                        * 영문 대문자·소문자·숫자를 포함한 8~16자의 비밀번호 입력
-                    </p>
-                </div>
-
-                <div className="mb-8">
-                    <label className="mb-2 block text-base font-bold text-gray-800">비밀번호 재입력</label>
-                    <FormInput
-                        type="password"
-                        placeholder="새 비밀번호를 다시 입력해주세요"
-                        value={formData.newPasswordConfirm}
-                        onChange={onChange('newPasswordConfirm')}
-                        disabled={isLoading}
-                    />
-                </div>
-
-                <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    disabled={!isSubmitEnabled || isLoading}
-                    className="w-full rounded-xl py-4 text-base font-bold transition-colors"
-                >
-                    {isLoading ? '재설정 중...' : '비밀번호 재설정'}
-                </Button>
-            </form>
-        </div>
+            <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                disabled={!isSubmitEnabled || isLoading}
+                className="h-11 w-full text-mobile-body font-bold transition-colors lg:h-auto lg:rounded-xl lg:py-4 lg:text-base"
+            >
+                {isLoading ? '재설정 중...' : '비밀번호 재설정'}
+            </Button>
+        </form>
     );
 };
