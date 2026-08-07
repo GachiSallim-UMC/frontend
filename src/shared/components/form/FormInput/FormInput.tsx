@@ -1,5 +1,6 @@
-import type { InputHTMLAttributes, ReactNode } from 'react';
+import type { ChangeEvent, InputHTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/shared/lib/cn';
+import { isDateOnlyInputValue } from '@/shared/lib/inputValidation';
 
 interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -23,9 +24,15 @@ export const FormInput = ({
   labelClassName,
   className,
   id,
+  type,
+  onChange,
   ...props
 }: FormInputProps) => {
   const inputId = id ?? label?.replace(/\s/g, '-').toLowerCase();
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (type === 'date' && !isDateOnlyInputValue(event.currentTarget.value)) return;
+    onChange?.(event);
+  };
 
   return (
     <div className={cn('flex flex-col gap-1.5', containerClassName)}>
@@ -44,6 +51,8 @@ export const FormInput = ({
         )}
         <input
           id={inputId}
+          type={type}
+          onChange={handleChange}
           className={cn(
             'h-[50px] w-full rounded-lg border bg-white text-button text-gray-900',
             'placeholder:text-gray-400 transition-colors',
