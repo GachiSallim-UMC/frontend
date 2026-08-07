@@ -31,7 +31,7 @@ export function ExpenseDetailCard({
 
   if (!expense) {
     return (
-      <div className="w-full bg-white p-[24px] rounded-[18px] flex items-center justify-center text-gray-500">
+      <div className="w-full bg-white p-4 sm:p-[24px] rounded-none sm:rounded-[18px] flex items-center justify-center text-gray-500">
         선택된 지출 상세 내역이 없습니다.
       </div>
     );
@@ -61,7 +61,7 @@ export function ExpenseDetailCard({
 
   return (
     <>
-      <div className="w-full bg-white p-[24px] rounded-[18px] flex flex-col gap-6 relative">
+      <div className="w-full bg-white p-4 sm:p-[24px] rounded-none sm:rounded-[18px] flex flex-col gap-6 relative">
         <h2 className="font-sans text-body font-bold text-gray-800">
           정산 상세
         </h2>

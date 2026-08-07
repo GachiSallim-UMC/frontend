@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import TossIcon from '@/assets/icons/expense/toss.svg?react';
+import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
 import {
   CustomButton,
   IconTextButton,
   SettlementConfirm,
+  AlertModal,
 } from '@/features/expense';
 import { useCreatePayLink, useExpenseSettle } from '@/features/expense';
 import type { Expense } from '@/features/expense';
@@ -21,19 +23,21 @@ export const SettlementPreviewCard = ({
 }: SettlementPreviewCardProps) => {
   const [isSettlementConfirmOpen, setIsSettlementConfirmOpen] = useState(false);
 
-  const { requestPayLink, isLoading } = useCreatePayLink();
+  const { requestPayLink, isLoading, alertState, closeAlert } =
+    useCreatePayLink();
   const { handleBulkSettle } = useExpenseSettle(expense, onRefresh);
 
   if (!expense) {
     return (
-      <div className="w-full bg-white p-[24px] rounded-[18px] flex items-center justify-center text-gray-500 border border-gray-100">
+      <div className="text-caption text-gray-500">
         입력된 내역의 정산 미리보기가 없습니다.
       </div>
     );
   }
 
   const shares = expense.shares ?? [];
-  const displayAmount = typeof expense.amount === 'number' ? expense.amount : 0;
+  const displayAmount =
+    typeof expense.amount === 'number' ? expense.amount : 0;
   const memberCount = shares.length || 1;
   const isDirectSplit =
     expense.splitType === 'CUSTOM' || expense.splitType === 'RATIO';
@@ -45,10 +49,13 @@ export const SettlementPreviewCard = ({
 
   return (
     <>
-      <div className="w-full bg-white p-[24px] rounded-[18px] flex flex-col gap-5 border border-primary-600">
-        <h2 className="font-sans text-body font-bold text-gray-800">
-          정산 상세 미리보기
-        </h2>
+      <div className="w-full rounded-none sm:rounded-[16px] border-0 sm:border sm:border-primary-500 bg-white p-4 sm:p-5">
+        <div className="mb-4 flex items-center gap-2">
+          <ExpenseIcon className="size-6" />
+          <span className="text-subtitle font-bold text-gray-900">
+            정산 상세 미리보기
+          </span>
+        </div>
 
         <div className="flex flex-col gap-3">
           <span className="text-button font-bold text-gray-800">
@@ -56,7 +63,7 @@ export const SettlementPreviewCard = ({
           </span>
 
           <div className="flex flex-col gap-2 text-button text-gray-900">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-wrap items-center justify-between gap-1">
               <span>{expense.title || '항목명 미입력'}</span>
 
               {!isDirectSplit ? (
@@ -74,15 +81,15 @@ export const SettlementPreviewCard = ({
           </div>
         </div>
 
-        <div className="border-b border-dashed border-gray-900 my-1" />
+        <div className="my-1 border-b border-dashed border-gray-900" />
 
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center font-bold text-button">
+          <div className="flex flex-wrap items-center justify-between gap-1 font-bold text-button">
             <span className="text-gray-800">
               {isDirectInputSummaryLabel(expense)}
             </span>
 
-            <span className="text-primary-700 text-lg">
+            <span className="text-lg text-primary-700">
               {isDirectSplit
                 ? `${shares
                     .reduce((acc, cur) => Math.max(acc, cur.amount), 0)
@@ -92,7 +99,7 @@ export const SettlementPreviewCard = ({
           </div>
 
           {isDirectSplit && (
-            <div className="flex flex-col gap-1 mt-1 bg-gray-100 p-3 rounded-lg">
+            <div className="mt-1 flex flex-col gap-1 rounded-lg bg-gray-100 p-3">
               {shares.length === 0 ? (
                 <div className="text-caption text-gray-400">
                   분담 내역이 없습니다.
@@ -112,20 +119,20 @@ export const SettlementPreviewCard = ({
           )}
         </div>
 
-        <div className="flex items-center gap-3 mt-2">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <IconTextButton
             label={isLoading ? '송금 링크 생성 중...' : '토스로 송금'}
             variant="toss"
             iconComponent={TossIcon}
             onClick={() => requestPayLink(myShare)}
-            className="flex-1"
+            className="w-full sm:flex-1"
           />
 
           <CustomButton
             label="정산하기"
             variant="settlement"
             onClick={() => setIsSettlementConfirmOpen(true)}
-            className="flex-1 h-[50px] rounded-[8px]"
+            className="h-[50px] w-full rounded-[8px] sm:flex-1"
           />
         </div>
       </div>
@@ -134,6 +141,15 @@ export const SettlementPreviewCard = ({
         isOpen={isSettlementConfirmOpen}
         onClose={() => setIsSettlementConfirmOpen(false)}
         onConfirm={handleBulkSettle}
+      />
+
+      <AlertModal
+        isOpen={!!alertState}
+        onClose={closeAlert}
+        icon={<ExpenseIcon className="size-6" />}
+        title={alertState?.title ?? '알림'}
+        description={alertState?.description ?? ''}
+        tone="warning"
       />
     </>
   );

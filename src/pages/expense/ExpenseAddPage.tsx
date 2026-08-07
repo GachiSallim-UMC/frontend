@@ -6,6 +6,7 @@ import {
   Receipt,
   SettlementPreviewCard,
   getExpenseById,
+  deleteExpense,
   requestReceiptUploadUrl,
   uploadReceiptToS3,
   getReceiptViewUrl,
@@ -39,30 +40,40 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   const navigate = useNavigate();
 
   const currentUserId = useAuthStore((state) => state.userId ?? undefined);
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
-    useShareToMessenger('expense');
+
+  const {
+    activeType,
+    chatRoomOptions,
+    openShare,
+    closeShare,
+    handleSelectChatRoom,
+    isSharePending,
+  } = useShareToMessenger('expense');
 
   const [members, setMembers] = useState<User[]>([]);
-  const [membersLoading, setMembersLoading] = useState<boolean>(true);
+  const [membersLoading, setMembersLoading] = useState(true);
 
   const [savedExpense, setSavedExpense] = useState<Expense | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState<boolean>(!!id);
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(!!id);
+  const [isLoading, setIsLoading] = useState(!!id);
+  const [isSubmitted, setIsSubmitted] = useState(!!id);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const isEditMode = !!id || !!savedExpense;
 
   const [receiptObjectKey, setReceiptObjectKey] = useState<string | undefined>(undefined);
   const [receiptViewUrl, setReceiptViewUrl] = useState<string | undefined>(undefined);
-  const [isReceiptUploading, setIsReceiptUploading] = useState<boolean>(false);
+  const [isReceiptUploading, setIsReceiptUploading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchMembers = async () => {
       setMembersLoading(true);
+
       try {
         const groupId = requireSelectedGroupId();
         const rawMembers = await memberApi.getGroupMembers(groupId);
+
         const mapped: User[] = rawMembers.map((m) => ({
           id: m.user.id,
           name: m.user.nickname || m.user.name,
@@ -70,11 +81,16 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
           email: '',
           avatarUrl: m.user.profileImage ?? undefined,
         }));
-        if (isMounted) setMembers(mapped);
+
+        if (isMounted) {
+          setMembers(mapped);
+        }
       } catch (err) {
         console.error('그룹 멤버 조회 실패:', err);
       } finally {
-        if (isMounted) setMembersLoading(false);
+        if (isMounted) {
+          setMembersLoading(false);
+        }
       }
     };
 
@@ -93,8 +109,10 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
       if (membersLoading) return;
 
       setIsLoading(true);
+
       try {
         const data = await getExpenseById(id);
+
         if (isMounted) {
           setSavedExpense(enrichExpenseWithMembers(data, members));
         }
@@ -119,12 +137,19 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
 
     const fetchReceiptViewUrl = async () => {
       if (!savedExpense?.id) return;
+
       try {
         const viewUrl = await getReceiptViewUrl(savedExpense.id);
-        if (isMounted) setReceiptViewUrl(viewUrl);
+
+        if (isMounted) {
+          setReceiptViewUrl(viewUrl);
+        }
       } catch (err) {
         console.error('영수증 이미지 조회 실패:', err);
-        if (isMounted) setReceiptViewUrl(undefined);
+
+        if (isMounted) {
+          setReceiptViewUrl(undefined);
+        }
       }
     };
 
@@ -137,17 +162,21 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
 
   const handleReceiptChange = async (file: File) => {
     setIsReceiptUploading(true);
+
     try {
       const groupId = requireSelectedGroupId();
+
       const { uploadUrl, fields, objectKey } = await requestReceiptUploadUrl({
         groupId: Number(groupId),
         contentType: file.type as 'image/jpeg' | 'image/png' | 'image/webp',
         fileSize: file.size,
       });
+
       await uploadReceiptToS3(uploadUrl, fields, file);
       setReceiptObjectKey(objectKey);
     } catch (err) {
       console.error('영수증 업로드 실패:', err);
+
       useErrorStore.getState().showError({
         title: '오류',
         message: '영수증 업로드에 실패했습니다.',
@@ -160,12 +189,12 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   const handleSave = (newExpense: Expense) => {
     setSavedExpense(enrichExpenseWithMembers(newExpense, members));
     setIsSubmitted(true);
-    // 저장 후에는 목록으로 돌아간다. (집안일·공용물품·생활규칙과 동일)
     navigate('/expenses');
   };
 
   const handleExpenseRefresh = async () => {
     const targetId = savedExpense?.id ?? id;
+
     if (!targetId) return;
 
     try {
@@ -180,60 +209,91 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     navigate(-1);
   };
 
+  const handleDelete = async (targetExpenseId: string) => {
+    setIsDeleting(true);
+
+    try {
+      await deleteExpense(targetExpenseId);
+      navigate('/expenses');
+    } catch (err) {
+      console.error('지출 삭제 실패:', err);
+
+      throw err instanceof Error
+        ? err
+        : new Error('지출 삭제 중 오류가 발생했습니다.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (id && isLoading) {
     return (
-      <div className='flex justify-center items-center w-full flex-1 min-h-[300px] lg:min-h-[400px] text-gray-400'>
+      <div className="flex min-h-[400px] w-full items-center justify-center">
         지출 정보를 불러오는 중...
       </div>
     );
   }
 
   return (
-    <div className='flex flex-col w-full flex-1 min-h-0 pb-8 lg:pb-12'>
-      <div className='flex flex-col w-full'>
-        <div className='w-full max-w-[1114px] flex flex-col gap-4 lg:gap-6'>
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start w-full'>
-            <div className='flex flex-col gap-4 lg:gap-6 w-full'>
-              <ExpenseAddForm
-                members={members}
-                membersLoading={membersLoading}
-                initialExpense={savedExpense}
-                onSave={handleSave}
-                onCancel={handleCancel}
-                isEditMode={isEditMode}
-                expenseId={savedExpense?.id ? String(savedExpense.id) : id}
-                receiptUrl={receiptObjectKey}
-                onShare={openShare}
-                isSharing={isSharePending}
-              />
-            </div>
+    <div className="w-full bg-gray-50">
+    <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="min-w-0 w-full">
+            <ExpenseAddForm
+              members={members}
+              membersLoading={membersLoading}
+              initialExpense={savedExpense}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              isEditMode={isEditMode}
+              expenseId={savedExpense?.id ? String(savedExpense.id) : id}
+              receiptUrl={receiptObjectKey}
+              onShare={openShare}
+              isSharing={isSharePending}
+              onDelete={handleDelete}
+              isDeleting={isDeleting}
+            />
+          </div>
 
-            <div className='flex flex-col gap-4 lg:gap-6 w-full'>
-              {isSubmitted && savedExpense ? (
-                <>
-                  <ExpenseDetailCard expense={savedExpense} onRefresh={handleExpenseRefresh} />
-                  <Receipt
-                    imageUrl={receiptViewUrl}
-                    onImageChange={handleReceiptChange}
-                    disabled={isReceiptUploading || savedExpense.status === 'paid'}
-                    isUploading={isReceiptUploading}
-                  />
-                  <SettlementPreviewCard expense={savedExpense} currentUserId={currentUserId} />
-                </>
-              ) : (
-                <>
-                  <Receipt
-                    onImageChange={handleReceiptChange}
-                    disabled={isReceiptUploading}
-                    isUploading={isReceiptUploading}
-                  />
-                  <SettlementPreviewCard currentUserId={currentUserId} />
-                </>
-              )}
-            </div>
+          <div className="flex min-w-0 w-full flex-col gap-4">
+            {isSubmitted && savedExpense ? (
+              <>
+                <ExpenseDetailCard
+                  expense={savedExpense}
+                  onRefresh={handleExpenseRefresh}
+                />
+
+                <Receipt
+                  imageUrl={receiptViewUrl}
+                  onImageChange={handleReceiptChange}
+                  disabled={
+                    isReceiptUploading || savedExpense.status === 'paid'
+                  }
+                  isUploading={isReceiptUploading}
+                />
+
+                <SettlementPreviewCard
+                  expense={savedExpense}
+                  currentUserId={currentUserId}
+                />
+              </>
+            ) : (
+              <>
+                <Receipt
+                  onImageChange={handleReceiptChange}
+                  disabled={isReceiptUploading}
+                  isUploading={isReceiptUploading}
+                />
+
+                <SettlementPreviewCard
+                  currentUserId={currentUserId}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
+
       <ShareItemPickerModal
         type={activeType}
         options={chatRoomOptions}
