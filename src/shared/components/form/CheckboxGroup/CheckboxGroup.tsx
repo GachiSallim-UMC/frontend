@@ -13,6 +13,7 @@ interface CheckboxGroupProps<T extends string> {
   onChange: (value: T[]) => void;
   direction?: 'row' | 'col';
   className?: string;
+  size?: 'sm' | 'lg';
 }
 
 export const CheckboxGroup = <T extends string>({
@@ -22,6 +23,7 @@ export const CheckboxGroup = <T extends string>({
   onChange,
   direction = 'row',
   className,
+  size = 'lg',
 }: CheckboxGroupProps<T>) => {
   const toggle = (optValue: T) => {
     if (value.includes(optValue)) {
@@ -43,11 +45,20 @@ export const CheckboxGroup = <T extends string>({
               onChange={() => toggle(opt.value)}
               className={cn(
                 // Figma: 체크 시 Blue500(#358CFF) 배경, 테두리 Gray400(#C4C4C4)
-                'h-6 w-6 rounded-[4px] border-gray-400 accent-primary-500',
+                'rounded-[4px] border-gray-400 accent-primary-500',
                 'focus:ring-primary-500',
+                size === 'lg' ? 'h-6 w-6' : 'h-[16px] w-[16px] lg:h-[20px] lg:w-[20px]', // 모바일 반응형 체크박스
               )}
             />
-            <span className="text-sm text-gray-700">{opt.label}</span>
+            <span
+              className={cn(
+                size === 'lg'
+                  ? 'text-sm text-gray-700'
+                  : 'text-[12px] text-gray-700 lg:text-[16px] lg:text-gray-900', // 모바일 반응형 체크박스
+              )}
+            >
+              {opt.label}
+            </span>
           </label>
         ))}
       </div>

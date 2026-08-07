@@ -103,7 +103,7 @@ export const ConfirmModal = ({
         )}
       </div>
 
-      <div className="shrink-0 flex items-center gap-[16px] border-t-0 lg:border-t lg:border-gray-100 px-4 pb-[16px] lg:px-6 lg:py-[27px] lg:gap-4 lg:gap-5 lg:px-10">
+      <div className="shrink-0 flex items-center gap-[16px] border-t-0 lg:border-t lg:border-gray-100 px-4 pb-[16px] lg:py-[27px] lg:gap-5 lg:px-10">
         <button
           type="button"
           onClick={onConfirm}

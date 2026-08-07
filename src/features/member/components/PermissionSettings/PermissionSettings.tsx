@@ -92,9 +92,7 @@ export const PermissionSettings = ({
         {PERMISSION_LEFT_OPTIONS.map((option, index) => (
           <div
             key={option.value}
-            className={`flex h-[44px] items-center lg:h-auto lg:block 
-            [&_span]:!text-[12px] [&_span]:!text-gray-700 lg:[&_span]:!text-[16px] lg:[&_span]:!text-gray-900
-            [&_input]:!h-[16px] [&_input]:!w-[16px] lg:[&_input]:!h-[20px] lg:[&_input]:!w-[20px]
+            className={`flex h-[44px] items-center lg:h-auto lg:block
             ${
               index !== PERMISSION_LEFT_OPTIONS.length - 1
                 ? 'border-b border-gray-100 lg:border-none'
@@ -107,6 +105,7 @@ export const PermissionSettings = ({
               options={[option]}
               value={selectedPermissions}
               onChange={handlePermissionsChange}
+              size="sm"
             />
           </div>
         ))}
