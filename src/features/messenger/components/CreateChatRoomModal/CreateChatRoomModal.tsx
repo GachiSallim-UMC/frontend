@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { Modal } from '@/shared/components/ui/Modal';
 import { ChatFilterChips } from '@/features/messenger/components/ChatFilterChips';
 import { MemberInviteRow } from '@/features/messenger/components/MemberCheckRow';
@@ -72,7 +72,7 @@ export const CreateChatRoomModal = ({
     >
       <div className="flex h-[78px] shrink-0 items-center gap-2 border-b border-gray-100 px-[30px]">
         <button type="button" onClick={onClose} aria-label="닫기" className="text-gray-900">
-          <ArrowLeft className="h-6 w-6" />
+          <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
         </button>
         <h2 className="text-[20px] font-bold leading-[normal] tracking-[0.8px] text-gray-900">새 채팅방 만들기</h2>
       </div>

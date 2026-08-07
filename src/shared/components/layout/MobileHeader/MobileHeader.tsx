@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ChevronLeft, Plus } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import NotificationsIcon from '@/assets/icons/sidebar/notifications-active.svg?react';
 import RulesIcon from '@/assets/icons/sidebar/rules-active.svg?react';
@@ -132,7 +132,7 @@ export const MobileHeader = ({
             onClick={() => (routeHeader.backTo ? navigate(routeHeader.backTo) : navigate(-1))}
             className="flex size-8 items-center justify-start text-gray-900"
           >
-            <ArrowLeft className="size-6" strokeWidth={1.5} />
+            <ChevronLeft className="size-6" strokeWidth={1.5} />
           </button>
         </div>
         <h1 className="max-w-[210px] truncate text-mobile-title font-bold tracking-[0.04em] text-gray-900">

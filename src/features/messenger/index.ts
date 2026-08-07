@@ -13,6 +13,7 @@ export { ChatRoomManagePanel } from './components/ChatRoomManagePanel';
 export { ConnectionStatusBadge } from './components/ConnectionStatusBadge';
 export { ConfirmActionModal } from './components/ConfirmActionModal';
 export { CreateChatRoomModal } from './components/CreateChatRoomModal';
+export { DateDivider } from './components/DateDivider';
 export { DelegateOwnerModal } from './components/DelegateOwnerModal';
 export { DeleteChatRoomModal } from './components/DeleteChatRoomModal';
 export { EmptyChatState } from './components/EmptyChatState';
