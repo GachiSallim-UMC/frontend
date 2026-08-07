@@ -164,6 +164,18 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     navigate('/expenses');
   };
 
+  const handleExpenseRefresh = async () => {
+    const targetId = savedExpense?.id ?? id;
+    if (!targetId) return;
+
+    try {
+      const data = await getExpenseById(targetId);
+      setSavedExpense(enrichExpenseWithMembers(data, members));
+    } catch (err) {
+      console.error('지출 정산 정보 갱신 실패:', err);
+    }
+  };
+
   const handleCancel = () => {
     navigate(-1);
   };
@@ -199,7 +211,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
             <div className='flex flex-col gap-4 lg:gap-6 w-full'>
               {isSubmitted && savedExpense ? (
                 <>
-                  <ExpenseDetailCard expense={savedExpense} />
+                  <ExpenseDetailCard expense={savedExpense} onRefresh={handleExpenseRefresh} />
                   <Receipt
                     imageUrl={receiptViewUrl}
                     onImageChange={handleReceiptChange}

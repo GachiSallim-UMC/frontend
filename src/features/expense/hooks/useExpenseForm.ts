@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import type { CreateExpenseDto, UpdateExpenseDto, Expense, ExpenseCategory } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
-import { createExpense, updateExpense } from '@/features/expense';
+import { useCreateExpense, useUpdateExpense } from '@/features/expense';
+
 
 interface UseExpenseFormProps {
   initialExpense?: Expense;
@@ -51,6 +52,9 @@ export function useExpenseForm({
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const { mutateAsync: createExpenseAsync } = useCreateExpense();
+  const { mutateAsync: updateExpenseAsync } = useUpdateExpense();
 
   useEffect(() => {
     if (!initialExpense && mockUsers.length > 0) {
@@ -143,7 +147,7 @@ export function useExpenseForm({
           updatePayload.receiptUrl = receiptUrl;
         }
 
-        savedExpense = await updateExpense(expenseId, updatePayload);
+        savedExpense = await updateExpenseAsync({ id: expenseId, dto: updatePayload });
       } else {
         const createPayload: CreateExpenseDto = {
           title,
@@ -156,7 +160,7 @@ export function useExpenseForm({
           memo,
           receiptUrl: receiptUrl ?? '',
         };
-        savedExpense = await createExpense(createPayload);
+        savedExpense = await createExpenseAsync(createPayload);
       }
 
       // 완료 알림 모달은 띄우지 않는다. (Figma "공통 모달 C(R)UD 모달" 주석:
