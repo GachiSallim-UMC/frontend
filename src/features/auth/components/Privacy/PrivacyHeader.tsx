@@ -2,9 +2,10 @@ import ChevronLeft from "@/assets/icons/login/chevron-left.svg?react"
 
 interface PrivacyHeaderProps {
     onBack: () => void;
+    onMobileBack?: () => void;
 }
 
-export const PrivacyHeader = ({onBack}: PrivacyHeaderProps) => {
+export const PrivacyHeader = ({onBack, onMobileBack}: PrivacyHeaderProps) => {
 
     return (
         <>
@@ -13,7 +14,7 @@ export const PrivacyHeader = ({onBack}: PrivacyHeaderProps) => {
                 <button
                     type="button"
                     aria-label="뒤로 가기"
-                    onClick={onBack}
+                    onClick={onMobileBack ?? onBack}
                     className="absolute left-4 flex size-6 items-center justify-center text-gray-900"
                 >
                     <ChevronLeft className="size-6" strokeWidth={1.5} />
