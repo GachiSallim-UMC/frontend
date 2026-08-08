@@ -63,6 +63,7 @@ interface ExpenseAddFormProps {
   initialExpense?: Expense;
   onSave?: (newExpense: Expense) => void;
   onCancel?: () => void;
+  onDelete?: () => void;
   isEditMode?: boolean;
   expenseId?: string;
   receiptUrl?: string;
@@ -80,6 +81,7 @@ export const ExpenseAddForm = ({
   initialExpense,
   onSave,
   onCancel,
+  onDelete,
   isEditMode = false,
   expenseId,
   receiptUrl,
@@ -660,7 +662,7 @@ export const ExpenseAddForm = ({
       </fieldset>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full pt-4 pb-8 mt-2">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Button
             variant="primary"
             size="md"
@@ -673,6 +675,16 @@ export const ExpenseAddForm = ({
           <Button variant="secondary" size="md" onClick={onCancel} className="flex-1 sm:w-[150px]">
             취소
           </Button>
+          {onDelete && (
+            <Button
+              variant="primary"
+              size="md"
+              onClick={onDelete}
+              className="flex-1 border-0 bg-red-700 font-bold text-white hover:bg-red-500 sm:w-[150px]"
+            >
+              삭제
+            </Button>
+          )}
         </div>
 
         {currentExpenseId && (

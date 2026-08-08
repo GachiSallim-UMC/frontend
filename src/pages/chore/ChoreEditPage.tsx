@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   ChoreBasicInfo,
   ChoreFormActions,
@@ -15,12 +15,13 @@ import {
 } from '@/features/chore';
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
-import { useGroupStore } from '@/shared/store';
+import { useAuthStore, useGroupStore } from '@/shared/store';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 
 export const ChoreEditPage = () => {
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const currentUserId = useAuthStore(state => state.userId);
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
   const { data: choreData, isLoading, isError } = useChoreFromList(groupId, id);
@@ -41,6 +42,16 @@ export const ChoreEditPage = () => {
       value: String(member.userId),
       label: member.user.nickname || member.user.name || `멤버 ${member.userId}`,
     })) ?? [];
+
+  const isGroupAdmin =
+    members?.some(member => member.userId === currentUserId && member.role === 'ADMIN') ?? false;
+  const isSelectedGroupChore = Boolean(
+    choreData && selectedGroupId && String(choreData.groupId) === selectedGroupId,
+  );
+  const isChoreCreator = Boolean(
+    choreData && currentUserId && String(choreData.createdBy.userId) === currentUserId,
+  );
+  const canDeleteChore = isSelectedGroupChore && (isChoreCreator || isGroupAdmin);
 
   useEffect(() => {
     if (!choreData) return;
@@ -107,12 +118,12 @@ export const ChoreEditPage = () => {
   };
 
   const handleDeleteClick = () => {
-    if (!id) return;
+    if (!id || !canDeleteChore) return;
     setIsDeleteModalOpen(true);
   };
 
   const handleConfirmDelete = () => {
-    if (!id) return;
+    if (!id || !canDeleteChore) return;
     deleteMutation.mutate(id, {
       onSuccess: () => {
         setIsDeleteModalOpen(false);
@@ -143,6 +154,10 @@ export const ChoreEditPage = () => {
     );
   }
 
+  if (String(choreData.groupId) !== selectedGroupId) {
+    return <Navigate to="/chores" replace />;
+  }
+
   return (
     <div className="h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
       <ChoreBasicInfo
@@ -171,7 +186,7 @@ export const ChoreEditPage = () => {
       <ChoreFormActions
         onSave={handleSaveClick}
         onCancel={handleCancelClick}
-        onDelete={handleDeleteClick}
+        onDelete={canDeleteChore ? handleDeleteClick : undefined}
         onShare={handleShareClick}
         isSubmitting={updateMutation.isPending || deleteMutation.isPending}
       />

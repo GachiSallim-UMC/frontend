@@ -72,7 +72,7 @@ export const ConfirmModal = ({
       isOpen={isOpen}
       onClose={onClose}
       dismissible={false}
-      className="w-[357px] max-w-[calc(100vw-32px)] min-h-[202px] flex flex-col justify-between overflow-hidden rounded-[20px] p-0
+      className="w-[357px] max-w-[calc(100vw-32px)] min-h-[202px] flex flex-col overflow-hidden rounded-[20px] p-0
       lg:block lg:h-auto lg:w-full lg:max-w-[500px] lg:rounded-[28px]"
     >
       <div className="shrink-0 flex flex-col items-center px-4 pt-[20px] lg:px-6 lg:pb-8 lg:pt-10 text-center">
@@ -103,7 +103,7 @@ export const ConfirmModal = ({
         )}
       </div>
 
-      <div className="shrink-0 flex items-center gap-[16px] border-t-0 lg:border-t lg:border-gray-100 px-4 pb-[16px] lg:py-[27px] lg:gap-5 lg:px-10">
+      <div className="mt-auto shrink-0 flex items-center gap-[16px] border-t-0 lg:border-t lg:border-gray-100 px-4 pb-[16px] lg:py-[27px] lg:gap-5 lg:px-10">
         <button
           type="button"
           onClick={onConfirm}
