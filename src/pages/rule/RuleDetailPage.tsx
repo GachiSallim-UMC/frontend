@@ -259,14 +259,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         <Panel
           title="동의 현황"
           description="멤버들이 규칙에 동의하면 상태가 업데이트 됩니다."
-          className="h-auto rounded-none p-0 shadow-none lg:h-[435px] lg:rounded-[18px] lg:p-[32px]"
-          headerClassName="hidden lg:mb-2.5 lg:flex"
+          className="h-auto rounded-none p-0 shadow-none lg:flex lg:h-[435px] lg:flex-col lg:rounded-[18px] lg:p-[32px]"
+          headerClassName="hidden lg:mb-2.5 lg:flex lg:shrink-0"
           titleClassName="text-gray-800"
           descriptionClassName="leading-[17px]"
         >
           <h3 className="mb-2 text-sm font-bold text-gray-900 lg:hidden">멤버 동의 현황</h3>
-          <div className="rounded-lg border border-gray-100 px-4 lg:rounded-none lg:border-0 lg:px-0">
-            <div className="divide-y divide-gray-100 border-b border-gray-100 lg:border-b-0">
+          <div className="rounded-lg border border-gray-100 px-4 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:rounded-none lg:border-0 lg:px-0">
+            <div className="divide-y divide-gray-100 border-b border-gray-100 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:border-b-0">
               {memberStatuses.map(({ member, isMe, isRegistrant, agreement }) => (
                 <div
                   key={member.id}
@@ -296,7 +296,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               ))}
             </div>
 
-            <div className="w-full py-3 lg:mt-[30px] lg:w-[296px] lg:py-0">
+            <div className="w-full py-3 lg:mt-[30px] lg:w-[296px] lg:shrink-0 lg:py-0">
               <p className="mb-2 text-mobile-caption leading-normal text-gray-500 lg:mb-2.5 lg:text-caption">
                 나의 동의 상태
               </p>
@@ -306,7 +306,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                     key={option.value}
                     type="button"
                     disabled={isPending}
-                    onClick={() => void handleAgreement(option.apiStatus)}
+                    onClick={() => {
+                      if (myAgreement === option.value) return;
+                      void handleAgreement(option.apiStatus);
+                    }}
                     className={
                       myAgreement === option.value
                         ? 'h-9 min-w-0 flex-1 rounded bg-gray-900 text-mobile-label font-normal text-white disabled:cursor-not-allowed disabled:opacity-50 lg:h-[45px] lg:w-[92px] lg:flex-none lg:text-button'
@@ -339,11 +342,11 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
         <Panel
           title="규칙 히스토리"
-          className="h-auto rounded-none border-t border-gray-100 px-0 pb-0 pt-4 shadow-none lg:h-[306px] lg:rounded-[18px] lg:border-0 lg:p-[32px]"
-          headerClassName="mb-2.5"
+          className="h-auto rounded-none border-t border-gray-100 px-0 pb-0 pt-4 shadow-none lg:flex lg:h-[306px] lg:flex-col lg:rounded-[18px] lg:border-0 lg:p-[32px]"
+          headerClassName="mb-2.5 lg:shrink-0"
           titleClassName="text-gray-800"
         >
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
             {historyEntries.map(entry => {
               const HistoryIcon = HISTORY_ICON[entry.type];
               return (

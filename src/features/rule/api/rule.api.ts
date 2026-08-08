@@ -63,6 +63,9 @@ const isRuleListItem = (value: unknown): value is RuleListItemResponse =>
   isRuleApiStatus(value.status) &&
   isRuleUserResponse(value.createdBy) &&
   isAgreementSummary(value.agreementSummary) &&
+  (value.myAgreementStatus === undefined ||
+    value.myAgreementStatus === null ||
+    isAgreementStatus(value.myAgreementStatus)) &&
   typeof value.createdAt === 'string' &&
   typeof value.updatedAt === 'string';
 
@@ -72,7 +75,6 @@ const isRuleDetail = (value: unknown): value is RuleDetailResponse => {
 
   return (
     isNullableString(detail.categoryName) &&
-    (detail.myAgreementStatus === null || isAgreementStatus(detail.myAgreementStatus)) &&
     Array.isArray(detail.agreements) &&
     detail.agreements.every(
       agreement =>
@@ -154,7 +156,7 @@ const toRule = (response: RuleListItemResponse | RuleDetailResponse): Rule => {
       agreedMembers,
     },
     agreements,
-    myAgreementStatus: detail?.myAgreementStatus,
+    myAgreementStatus: response.myAgreementStatus,
     histories: detail?.histories.map(history => ({
       id: String(history.logId),
       action: history.action,
