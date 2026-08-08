@@ -54,7 +54,7 @@ export const SelectDropdown = <T extends string>({
   disabled,
   onClick,
   onKeyDown,
-  inputSize,
+  inputSize = 'lg',
   ...props
 }: SelectDropdownProps<T>) => {
   const reactId = useId();
