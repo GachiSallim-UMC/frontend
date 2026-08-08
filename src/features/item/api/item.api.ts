@@ -104,6 +104,7 @@ const assertSupplyResponse = (value: unknown): SupplyResponse => {
 
 const toItem = (supply: SupplyResponse): Item => ({
   id: String(supply.supplyId),
+  groupId: String(supply.groupId),
   name: supply.name,
   category: CATEGORY_FROM_API[supply.category],
   buyer: supply.assignee

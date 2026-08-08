@@ -2,8 +2,8 @@ import { useState, type ComponentProps, type ComponentType } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   RULE_CATEGORY_OPTIONS,
-  RULE_STATUS_OPTIONS,
   useRuleAgreement,
+  useDeleteRule,
   useRuleDetail,
   useRuleForm,
   useUpdateRule,
@@ -14,6 +14,7 @@ import {
   type RuleHistoryType,
 } from '@/features/rule';
 import RuleIcon from '@/assets/icons/sidebar/rules.svg?react';
+import { useGroupMembers } from '@/features/member';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import {
   Button,
@@ -25,7 +26,7 @@ import {
 } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
-import { useAuthStore } from '@/shared/store';
+import { useAuthStore, useGroupStore } from '@/shared/store';
 import HistoryRegisterIcon from '@/assets/icons/rule/history-register.svg?react';
 import HistoryEditIcon from '@/assets/icons/rule/history-edit.svg?react';
 import HistoryAgreeIcon from '@/assets/icons/rule/history-agree.svg?react';
@@ -58,10 +59,11 @@ const AGREEMENT_SUBLABEL: Record<MyAgreement, string> = {
   pending: '미응답',
 };
 
-type FormErrors = Partial<Record<'title' | 'category' | 'content' | 'status', string>>;
+type FormErrors = Partial<Record<'title' | 'category' | 'content', string>>;
 
 export const RuleDetailPage = () => {
   const { id = '' } = useParams();
+  const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const { data: rule, isLoading, error, refetch } = useRuleDetail(id);
 
   if (!id) return <Navigate to="/rules" replace />;
@@ -83,6 +85,9 @@ export const RuleDetailPage = () => {
     );
   }
   if (!rule) return <Navigate to="/rules" replace />;
+  if (rule.groupId && rule.groupId !== selectedGroupId) {
+    return <Navigate to="/rules" replace />;
+  }
 
   return <RuleDetailContent rule={rule} />;
 };
@@ -90,10 +95,11 @@ export const RuleDetailPage = () => {
 const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const navigate = useNavigate();
   const currentUserId = useAuthStore(state => state.userId);
-  const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
-    useRuleForm(rule);
+  const { data: groupMembers = [] } = useGroupMembers(rule.groupId ?? null);
+  const { title, setTitle, category, setCategory, content, setContent } = useRuleForm(rule);
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
+  const deleteRule = useDeleteRule();
   const updateAgreement = useUpdateRuleAgreement();
   const {
     activeType,
@@ -105,8 +111,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   } = useShareToMessenger('rule');
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const isPending = updateRule.isPending || updateAgreement.isPending;
+  const isGroupAdmin = groupMembers.some(
+    member => member.userId === currentUserId && member.role === 'ADMIN',
+  );
+  const isRuleCreator = Boolean(currentUserId && rule.registeredBy.id === currentUserId);
+  const canDeleteRule = isRuleCreator || isGroupAdmin;
+  const isPending = updateRule.isPending || updateAgreement.isPending || deleteRule.isPending;
   const mutationError = updateRule.error ?? updateAgreement.error;
 
   const handleSaveClick = () => {
@@ -122,15 +134,13 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
     }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!trimmedContent) nextErrors.content = '상세 설명을 입력해 주세요.';
-    if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+    if (Object.keys(nextErrors).length > 0 || !category) return;
 
     const hasChanges =
       trimmedTitle !== rule.title.trim() ||
       category !== rule.category ||
-      trimmedContent !== (rule.content ?? '').trim() ||
-      status !== rule.status;
+      trimmedContent !== (rule.content ?? '').trim();
 
     if (!hasChanges) {
       navigate('/rules');
@@ -143,7 +153,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const handleConfirmSave = async () => {
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
-    if (!category || !status) return;
+    if (!category) return;
 
     try {
       await updateRule.mutateAsync({
@@ -152,7 +162,6 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           title: trimmedTitle,
           category,
           content: trimmedContent,
-          status,
         },
       });
       setIsSaveModalOpen(false);
@@ -176,6 +185,24 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
   const handleShare = () => {
     openShare(rule.id);
+  };
+
+  const handleDeleteClick = () => {
+    if (!canDeleteRule) return;
+    deleteRule.reset();
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!canDeleteRule) return;
+
+    try {
+      await deleteRule.mutateAsync(rule.id);
+      setIsDeleteModalOpen(false);
+      navigate('/rules');
+    } catch {
+      // 실패 시 모달을 유지해 백엔드 권한/삭제 오류를 표시합니다.
+    }
   };
 
   return (
@@ -235,20 +262,12 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               labelClassName="leading-[17px] text-gray-800"
               className="block h-[88px] px-4 py-3 text-mobile-label lg:h-[100px] lg:pb-9 lg:pt-4 lg:text-button"
             />
-            <SelectDropdown
-              label="적용 상태"
-              required
-              value={status}
-              onChange={value => {
-                setStatus(value);
-                setErrors(previous => ({ ...previous, status: undefined }));
-              }}
-              options={RULE_STATUS_OPTIONS}
-              error={errors.status}
-              containerClassName="order-3 gap-2 lg:order-4 lg:gap-1"
-              labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
-            />
+            <div className="order-3 flex flex-col gap-2 lg:order-4 lg:gap-1">
+              <span className="text-caption font-bold leading-[17px] text-gray-800">적용 상태</span>
+              <div className="flex h-11 items-center lg:h-[50px]">
+                <StatusBadge variant={rule.status} />
+              </div>
+            </div>
           </div>
         </Panel>
 
@@ -263,8 +282,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         <FormActions
           onSave={handleSaveClick}
           onCancel={() => navigate(-1)}
+          onDelete={canDeleteRule ? handleDeleteClick : undefined}
           rightSlot={<ShareMessengerButton onClick={handleShare} />}
           className="hidden lg:flex"
+          isSubmitting={isPending}
         />
       </div>
 
@@ -272,14 +293,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         <Panel
           title="동의 현황"
           description="멤버들이 규칙에 동의하면 상태가 업데이트 됩니다."
-          className="h-auto rounded-none p-0 shadow-none lg:h-[435px] lg:rounded-[18px] lg:p-[32px]"
-          headerClassName="hidden lg:mb-2.5 lg:flex"
+          className="h-auto rounded-none p-0 shadow-none lg:flex lg:h-[435px] lg:flex-col lg:rounded-[18px] lg:p-[32px]"
+          headerClassName="hidden lg:mb-2.5 lg:flex lg:shrink-0"
           titleClassName="text-gray-800"
           descriptionClassName="leading-[17px]"
         >
           <h3 className="mb-2 text-sm font-bold text-gray-900 lg:hidden">멤버 동의 현황</h3>
-          <div className="rounded-lg border border-gray-100 px-4 lg:rounded-none lg:border-0 lg:px-0">
-            <div className="divide-y divide-gray-100 border-b border-gray-100 lg:border-b-0">
+          <div className="rounded-lg border border-gray-100 px-4 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:rounded-none lg:border-0 lg:px-0">
+            <div className="divide-y divide-gray-100 border-b border-gray-100 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:border-b-0">
               {memberStatuses.map(({ member, isMe, isRegistrant, agreement }) => (
                 <div
                   key={member.id}
@@ -309,7 +330,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               ))}
             </div>
 
-            <div className="w-full py-3 lg:mt-[30px] lg:w-[296px] lg:py-0">
+            <div className="w-full py-3 lg:mt-[30px] lg:w-[296px] lg:shrink-0 lg:py-0">
               <p className="mb-2 text-mobile-caption leading-normal text-gray-500 lg:mb-2.5 lg:text-caption">
                 나의 동의 상태
               </p>
@@ -319,7 +340,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                     key={option.value}
                     type="button"
                     disabled={isPending}
-                    onClick={() => void handleAgreement(option.apiStatus)}
+                    onClick={() => {
+                      if (myAgreement === option.value) return;
+                      void handleAgreement(option.apiStatus);
+                    }}
                     className={
                       myAgreement === option.value
                         ? 'h-9 min-w-0 flex-1 rounded bg-gray-900 text-mobile-label font-normal text-white disabled:cursor-not-allowed disabled:opacity-50 lg:h-[45px] lg:w-[92px] lg:flex-none lg:text-button'
@@ -348,15 +372,25 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           >
             저장
           </Button>
+          {canDeleteRule && (
+            <Button
+              type="button"
+              className="h-11 w-full border-0 bg-red-700 text-mobile-label font-bold text-white hover:bg-red-500"
+              onClick={handleDeleteClick}
+              disabled={isPending}
+            >
+              삭제
+            </Button>
+          )}
         </div>
 
         <Panel
           title="규칙 히스토리"
-          className="h-auto rounded-none border-t border-gray-100 px-0 pb-0 pt-4 shadow-none lg:h-[306px] lg:rounded-[18px] lg:border-0 lg:p-[32px]"
-          headerClassName="mb-2.5"
+          className="h-auto rounded-none border-t border-gray-100 px-0 pb-0 pt-4 shadow-none lg:flex lg:h-[306px] lg:flex-col lg:rounded-[18px] lg:border-0 lg:p-[32px]"
+          headerClassName="mb-2.5 lg:shrink-0"
           titleClassName="text-gray-800"
         >
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
             {historyEntries.map(entry => {
               const HistoryIcon = HISTORY_ICON[entry.type];
               return (
@@ -401,6 +435,26 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         isPending={isPending}
         errorMessage={mutationError instanceof Error ? mutationError.message : undefined}
         tone="edit"
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => void handleConfirmDelete()}
+        icon={<RuleIcon className="size-6" />}
+        title="정말 삭제하시겠어요?"
+        highlight={rule.title}
+        description="데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다."
+        confirmLabel="영구 삭제"
+        isPending={deleteRule.isPending}
+        errorMessage={
+          deleteRule.error instanceof Error
+            ? deleteRule.error.message
+            : deleteRule.isError
+              ? '생활규칙 삭제에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
+        tone="danger"
       />
 
       <ShareItemPickerModal
