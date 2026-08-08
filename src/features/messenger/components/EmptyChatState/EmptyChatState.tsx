@@ -1,15 +1,17 @@
 import { Plus } from 'lucide-react';
 import { ConnectionStatusBadge } from '@/features/messenger/components/ConnectionStatusBadge';
+import { cn } from '@/shared/lib/cn';
 import emptyChatIllustration from '@/assets/icons/messenger/empty-chat.png';
 
 interface EmptyChatStateProps {
   onCreateRoom: () => void;
   isConnected?: boolean;
+  className?: string;
 }
 
-export const EmptyChatState = ({ onCreateRoom, isConnected = true }: EmptyChatStateProps) => {
+export const EmptyChatState = ({ onCreateRoom, isConnected = true, className }: EmptyChatStateProps) => {
   return (
-    <div className="flex min-w-0 flex-1 flex-col border-l border-gray-100 bg-primary-50">
+    <div className={cn('flex min-w-0 flex-1 flex-col border-l border-gray-100 bg-primary-50', className)}>
       <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6">
         <h2 className="text-[20px] font-semibold leading-[normal] text-gray-900">메신저</h2>
         <ConnectionStatusBadge isConnected={isConnected} />

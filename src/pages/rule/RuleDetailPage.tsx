@@ -2,7 +2,6 @@ import { useState, type ComponentProps, type ComponentType } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   RULE_CATEGORY_OPTIONS,
-  RULE_STATUS_OPTIONS,
   useRuleAgreement,
   useDeleteRule,
   useRuleDetail,
@@ -60,7 +59,7 @@ const AGREEMENT_SUBLABEL: Record<MyAgreement, string> = {
   pending: '미응답',
 };
 
-type FormErrors = Partial<Record<'title' | 'category' | 'content' | 'status', string>>;
+type FormErrors = Partial<Record<'title' | 'category' | 'content', string>>;
 
 export const RuleDetailPage = () => {
   const { id = '' } = useParams();
@@ -94,8 +93,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const currentUserId = useAuthStore(state => state.userId);
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const { data: groupMembers = [] } = useGroupMembers(selectedGroupId);
-  const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
-    useRuleForm(rule);
+  const { title, setTitle, category, setCategory, content, setContent } = useRuleForm(rule);
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
   const deleteRule = useDeleteRule();
@@ -133,15 +131,13 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
     }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!trimmedContent) nextErrors.content = '상세 설명을 입력해 주세요.';
-    if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+    if (Object.keys(nextErrors).length > 0 || !category) return;
 
     const hasChanges =
       trimmedTitle !== rule.title.trim() ||
       category !== rule.category ||
-      trimmedContent !== (rule.content ?? '').trim() ||
-      status !== rule.status;
+      trimmedContent !== (rule.content ?? '').trim();
 
     if (!hasChanges) {
       navigate('/rules');
@@ -154,7 +150,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const handleConfirmSave = async () => {
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
-    if (!category || !status) return;
+    if (!category) return;
 
     try {
       await updateRule.mutateAsync({
@@ -163,7 +159,6 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           title: trimmedTitle,
           category,
           content: trimmedContent,
-          status,
         },
       });
       setIsSaveModalOpen(false);
@@ -264,20 +259,12 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               labelClassName="leading-[17px] text-gray-800"
               className="block h-[88px] px-4 py-3 text-mobile-label lg:h-[100px] lg:pb-9 lg:pt-4 lg:text-button"
             />
-            <SelectDropdown
-              label="적용 상태"
-              required
-              value={status}
-              onChange={value => {
-                setStatus(value);
-                setErrors(previous => ({ ...previous, status: undefined }));
-              }}
-              options={RULE_STATUS_OPTIONS}
-              error={errors.status}
-              containerClassName="order-3 gap-2 lg:order-4 lg:gap-1"
-              labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
-            />
+            <div className="order-3 flex flex-col gap-2 lg:order-4 lg:gap-1">
+              <span className="text-caption font-bold leading-[17px] text-gray-800">적용 상태</span>
+              <div className="flex h-11 items-center lg:h-[50px]">
+                <StatusBadge variant={rule.status} />
+              </div>
+            </div>
           </div>
         </Panel>
 
@@ -303,14 +290,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
         <Panel
           title="동의 현황"
           description="멤버들이 규칙에 동의하면 상태가 업데이트 됩니다."
-          className="h-auto rounded-none p-0 shadow-none lg:h-[435px] lg:rounded-[18px] lg:p-[32px]"
-          headerClassName="hidden lg:mb-2.5 lg:flex"
+          className="h-auto rounded-none p-0 shadow-none lg:flex lg:h-[435px] lg:flex-col lg:rounded-[18px] lg:p-[32px]"
+          headerClassName="hidden lg:mb-2.5 lg:flex lg:shrink-0"
           titleClassName="text-gray-800"
           descriptionClassName="leading-[17px]"
         >
           <h3 className="mb-2 text-sm font-bold text-gray-900 lg:hidden">멤버 동의 현황</h3>
-          <div className="rounded-lg border border-gray-100 px-4 lg:rounded-none lg:border-0 lg:px-0">
-            <div className="divide-y divide-gray-100 border-b border-gray-100 lg:border-b-0">
+          <div className="rounded-lg border border-gray-100 px-4 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:rounded-none lg:border-0 lg:px-0">
+            <div className="divide-y divide-gray-100 border-b border-gray-100 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:border-b-0">
               {memberStatuses.map(({ member, isMe, isRegistrant, agreement }) => (
                 <div
                   key={member.id}
@@ -340,7 +327,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
               ))}
             </div>
 
-            <div className="w-full py-3 lg:mt-[30px] lg:w-[296px] lg:py-0">
+            <div className="w-full py-3 lg:mt-[30px] lg:w-[296px] lg:shrink-0 lg:py-0">
               <p className="mb-2 text-mobile-caption leading-normal text-gray-500 lg:mb-2.5 lg:text-caption">
                 나의 동의 상태
               </p>
@@ -350,7 +337,10 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                     key={option.value}
                     type="button"
                     disabled={isPending}
-                    onClick={() => void handleAgreement(option.apiStatus)}
+                    onClick={() => {
+                      if (myAgreement === option.value) return;
+                      void handleAgreement(option.apiStatus);
+                    }}
                     className={
                       myAgreement === option.value
                         ? 'h-9 min-w-0 flex-1 rounded bg-gray-900 text-mobile-label font-normal text-white disabled:cursor-not-allowed disabled:opacity-50 lg:h-[45px] lg:w-[92px] lg:flex-none lg:text-button'
@@ -393,11 +383,11 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
         <Panel
           title="규칙 히스토리"
-          className="h-auto rounded-none border-t border-gray-100 px-0 pb-0 pt-4 shadow-none lg:h-[306px] lg:rounded-[18px] lg:border-0 lg:p-[32px]"
-          headerClassName="mb-2.5"
+          className="h-auto rounded-none border-t border-gray-100 px-0 pb-0 pt-4 shadow-none lg:flex lg:h-[306px] lg:flex-col lg:rounded-[18px] lg:border-0 lg:p-[32px]"
+          headerClassName="mb-2.5 lg:shrink-0"
           titleClassName="text-gray-800"
         >
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
             {historyEntries.map(entry => {
               const HistoryIcon = HISTORY_ICON[entry.type];
               return (

@@ -36,7 +36,7 @@ export const ShareItemPickerModal = ({
       closeOnOverlayClick
       className="max-w-[500px] rounded-[28px] p-0"
     >
-      <div className="flex flex-col gap-2 px-10 pb-3 pt-10">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-10 pb-3 pt-10">
         <h3 className="text-[18px] font-bold leading-[normal] text-gray-800">
           {style ? `${style.label} 항목 선택` : ''}
         </h3>
@@ -82,7 +82,7 @@ export const ShareItemPickerModal = ({
         )}
       </div>
 
-      <div className="flex items-center gap-5 border-t border-gray-100 px-10 py-[26px]">
+      <div className="flex shrink-0 items-center gap-5 border-t border-gray-100 px-10 py-[26px]">
         <button
           type="button"
           onClick={() => selectedId && onSelect(selectedId)}

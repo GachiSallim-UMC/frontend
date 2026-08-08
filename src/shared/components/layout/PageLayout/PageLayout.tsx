@@ -16,6 +16,7 @@ interface PageLayoutProps {
   user?: { name: string; avatarUrl?: string };
   unreadMessageCount?: number;
   unreadNotificationCount?: number;
+  onMarkAllNotificationsRead?: () => void;
   className?: string;
 }
 
@@ -26,6 +27,7 @@ export const PageLayout = ({
   user = { name: '사용자' },
   unreadMessageCount = 0,
   unreadNotificationCount = 0,
+  onMarkAllNotificationsRead,
   className,
 }: PageLayoutProps) => {
   const { pathname } = useLocation();
@@ -41,7 +43,11 @@ export const PageLayout = ({
         <Sidebar />
       </div>
       <div className="flex min-h-dvh min-w-0 flex-1 flex-col lg:h-screen lg:min-h-0 lg:overflow-hidden">
-        <MobileHeader user={user} unreadNotificationCount={unreadNotificationCount} />
+        <MobileHeader
+          user={user}
+          unreadNotificationCount={unreadNotificationCount}
+          onMarkAllNotificationsRead={onMarkAllNotificationsRead}
+        />
         <Header
           groupName={groupName}
           memberCount={memberCount}

@@ -1,4 +1,4 @@
-import { Button, LabelFilterDropdown } from '@/shared/components/ui';
+import { Button, FilterTabGroup, LabelFilterDropdown } from '@/shared/components/ui';
 import { NotificationList, useNotifications } from '@/features/notification';
 
 export const NotificationPage = () => {
@@ -23,27 +23,39 @@ export const NotificationPage = () => {
       <div className="flex flex-col w-full h-full pb-[28px] gap-[28px]">
 
         <div className="w-full flex-1 min-h-0 bg-white rounded-[20px] flex flex-col py-4 overflow-hidden lg:max-h-[720px] lg:py-[30px]">
-          <div className="flex flex-wrap justify-between items-center w-full px-4 mb-[14px] lg:px-[30px]">
-            <div className="flex flex-wrap gap-4 z-20">
-              <LabelFilterDropdown
-                value={statusFilter}
-                options={statusOptions}
-                onChange={setStatusFilter}
-              />
-              <LabelFilterDropdown
-                value={categoryFilter}
-                options={categoryOptions}
-                onChange={setCategoryFilter}
-              />
-            </div>
+          <div className="w-full px-4 mb-[14px] lg:px-[30px]">
+            {/* 모바일: 카테고리 칩 (전체 읽음은 상단 MobileHeader에 위치, Figma엔 상태 필터 없음) */}
+            <FilterTabGroup
+              tabs={categoryOptions.map(option => ({ value: option, label: option }))}
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              className="w-full gap-1 overflow-x-auto [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+              buttonClassName="h-8 shrink-0 rounded-full px-4 text-mobile-label font-bold uppercase"
+            />
 
-            <Button
-              variant="secondary"
-              onClick={() => markAllAsRead()}
-              className="h-8 rounded-full px-3 text-mobile-label font-bold text-gray-600 leading-normal border-gray-100 hover:bg-gray-100 active:bg-gray-200 lg:h-auto lg:rounded-lg lg:pt-[16px] lg:pr-[31px] lg:pb-[15px] lg:pl-[30px] lg:text-[16px] lg:font-normal"
-            >
-              전체 읽음 처리
-            </Button>
+            {/* 데스크톱: 기존 드롭다운 필터 + 버튼 */}
+            <div className="hidden flex-wrap justify-between items-center w-full lg:flex">
+              <div className="flex flex-wrap gap-4 z-20">
+                <LabelFilterDropdown
+                  value={statusFilter}
+                  options={statusOptions}
+                  onChange={setStatusFilter}
+                />
+                <LabelFilterDropdown
+                  value={categoryFilter}
+                  options={categoryOptions}
+                  onChange={setCategoryFilter}
+                />
+              </div>
+
+              <Button
+                variant="secondary"
+                onClick={() => markAllAsRead()}
+                className="h-auto rounded-lg pt-[16px] pr-[31px] pb-[15px] pl-[30px] text-[16px] font-normal text-gray-600 leading-normal border-gray-100 hover:bg-gray-100 active:bg-gray-200"
+              >
+                전체 읽음 처리
+              </Button>
+            </div>
           </div>
 
           <div className="flex-1 min-h-0 flex flex-col items-start w-full px-4 overflow-y-auto lg:px-[30px]">

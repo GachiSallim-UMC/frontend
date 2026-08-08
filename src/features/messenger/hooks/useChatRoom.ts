@@ -46,11 +46,15 @@ interface ChatMessageGroup {
   items: ChatMessageItem[];
 }
 
+const isSameDate = (a: string, b: string) => new Date(a).toDateString() === new Date(b).toDateString();
+
+// 날짜 구분선을 그룹 경계와 맞추기 위해, 같은 발신자라도 날짜가 바뀌면 새 그룹으로 끊는다.
 const groupMessagesBySender = (messages: ChatMessageItem[]): ChatMessageGroup[] => {
   const groups: ChatMessageGroup[] = [];
   messages.forEach(message => {
     const lastGroup = groups[groups.length - 1];
-    if (lastGroup && lastGroup.senderId === message.senderId) {
+    const lastItem = lastGroup?.items[lastGroup.items.length - 1];
+    if (lastGroup && lastItem && lastGroup.senderId === message.senderId && isSameDate(lastItem.createdAt, message.createdAt)) {
       lastGroup.items.push(message);
     } else {
       groups.push({
@@ -159,13 +163,15 @@ export const useChatRoom = (groupId: string | null, currentUserId: string, initi
 
   const buildOptimisticMessage = (roomId: string, content: string): ChatMessage => {
     const me = activeRoom?.members.find(member => member.id === currentUserId);
+    const now = new Date().toISOString();
     return {
       id: `local-${crypto.randomUUID()}`,
       roomId,
       senderId: currentUserId,
       senderName: me?.name ?? '',
       senderAvatarUrl: me?.avatarUrl,
-      timestamp: formatTimestamp(new Date().toISOString()),
+      timestamp: formatTimestamp(now),
+      createdAt: now,
       isMine: true,
       content,
       status: 'pending',
@@ -212,11 +218,22 @@ export const useChatRoom = (groupId: string | null, currentUserId: string, initi
     setActiveShareType(null);
   };
 
-  const createRoom = ({ name, category }: { name: string; category: ChatRoomCategory; memberIds: string[] }) => {
+  const createRoom = ({ name, category, memberIds }: { name: string; category: ChatRoomCategory; memberIds: string[] }) => {
     createRoomMutation.mutate(
       { name, category },
       {
-        onSuccess: room => {
+        // 초대가 끝나기 전에 방을 포커스하면 상세 조회가 초대 반영 전 스냅샷을 받아와서
+        // 새로고침 전까지 방금 초대한 멤버가 안 보이는 문제가 있었다. 초대 완료까지 기다린 뒤 포커스한다.
+        // 초대 자체가 실패해도 방은 이미 생성된 상태이므로 포커스·모달 닫기는 계속 진행한다
+        // (실패 알림은 전역 mutationCache.onError가 별도로 띄운다).
+        onSuccess: async room => {
+          if (memberIds.length > 0) {
+            try {
+              await inviteMembersMutation.mutateAsync({ roomId: room.id, userIds: memberIds });
+            } catch {
+              // no-op: 아래에서 방 포커스는 계속 진행
+            }
+          }
           focusRoom(room.id);
           setIsCreateRoomOpen(false);
         },
