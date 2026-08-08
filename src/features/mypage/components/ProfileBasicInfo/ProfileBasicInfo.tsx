@@ -1,7 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, FormInput, BottomSheet } from '@/shared/components';
+import { Button, FormInput, BottomSheet, ConfirmModal } from '@/shared/components';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
 import { AVATAR_ID_TO_URL, AVATAR_ID_BY_URL } from '@/features/mypage/constants/avatars';
 import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from '@/shared/lib/inputValidation';
@@ -27,6 +27,10 @@ export const ProfileBasicInfo = () => {
     
     // 모달 상태 관리
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState<boolean>(false);
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<string | undefined>(undefined);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+    const [deleteError, setDeleteError] = useState<string | undefined>(undefined);
 
     const menuRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -161,26 +165,29 @@ export const ProfileBasicInfo = () => {
         }
     };
 
-    const handleDeleteImage = async () => {
+    const handleDeleteImageClick = () => {
         setIsMenuOpen(false);
+        setDeleteError(undefined);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDeleteImage = async () => {
         try {
             setIsLoading(true);
             await myPageApi.updateProfile({ name, nickname, profileImage: null });
             setProfileImage(null);
             invalidateMe();
+            setIsDeleteModalOpen(false);
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
             console.error('Profile Image Delete Error:', e.response?.data?.message || e.message);
-            showError({
-                title: '삭제 실패',
-                message: '프로필 이미지 삭제 중 오류가 발생했습니다. 다시 시도해주세요.'
-            });
+            setDeleteError('프로필 이미지 삭제 중 오류가 발생했습니다. 다시 시도해주세요.');
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleSave = async () => {
+    const handleSaveClick = () => {
         const nextErrors: typeof errors = {};
         const trimmedName = name.trim();
         const trimmedNickname = nickname.trim();
@@ -197,21 +204,25 @@ export const ProfileBasicInfo = () => {
             return;
         }
 
+        setSaveError(undefined);
+        setIsSaveModalOpen(true);
+    };
+
+    const handleConfirmSave = async () => {
+        const trimmedName = name.trim();
+        const trimmedNickname = nickname.trim();
+
         try {
             setIsLoading(true);
             const payload = { name: trimmedName, nickname: trimmedNickname, profileImage };
-            
-            const result = await myPageApi.updateProfile(payload);
-            console.log('저장 완료 데이터:', result);
+
+            await myPageApi.updateProfile(payload);
             invalidateMe();
-            alert('프로필이 성공적으로 저장되었습니다.');
+            setIsSaveModalOpen(false);
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
             console.error('Profile Save Error:', e.response?.data?.message || e.message);
-            showError({
-                title: '저장 실패',
-                message: '프로필 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
-            });
+            setSaveError('프로필 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         } finally {
             setIsLoading(false);
         }
@@ -260,7 +271,7 @@ export const ProfileBasicInfo = () => {
                                         기본 아바타 선택
                                     </button>
                                     <button
-                                        onClick={handleDeleteImage}
+                                        onClick={handleDeleteImageClick}
                                         className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-red-700 transition-colors hover:bg-red-50"
                                     >
                                         <TrashIcon />
@@ -290,7 +301,7 @@ export const ProfileBasicInfo = () => {
                                         </button>
                                         <div className="h-px w-full bg-gray-100" />
                                         <button
-                                            onClick={handleDeleteImage}
+                                            onClick={handleDeleteImageClick}
                                             className="flex h-[52px] items-center gap-4 px-4 text-mobile-body text-red-700"
                                         >
                                             <TrashIcon className="h-6 w-6 text-red-700" />
@@ -366,7 +377,7 @@ export const ProfileBasicInfo = () => {
                         </div>
 
                         <Button
-                            onClick={handleSave}
+                            onClick={handleSaveClick}
                             disabled={isLoading}
                             variant="primary"
                             className="w-full font-bold lg:w-32 lg:shrink-0"
@@ -383,6 +394,32 @@ export const ProfileBasicInfo = () => {
                 onClose={() => setIsAvatarModalOpen(false)}
                 onConfirm={handleConfirmAvatar}
                 currentAvatar={profileImage ? (AVATAR_ID_BY_URL[profileImage] ?? profileImage) : null}
+            />
+
+            {/* 프로필 저장 확인 모달 */}
+            <ConfirmModal
+                isOpen={isSaveModalOpen}
+                onClose={() => setIsSaveModalOpen(false)}
+                onConfirm={handleConfirmSave}
+                icon={<ProfileIcon className="size-6" />}
+                title="프로필을 저장할까요?"
+                description="변경한 이름·닉네임·프로필 이미지로 저장합니다."
+                isPending={isLoading}
+                errorMessage={saveError}
+            />
+
+            {/* 사진 삭제 확인 모달 */}
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDeleteImage}
+                icon={<TrashIcon className="size-6" />}
+                title="프로필 사진을 삭제할까요?"
+                description="기본 이미지로 되돌아갑니다."
+                confirmLabel="삭제하기"
+                tone="danger"
+                isPending={isLoading}
+                errorMessage={deleteError}
             />
         </>
     );

@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import { FormInput, Button } from '@/shared/components'
-import { useErrorStore } from '@/shared/store';
+import { FormInput, Button, ConfirmModal } from '@/shared/components'
 import { myPageApi } from '@/features/mypage/api/myPage.api';
+import LockIcon from "@/assets/icons/login/lock.svg?react"
 
 export const PasswordChangeForm = () => {
-    const showError = useErrorStore((state) => state.showError);
-    
     const [currentPassword, setCurrentPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [errors, setErrors] = useState<Partial<Record<'currentPassword' | 'newPassword' | 'confirmPassword', string>>>({});
-    
-    const [isLoading, setIsLoading] = useState<boolean>(false); 
 
-    const handleSave = async () => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<string | undefined>(undefined);
+
+    const handleSaveClick = () => {
         const nextErrors: typeof errors = {};
         if (!currentPassword) nextErrors.currentPassword = '현재 비밀번호를 입력해 주세요.';
         else if (currentPassword.length > 256 || /\s/.test(currentPassword)) {
@@ -36,25 +36,26 @@ export const PasswordChangeForm = () => {
             return;
         }
 
+        setSaveError(undefined);
+        setIsSaveModalOpen(true);
+    };
+
+    const handleConfirmSave = async () => {
         setIsLoading(true);
 
         try {
             await myPageApi.changePassword(currentPassword, newPassword);
 
-            alert('비밀번호가 성공적으로 변경되었습니다.');
-            
+            setIsSaveModalOpen(false);
+
             // 입력창 초기화
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
-            
+
         } catch (error) {
             console.error('비밀번호 변경 실패:', error);
-            
-            showError({
-                title: '비밀번호 변경 실패',
-                message: '비밀번호 변경에 실패했습니다. 현재 비밀번호가 맞는지 확인해 주세요.'
-            });
+            setSaveError('비밀번호 변경에 실패했습니다. 현재 비밀번호가 맞는지 확인해 주세요.');
         } finally {
             setIsLoading(false);
         }
@@ -136,7 +137,7 @@ export const PasswordChangeForm = () => {
                     <Button
                         variant="primary"
                         size='md'
-                        onClick={handleSave}
+                        onClick={handleSaveClick}
                         className='w-full lg:w-40'
                         disabled={isLoading}
                     >
@@ -144,6 +145,18 @@ export const PasswordChangeForm = () => {
                     </Button>
                 </div>
             </div>
+
+            {/* 비밀번호 변경 확인 모달 */}
+            <ConfirmModal
+                isOpen={isSaveModalOpen}
+                onClose={() => setIsSaveModalOpen(false)}
+                onConfirm={handleConfirmSave}
+                icon={<LockIcon className="size-6" />}
+                title="비밀번호를 변경할까요?"
+                description="입력한 새 비밀번호로 변경합니다."
+                isPending={isLoading}
+                errorMessage={saveError}
+            />
         </section>
     );
 };

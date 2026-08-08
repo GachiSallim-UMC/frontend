@@ -1,12 +1,13 @@
 import type { ChangeEvent, FormEvent, SyntheticEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { FormInput } from '@/shared/components/form';
-import { Button } from '@/shared/components/ui';
+import { Button, ConfirmModal } from '@/shared/components/ui';
 import { CheckboxGroup } from '@/shared/components/form';
 import type { SignupFormData, SignupFormErrors } from '@/features/auth/types/auth.type'
 import { isUnsignedIntegerInput } from '@/shared/lib/inputValidation';
 import CircleIcon from "@/assets/icons/login/findingPassword/circle.svg?react"
 import MailIcon from "@/assets/icons/login/findingPassword/mail.svg?react"
+import SignupMailIcon from "@/assets/icons/login/mail.svg?react"
 
 
 interface SignupFormProps {
@@ -21,6 +22,11 @@ interface SignupFormProps {
     isCodeError: boolean;
     isVerified: boolean;
     onFinalSubmit: (e: FormEvent) => void;
+    isSignupModalOpen: boolean;
+    onCloseSignupModal: () => void;
+    onConfirmSignup: () => void;
+    signupError?: string;
+    isSubmitting: boolean;
 }
 
 export const SignupForm = ({
@@ -33,8 +39,13 @@ export const SignupForm = ({
     onConfirmEmail,
     onSubmit,
     isCodeError,
-    isVerified,       
+    isVerified,
     onFinalSubmit,
+    isSignupModalOpen,
+    onCloseSignupModal,
+    onConfirmSignup,
+    signupError,
+    isSubmitting,
 }: SignupFormProps) => {
 
     const isAgree = agreedTerms.includes('terms');
@@ -165,6 +176,19 @@ export const SignupForm = ({
                         가입 및 인증 메일 받기
                     </Button>
                 </form>
+
+                <ConfirmModal
+                    isOpen={isSignupModalOpen}
+                    onClose={onCloseSignupModal}
+                    onConfirm={onConfirmSignup}
+                    icon={<SignupMailIcon className="size-6" />}
+                    title="가입 및 인증 메일을 받을까요?"
+                    highlight={formData.email.trim()}
+                    description="주소로 인증 메일을 보내고 회원가입을 진행합니다."
+                    confirmLabel="가입하기"
+                    isPending={isSubmitting}
+                    errorMessage={signupError}
+                />
                 </div>
             )}
 

@@ -2,14 +2,18 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ResetPasswordForm, authApi, type ResetPasswordFormData } from '@/features/auth';
 import { useErrorStore } from '@/shared/store/useErrorStore';
+import { ConfirmModal } from '@/shared/components/ui';
+import LockIcon from "@/assets/icons/login/lock.svg?react"
 
 export const ResetPasswordPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const showError = useErrorStore(state => state.showError);
-    
+
     const [isLoading, setIsLoading] = useState(false);
     const [urlParams, setUrlParams] = useState({ email: '', code: '' });
+    const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+    const [resetError, setResetError] = useState<string | undefined>(undefined);
     
     const [formData, setFormData] = useState<ResetPasswordFormData>({
         newPassword: '',
@@ -39,7 +43,7 @@ export const ResetPasswordPage = () => {
             setFormData(prev => ({ ...prev, [field]: e.target.value }));
     };
 
-    const handleSubmit = async (e: FormEvent) => {
+    const handleSubmitClick = (e: FormEvent) => {
         e.preventDefault();
 
         if (formData.newPassword !== formData.newPasswordConfirm) {
@@ -50,6 +54,11 @@ export const ResetPasswordPage = () => {
             return;
         }
 
+        setResetError(undefined);
+        setIsResetModalOpen(true);
+    };
+
+    const handleConfirmReset = async () => {
         setIsLoading(true);
 
         try {
@@ -59,7 +68,7 @@ export const ResetPasswordPage = () => {
                 newPassword: formData.newPassword
             });
 
-            alert('비밀번호가 성공적으로 재설정되었습니다. 다시 로그인해 주세요.');
+            setIsResetModalOpen(false);
             navigate('/login', { replace: true });
 
         } catch (error: unknown) {
@@ -70,10 +79,7 @@ export const ResetPasswordPage = () => {
                 errorMessage = e.response?.data?.message || e.message;
             }
 
-            showError({
-                title: '재설정 실패',
-                message: errorMessage
-            });
+            setResetError(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -82,13 +88,25 @@ export const ResetPasswordPage = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">
             <div className="h-[696px] w-full max-w-lg rounded-3xl bg-white px-10 pb-8 pt-10 flex flex-col">
-                <ResetPasswordForm 
+                <ResetPasswordForm
                     formData={formData}
                     onChange={handleFormDataChange}
-                    onSubmit={handleSubmit}
+                    onSubmit={handleSubmitClick}
                     isLoading={isLoading}
                 />
             </div>
+
+            <ConfirmModal
+                isOpen={isResetModalOpen}
+                onClose={() => setIsResetModalOpen(false)}
+                onConfirm={handleConfirmReset}
+                icon={<LockIcon className="size-6" />}
+                title="비밀번호를 재설정할까요?"
+                description="입력한 새 비밀번호로 재설정합니다."
+                confirmLabel="재설정하기"
+                isPending={isLoading}
+                errorMessage={resetError}
+            />
         </div>
     );
 };

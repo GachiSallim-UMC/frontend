@@ -10,7 +10,12 @@ export const SignupPage = () => {
         agreedTerms, 
         onAgreedTermsChange,
         handleConfirmEmail,
-        handleSubmitInfo,
+        handleSubmitInfoClick,
+        isSignupModalOpen,
+        onCloseSignupModal,
+        handleConfirmSignup,
+        signupError,
+        isSubmitting,
         isCodeError,
         isVerified,
         handleFinalSubmit,
@@ -29,10 +34,15 @@ export const SignupPage = () => {
                     agreedTerms={agreedTerms}
                     onAgreedTermsChange={onAgreedTermsChange}
                     onConfirmEmail={handleConfirmEmail}
-                    onSubmit={handleSubmitInfo}
+                    onSubmit={handleSubmitInfoClick}
                     isCodeError={isCodeError}
-                    isVerified={isVerified}                
+                    isVerified={isVerified}
                     onFinalSubmit={handleFinalSubmit}
+                    isSignupModalOpen={isSignupModalOpen}
+                    onCloseSignupModal={onCloseSignupModal}
+                    onConfirmSignup={handleConfirmSignup}
+                    signupError={signupError}
+                    isSubmitting={isSubmitting}
                 />
 
                 { /* 로그인 페이지 이동 링크 */}

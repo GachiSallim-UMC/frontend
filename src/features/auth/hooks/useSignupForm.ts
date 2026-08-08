@@ -35,6 +35,10 @@ export const useSignupForm = () => {
     const [isCodeError, setIsCodeError] = useState(false);
     const [errors, setErrors] = useState<SignupFormErrors>({});
 
+    const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+    const [signupError, setSignupError] = useState<string | undefined>(undefined);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleFormDataChange = (nextData: SignupFormData) => {
         setFormData(previous => {
             const changedFields = (Object.keys(nextData) as (keyof SignupFormData)[]).filter(
@@ -51,8 +55,8 @@ export const useSignupForm = () => {
         });
     };
 
-    // 회원가입 요청    
-    const handleSubmitInfo = async (e: FormEvent) => {
+    // 회원가입 정보 검증 후 확인 모달 오픈
+    const handleSubmitInfoClick = (e: FormEvent) => {
         e.preventDefault();
 
         const nextErrors: SignupFormErrors = {};
@@ -86,6 +90,13 @@ export const useSignupForm = () => {
             return;
         }
 
+        setSignupError(undefined);
+        setIsSignupModalOpen(true);
+    };
+
+    // 확인 모달에서 최종 승인 시 실제 회원가입 요청
+    const handleConfirmSignup = async () => {
+        setIsSubmitting(true);
         try {
             await authApi.signup({
                 email: formData.email,
@@ -93,17 +104,20 @@ export const useSignupForm = () => {
                 name: formData.name,
                 nickname: formData.nickname,
             });
-            
+
             // 1단계 성공 시 2단계로 이동 및 에러 상태 초기화
             setStep(2);
             setIsCodeError(false);
+            setIsSignupModalOpen(false);
 
         } catch (error) {
             if (error instanceof ApiError && error.statusCode === 409) {
-                showError({ title: '가입 불가', message: '이미 가입된 이메일입니다.' });
+                setSignupError('이미 가입된 이메일입니다.');
             } else {
-                showError({ title: '회원가입 실패', message: '오류가 발생했습니다.' });
+                setSignupError('회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.');
             }
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -179,9 +193,14 @@ export const useSignupForm = () => {
         agreedTerms,
         onAgreedTermsChange: setAgreedTerms,
         handleConfirmEmail,
-        handleSubmitInfo,
+        handleSubmitInfoClick,
+        isSignupModalOpen,
+        onCloseSignupModal: () => setIsSignupModalOpen(false),
+        handleConfirmSignup,
+        signupError,
+        isSubmitting,
         isCodeError,
-        isVerified,      
+        isVerified,
         handleFinalSubmit
     };
 };
