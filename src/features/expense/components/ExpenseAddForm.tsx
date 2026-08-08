@@ -4,16 +4,20 @@ import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
 import {
   useSettlementAmounts,
   useExpenseForm,
+  useExpenseSettle,
   ExpenseSaveModal,
   ExpenseCancelModal,
   ExpenseDeleteModal,
-  AlertModal,
+  CustomButton,
+  CheckboxModal,
+  SettlementConfirm,
 } from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
 import type { Expense, ExpenseCategory } from '@/features/expense';
 import type { User } from '@/shared/types';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { ShareMessengerButton, Button } from '@/shared/components/';
+import { useErrorStore } from '@/shared/store';
 import {
   isDateOnlyInputValue,
   isUnsignedIntegerInput,
@@ -22,9 +26,10 @@ import {
 
 const labelClass = 'font-sans text-caption font-bold text-gray-800';
 
-
+// 모바일에서는 두 카드가 배경 위에 완전히 이어지도록 border/rounded/gap을 없애고,
+// 데스크톱(sm:)에서만 기존처럼 독립된 카드 스타일을 적용한다.
 const cardClass =
-  'w-full bg-white p-3 rounded-[16px] flex flex-col gap-5 lg:p-[32px] border border-gray-100';
+  'w-full bg-white p-3 sm:p-5 sm:rounded-[18px] flex flex-col gap-4 sm:gap-5 lg:p-[32px] sm:border sm:border-gray-100';
 
 const toLocalDateOnly = (date: Date) => {
   const year = date.getFullYear();
@@ -43,11 +48,6 @@ type ExpenseFieldErrors = Partial<
     'title' | 'amount' | 'date' | 'payerId' | 'category' | 'members' | 'memo', string
   >
 >;
-
-interface AlertState {
-  title: string;
-  description: string;
-}
 
 const CATEGORY_OPTIONS = [
   { value: 'FINANCE', label: '세금/기타금융' },
@@ -88,6 +88,10 @@ interface ExpenseAddFormProps {
   isSharing?: boolean;
   onDelete?: (expenseId: string) => Promise<void> | void;
   isDeleting?: boolean;
+  /** 상세(수정) 모드에서 전체/개별 정산 완료 처리 후 최신 데이터를 다시 불러오기 위한 콜백 */
+  onRefresh?: () => void;
+  /** 저장/취소 버튼 바로 아래(모바일 전용)에 렌더링할 컨텐츠, 예: 영수증 등록 버튼 */
+  mobileReceiptSlot?: React.ReactNode;
 }
 
 export const ExpenseAddForm = ({
@@ -106,6 +110,8 @@ export const ExpenseAddForm = ({
   isSharing,
   onDelete,
   isDeleting,
+  onRefresh,
+  mobileReceiptSlot,
 }: ExpenseAddFormProps) => {
   const [currentExpenseId, setCurrentExpenseId] = useState<string | undefined>(expenseId);
   const [fieldErrors, setFieldErrors] = useState<ExpenseFieldErrors>({});
@@ -117,9 +123,17 @@ export const ExpenseAddForm = ({
   const [deleteErrorMessage, setDeleteErrorMessage] = useState<string | undefined>(undefined);
   const [memberAmountErrors, setMemberAmountErrors] = useState<Record<string, string>>({});
   const [memberRatioErrors, setMemberRatioErrors] = useState<Record<string, string>>({});
-  const [alertState, setAlertState] = useState<AlertState | null>(null);
+  const [isSettlementConfirmOpen, setIsSettlementConfirmOpen] = useState(false);
 
   const isSettled = isEditMode && initialExpense?.status === 'paid';
+
+  const {
+    isModalOpen: isSettleMembersModalOpen,
+    setIsModalOpen: setIsSettleMembersModalOpen,
+    handleBulkSettle,
+    handleIndividualSubmit,
+    modalMembers,
+  } = useExpenseSettle(initialExpense, onRefresh);
 
   useEffect(() => {
     setCurrentExpenseId(expenseId);
@@ -139,9 +153,9 @@ export const ExpenseAddForm = ({
   const handleDateBlur = () => {
     if (expenseDate && expenseDate < todayStr) {
       setExpenseDate(todayStr);
-      setAlertState({
+      useErrorStore.getState().showError({
         title: '알림',
-        description: '오늘 이전의 날짜는 선택할 수 없습니다.',
+        message: '오늘 이전의 날짜는 선택할 수 없습니다.',
       });
     }
   };
@@ -229,9 +243,9 @@ export const ExpenseAddForm = ({
 
   const handleSaveClickWithGuard = async () => {
     if (isSettled) {
-      setAlertState({
+      useErrorStore.getState().showError({
         title: '알림',
-        description: '정산 완료된 내역은 수정할 수 없습니다.',
+        message: '정산 완료된 내역은 수정할 수 없습니다.',
       });
       return;
     }
@@ -434,9 +448,14 @@ export const ExpenseAddForm = ({
         </div>
       )}
 
+      {/*
+        모바일: 두 섹션 사이 gap을 없애 하나로 이어지는 흰 배경 화면처럼 보이게 하고,
+        대신 두 번째 섹션 상단에 얇은 구분선만 넣는다.
+        데스크톱(sm:): 기존처럼 카드 두 개가 gap을 두고 독립적으로 표시된다.
+      */}
       <fieldset
         disabled={isSettled}
-        className={`flex w-full flex-col gap-4 sm:gap-6 ${isSettled ? 'opacity-60' : ''}`}
+        className={`flex w-full flex-col gap-0 sm:gap-6 ${isSettled ? 'opacity-60' : ''}`}
       >
         <div className={cardClass}>
           <h2 className="font-sans text-body font-bold text-gray-800">
@@ -544,7 +563,9 @@ export const ExpenseAddForm = ({
           />
         </div>
 
-        <div className={cardClass}>
+        <div
+          className={`${cardClass} border-t border-gray-100 sm:border-t sm:border-gray-100`}
+        >
           <h2 className="font-sans text-body font-bold text-gray-800">
             정산 방식
           </h2>
@@ -863,54 +884,122 @@ export const ExpenseAddForm = ({
             showCount
             countInside
           />
+
+          {/*
+            정산 미리보기: 별도 컴포넌트/상태 없이 현재 입력값으로 바로 계산해서 텍스트로 나열.
+            멤버별 부담금액은 정산 대상 멤버 체크리스트에서 이미 확인할 수 있으므로
+            미리보기에서는 표시하지 않는다.
+            상세(수정) 모드에서는 하단에 전체/개별 정산 완료 버튼을 추가로 노출한다.
+          */}
+          <div className="flex flex-col gap-3 border-t border-dashed border-gray-200 pt-4">
+            <div className="flex items-center gap-2">
+              <ExpenseIcon className="size-5" />
+              <span className="font-sans text-body font-bold text-gray-800">
+                정산 미리보기
+              </span>
+            </div>
+
+            <div className="flex flex-col text-button text-gray-900">
+              <div className="flex justify-between border-b border-gray-100 py-2">
+                <span className="text-gray-600">항목</span>
+                <span className="truncate pl-2 text-right">
+                  {title.trim() || '항목명 미입력'}
+                </span>
+              </div>
+
+              <div className="flex justify-between border-b border-gray-100 py-2">
+                <span className="text-gray-600">총액</span>
+                <span>{(Number(amount) || 0).toLocaleString()}원</span>
+              </div>
+
+              <div className="flex justify-between border-b border-gray-100 py-2">
+                <span className="text-gray-600">선지불자</span>
+                <span>
+                  {members.find(member => String(member.id) === payerId)?.name ??
+                    '미선택'}
+                </span>
+              </div>
+
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600">분담 방식</span>
+                <span>
+                  {SPLIT_METHOD_OPTIONS.find(
+                    option => option.value === settlementMethod,
+                  )?.label ?? '균등 분할 (n/n)'}
+                </span>
+              </div>
+            </div>
+
+            {isEditMode && (
+              <div className="flex gap-3 pt-1">
+                <CustomButton
+                  label="전체 정산 완료"
+                  variant="all"
+                  onClick={() => setIsSettlementConfirmOpen(true)}
+                  className="flex-1"
+                />
+
+                <CustomButton
+                  label="개별 완료 처리"
+                  variant="each"
+                  onClick={() => setIsSettleMembersModalOpen(true)}
+                  className="flex-1"
+                />
+              </div>
+            )}
+          </div>
         </div>
       </fieldset>
 
-    
-      <div className="mt-2 flex w-full flex-col-reverse gap-3 pb-8 pt-4 sm:flex-row sm:items-center sm:justify-between">
-  <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
-    <Button
-      variant="primary"
-      size="md"
-      onClick={handleSaveClickWithFieldValidation}
-      disabled={isSettled}
-      className="w-full sm:w-[130px]"
-    >
-      {isEditMode ? '수정하기' : '저장'}
-    </Button>
 
-    <Button
-      variant="secondary"
-      size="md"
-      onClick={handleCancelClick}
-      className="hidden sm:flex sm:w-[130px]"
-    >
-      취소
-    </Button>
+      <div className="mt-2 flex w-full flex-col-reverse gap-3 pb-6 pt-3 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-4 sm:overflow-x-auto sm:pb-8 sm:pt-4">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-nowrap sm:shrink-0">
+          <Button
+            variant="primary"
+            size="md"
+            onClick={handleSaveClickWithFieldValidation}
+            disabled={isSettled}
+            className="w-full shrink-0 sm:w-[110px]"
+          >
+            {isEditMode ? '수정하기' : '저장'}
+          </Button>
 
-    {isEditMode && (
-      <Button
-        variant="secondary"
-        size="md"
-        onClick={handleDeleteClick}
-        className="w-full border-none bg-red-700 font-bold text-white hover:bg-red-700 sm:w-[130px]"
-      >
-        삭제
-      </Button>
-    )}
-  </div>
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={handleCancelClick}
+            className="hidden shrink-0 sm:flex sm:w-[110px]"
+          >
+            취소
+          </Button>
 
-  <ShareMessengerButton
-    label={isSharing ? '공유 중...' : '메신저에 공유'}
-    onClick={() => {
-      if (currentExpenseId) {
-        onShare?.(currentExpenseId);
-      }
-    }}
-    className="w-full sm:w-auto sm:min-w-[160px]"
-    disabled={isSharing || !currentExpenseId}
-  />
-</div>
+          {isEditMode && (
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={handleDeleteClick}
+              className="w-full shrink-0 border-none bg-red-700 font-bold text-white hover:bg-red-700 sm:w-[110px]"
+            >
+              삭제
+            </Button>
+          )}
+        </div>
+
+        <ShareMessengerButton
+          label={isSharing ? '공유 중...' : '메신저에 공유'}
+          onClick={() => {
+            if (currentExpenseId) {
+              onShare?.(currentExpenseId);
+            }
+          }}
+          className="w-full shrink-0 sm:w-auto sm:min-w-[140px]"
+          disabled={isSharing || !currentExpenseId}
+        />
+      </div>
+
+      {mobileReceiptSlot && (
+        <div className="-mt-2 mb-2 sm:hidden">{mobileReceiptSlot}</div>
+      )}
 
       <ExpenseSaveModal
         isOpen={isSaveModalOpen}
@@ -939,14 +1028,24 @@ export const ExpenseAddForm = ({
         />
       )}
 
-      <AlertModal
-        isOpen={!!alertState}
-        onClose={() => setAlertState(null)}
-        icon={<ExpenseIcon className="size-6" />}
-        title={alertState?.title ?? '알림'}
-        description={alertState?.description ?? ''}
-        tone="warning"
-      />
+      {isEditMode && (
+        <>
+          <SettlementConfirm
+            isOpen={isSettlementConfirmOpen}
+            onClose={() => setIsSettlementConfirmOpen(false)}
+            onConfirm={handleBulkSettle}
+          />
+
+          <CheckboxModal
+            title="개별 정산 완료 처리"
+            description="정산이 완료된 멤버를 선택해주세요."
+            members={modalMembers}
+            isOpen={isSettleMembersModalOpen}
+            onClose={() => setIsSettleMembersModalOpen(false)}
+            onSubmit={handleIndividualSubmit}
+          />
+        </>
+      )}
     </>
   );
 };

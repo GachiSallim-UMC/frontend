@@ -238,60 +238,65 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     <div className="w-full bg-gray-50">
     <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="min-w-0 w-full">
-            <ExpenseAddForm
-              members={members}
-              membersLoading={membersLoading}
-              initialExpense={savedExpense}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              isEditMode={isEditMode}
-              expenseId={savedExpense?.id ? String(savedExpense.id) : id}
-              receiptUrl={receiptObjectKey}
-              onShare={openShare}
-              isSharing={isSharePending}
-              onDelete={handleDelete}
-              isDeleting={isDeleting}
-            />
-          </div>
+    <div className="min-w-0 w-full">
+  <ExpenseAddForm
+    members={members}
+    membersLoading={membersLoading}
+    initialExpense={savedExpense}
+    onSave={handleSave}
+    onCancel={handleCancel}
+    isEditMode={isEditMode}
+    expenseId={savedExpense?.id ? String(savedExpense.id) : id}
+    receiptUrl={receiptObjectKey}
+    onShare={openShare}
+    isSharing={isSharePending}
+    onDelete={handleDelete}
+    isDeleting={isDeleting}
+    onRefresh={handleExpenseRefresh}
+    mobileReceiptSlot={
+      <Receipt
+        imageUrl={receiptViewUrl}
+        onImageChange={handleReceiptChange}
+        disabled={
+          isReceiptUploading || savedExpense?.status === 'paid'
+        }
+        isUploading={isReceiptUploading}
+      />
+    }
+  />
+</div>
 
-          <div className="flex min-w-0 w-full flex-col gap-4">
-            {isSubmitted && savedExpense ? (
-              <>
-                <ExpenseDetailCard
-                  expense={savedExpense}
-                  onRefresh={handleExpenseRefresh}
-                />
+<div className="flex min-w-0 w-full flex-col gap-0 sm:gap-4">
+  {isSubmitted && savedExpense && (
+    <>
+      {/* 모바일에서는 폼의 "정산 미리보기"에 이미 같은 정보 + 정산 버튼이 있으므로 중복 방지 위해 숨김 */}
+      <div className="hidden sm:block">
+        <ExpenseDetailCard
+          expense={savedExpense}
+          onRefresh={handleExpenseRefresh}
+        />
+      </div>
 
-                <Receipt
-                  imageUrl={receiptViewUrl}
-                  onImageChange={handleReceiptChange}
-                  disabled={
-                    isReceiptUploading || savedExpense.status === 'paid'
-                  }
-                  isUploading={isReceiptUploading}
-                />
+      <SettlementPreviewCard
+        expense={savedExpense}
+        currentUserId={currentUserId}
+        onRefresh={handleExpenseRefresh}
+      />
+    </>
+  )}
 
-                <SettlementPreviewCard
-                  expense={savedExpense}
-                  currentUserId={currentUserId}
-                />
-              </>
-            ) : (
-              <>
-                <Receipt
-                  onImageChange={handleReceiptChange}
-                  disabled={isReceiptUploading}
-                  isUploading={isReceiptUploading}
-                />
-
-                <SettlementPreviewCard
-                  currentUserId={currentUserId}
-                />
-              </>
-            )}
-          </div>
-        </div>
+  <div className="hidden sm:block">
+    <Receipt
+      imageUrl={receiptViewUrl}
+      onImageChange={handleReceiptChange}
+      disabled={
+        isReceiptUploading || savedExpense?.status === 'paid'
+      }
+      isUploading={isReceiptUploading}
+    />
+  </div>
+</div>
+</div>
       </div>
 
       <ShareItemPickerModal

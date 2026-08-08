@@ -1,17 +1,11 @@
 import { useRef, useState, useEffect } from 'react';
-import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
-import { AlertModal } from '@/features/expense';
+import { useErrorStore } from '@/shared/store';
 
 interface ReceiptProps {
   imageUrl?: string;
   onImageChange?: (file: File) => void;
   disabled?: boolean;
   isUploading?: boolean;
-}
-
-interface AlertState {
-  title: string;
-  description: string;
 }
 
 const ALLOWED_RECEIPT_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -25,7 +19,6 @@ export const Receipt = ({
 }: ReceiptProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(imageUrl);
-  const [alertState, setAlertState] = useState<AlertState | null>(null);
 
   useEffect(() => {
     setPreviewUrl(imageUrl);
@@ -41,9 +34,9 @@ export const Receipt = ({
     if (!file) return;
 
     if (!ALLOWED_RECEIPT_TYPES.includes(file.type)) {
-      setAlertState({
+      useErrorStore.getState().showError({
         title: '알림',
-        description:
+        message:
           '영수증 규격/형태가 맞지 않습니다. JPEG, PNG, WebP 형식의 이미지만 등록할 수 있습니다.',
       });
       e.target.value = '';
@@ -51,9 +44,9 @@ export const Receipt = ({
     }
 
     if (file.size > MAX_RECEIPT_SIZE) {
-      setAlertState({
+      useErrorStore.getState().showError({
         title: '알림',
-        description: '파일 크기는 10MB를 초과할 수 없습니다.',
+        message: '파일 크기는 10MB를 초과할 수 없습니다.',
       });
       e.target.value = '';
       return;
@@ -80,7 +73,7 @@ export const Receipt = ({
             type="button"
             onClick={handleButtonClick}
             disabled={disabled}
-            className={`w-full py-3 sm:py-2.5 rounded-lg text-white text-button font-bold transition-colors ${
+            className={`w-full py-2.5 sm:py-2.5 rounded-lg text-white text-button font-bold transition-colors ${
               disabled
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-gray-700 hover:bg-gray-800 cursor-pointer'
@@ -102,7 +95,7 @@ export const Receipt = ({
           type="button"
           onClick={handleButtonClick}
           disabled={disabled}
-          className={`w-full py-4 rounded-lg text-white text-button font-bold transition-colors ${
+          className={`w-full py-3 sm:py-4 rounded-lg text-white text-button font-bold transition-colors ${
             disabled
               ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-gray-900 hover:bg-black cursor-pointer'
@@ -118,15 +111,6 @@ export const Receipt = ({
         accept="image/jpeg,image/png,image/webp"
         onChange={handleFileChange}
         className="hidden"
-      />
-
-      <AlertModal
-        isOpen={!!alertState}
-        onClose={() => setAlertState(null)}
-        icon={<ExpenseIcon className="size-6" />}
-        title={alertState?.title ?? '알림'}
-        description={alertState?.description ?? ''}
-        tone="warning"
       />
     </div>
   );

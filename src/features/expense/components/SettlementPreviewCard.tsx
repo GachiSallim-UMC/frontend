@@ -5,33 +5,99 @@ import {
   CustomButton,
   IconTextButton,
   SettlementConfirm,
-  AlertModal,
 } from '@/features/expense';
 import { useCreatePayLink, useExpenseSettle } from '@/features/expense';
 import type { Expense } from '@/features/expense';
+
+interface SettlementDraft {
+  title: string;
+  amount: string;
+  payerName?: string;
+  splitType: string;
+}
 
 interface SettlementPreviewCardProps {
   expense?: Expense;
   currentUserId?: string;
   onRefresh?: () => void;
+  /**
+   * 저장 전(등록 화면) 상태에서 폼에 입력 중인 값의 미리보기.
+   * expense가 없을 때 모바일 화면에서만 간단히 노출된다.
+   */
+  draft?: SettlementDraft;
+}
+
+function settlementMethodLabel(value?: string): string {
+  if (value === 'RATIO') return '비율 분할 (%)';
+  if (value === 'CUSTOM') return '직접 입력';
+  return '균등 분할 (n/n)';
 }
 
 export const SettlementPreviewCard = ({
   expense,
   currentUserId,
   onRefresh,
+  draft,
 }: SettlementPreviewCardProps) => {
   const [isSettlementConfirmOpen, setIsSettlementConfirmOpen] = useState(false);
 
-  const { requestPayLink, isLoading, alertState, closeAlert } =
-    useCreatePayLink();
+  const { requestPayLink, isLoading } = useCreatePayLink();
   const { handleBulkSettle } = useExpenseSettle(expense, onRefresh);
 
   if (!expense) {
+    const hasDraftContent = Boolean(draft?.title || draft?.amount);
+
     return (
-      <div className="text-caption text-gray-500">
-        입력된 내역의 정산 미리보기가 없습니다.
-      </div>
+      <>
+        {/* 모바일: 저장 전에도 입력 중인 값으로 간단 미리보기 표시 */}
+        <div className="sm:hidden">
+          {hasDraftContent ? (
+            <div className="w-full rounded-[16px] bg-white p-3">
+              <div className="mb-3 flex items-center gap-2">
+                <ExpenseIcon className="size-6" />
+                <span className="text-subtitle font-bold text-gray-900">
+                  정산 상세 미리보기
+                </span>
+              </div>
+
+              <div className="flex flex-col text-button text-gray-900">
+                <div className="flex justify-between border-b border-gray-100 py-2">
+                  <span className="text-gray-600">항목</span>
+                  <span className="truncate pl-2 text-right">
+                    {draft?.title || '제목 없음'}
+                  </span>
+                </div>
+
+                <div className="flex justify-between border-b border-gray-100 py-2">
+                  <span className="text-gray-600">총액</span>
+                  <span>
+                    {(Number(draft?.amount) || 0).toLocaleString()}원
+                  </span>
+                </div>
+
+                <div className="flex justify-between border-b border-gray-100 py-2">
+                  <span className="text-gray-600">선지불자</span>
+                  <span>{draft?.payerName || '미선택'}</span>
+                </div>
+
+                <div className="flex justify-between py-2">
+                  <span className="text-gray-600">분담 방식</span>
+                  <span>{settlementMethodLabel(draft?.splitType)}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center text-caption text-gray-500">
+              입력된 내역의 정산 미리보기가 없습니다.
+            </div>
+          )}
+        </div>
+
+        {/* 데스크톱: 기존 안내 문구 유지 */}
+        <div className="hidden text-center text-caption text-gray-500 sm:block">
+          입력된 내역의 정산 미리보기가 없습니다.
+        </div>
+      </>
     );
   }
 
@@ -49,13 +115,10 @@ export const SettlementPreviewCard = ({
 
   return (
     <>
-      <div className="w-full rounded-none sm:rounded-[16px] border-0 sm:border sm:border-primary-500 bg-white p-4 sm:p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <ExpenseIcon className="size-6" />
-          <span className="text-subtitle font-bold text-gray-900">
-            정산 상세 미리보기
-          </span>
-        </div>
+      <div>
+        <h2 className="mb-4 text-subtitle font-bold text-gray-800">
+          정산 상세 미리보기
+        </h2>
 
         <div className="flex flex-col gap-3">
           <span className="text-button font-bold text-gray-800">
@@ -141,15 +204,6 @@ export const SettlementPreviewCard = ({
         isOpen={isSettlementConfirmOpen}
         onClose={() => setIsSettlementConfirmOpen(false)}
         onConfirm={handleBulkSettle}
-      />
-
-      <AlertModal
-        isOpen={!!alertState}
-        onClose={closeAlert}
-        icon={<ExpenseIcon className="size-6" />}
-        title={alertState?.title ?? '알림'}
-        description={alertState?.description ?? ''}
-        tone="warning"
       />
     </>
   );
