@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { WarningModal } from '@/features/mypage/components/WarningModal'
 import { Button } from '@/shared/components';
-import { useErrorStore } from '@/shared/store';
+import { useErrorStore, useSuccessStore } from '@/shared/store';
 import {myPageApi} from '@/features/mypage/api/myPage.api'
 import { useLogout } from '@/features/auth';
 import LogoutIcon from "@/assets/icons/mypage/logout.svg?react"
@@ -9,6 +9,7 @@ import CrossIcon from "@/assets/icons/mypage/cross.svg?react"
 
 export const MyPageButtonGroup = () => {
     const showError = useErrorStore((state) => state.showError);
+    const showSuccess = useSuccessStore((state) => state.showSuccess);
 
     const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
@@ -23,7 +24,7 @@ export const MyPageButtonGroup = () => {
         setIsWithdrawing(true);
         try {
             await myPageApi.withdraw();
-            alert('회원 탈퇴가 완료되었습니다.');
+            showSuccess({ title: '탈퇴 완료', message: '회원 탈퇴가 완료되었습니다.' });
             setIsWithdrawalModalOpen(false);
 
             logout();

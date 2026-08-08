@@ -2,11 +2,13 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ResetPasswordForm, authApi, type ResetPasswordFormData } from '@/features/auth';
 import { useErrorStore } from '@/shared/store/useErrorStore';
+import { useSuccessStore } from '@/shared/store/useSuccessStore';
 
 export const ResetPasswordPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const showError = useErrorStore(state => state.showError);
+    const showSuccess = useSuccessStore(state => state.showSuccess);
     
     const [isLoading, setIsLoading] = useState(false);
     const [urlParams, setUrlParams] = useState({ email: '', code: '' });
@@ -59,7 +61,7 @@ export const ResetPasswordPage = () => {
                 newPassword: formData.newPassword
             });
 
-            alert('비밀번호가 성공적으로 재설정되었습니다. 다시 로그인해 주세요.');
+            showSuccess({ title: '재설정 완료', message: '비밀번호가 성공적으로 재설정되었습니다. 다시 로그인해 주세요.' });
             navigate('/login', { replace: true });
 
         } catch (error: unknown) {

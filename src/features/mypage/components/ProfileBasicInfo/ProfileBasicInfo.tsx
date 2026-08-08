@@ -5,7 +5,7 @@ import { Button, FormInput, BottomSheet } from '@/shared/components';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
 import { AVATAR_ID_TO_URL, AVATAR_ID_BY_URL } from '@/features/mypage/constants/avatars';
 import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from '@/shared/lib/inputValidation';
-import { useErrorStore } from '@/shared/store';
+import { useErrorStore, useSuccessStore } from '@/shared/store';
 import CameraIcon from "@/assets/icons/mypage/camera.svg?react"
 import UploadIcon from "@/assets/icons/mypage/upload.svg?react"
 import TrashIcon from "@/assets/icons/mypage/trash.svg?react"
@@ -14,6 +14,7 @@ import { AvatarSelectionModal } from '@/features/mypage/components/AvatarSelecti
 
 export const ProfileBasicInfo = () => {
     const showError = useErrorStore((state) => state.showError);
+    const showSuccess = useSuccessStore((state) => state.showSuccess);
     const queryClient = useQueryClient();
 
     const [name, setName] = useState<string>('홍길동');
@@ -204,7 +205,7 @@ export const ProfileBasicInfo = () => {
             const result = await myPageApi.updateProfile(payload);
             console.log('저장 완료 데이터:', result);
             invalidateMe();
-            alert('프로필이 성공적으로 저장되었습니다.');
+            showSuccess({ title: '저장 완료', message: '프로필이 성공적으로 저장되었습니다.' });
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
             console.error('Profile Save Error:', e.response?.data?.message || e.message);

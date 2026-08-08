@@ -4,6 +4,7 @@ import { router } from '@/app/router';
 import { ApiError, getApiErrorTitle, isUnexpectedApiError } from '@/shared/api';
 import { useErrorStore } from '@/shared/store';
 import { ErrorModal } from '@/shared/components/ui/ErrorModal';
+import { SuccessModal } from '@/shared/components/ui/SuccessModal';
 import { PushSubscriptionSync } from './PushSubscriptionSync';
 
 const shouldSkipGlobalError = (meta: unknown) =>
@@ -44,6 +45,7 @@ const App = () => (
     <RouterProvider router={router} />
     <PushSubscriptionSync />
     <ErrorModal />
+    <SuccessModal />
   </QueryClientProvider>
 );
 
