@@ -10,7 +10,7 @@ import {
   getChoreUIStatus,
 } from '@/features/chore';
 import type { Chore, ChoreFilter, RepeatType, ChoreApiStatus } from '@/features/chore';
-import { useGroupStore } from '@/shared/store';
+import { useGroupStore, useErrorStore } from '@/shared/store';
 import { useGroupMembers } from '@/features/member';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 
@@ -31,8 +31,14 @@ export const ChoreListPage = () => {
   const navigate = useNavigate();
   const completeMutation = useCompleteChore();
   const incompleteMutation = useIncompleteChore();
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
-    useShareToMessenger('chore');
+  const {
+    activeType,
+    chatRoomOptions,
+    openShare,
+    closeShare,
+    handleSelectChatRoom,
+    isSharePending,
+  } = useShareToMessenger('chore');
 
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
@@ -59,7 +65,7 @@ export const ChoreListPage = () => {
     return rawMembers.map(m => ({
       id: m.userId,
       userId: m.userId,
-      name: m.user.name,
+      name: m.user.nickname, //이름 대신 닉네임을 표시하도록 변경
       role: m.role,
       joinedAt: m.joinedAt,
       avatarUrl: m.user.profileImage || undefined,
@@ -86,21 +92,20 @@ export const ChoreListPage = () => {
 
   const handleEdit = (chore: Chore) => navigate(`/chores/${chore.id}/edit`);
 
+  const showError = useErrorStore(state => state.showError);
   const handleToggleComplete = (chore: Chore) => {
     if (getChoreUIStatus(chore) === 'done') {
       // 이미 완료 상태면 -> 미완료 처리 API 호출
       incompleteMutation.mutate(String(chore.id), {
-        onError: error => {
-          console.error('완료 취소 실패:', error);
-          alert('완료 취소에 실패했습니다.');
+        onError: () => {
+          showError({ title: '오류', message: '완료 취소 처리에 실패했습니다.' });
         },
       });
     } else {
       // 미완료 상태면 -> 기존처럼 완료 처리 API 호출
       completeMutation.mutate(String(chore.id), {
-        onError: error => {
-          console.error('완료 처리 실패:', error);
-          alert('완료 처리에 실패했습니다.');
+        onError: () => {
+          showError({ title: '오류', message: '완료 처리에 실패했습니다.' });
         },
       });
     }
@@ -110,17 +115,31 @@ export const ChoreListPage = () => {
     openShare(String(chore.id));
   };
 
+  const todayText = useMemo(() => {
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const date = String(today.getDate()).padStart(2, '0');
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    const dayName = days[today.getDay()];
+    return `${month}월 ${date}일 (${dayName})`;
+  }, []);
+
   return (
-    <div className="flex w-full flex-1 flex-col gap-[20px] rounded-2xl bg-white p-[30px]">
-      <ChoreFilterBar
-        filter={filter as ChoreFilter}
-        onFilterChange={f => setFilter(f as ExtendedChoreFilter)}
-        groupMembers={mappedMembers}
-      />
-      <div className="w-full">
+    <div className="flex w-full flex-1 flex-col bg-transparent lg:gap-[20px] lg:rounded-2xl lg:bg-white lg:p-[30px]">
+      <div className="order-3 mt-[8px] w-full lg:order-1 lg:mt-0">
+        <ChoreFilterBar
+          filter={filter as ChoreFilter}
+          onFilterChange={f => setFilter(f as ExtendedChoreFilter)}
+          groupMembers={mappedMembers}
+        />
+      </div>
+      <div className="order-1 w-full lg:order-2">
         <ChoreCalendarView chores={filteredChores} />
       </div>
-      <div className="w-full flex-1">
+      <div className="order-2 mt-[16px] w-full lg:hidden">
+        <h3 className="text-[14px] font-bold text-gray-700">{todayText}</h3>
+      </div>
+      <div className="order-4 mt-[8px] w-full flex-1 pb-[16px] lg:order-3 lg:mt-0 lg:pb-0">
         <ChoreTable
           chores={filteredChores}
           onEdit={handleEdit}
