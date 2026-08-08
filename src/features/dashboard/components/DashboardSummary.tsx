@@ -25,8 +25,8 @@ export const DashboardSummary = ({ summary, lowSupplies }: DashboardSummaryProps
             <SummaryCard
                 icon={<HomeIcon className="h-8 w-8 lg:h-12 lg:w-12" />}
                 iconBg="bg-primary-200"
-                iconClassName="h-8 w-8 lg:h-20 lg:w-20"
-                className="items-start gap-2 rounded-lg px-4 py-4 lg:items-center lg:gap-4 lg:rounded-[18px] lg:px-6 lg:py-7"
+                iconClassName="h-14 w-14 lg:h-20 lg:w-20"
+                className="items-center gap-2 rounded-lg px-4 py-4 lg:gap-4 lg:rounded-[18px] lg:px-6 lg:py-7"
                 label="오늘 집안일"
                 labelClassName="text-mobile-caption lg:text-caption"
                 value={`${summary.todayChoreCount}건`}
@@ -42,8 +42,8 @@ export const DashboardSummary = ({ summary, lowSupplies }: DashboardSummaryProps
             <SummaryCard
                 icon={<WalletIcon className="h-8 w-8 lg:h-12 lg:w-12" />}
                 iconBg="bg-orange-100"
-                iconClassName="h-8 w-8 lg:h-20 lg:w-20"
-                className="items-start gap-2 rounded-lg px-4 py-4 lg:items-center lg:gap-4 lg:rounded-[18px] lg:px-6 lg:py-7"
+                iconClassName="h-14 w-14 lg:h-20 lg:w-20"
+                className="items-center gap-2 rounded-lg px-4 py-4 lg:gap-4 lg:rounded-[18px] lg:px-6 lg:py-7"
                 label="미정산 금액"
                 labelClassName="text-mobile-caption lg:text-caption"
                 value={`${summary.unsettledAmount.toLocaleString()}원`}
@@ -59,8 +59,8 @@ export const DashboardSummary = ({ summary, lowSupplies }: DashboardSummaryProps
             <SummaryCard
                 icon={<BottleIcon className="h-8 w-8 lg:h-12 lg:w-12" />}
                 iconBg="bg-green-100"
-                iconClassName="h-8 w-8 lg:h-20 lg:w-20"
-                className="items-start gap-2 rounded-lg px-4 py-4 lg:items-center lg:gap-4 lg:rounded-[18px] lg:px-6 lg:py-7"
+                iconClassName="h-14 w-14 lg:h-20 lg:w-20"
+                className="items-center gap-2 rounded-lg px-4 py-4 lg:gap-4 lg:rounded-[18px] lg:px-6 lg:py-7"
                 label="부족한 공용 물품"
                 labelClassName="text-mobile-caption lg:text-caption"
                 value={`${summary.lowSupplyCount}종`}
@@ -72,8 +72,8 @@ export const DashboardSummary = ({ summary, lowSupplies }: DashboardSummaryProps
             <SummaryCard
                 icon={<ChatBubbleIcon className="h-8 w-8 lg:h-12 lg:w-12" />}
                 iconBg="bg-red-100"
-                iconClassName="h-8 w-8 lg:h-20 lg:w-20"
-                className="items-start gap-2 rounded-lg px-4 py-4 lg:items-center lg:gap-4 lg:rounded-[18px] lg:px-6 lg:py-7"
+                iconClassName="h-14 w-14 lg:h-20 lg:w-20"
+                className="items-center gap-2 rounded-lg px-4 py-4 lg:gap-4 lg:rounded-[18px] lg:px-6 lg:py-7"
                 label="안 읽은 메시지"
                 labelClassName="text-mobile-caption lg:text-caption"
                 value={`${summary.unreadMessageCount}건`}
