@@ -1,7 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ResetPasswordForm, authApi, type ResetPasswordFormData } from '@/features/auth';
-import { useAlertStore } from '@/shared/store/useAlertStore';
+import { useAlertStore } from '@/shared/store';
 
 export const ResetPasswordPage = () => {
     const navigate = useNavigate();
