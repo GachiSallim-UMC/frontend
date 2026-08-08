@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { settleExpenseSplit, expenseKeys } from '@/features/expense';
 import type { Expense } from '@/features/expense';
+import { useAlertStore } from '@/shared/store';
 
 export const settleMyExpenseShare = async (
   expense: Expense,
@@ -12,10 +13,18 @@ export const settleMyExpenseShare = async (
   );
 
   if (!myShare) {
+    useAlertStore.getState().showAlert({
+      title: '알림',
+      message: '내 분담 내역을 찾을 수 없습니다.',
+    });
     return { ok: false };
   }
 
   if (myShare.isPaid) {
+    useAlertStore.getState().showAlert({
+      title: '알림',
+      message: '이미 정산 완료된 항목입니다.',
+    });
     return { ok: false };
   }
 
@@ -25,8 +34,11 @@ export const settleMyExpenseShare = async (
     });
 
     return { ok: true };
-  } catch (error) {
-    console.error('내 정산 실패:', error);
+  } catch {
+    useAlertStore.getState().showAlert({
+      title: '오류',
+      message: '정산 처리에 실패했습니다.',
+    });
     return { ok: false };
   }
 };
@@ -38,6 +50,7 @@ export const useExpenseSettle = (
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paidSplitIds, setPaidSplitIds] = useState<(number | string)[]>([]);
   const queryClient = useQueryClient();
+  const showAlert = useAlertStore((state) => state.showAlert);
 
   const refreshExpenses = async () => {
     await queryClient.invalidateQueries({
@@ -69,6 +82,10 @@ export const useExpenseSettle = (
     }
 
     if (expense.status === 'paid') {
+      showAlert({
+        title: '알림',
+        message: '이미 정산 완료된 항목입니다.',
+      });
       return;
     }
 
@@ -91,8 +108,11 @@ export const useExpenseSettle = (
       ]);
 
       await refreshExpenses();
-    } catch (error) {
-      console.error('전체 정산 실패:', error);
+    } catch {
+      showAlert({
+        title: '오류',
+        message: '전체 정산 처리에 실패했습니다.',
+      });
     }
   };
 
@@ -100,6 +120,10 @@ export const useExpenseSettle = (
     selectedSplitIds: (number | string)[]
   ) => {
     if (selectedSplitIds.length === 0) {
+      showAlert({
+        title: '알림',
+        message: '완료 처리할 멤버를 선택해주세요.',
+      });
       return;
     }
 
@@ -117,8 +141,11 @@ export const useExpenseSettle = (
       await refreshExpenses();
 
       setIsModalOpen(false);
-    } catch (error) {
-      console.error('개별 정산 실패:', error);
+    } catch {
+      showAlert({
+        title: '오류',
+        message: '개별 정산 처리에 실패했습니다.',
+      });
     }
   };
 
