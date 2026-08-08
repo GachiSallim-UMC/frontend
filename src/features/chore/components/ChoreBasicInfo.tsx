@@ -23,10 +23,12 @@ export const ChoreBasicInfo = ({
   onChange,
 }: ChoreBasicInfoProps) => {
   return (
-    <section className="flex w-full flex-col rounded-2xl bg-white p-[32px]">
-      <h2 className="mb-[24px] text-[18px] font-bold text-gray-800">기본 정보</h2>
+    <section className="flex w-full flex-col bg-transparent lg:rounded-2xl lg:bg-white lg:p-[32px]">
+      <h2 className="hidden lg:mb-[24px] lg:block text-[18px] font-bold text-gray-800">
+        기본 정보
+      </h2>
 
-      <div className="flex flex-col gap-[20px]">
+      <div className="flex flex-col gap-[16px] lg:gap-[20px]">
         <FormInput
           label="집안일 이름"
           required
@@ -35,9 +37,10 @@ export const ChoreBasicInfo = ({
           value={title || ''}
           onChange={e => onChange({ title: e.target.value })}
           error={errors.title}
+          inputSize="sm"
         />
 
-        <div className="flex w-full gap-[20px]">
+        <div className="flex w-full gap-[8px] lg:gap-[20px]">
           <div className="flex-1">
             <SelectDropdown
               label="담당자"
@@ -47,6 +50,7 @@ export const ChoreBasicInfo = ({
               value={assigneeId}
               onChange={value => onChange({ assigneeId: value })}
               error={errors.assigneeId}
+              inputSize="sm"
             />
           </div>
 
@@ -59,6 +63,7 @@ export const ChoreBasicInfo = ({
               value={category}
               onChange={value => onChange({ category: value })}
               error={errors.category}
+              inputSize="sm"
             />
           </div>
         </div>

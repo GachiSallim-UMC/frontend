@@ -34,8 +34,14 @@ export const ChoreEditPage = () => {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
-    useShareToMessenger('chore');
+  const {
+    activeType,
+    chatRoomOptions,
+    openShare,
+    closeShare,
+    handleSelectChatRoom,
+    isSharePending,
+  } = useShareToMessenger('chore');
 
   const userOptions =
     members?.map(member => ({
@@ -159,7 +165,7 @@ export const ChoreEditPage = () => {
   }
 
   return (
-    <div className="h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
+    <div className="h-fit flex w-full max-w-[1114px] flex-col pb-[16px] lg:pb-0 gap-4 lg:gap-[30px]">
       <ChoreBasicInfo
         title={formData.title}
         assigneeId={String(formData.assigneeId)}

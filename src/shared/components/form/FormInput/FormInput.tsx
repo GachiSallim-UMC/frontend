@@ -11,6 +11,7 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   rightAddon?: ReactNode;
   containerClassName?: string;
   labelClassName?: string;
+  inputSize?: 'sm' | 'lg';
 }
 
 export const FormInput = ({
@@ -26,6 +27,7 @@ export const FormInput = ({
   id,
   type,
   onChange,
+  inputSize = 'lg',
   ...props
 }: FormInputProps) => {
   const inputId = id ?? label?.replace(/\s/g, '-').toLowerCase();
@@ -54,9 +56,12 @@ export const FormInput = ({
           type={type}
           onChange={handleChange}
           className={cn(
-            'h-[50px] w-full rounded-lg border bg-white text-button text-gray-900',
+            'w-full rounded-lg border bg-white text-gray-900',
             'placeholder:text-gray-400 transition-colors',
             'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
+            inputSize === 'lg'
+              ? 'h-[50px] text-button' // lg 기준
+              : 'h-[44px] text-[12px] lg:h-[50px] lg:text-button', // 모바일 기준
             error ? 'border-red-500' : 'border-gray-100',
             leftAddon && 'pl-9',
             rightAddon && 'pr-9',
