@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { FormInput, Button } from "@/shared/components"
 import { authApi } from "@/features/auth/api/auth.api"
 import { useAlertStore } from "@/shared/store";
+import WarningIcon from "@/assets/icons/login/warning.svg?react"
 
 interface SendingEmailFormProps {
     onSubmit?: (email: string) => void;
@@ -59,7 +60,9 @@ export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
     return (
         <form noValidate onSubmit={handleSubmit} className= "flex flex-col">
             <div className="flex flex-col">
-                <h1 className="mb-2 text-button font-bold text-gray-800">이메일</h1>
+                <label className="mb-1.5 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-button lg:text-gray-800">
+                    이메일 <span className="text-red-700">*</span>
+                </label>
                 <FormInput
                     type="email"
                     value={email}
@@ -70,15 +73,15 @@ export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
                     maxLength={100}
                     placeholder="이메일 주소를 입력해주세요"
                     error={error}
+                    errorIcon={<WarningIcon className="size-3.5 shrink-0" />}
                     containerClassName="mb-5"
-                    className="text-base text-gray-500"
                 />
-                <Button 
+                <Button
                     type="submit"
                     variant="primary"
                     size="md"
                     disabled={isSubmitting}
-                    className="w-full h-14 font-bold"
+                    className="h-11 w-full text-mobile-body font-bold lg:h-14 lg:text-button"
                 >
                     {isSubmitting ? '전송 중...' : '재설정 링크 보내기'}
                 </Button>

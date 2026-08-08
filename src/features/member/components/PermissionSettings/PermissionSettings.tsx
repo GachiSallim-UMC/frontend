@@ -80,7 +80,7 @@ export const PermissionSettings = ({
   };
 
   return (
-    <section className="flex w-full flex-col bg-transparent px-4 pt-0 lg:rounded-2xl lg:bg-white lg:p-7">
+    <section className="flex w-full flex-col bg-transparent lg:rounded-2xl lg:bg-white lg:p-7">
       <h3 className="mb-[8px] lg:mb-5 text-[14px] lg:text-lg font-bold text-gray-900 leading-snug">
         권한 설정
       </h3>

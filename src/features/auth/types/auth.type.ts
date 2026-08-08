@@ -49,6 +49,10 @@ export interface SignupConfirmDto {
   confirmationCode: string;
 }
 
+export interface SignupResendDto {
+  email: string;
+}
+
 export type SignupFormErrors = Partial<Record<keyof SignupFormData, string>>;
 
 export interface SocialFormDto {

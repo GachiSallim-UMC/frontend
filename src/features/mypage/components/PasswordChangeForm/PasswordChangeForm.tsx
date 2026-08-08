@@ -65,15 +65,15 @@ export const PasswordChangeForm = () => {
     };
 
     return (
-        <section className='flex w-full flex-col rounded-2xl bg-white p-7'>
-            <h3 className="mb-5 text-lg font-bold text-gray-900 leading-snug">
+        <section className='flex w-full flex-col lg:rounded-2xl lg:bg-white lg:p-7'>
+            <h3 className="mb-4 text-mobile-label font-bold text-gray-700 lg:mb-5 lg:text-lg lg:text-gray-900 lg:leading-snug">
                 비밀번호 변경
             </h3>
 
-            <div className='flex flex-col gap-5'>
+            <div className='flex flex-col gap-4 lg:gap-5'>
                 {/* 현재 비밀번호 */}
                 <div className='flex flex-col'>
-                    <label htmlFor='currentPassword' className="mb-1 text-sm font-bold text-gray-900">
+                    <label htmlFor='currentPassword' className="mb-1.5 text-mobile-label font-bold text-gray-700 lg:mb-1 lg:text-sm lg:text-gray-900">
                         현재 비밀번호
                     </label>
                     <FormInput
@@ -88,13 +88,14 @@ export const PasswordChangeForm = () => {
                         placeholder="현재 비밀번호"
                         disabled={isLoading}
                         error={errors.currentPassword}
+                        className="h-11 text-mobile-label lg:h-[50px] lg:text-button"
                     />
                 </div>
 
                 {/* 새 비밀번호 & 비밀번호 확인 */}
-                <div className='grid grid-cols-2 gap-5'>
+                <div className='flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-5'>
                     <div className='flex flex-col'>
-                        <label htmlFor='newPassword' className='mb-1 text-sm font-bold text-gray-900'>
+                        <label htmlFor='newPassword' className='mb-1.5 text-mobile-label font-bold text-gray-700 lg:mb-1 lg:text-sm lg:text-gray-900'>
                             새 비밀번호
                         </label>
                         <FormInput
@@ -109,11 +110,12 @@ export const PasswordChangeForm = () => {
                             placeholder="새 비밀번호"
                             disabled={isLoading}
                             error={errors.newPassword}
+                            className="h-11 text-mobile-label lg:h-[50px] lg:text-button"
                             />
                     </div>
 
                     <div className='flex flex-col'>
-                        <label htmlFor='confirmPassword' className='mb-1 text-sm font-bold text-gray-900'>
+                        <label htmlFor='confirmPassword' className='mb-1.5 text-mobile-label font-bold text-gray-700 lg:mb-1 lg:text-sm lg:text-gray-900'>
                             새 비밀번호 확인
                         </label>
                         <FormInput
@@ -128,20 +130,21 @@ export const PasswordChangeForm = () => {
                             placeholder="새 비밀번호 확인"
                             disabled={isLoading}
                             error={errors.confirmPassword}
+                            className="h-11 text-mobile-label lg:h-[50px] lg:text-button"
                             />
                     </div>
                 </div>
 
                 {/* 저장 버튼 */}
-                <div className='mt-5 flex'>
+                <div className='mt-1 flex lg:mt-4'>
                     <Button
-                        variant="primary" 
+                        variant="primary"
                         size='md'
                         onClick={handleSave}
-                        className='w-40'
+                        className='w-full lg:w-40'
                         disabled={isLoading}
                     >
-                        {isLoading ? '저장 중...' : '저장'}
+                        {isLoading ? '저장 중...' : '비밀번호 변경'}
                     </Button>
                 </div>
             </div>

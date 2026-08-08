@@ -46,3 +46,13 @@ export const NOTIFICATION_RIGHT_OPTIONS: CheckboxOption<NotificationType>[] = [
   { value: 'RULE_AGREEMENT_REQUEST', label: '생활 규칙 동의 요청 알림' },
   { value: 'GROUP_ACTIVITY_ALL', label: '그룹 활동 전체 알림' },
 ];
+
+/** 모바일 알림 설정 목록 (좌/우 2열을 한 줄씩 번갈아 배치한 순서) */
+export const NOTIFICATION_OPTIONS: CheckboxOption<NotificationType>[] = [
+  NOTIFICATION_LEFT_OPTIONS[0],
+  NOTIFICATION_RIGHT_OPTIONS[0],
+  NOTIFICATION_LEFT_OPTIONS[1],
+  NOTIFICATION_RIGHT_OPTIONS[1],
+  NOTIFICATION_LEFT_OPTIONS[2],
+  NOTIFICATION_RIGHT_OPTIONS[2],
+];

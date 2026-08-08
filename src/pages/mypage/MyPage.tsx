@@ -21,7 +21,7 @@ import { MyPageTermsPage } from "@/pages/mypage/MyPageTermsPage";
 
         <div className="flex-1 overflow-y-auto">
 
-          <div className="flex w-full flex-col gap-6 pb-12">
+          <div className="flex w-full flex-col gap-5 pb-12 lg:gap-6">
 
             <ProfileBasicInfo />
             <PasswordChangeForm />

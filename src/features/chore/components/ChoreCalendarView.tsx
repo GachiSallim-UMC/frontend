@@ -38,22 +38,64 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
   const headerDataText = `${currentYear}.${weekDates[0]} ~ ${weekDates[6]}`;
 
   return (
-    <div className="flex flex-col bg-white">
+    <div className="flex flex-col bg-transparent lg:bg-white">
+      {/**모바일 디자인 */}
+      <div className="flex w-full items-start gap-[5px] justify-center lg:hidden">
+        <button
+          onClick={handlePrevWeek}
+          className="mt-[20px] flex h-[38px] w-[24px] items-center justify-center"
+        >
+          <ChevronLeft size={20} className="text-gray-700" />
+        </button>
+        <div className="flex items-start gap-[9px]">
+          {weekDays.map((day, index) => {
+            const isToday = day.date === todayString;
+            const dayNumber = Number(day.date.split('.')[1]);
+            const hasChores = day.chores.length > 0;
+            return (
+              <div key={index} className="flex flex-col items-center">
+                <span className="mb-[6px] flex h-[14px] items-center text-[12px] leading-none text-gray-700">
+                  {day.day}
+                </span>
+                <div
+                  className={`flex h-[38px] w-[38px] items-center justify-center rounded-full text-[12px] font-bold transition-colors ${
+                    isToday ? 'bg-primary-700 text-white' : 'bg-white text-gray-600'
+                  }`}
+                >
+                  {dayNumber}
+                </div>
+                <div className="mt-[6px] flex h-[4px] items-center justify-center">
+                  {hasChores && <div className="h-[4px] w-[4px] rounded-full bg-primary-700" />}
+                </div>
+                {isToday && <div className="mt-[12px] h-[2px] w-[38px] bg-primary-700" />}
+              </div>
+            );
+          })}
+        </div>
+        <button
+          onClick={handleNextWeek}
+          className="mt-[20px] flex h-[38px] w-[24px] gap-[5px] items-center justify-center"
+        >
+          <ChevronRight size={20} className="text-gray-700" />
+        </button>
+      </div>
+
+      {/**PC 디자인 */}
       {/*좌측 날짜*/}
-      <div className="flex items-center justify-between py-[10px]">
+      <div className="hidden lg:flex lg:items-center lg:justify-between lg:py-[10px]">
         <div className="flex items-center gap-[16px]">
           <button
             onClick={handlePrevWeek}
             className="flex h-[34px] w-[34px] p-[7px] items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-primary-100 transition-colors"
           >
-            <ChevronLeft className="h-5 w-5 text-gray-700" />
+            <ChevronLeft size={20} className="text-gray-700" />
           </button>
           <h2 className="text-[16px] text-center font-bold text-gray-900">{headerDataText}</h2>
           <button
             onClick={handleNextWeek}
             className="flex h-[34px] w-[34px] p-[7px] items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-primary-100 transition-colors"
           >
-            <ChevronRight className="h-5 w-5 text-gray-700" />
+            <ChevronRight size={20} className="text-gray-700" />
           </button>
         </div>
 
@@ -85,7 +127,7 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
       </div>
 
       {/*7일 캘린더 그리드*/}
-      <div className="grid grid-cols-7 overflow-hidden rounded-xl border border-gray-100">
+      <div className="hidden lg:grid lg:grid-cols-7 overflow-hidden rounded-xl border border-gray-100">
         {weekDays.map((day, index) => {
           const isToday = day.date === todayString;
 

@@ -1,4 +1,11 @@
-import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type KeyboardEvent } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ButtonHTMLAttributes,
+  type KeyboardEvent,
+} from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import { cn, useDropdown } from '@/shared/lib';
 
@@ -9,8 +16,10 @@ export interface SelectOption<T extends string = string> {
 
 const MENU_MAX_HEIGHT = 220;
 
-interface SelectDropdownProps<T extends string>
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange' | 'type'> {
+interface SelectDropdownProps<T extends string> extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'value' | 'onChange' | 'type'
+> {
   label?: string;
   options: readonly SelectOption<T>[];
   value: T | '';
@@ -20,6 +29,8 @@ interface SelectDropdownProps<T extends string>
   required?: boolean;
   containerClassName?: string;
   labelClassName?: string;
+  inputSize?: 'sm' | 'lg';
+  optionClassName?: string;
 }
 
 /**
@@ -39,11 +50,13 @@ export const SelectDropdown = <T extends string>({
   required,
   containerClassName,
   labelClassName,
+  optionClassName,
   className,
   id,
   disabled,
   onClick,
   onKeyDown,
+  inputSize = 'lg',
   ...props
 }: SelectDropdownProps<T>) => {
   const reactId = useId();
@@ -145,10 +158,13 @@ export const SelectDropdown = <T extends string>({
           }}
           onKeyDown={handleKeyDown}
           className={cn(
-            'flex h-[50px] w-full items-center justify-between gap-2 rounded-lg border bg-white px-3',
-            'text-button transition-colors',
+            'flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3',
+            'transition-colors',
             'focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500',
             'disabled:cursor-not-allowed disabled:bg-gray-100',
+            inputSize === 'lg'
+              ? 'h-[50px] text-button' // lg 기준
+              : 'h-[44px] text-[12px] lg:h-[50px] lg:text-button', // 모바일 기준
             error ? 'border-red-500' : 'border-gray-100',
             selectedOption ? 'text-gray-900' : 'text-gray-500',
             className,
@@ -192,6 +208,7 @@ export const SelectDropdown = <T extends string>({
                     'flex cursor-pointer items-center justify-between gap-2 px-3 py-2 text-mobile-label transition-colors lg:py-2.5 lg:text-button',
                     isSelected ? 'bg-primary-100 text-primary-500' : 'text-gray-600',
                     isActive && !isSelected && 'bg-gray-100',
+                    optionClassName,
                   )}
                 >
                   <span className="truncate">{option.label}</span>

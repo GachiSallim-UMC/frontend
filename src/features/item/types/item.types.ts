@@ -44,6 +44,8 @@ export interface ItemUser {
 /** 공용 물품 도메인 모델 */
 export interface Item {
   id: string;
+  /** 상세 화면이 현재 선택된 그룹의 물품인지 확인할 때 사용합니다. */
+  groupId?: string;
   name: string;
   category: ItemCategory;
   buyer?: ItemUser;

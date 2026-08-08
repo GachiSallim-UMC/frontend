@@ -1,16 +1,34 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memberApi } from '@/features/member/api/member.api';
 import { MEMBER_QUERY_KEYS } from './useMyGroups';
-import type { CreateGroupDto, JoinGroupDto, UpdateGroupDto } from '@/features/member/types/member.types';
-import { useAlertStore } from '@/shared/store';
+import { useAlertStore, useAuthStore } from '@/shared/store';
+import type {
+  CreateGroupDto,
+  JoinGroupDto,
+  MemberGroupResponse,
+  UpdateGroupDto,
+} from '@/features/member/types/member.types';
+
+const upsertMyGroup = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  userId: string | null,
+  group: MemberGroupResponse,
+) => {
+  queryClient.setQueryData<MemberGroupResponse[]>(
+    MEMBER_QUERY_KEYS.myGroups(userId),
+    previous => [group, ...(previous ?? []).filter(previousGroup => previousGroup.id !== group.id)],
+  );
+};
 
 /** 그룹 생성 훅 */
 export const useCreateGroup = () => {
   const queryClient = useQueryClient();
+  const userId = useAuthStore(state => state.userId);
 
   return useMutation({
     mutationFn: (body: CreateGroupDto) => memberApi.createGroup(body),
-    onSuccess: () => {
+    onSuccess: createdGroup => {
+      upsertMyGroup(queryClient, userId, createdGroup);
       queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all });
     },
   });
@@ -19,10 +37,12 @@ export const useCreateGroup = () => {
 /**초대 코드로 그룹 가입 훅 */
 export const useJoinGroup = () => {
   const queryClient = useQueryClient();
+  const userId = useAuthStore(state => state.userId);
 
   return useMutation({
     mutationFn: (body: JoinGroupDto) => memberApi.joinGroup(body),
-    onSuccess: () => {
+    onSuccess: joinedGroup => {
+      upsertMyGroup(queryClient, userId, joinedGroup);
       queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all });
     },
   });

@@ -64,11 +64,11 @@ export const MemberSettingPage = () => {
 
   return (
     <>
-      <div className="flex w-full flex-col gap-5 pt-[16px] pb-7 lg:py-7">
+      <div className="flex w-full flex-col gap-5 pb-4 lg:p-0">
         <GroupBasicInfo isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
         <MemberManagement isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
         <PermissionSettings isAdmin={isAdmin} onUnauthorized={handleUnauthorized} />
-        <div className="w-full px-4 lg:px-0">
+        <div className="w-full">
           <Button
             variant="danger"
             size="lg"

@@ -1,5 +1,5 @@
 import { UserAvatar } from '@/shared/components';
-import { cn, formatRelativeTime } from '@/shared/lib';
+import { cn, formatRelativeTime, renderTimelineText } from '@/shared/lib';
 
 interface TimelineItemProps {
   actorName: string;
@@ -9,26 +9,6 @@ interface TimelineItemProps {
   isFirst?: boolean;
   isLast?: boolean;
 }
-
-const renderTimelineText = (actorName: string, description: string) => {
-  const parts = description.split(/('[^']*')/g).map((part, i) =>
-    part.startsWith("'") && part.endsWith("'") ? (
-      <b key={i} className="font-bold text-gray-900">
-        {part.slice(1, -1)}
-      </b>
-    ) : (
-      <span key={i}>{part}</span>
-    ),
-  );
-
-  return (
-    <>
-      <b className="font-bold text-gray-900">{actorName}</b>
-      <span> 님이 </span>
-      {parts}
-    </>
-  );
-};
 
 export const TimelineItem = ({
   actorName,

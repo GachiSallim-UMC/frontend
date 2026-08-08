@@ -31,6 +31,20 @@ function formatShortDate(dateString: string, order: 'MD' | 'DM'): string {
   return order === 'DM' ? `${dd}/${mm}` : `${mm}/${dd}`;
 }
 
+// 모바일 카드에서는 "07.28" 형식(점 구분)으로 표시한다 (디자인 기준).
+function formatDotDate(dateString: string, order: 'MD' | 'DM'): string {
+  if (!dateString) return '-';
+
+  const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) return dateString;
+
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+
+  return order === 'DM' ? `${dd}.${mm}` : `${mm}.${dd}`;
+}
+
 export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) => {
   const dateFormat = useDateFormat();
   const dateOrder = dateFormat === 'DD/MM/YY' ? 'DM' : 'MD';
@@ -86,28 +100,93 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
       header: '',
       align: 'right',
       render: (row) => (
-        <span className="flex justify-end gap-2 text-gray-500">
+        <span className="flex justify-end gap-1 text-gray-500">
           <button onClick={() => onEdit?.(row)} aria-label="수정">
-            <EditIcon className="h-[39px] w-[39px]" />
+            <EditIcon className="h-[32px] w-[32px]" />
           </button>
           <button onClick={() => onShare?.(row)} aria-label="공유">
-            <ShareIcon className="h-[39px] w-[39px]" />
+            <ShareIcon className="h-[32px] w-[32px]" />
           </button>
         </span>
       ),
     },
   ];
 
+  if (expenses.length === 0) {
+    return (
+      <div className="w-full py-16 text-center text-gray-400">
+        등록된 정산이 없습니다.
+      </div>
+    );
+  }
+
   return (
-    <DataTable
-      columns={columns}
-      data={expenses}
-      emptyMessage="등록된 정산이 없습니다."
-      className="
-        border border-gray-100 overflow-hidden
-        !rounded-[10px] !shadow-none
-        [&_thead]:bg-primary-50 [&_th]:h-[60px] [&_th]:py-0 [&_th]:border-gray-100
-      "
-    />
+    <>
+      {/* 데스크톱: 기존 테이블 */}
+      <div className="hidden w-full lg:block">
+        <DataTable
+          columns={columns}
+          data={expenses}
+          emptyMessage="등록된 정산이 없습니다."
+          className="
+            border border-gray-100 overflow-hidden
+            !rounded-[10px] !shadow-none
+            [&_thead]:bg-primary-50 [&_th]:h-[60px] [&_th]:py-0 [&_th]:border-gray-100
+          "
+        />
+      </div>
+
+      {/* 모바일: 카드 리스트 */}
+      <div className="flex w-full flex-col gap-3 lg:hidden">
+        {expenses.map(row => (
+          <div
+            key={row.id}
+            className="w-full rounded-[12px] border border-gray-100 px-4 py-3.5"
+          >
+            <div className="flex w-full items-center gap-2">
+              {/* 왼쪽: 제목 + 부제목(지불자·날짜·금액) 세로 스택 */}
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[15px] font-bold text-gray-900">
+                  {row.title || '제목 없음'}
+                </div>
+
+                <div className="mt-1.5 truncate text-[13px] text-gray-500">
+                  {row.payer?.nickname ?? '알 수 없음'} ·{' '}
+                  {formatDotDate(row.date, dateOrder)} |{' '}
+                  {(row.amount ?? 0).toLocaleString()}원
+                </div>
+              </div>
+
+              {/* 오른쪽: 배지 + 아이콘, 왼쪽 블록 전체 높이 기준으로 세로 중앙 정렬 */}
+              <div className="flex shrink-0 items-center gap-2 self-center">
+                <StatusBadge
+                  variant={row.status === 'paid' ? 'done' : 'unpaid'}
+                />
+
+                <span className="flex items-center gap-1 text-gray-400">
+                  <button
+                    type="button"
+                    onClick={() => onEdit?.(row)}
+                    aria-label="수정"
+                    className="flex items-center justify-center p-0.5"
+                  >
+                    <EditIcon className="h-[28px] w-[28px]" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onShare?.(row)}
+                    aria-label="공유"
+                    className="flex items-center justify-center p-0.5"
+                  >
+                    <ShareIcon className="h-[28px] w-[28px]" />
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
