@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   ChoreBasicInfo,
   ChoreFormActions,
@@ -45,10 +45,13 @@ export const ChoreEditPage = () => {
 
   const isGroupAdmin =
     members?.some(member => member.userId === currentUserId && member.role === 'ADMIN') ?? false;
+  const isSelectedGroupChore = Boolean(
+    choreData && selectedGroupId && String(choreData.groupId) === selectedGroupId,
+  );
   const isChoreCreator = Boolean(
     choreData && currentUserId && String(choreData.createdBy.userId) === currentUserId,
   );
-  const canDeleteChore = isChoreCreator || isGroupAdmin;
+  const canDeleteChore = isSelectedGroupChore && (isChoreCreator || isGroupAdmin);
 
   useEffect(() => {
     if (!choreData) return;
@@ -149,6 +152,10 @@ export const ChoreEditPage = () => {
         <div className="text-gray-500 font-semibold">집안일 정보를 찾을 수 없습니다.</div>
       </div>
     );
+  }
+
+  if (String(choreData.groupId) !== selectedGroupId) {
+    return <Navigate to="/chores" replace />;
   }
 
   return (

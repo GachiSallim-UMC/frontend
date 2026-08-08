@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import {
   ExpenseAddForm,
   ExpenseDetailCard,
@@ -17,7 +17,7 @@ import { memberApi } from '@/features/member';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { requireSelectedGroupId } from '@/shared/api';
 import { ConfirmModal } from '@/shared/components/ui';
-import { useAuthStore, useErrorStore } from '@/shared/store';
+import { useAuthStore, useErrorStore, useGroupStore } from '@/shared/store';
 import type { User } from '@/shared/types';
 
 interface ExpenseDetailPageProps {
@@ -42,6 +42,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   const navigate = useNavigate();
 
   const currentUserId = useAuthStore((state) => state.userId ?? undefined);
+  const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
     useShareToMessenger('expense');
 
@@ -61,7 +62,12 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
       currentUserId &&
       savedExpense.createdById === String(currentUserId),
   );
-  const canDeleteExpense = Boolean(savedExpense && (isExpenseCreator || isGroupAdmin));
+  const isSelectedGroupExpense = Boolean(
+    savedExpense?.groupId && selectedGroupId && savedExpense.groupId === selectedGroupId,
+  );
+  const canDeleteExpense = Boolean(
+    savedExpense && isSelectedGroupExpense && (isExpenseCreator || isGroupAdmin),
+  );
 
   const [receiptObjectKey, setReceiptObjectKey] = useState<string | undefined>(undefined);
   const [receiptViewUrl, setReceiptViewUrl] = useState<string | undefined>(undefined);
@@ -225,6 +231,10 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
         지출 정보를 불러오는 중...
       </div>
     );
+  }
+
+  if (id && savedExpense?.groupId && savedExpense.groupId !== selectedGroupId) {
+    return <Navigate to="/expenses" replace />;
   }
 
   return (

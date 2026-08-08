@@ -105,10 +105,15 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const isGroupAdmin = groupMembers.some(
     member => member.userId === currentUserId && member.role === 'ADMIN',
   );
+  const isSelectedGroupItem = Boolean(
+    editingItem?.groupId && groupId && editingItem.groupId === groupId,
+  );
   const isItemCreator = Boolean(
     editingItem?.createdBy?.id && currentUserId && editingItem.createdBy.id === currentUserId,
   );
-  const canDeleteItem = Boolean(editingItem && (isItemCreator || isGroupAdmin));
+  const canDeleteItem = Boolean(
+    editingItem && isSelectedGroupItem && (isItemCreator || isGroupAdmin),
+  );
   const isPending =
     createItem.isPending || updateItem.isPending || updateStatus.isPending || deleteItem.isPending;
   const mutationError = createItem.error ?? updateItem.error ?? updateStatus.error;
@@ -200,6 +205,10 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
       // 실패 시 모달을 유지해 백엔드 권한/삭제 오류를 표시합니다.
     }
   };
+
+  if (editingItem?.groupId && editingItem.groupId !== groupId) {
+    return <Navigate to="/items" replace />;
+  }
 
   return (
     <div className="flex w-full flex-1 bg-white lg:bg-transparent">

@@ -44,6 +44,8 @@ export interface RuleAgreement {
 /** 생활 규칙 도메인 모델 */
 export interface Rule {
   id: string;
+  /** 상세 화면이 현재 선택된 그룹의 규칙인지 확인할 때 사용합니다. */
+  groupId?: string;
   category: RuleCategory;
   categoryId?: number | null;
   categoryName?: string | null;

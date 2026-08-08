@@ -74,6 +74,10 @@ export function toExpense(rawResponse: unknown): Expense {
 
   return {
     id: raw.id as string | number,
+    groupId:
+      typeof raw.groupId === 'string' || typeof raw.groupId === 'number'
+        ? String(raw.groupId)
+        : undefined,
     title: (raw.title as string) ?? '',
     amount: (raw.totalAmount as number) ?? 0,
     date: (raw.date as string) ?? (raw.createdAt as string) ?? '',

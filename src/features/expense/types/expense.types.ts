@@ -29,6 +29,8 @@ export interface MemberShare {
 /** 생활비 도메인 모델 */
 export interface Expense {
   id: string;
+  /** 상세 화면이 현재 선택된 그룹의 정산인지 확인할 때 사용합니다. */
+  groupId?: string;
   title: string;
   amount: number;
   payer: User;

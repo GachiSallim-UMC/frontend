@@ -63,6 +63,7 @@ type FormErrors = Partial<Record<'title' | 'category' | 'content', string>>;
 
 export const RuleDetailPage = () => {
   const { id = '' } = useParams();
+  const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const { data: rule, isLoading, error, refetch } = useRuleDetail(id);
 
   if (!id) return <Navigate to="/rules" replace />;
@@ -84,6 +85,9 @@ export const RuleDetailPage = () => {
     );
   }
   if (!rule) return <Navigate to="/rules" replace />;
+  if (rule.groupId && rule.groupId !== selectedGroupId) {
+    return <Navigate to="/rules" replace />;
+  }
 
   return <RuleDetailContent rule={rule} />;
 };
@@ -91,8 +95,7 @@ export const RuleDetailPage = () => {
 const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const navigate = useNavigate();
   const currentUserId = useAuthStore(state => state.userId);
-  const selectedGroupId = useGroupStore(state => state.selectedGroupId);
-  const { data: groupMembers = [] } = useGroupMembers(selectedGroupId);
+  const { data: groupMembers = [] } = useGroupMembers(rule.groupId ?? null);
   const { title, setTitle, category, setCategory, content, setContent } = useRuleForm(rule);
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
