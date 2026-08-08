@@ -237,7 +237,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
   return (
     <section
       className="mx-auto flex w-full max-w-[390px] flex-col items-center bg-transparent
-    px-4 pt-0 lg:max-w-none lg:flex-row lg:items-start lg:gap-23 lg:rounded-2xl lg:bg-white lg:p-7"
+    lg:max-w-none lg:flex-row lg:items-start lg:gap-23 lg:rounded-2xl lg:bg-white lg:p-7"
     >
       <input
         type="file"
