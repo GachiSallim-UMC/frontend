@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { useErrorStore } from '@/shared/store';
+import { useAlertStore } from '@/shared/store';
 
 interface ReceiptProps {
   imageUrl?: string;
@@ -34,7 +34,7 @@ export const Receipt = ({
     if (!file) return;
 
     if (!ALLOWED_RECEIPT_TYPES.includes(file.type)) {
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '알림',
         message:
           '영수증 규격/형태가 맞지 않습니다. JPEG, PNG, WebP 형식의 이미지만 등록할 수 있습니다.',
@@ -44,7 +44,7 @@ export const Receipt = ({
     }
 
     if (file.size > MAX_RECEIPT_SIZE) {
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '알림',
         message: '파일 크기는 10MB를 초과할 수 없습니다.',
       });

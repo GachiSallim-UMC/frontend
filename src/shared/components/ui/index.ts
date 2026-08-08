@@ -2,7 +2,7 @@ export * from './BottomSheet';
 export * from './Button';
 export * from './ConfirmModal';
 export * from './DataTable';
-export * from './ErrorModal';
+export * from './AlertModal';
 export * from './FilterTabGroup';
 export * from './FormActions';
 export * from './MetricList';

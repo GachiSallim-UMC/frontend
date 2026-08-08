@@ -3,13 +3,13 @@ import { useState } from 'react';
 import {SocialBadge, SocialLoginInput, authApi } from '@/features/auth';
 import type {SocialProvider, SocialFormDto } from '@/features/auth';
 import { ApiError } from '@/shared/api';
-import { useErrorStore, useAuthStore } from '@/shared/store';
+import { useAlertStore, useAuthStore } from '@/shared/store';
 import ArrowIcon from '@/assets/icons/login/chevron-left.svg?react'
 
 export const SocialLoginPage = () => { 
     const navigate = useNavigate();
     const location = useLocation();
-    const showError = useErrorStore(state => state.showError);
+    const showAlert = useAlertStore(state => state.showAlert);
     const setSession = useAuthStore(state => state.setSession);
 
     // 콜백에서 넘겨준 데이터
@@ -34,7 +34,7 @@ export const SocialLoginPage = () => {
         e.preventDefault();
 
         if (!accessToken) {
-            showError({
+            showAlert({
                 title: '인증 만료',
                 message: '인증 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.',
             });
@@ -71,17 +71,17 @@ export const SocialLoginPage = () => {
             }
 
             if (status === 409) {
-                showError({
+                showAlert({
                     title: '계정 연동 필요',
                     message: '이미 해당 이메일로 가입된 계정이 있습니다. 기존 계정에 소셜 로그인을 연결해야 합니다.',
                 });
             } else if (status === 400) {
-                showError({
+                showAlert({
                     title: '입력 정보 오류',
                     message: '잘못된 요청입니다. 입력하신 정보를 다시 확인해주세요.',
                 });
             } else {
-                showError({
+                showAlert({
                     title: '오류 발생',
                     message: errorMessage,
                 });

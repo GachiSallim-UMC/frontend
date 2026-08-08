@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CheckboxGroup, Switch } from '@/shared/components';
-import { useErrorStore } from '@/shared/store';
+import { useAlertStore } from '@/shared/store';
 import { NOTIFICATION_LEFT_OPTIONS, NOTIFICATION_RIGHT_OPTIONS, NOTIFICATION_OPTIONS } from '@/features/mypage/types/mypage.constants';
 import type { NotificationPreferencesDto, NotificationType } from '@/features/mypage/types/mypage.types';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
@@ -32,7 +32,7 @@ const mapStateToApi = (selected: NotificationType[]): NotificationPreferencesDto
 };
 
 export const NotificationSettings = () => {
-  const showError = useErrorStore((state) => state.showError);
+  const showAlert = useAlertStore((state) => state.showAlert);
   
   const [selectedAlerts, setSelectedAlerts] = useState<NotificationType[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(true);
@@ -45,7 +45,7 @@ export const NotificationSettings = () => {
         setSelectedAlerts(mapApiToState(preferencesData));
       } catch (error) {
         console.error('알림 설정 조회 실패 상세:', error);
-        showError({
+        showAlert({
             title: '불러오기 실패',
             message: '알림 설정을 불러오는데 실패했습니다.'
         });
@@ -55,7 +55,7 @@ export const NotificationSettings = () => {
     };
 
     fetchPreferences();
-  }, [showError]);
+  }, [showAlert]);
 
   // 체크박스 변경 시 서버에 저장
   const handleAlertChange = async (newSelectedAlerts: NotificationType[]) => {
@@ -69,7 +69,7 @@ export const NotificationSettings = () => {
     } catch (error) {
       console.error('알림 설정 업데이트 실패:', error);
       setSelectedAlerts(previousAlerts); // 롤백
-      showError({
+      showAlert({
           title: '저장 실패',
           message: '알림 설정을 변경하는데 실패했습니다.'
       });

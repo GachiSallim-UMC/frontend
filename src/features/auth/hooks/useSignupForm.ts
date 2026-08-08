@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { authApi } from "@/features/auth/api/auth.api"
 import { ApiError } from "@/shared/api";
 import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from "@/shared/lib/inputValidation";
-import { useErrorStore } from "@/shared/store";
+import { useAlertStore } from "@/shared/store";
 import type { SignupFormData, SignupFormErrors } from "@/features/auth/types/auth.type";
 
 interface TermsNavigationState {
@@ -20,7 +20,7 @@ export const useSignupForm = () => {
 
     const [isVerified, setIsVerified] = useState(false);
 
-    const showError = useErrorStore((state) => state.showError);
+    const showAlert = useAlertStore((state) => state.showAlert);
 
     const [formData, setFormData] = useState<SignupFormData>({
         name: '',
@@ -101,9 +101,9 @@ export const useSignupForm = () => {
 
         } catch (error) {
             if (error instanceof ApiError && error.statusCode === 409) {
-                showError({ title: '가입 불가', message: '이미 가입된 이메일입니다.' });
+                showAlert({ title: '가입 불가', message: '이미 가입된 이메일입니다.' });
             } else {
-                showError({ title: '회원가입 실패', message: '오류가 발생했습니다.' });
+                showAlert({ title: '회원가입 실패', message: '오류가 발생했습니다.' });
             }
         }
     };
@@ -128,7 +128,7 @@ export const useSignupForm = () => {
 
             setIsCodeError(false);
             setIsVerified(true); // 인증 성공 상태로 변경
-            alert('인증이 완료되었습니다.');
+            showAlert({ title: '완료', message: '인증이 완료되었습니다.', tone: 'success' });
 
         } catch (error) {
             // 실패 시 UI 테두리를 빨갛게 만들기 위해 true로 변경
@@ -136,9 +136,9 @@ export const useSignupForm = () => {
             setErrors(previous => ({ ...previous, verificationCode: '인증번호가 일치하지 않습니다.' }));
 
             if (error instanceof ApiError && error.statusCode === 400) {
-                showError({ title: '인증 실패', message: '인증번호가 일치하지 않습니다.' }); 
+                showAlert({ title: '인증 실패', message: '인증번호가 일치하지 않습니다.' }); 
             } else {
-                showError({ title: '인증 실패', message: '인증에 실패했습니다. 다시 시도해주세요.' });
+                showAlert({ title: '인증 실패', message: '인증에 실패했습니다. 다시 시도해주세요.' });
             }
         }
     }
@@ -151,12 +151,12 @@ export const useSignupForm = () => {
         try {
             await authApi.signupResend({ email: formData.email });
             setIsCodeError(false);
-            alert('인증번호를 다시 보냈습니다.');
+            showAlert({ title: '완료', message: '인증번호를 다시 보냈습니다.', tone: 'success' });
         } catch (error) {
             if (error instanceof ApiError) {
-                showError({ title: '전송 실패', message: error.message });
+                showAlert({ title: '전송 실패', message: error.message });
             } else {
-                showError({ title: '전송 실패', message: '인증번호 재전송에 실패했습니다. 다시 시도해주세요.' });
+                showAlert({ title: '전송 실패', message: '인증번호 재전송에 실패했습니다. 다시 시도해주세요.' });
             }
         } finally {
             setIsResending(false);
@@ -167,12 +167,12 @@ export const useSignupForm = () => {
         e.preventDefault();
         
         if (!isVerified) {
-            showError({ title: '안내', message: '이메일 인증을 먼저 완료해주세요.' });
+            showAlert({ title: '안내', message: '이메일 인증을 먼저 완료해주세요.' });
             return;
         }
 
         // 인증이 완료된 상태에서만 최종 완료 알림 및 이동
-        alert('회원가입이 완료되었습니다.');
+        showAlert({ title: '완료', message: '회원가입이 완료되었습니다.', tone: 'success' });
         navigate('/login');
     }
 

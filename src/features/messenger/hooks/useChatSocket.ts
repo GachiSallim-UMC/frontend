@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ChatSocketConnection } from '@/features/messenger/api/messenger.socket';
 import { MESSENGER_QUERY_KEYS } from './useChatRoomQueries';
 import type { ChatRoomListItemResponse, MessageResponse } from '@/features/messenger/types';
-import { useErrorStore } from '@/shared/store';
+import { useAlertStore } from '@/shared/store';
 
 const applyIncomingMessage = (
   queryClient: QueryClient,
@@ -56,7 +56,7 @@ export const useChatSocket = (groupId: string | null, activeRoomId: string, curr
       onStatusChange: status => setIsConnected(status === 'open'),
       onMessageNew: data =>
         applyIncomingMessage(queryClient, groupIdRef.current, activeRoomIdRef.current, currentUserIdRef.current, data),
-      onRoomJoinError: message => useErrorStore.getState().showError({ title: '알림', message }),
+      onRoomJoinError: message => useAlertStore.getState().showAlert({ title: '알림', message }),
     });
     connectionRef.current = connection;
     connection.connect();

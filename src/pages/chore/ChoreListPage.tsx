@@ -10,7 +10,7 @@ import {
   getChoreUIStatus,
 } from '@/features/chore';
 import type { Chore, ChoreFilter, RepeatType, ChoreApiStatus } from '@/features/chore';
-import { useGroupStore, useErrorStore } from '@/shared/store';
+import { useAlertStore, useGroupStore } from '@/shared/store';
 import { useGroupMembers } from '@/features/member';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 
@@ -29,6 +29,7 @@ type ExtendedChoreFilter = Omit<ChoreFilter, 'status'> & {
 export const ChoreListPage = () => {
   const [filter, setFilter] = useState<ExtendedChoreFilter>({});
   const navigate = useNavigate();
+  const showAlert = useAlertStore(state => state.showAlert);
   const completeMutation = useCompleteChore();
   const incompleteMutation = useIncompleteChore();
   const {
@@ -92,20 +93,21 @@ export const ChoreListPage = () => {
 
   const handleEdit = (chore: Chore) => navigate(`/chores/${chore.id}/edit`);
 
-  const showError = useErrorStore(state => state.showError);
   const handleToggleComplete = (chore: Chore) => {
     if (getChoreUIStatus(chore) === 'done') {
       // 이미 완료 상태면 -> 미완료 처리 API 호출
       incompleteMutation.mutate(String(chore.id), {
-        onError: () => {
-          showError({ title: '오류', message: '완료 취소 처리에 실패했습니다.' });
+        onError: error => {
+          console.error('완료 취소 실패:', error);
+          showAlert({ title: '오류', message: '완료 취소에 실패했습니다.' });
         },
       });
     } else {
       // 미완료 상태면 -> 기존처럼 완료 처리 API 호출
       completeMutation.mutate(String(chore.id), {
-        onError: () => {
-          showError({ title: '오류', message: '완료 처리에 실패했습니다.' });
+        onError: error => {
+          console.error('완료 처리 실패:', error);
+          showAlert({ title: '오류', message: '완료 처리에 실패했습니다.' });
         },
       });
     }

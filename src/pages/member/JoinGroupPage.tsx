@@ -7,14 +7,14 @@ import {
   JoinGroupAction,
   useJoinGroup,
 } from '@/features/member';
-import { useErrorStore, useGroupStore } from '@/shared/store';
+import { useAlertStore, useGroupStore } from '@/shared/store';
 import { GroupPageShell } from './GroupPageShell';
 import { memberApi } from '@/features/member/api/member.api';
 
 export const JoinGroupPage = () => {
   const navigate = useNavigate();
   const setSelectedGroupId = useGroupStore(s => s.setSelectedGroupId);
-  const showError = useErrorStore(s => s.showError);
+  const showAlert = useAlertStore(s => s.showAlert);
   const joinGroupMutation = useJoinGroup();
 
   const [inviteCode, setInviteCode] = useState<string>('');
@@ -82,7 +82,7 @@ export const JoinGroupPage = () => {
           navigate('/dashboard');
         },
         onError: () => {
-          showError({
+          showAlert({
             title: '그룹 참여 실패',
             message: '가입에 실패했거나 이미 가입된 그룹입니다.',
           });

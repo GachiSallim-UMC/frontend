@@ -1,14 +1,14 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ResetPasswordForm, authApi, type ResetPasswordFormData } from '@/features/auth';
-import { useErrorStore } from '@/shared/store/useErrorStore';
+import { useAlertStore } from '@/shared/store';
 import Logo from "@/assets/mobile-logo.svg?react";
 import ArrowIcon from '@/assets/icons/login/chevron-left.svg?react'
 
 export const ResetPasswordPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const showError = useErrorStore(state => state.showError);
+    const showAlert = useAlertStore(state => state.showAlert);
     
     const [isLoading, setIsLoading] = useState(false);
     const [urlParams, setUrlParams] = useState({ email: '', code: '' });
@@ -28,13 +28,13 @@ export const ResetPasswordPage = () => {
         if (email && code) {
             setUrlParams({ email, code });
         } else {
-            showError({
+            showAlert({
                 title: '유효하지 않은 접근',
                 message: '비밀번호 재설정 링크가 올바르지 않거나 만료되었습니다.'
             });
             navigate('/login', { replace: true });
         }
-    }, [location, navigate, showError]);
+    }, [location, navigate, showAlert]);
 
     const handleFormDataChange = (field: keyof ResetPasswordFormData) => 
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +45,7 @@ export const ResetPasswordPage = () => {
         e.preventDefault();
 
         if (formData.newPassword !== formData.newPasswordConfirm) {
-            showError({
+            showAlert({
                 title: '비밀번호 오류',
                 message: '새 비밀번호가 일치하지 않습니다. 다시 확인해 주세요.'
             });
@@ -61,7 +61,11 @@ export const ResetPasswordPage = () => {
                 newPassword: formData.newPassword
             });
 
-            alert('비밀번호가 성공적으로 재설정되었습니다. 다시 로그인해 주세요.');
+            showAlert({
+                title: '완료',
+                message: '비밀번호가 성공적으로 재설정되었습니다. 다시 로그인해 주세요.',
+                tone: 'success',
+            });
             navigate('/login', { replace: true });
 
         } catch (error: unknown) {
@@ -72,7 +76,7 @@ export const ResetPasswordPage = () => {
                 errorMessage = e.response?.data?.message || e.message;
             }
 
-            showError({
+            showAlert({
                 title: '재설정 실패',
                 message: errorMessage
             });

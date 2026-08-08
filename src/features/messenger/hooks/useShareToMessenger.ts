@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useErrorStore, useGroupStore } from '@/shared/store';
+import { useAlertStore, useGroupStore } from '@/shared/store';
 import type { ShareableOption, ShareCardType } from '@/features/messenger/types';
 import { CARD_TYPE_BY_SHARE_TYPE } from './messenger.mappers';
 import { useChatRooms } from './useChatRoomQueries';
@@ -45,7 +45,7 @@ export const useShareToMessenger = (type: ShareCardType) => {
         // 전역 에러 모달은 4xx 대부분을 걸러내므로(isUnexpectedApiError), 공유 실패는 여기서 직접 안내한다.
         onError: error => {
           isSubmittingRef.current = false;
-          useErrorStore.getState().showError({
+          useAlertStore.getState().showAlert({
             title: '오류',
             message: error instanceof Error ? error.message : '메신저 공유에 실패했습니다. 잠시 후 다시 시도해 주세요.',
           });

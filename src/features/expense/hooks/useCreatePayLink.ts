@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPayLink } from '@/features/expense';
 import type { MemberShare } from '@/features/expense';
-import { useErrorStore } from '@/shared/store';
+import { useAlertStore } from '@/shared/store';
 
 const DEEPLINK_FALLBACK_TIMEOUT = 2500;
 
@@ -61,7 +61,7 @@ export function useCreatePayLink() {
 
     fallbackTimerRef.current = setTimeout(() => {
       if (!document.hidden) {
-        useErrorStore.getState().showError({
+        useAlertStore.getState().showAlert({
           title: '토스 앱으로 이동할 수 없어요',
           message:
             '토스 앱이 설치되어 있지 않은 것 같아요. 앱을 설치한 후 다시 시도해 주세요.',
@@ -74,7 +74,7 @@ export function useCreatePayLink() {
 
   const requestPayLink = async (share?: MemberShare) => {
     if (!share) {
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '알림',
         message: '본인의 정산 내역을 찾을 수 없습니다.',
       });
@@ -82,7 +82,7 @@ export function useCreatePayLink() {
     }
 
     if (share.isPaid) {
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '알림',
         message: '이미 정산 완료된 항목입니다.',
       });
@@ -93,7 +93,7 @@ export function useCreatePayLink() {
       /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (!isMobile) {
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '모바일에서 이용해 주세요',
         message: '송금 링크는 모바일에서만 이용할 수 있습니다.',
       });
@@ -117,7 +117,7 @@ export function useCreatePayLink() {
 
       clearDeepLinkWatcher();
 
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '오류',
         message: '송금 링크를 불러오지 못했습니다.',
       });
