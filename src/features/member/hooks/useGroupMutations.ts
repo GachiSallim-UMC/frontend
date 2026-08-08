@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { memberApi } from '../api/member.api';
+import { memberApi } from '@/features/member/api/member.api';
 import { MEMBER_QUERY_KEYS } from './useMyGroups';
-import type { CreateGroupDto, JoinGroupDto, UpdateGroupDto } from '../types/member.types';
+import type { CreateGroupDto, JoinGroupDto, UpdateGroupDto } from '@/features/member/types/member.types';
 import { useAlertStore } from '@/shared/store';
 
 /** 그룹 생성 훅 */
