@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { FormInput, Button } from "@/shared/components"
 import { authApi } from "@/features/auth/api/auth.api"
-import { useErrorStore } from "@/shared/store";
+import { useAlertStore } from "@/shared/store";
 
 interface SendingEmailFormProps {
     onSubmit?: (email: string) => void;
@@ -13,7 +13,7 @@ export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
     const [error, setError] = useState<string>();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const showError = useErrorStore((state) => state.showError);
+    const showAlert = useAlertStore((state) => state.showAlert);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -47,7 +47,7 @@ export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
                 errorMessage = e.response?.data?.message || e.message;
             }
 
-            showError({
+            showAlert({
                 title: '이메일 발송 실패',
                 message: errorMessage,
             });

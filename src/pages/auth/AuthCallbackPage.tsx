@@ -2,12 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi, OAUTH_STATE_STORAGE_KEY } from '@/features/auth'
 import { ApiError } from '@/shared/api'
-import { useErrorStore, useAuthStore } from '@/shared/store'
+import { useAlertStore, useAuthStore } from '@/shared/store'
 
 export const AuthCallbackPage = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const showError = useErrorStore(state => state.showError);
+    const showAlert = useAlertStore(state => state.showAlert);
     const setSession = useAuthStore(state => state.setSession);
     
     const isProcessed = useRef(false);
@@ -90,7 +90,7 @@ export const AuthCallbackPage = () => {
                     }
                 }
             } catch { 
-                showError({ title: '인증 오류', message: '로그인 처리 중 문제가 발생했습니다.' });
+                showAlert({ title: '인증 오류', message: '로그인 처리 중 문제가 발생했습니다.' });
                 navigate('/login', { replace: true });
             }
         };
@@ -104,7 +104,7 @@ export const AuthCallbackPage = () => {
         if (error) {
             isProcessed.current = true;
             sessionStorage.removeItem(OAUTH_STATE_STORAGE_KEY);
-            showError({ title: '로그인 취소', message: '소셜 로그인이 취소되었거나 실패했습니다.' });
+            showAlert({ title: '로그인 취소', message: '소셜 로그인이 취소되었거나 실패했습니다.' });
             navigate('/login', { replace: true });
             return;
         }
@@ -117,7 +117,7 @@ export const AuthCallbackPage = () => {
 
         if (!returnedState || !expectedState || returnedState !== expectedState) {
             isProcessed.current = true;
-            showError({ title: '인증 오류', message: '로그인 요청을 확인할 수 없습니다. 다시 로그인해주세요.' });
+            showAlert({ title: '인증 오류', message: '로그인 요청을 확인할 수 없습니다. 다시 로그인해주세요.' });
             navigate('/login', { replace: true });
             return;
         }
@@ -125,7 +125,7 @@ export const AuthCallbackPage = () => {
         isProcessed.current = true;
         processLogin(code);
 
-    }, [searchParams, navigate, showError, setSession]);
+    }, [searchParams, navigate, showAlert, setSession]);
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-primary-100">

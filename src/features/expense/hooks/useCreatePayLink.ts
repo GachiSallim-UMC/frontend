@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { createPayLink } from '@/features/expense';
 import type { MemberShare } from '@/features/expense';
-import { useErrorStore } from '@/shared/store';
+import { useAlertStore } from '@/shared/store';
 
 export function useCreatePayLink() {
   const [isLoading, setIsLoading] = useState(false);
 
   const requestPayLink = async (share?: MemberShare) => {
     if (!share) {
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '알림',
         message: '본인의 정산 내역을 찾을 수 없습니다.',
       });
@@ -16,7 +16,7 @@ export function useCreatePayLink() {
     }
 
     if (share.isPaid) {
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '알림',
         message: '이미 정산 완료된 항목입니다.',
       });
@@ -44,7 +44,7 @@ export function useCreatePayLink() {
     } catch (err) {
       console.error('송금 링크 생성 실패:', err);
 
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '오류',
         message: '송금 링크를 불러오지 못했습니다.',
       });

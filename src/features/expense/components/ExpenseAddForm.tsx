@@ -7,7 +7,7 @@ import type { User } from '@/shared/types';
 import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { ShareMessengerButton, Button, ConfirmModal } from '@/shared/components/';
-import { useErrorStore } from '@/shared/store';
+import { useAlertStore } from '@/shared/store';
 import {
   isDateOnlyInputValue,
   isUnsignedIntegerInput,
@@ -113,7 +113,7 @@ export const ExpenseAddForm = ({
 
   const handleDateBlur = () => {
     if (expenseDate && expenseDate < todayStr) {
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '알림',
         message: '오늘 이전의 날짜는 선택할 수 없습니다.',
       });
@@ -197,7 +197,7 @@ export const ExpenseAddForm = ({
 
   const handleSaveClickWithGuard = async () => {
     if (isSettled) {
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '알림',
         message: '정산 완료된 내역은 수정할 수 없습니다.',
       });

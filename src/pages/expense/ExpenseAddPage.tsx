@@ -14,7 +14,7 @@ import {
 import { memberApi } from '@/features/member';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { requireSelectedGroupId } from '@/shared/api';
-import { useAuthStore, useErrorStore } from '@/shared/store';
+import { useAuthStore, useAlertStore } from '@/shared/store';
 import type { User } from '@/shared/types';
 
 interface ExpenseDetailPageProps {
@@ -148,7 +148,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
       setReceiptObjectKey(objectKey);
     } catch (err) {
       console.error('영수증 업로드 실패:', err);
-      useErrorStore.getState().showError({
+      useAlertStore.getState().showAlert({
         title: '오류',
         message: '영수증 업로드에 실패했습니다.',
       });

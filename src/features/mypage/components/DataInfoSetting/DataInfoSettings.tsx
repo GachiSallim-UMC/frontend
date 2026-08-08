@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/shared/components"
 import { downloadBlob } from "@/shared/lib";
-import { useErrorStore } from "@/shared/store";
+import { useAlertStore } from "@/shared/store";
 import { myPageApi } from "@/features/mypage/api/myPage.api";
 
 interface DataInfoSettingsProps {
@@ -10,7 +10,7 @@ interface DataInfoSettingsProps {
 }
 
 export const DataInfoSettings = ({ onViewPrivacy, onViewTerms }: DataInfoSettingsProps) => {
-    const showError = useErrorStore((state) => state.showError);
+    const showAlert = useAlertStore((state) => state.showAlert);
     const [isExporting, setIsExporting] = useState(false);
 
     const handleExportData = async () => {
@@ -21,7 +21,7 @@ export const DataInfoSettings = ({ onViewPrivacy, onViewTerms }: DataInfoSetting
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
             console.error('데이터 내보내기 실패:', e.response?.data?.message || e.message);
-            showError({
+            showAlert({
                 title: '내보내기 실패',
                 message: '데이터를 내보내는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
             });
