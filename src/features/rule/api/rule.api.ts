@@ -141,6 +141,7 @@ const toRule = (response: RuleListItemResponse | RuleDetailResponse): Rule => {
 
   return {
     id: String(response.ruleId),
+    groupId: String(response.groupId),
     category:
       (response.categoryId === null ? undefined : RULE_CATEGORY_BY_ID.get(response.categoryId)) ??
       'etc',

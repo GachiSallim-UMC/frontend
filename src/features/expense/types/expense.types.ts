@@ -29,9 +29,13 @@ export interface MemberShare {
 /** 생활비 도메인 모델 */
 export interface Expense {
   id: string;
+  /** 상세 화면이 현재 선택된 그룹의 정산인지 확인할 때 사용합니다. */
+  groupId?: string;
   title: string;
   amount: number;
   payer: User;
+  /** 삭제 권한 판정에 사용하는 정산 등록자 ID (선결제자와 다를 수 있음) */
+  createdById?: string;
   date: string;
   splitType: SplitType;
   category: ExpenseCategory;
