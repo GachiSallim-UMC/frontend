@@ -2,6 +2,8 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ResetPasswordForm, authApi, type ResetPasswordFormData } from '@/features/auth';
 import { useErrorStore } from '@/shared/store/useErrorStore';
+import Logo from "@/assets/mobile-logo.svg?react";
+import ArrowIcon from '@/assets/icons/login/chevron-left.svg?react'
 
 export const ResetPasswordPage = () => {
     const navigate = useNavigate();
@@ -80,15 +82,61 @@ export const ResetPasswordPage = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-primary-100">
-            <div className="h-[696px] w-full max-w-lg rounded-3xl bg-white px-10 pb-8 pt-10 flex flex-col">
-                <ResetPasswordForm 
-                    formData={formData}
-                    onChange={handleFormDataChange}
-                    onSubmit={handleSubmit}
-                    isLoading={isLoading}
-                />
+        <>
+            {/* 모바일 전용 화면 */}
+            <div className="flex min-h-dvh flex-col bg-white lg:hidden">
+                <header className="sticky top-0 z-10 flex h-[52px] shrink-0 items-center justify-center border-b border-gray-100 bg-white px-4">
+                    <button
+                        type="button"
+                        aria-label="뒤로 가기"
+                        onClick={() => navigate('/login')}
+                        className="absolute left-4 flex size-6 items-center justify-center text-gray-900"
+                    >
+                        <ArrowIcon className="size-6" strokeWidth={1.5} />
+                    </button>
+                    <h1 className="text-mobile-title font-bold tracking-[0.04em] text-gray-900">비밀번호 재설정</h1>
+                </header>
+
+                <div className="flex-1 px-4 pt-5">
+                    <div className="mb-5 flex flex-col items-start gap-1">
+                        <div className="flex items-end gap-1.5">
+                            <div className="flex h-[27px] w-6 items-center justify-center">
+                                <Logo className="h-full w-full" />
+                            </div>
+                            <span className="font-logo text-lg tracking-wider text-gray-900">같이살림</span>
+                        </div>
+                        <p className="text-mobile-label font-medium text-gray-600">비밀번호 재설정</p>
+                    </div>
+
+                    <ResetPasswordForm
+                        formData={formData}
+                        onChange={handleFormDataChange}
+                        onSubmit={handleSubmit}
+                        isLoading={isLoading}
+                    />
+                </div>
             </div>
-        </div>
+
+            {/* 데스크톱 전용 화면 */}
+            <div className="hidden min-h-screen items-center justify-center bg-primary-100 lg:flex">
+                <div className="flex h-[696px] w-full max-w-lg flex-col rounded-3xl bg-white px-10 pb-8 pt-10">
+                    <div className="mb-8 flex flex-col items-center">
+                        <h1 className="font-logo text-3xl font-medium tracking-wider text-gray-900">
+                            같이살림
+                        </h1>
+                        <p className="mt-2 text-sm font-medium text-gray-600">
+                            비밀번호 재설정
+                        </p>
+                    </div>
+
+                    <ResetPasswordForm
+                        formData={formData}
+                        onChange={handleFormDataChange}
+                        onSubmit={handleSubmit}
+                        isLoading={isLoading}
+                    />
+                </div>
+            </div>
+        </>
     );
 };

@@ -11,26 +11,26 @@ export const SocialLoginForm = ({ onLoginClick }: SocialLoginFormProps) => {
             {/* 구분선 */}
             <div className="relative flex items-center justify-center">
                 <div className="absolute inset-x-0 h-px bg-gray-200" />
-                <span className="relative bg-white px-3 text-sm font-bold text-gray-200">또는</span>
+                <span className="relative bg-white px-3 text-mobile-caption font-bold text-gray-200 lg:text-sm">또는</span>
             </div>
 
-            <div className="mt-5 mb-2 text-center text-sm font-bold text-gray-800">간편 로그인</div>
+            <div className="mt-5 mb-2 text-center text-mobile-label font-bold text-gray-700 lg:text-sm lg:text-gray-800">간편 로그인</div>
 
             {/* 소셜 로그인 버튼 */}
             <div className="flex gap-2 justify-center">
-                <button 
-                    type="button" 
-                    aria-label="카카오 로그인" 
+                <button
+                    type="button"
+                    aria-label="카카오 로그인"
                     onClick={() => onLoginClick('Kakao')}
-                    className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full transition-opacity hover:opacity-90"
+                    className="flex h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-full transition-opacity hover:opacity-90 lg:h-12 lg:w-12"
                 >
                     <KakaoIcon className="h-full w-full" />
                 </button>
-                <button 
-                    type="button" 
-                    aria-label="구글 로그인" 
+                <button
+                    type="button"
+                    aria-label="구글 로그인"
                     onClick={() => onLoginClick('Google')}
-                    className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white transition-colors hover:bg-gray-50"
+                    className="flex h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-full bg-white transition-colors hover:bg-gray-50 lg:h-12 lg:w-12"
                 >
                     <GoogleIcon className="h-full w-full" />
                 </button>

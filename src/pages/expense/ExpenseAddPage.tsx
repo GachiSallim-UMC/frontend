@@ -1,45 +1,65 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import {
   ExpenseAddForm,
   ExpenseDetailCard,
   Receipt,
   SettlementPreviewCard,
   getExpenseById,
-  deleteExpense,
   requestReceiptUploadUrl,
   uploadReceiptToS3,
   getReceiptViewUrl,
+  useDeleteExpense,
   type Expense,
 } from '@/features/expense';
+import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
 import { memberApi } from '@/features/member';
-import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
+import {
+  ShareItemPickerModal,
+  useShareToMessenger,
+} from '@/features/messenger';
 import { requireSelectedGroupId } from '@/shared/api';
-import { useAuthStore, useErrorStore } from '@/shared/store';
+import { ConfirmModal } from '@/shared/components/ui';
+import { useAuthStore, useErrorStore, useGroupStore } from '@/shared/store';
 import type { User } from '@/shared/types';
 
 interface ExpenseDetailPageProps {
   title?: string;
 }
 
-function enrichExpenseWithMembers(expense: Expense, memberList: User[]): Expense {
-  const memberMap = new Map(memberList.map((m) => [String(m.id), m]));
+function enrichExpenseWithMembers(
+  expense: Expense,
+  memberList: User[],
+): Expense {
+  const memberMap = new Map(
+    memberList.map((m) => [String(m.id), m]),
+  );
 
-  const payer = memberMap.get(String(expense.payer.id)) ?? expense.payer;
+  const payer =
+    memberMap.get(String(expense.payer.id)) ?? expense.payer;
 
   const shares = expense.shares?.map((share) => ({
     ...share,
-    user: memberMap.get(String(share.user.id)) ?? share.user,
+    user:
+      memberMap.get(String(share.user.id)) ?? share.user,
   }));
 
   return { ...expense, payer, shares };
 }
 
-export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
+export const ExpenseAddPage = ({
+  title: _title,
+}: ExpenseDetailPageProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const currentUserId = useAuthStore((state) => state.userId ?? undefined);
+  const currentUserId = useAuthStore(
+    (state) => state.userId ?? undefined,
+  );
+
+  const selectedGroupId = useGroupStore(
+    (state) => state.selectedGroupId,
+  );
 
   const {
     activeType,
@@ -52,17 +72,48 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
 
   const [members, setMembers] = useState<User[]>([]);
   const [membersLoading, setMembersLoading] = useState(true);
+  const [isGroupAdmin, setIsGroupAdmin] = useState(false);
 
-  const [savedExpense, setSavedExpense] = useState<Expense | undefined>(undefined);
+  const [savedExpense, setSavedExpense] = useState<
+    Expense | undefined
+  >(undefined);
+
   const [isLoading, setIsLoading] = useState(!!id);
   const [isSubmitted, setIsSubmitted] = useState(!!id);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const deleteExpense = useDeleteExpense();
 
   const isEditMode = !!id || !!savedExpense;
 
-  const [receiptObjectKey, setReceiptObjectKey] = useState<string | undefined>(undefined);
-  const [receiptViewUrl, setReceiptViewUrl] = useState<string | undefined>(undefined);
-  const [isReceiptUploading, setIsReceiptUploading] = useState(false);
+  const isExpenseCreator = Boolean(
+    savedExpense?.createdById &&
+      currentUserId &&
+      savedExpense.createdById === String(currentUserId),
+  );
+
+  const isSelectedGroupExpense = Boolean(
+    savedExpense?.groupId &&
+      selectedGroupId &&
+      savedExpense.groupId === selectedGroupId,
+  );
+
+  const canDeleteExpense = Boolean(
+    savedExpense &&
+      isSelectedGroupExpense &&
+      (isExpenseCreator || isGroupAdmin),
+  );
+
+  const [receiptObjectKey, setReceiptObjectKey] = useState<
+    string | undefined
+  >(undefined);
+
+  const [receiptViewUrl, setReceiptViewUrl] = useState<
+    string | undefined
+  >(undefined);
+
+  const [isReceiptUploading, setIsReceiptUploading] =
+    useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -84,9 +135,20 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
 
         if (isMounted) {
           setMembers(mapped);
+          setIsGroupAdmin(
+            rawMembers.some(
+              (member) =>
+                member.userId === String(currentUserId) &&
+                member.role === 'ADMIN',
+            ),
+          );
         }
       } catch (err) {
         console.error('그룹 멤버 조회 실패:', err);
+
+        if (isMounted) {
+          setIsGroupAdmin(false);
+        }
       } finally {
         if (isMounted) {
           setMembersLoading(false);
@@ -99,7 +161,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [currentUserId]);
 
   useEffect(() => {
     let isMounted = true;
@@ -114,7 +176,9 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
         const data = await getExpenseById(id);
 
         if (isMounted) {
-          setSavedExpense(enrichExpenseWithMembers(data, members));
+          setSavedExpense(
+            enrichExpenseWithMembers(data, members),
+          );
         }
       } catch (err) {
         console.error('지출 단건 조회 실패:', err);
@@ -166,11 +230,15 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     try {
       const groupId = requireSelectedGroupId();
 
-      const { uploadUrl, fields, objectKey } = await requestReceiptUploadUrl({
-        groupId: Number(groupId),
-        contentType: file.type as 'image/jpeg' | 'image/png' | 'image/webp',
-        fileSize: file.size,
-      });
+      const { uploadUrl, fields, objectKey } =
+        await requestReceiptUploadUrl({
+          groupId: Number(groupId),
+          contentType: file.type as
+            | 'image/jpeg'
+            | 'image/png'
+            | 'image/webp',
+          fileSize: file.size,
+        });
 
       await uploadReceiptToS3(uploadUrl, fields, file);
       setReceiptObjectKey(objectKey);
@@ -187,7 +255,9 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   };
 
   const handleSave = (newExpense: Expense) => {
-    setSavedExpense(enrichExpenseWithMembers(newExpense, members));
+    setSavedExpense(
+      enrichExpenseWithMembers(newExpense, members),
+    );
     setIsSubmitted(true);
     navigate('/expenses');
   };
@@ -199,7 +269,10 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
 
     try {
       const data = await getExpenseById(targetId);
-      setSavedExpense(enrichExpenseWithMembers(data, members));
+
+      setSavedExpense(
+        enrichExpenseWithMembers(data, members),
+      );
     } catch (err) {
       console.error('지출 정산 정보 갱신 실패:', err);
     }
@@ -209,94 +282,112 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     navigate(-1);
   };
 
-  const handleDelete = async (targetExpenseId: string) => {
-    setIsDeleting(true);
+  const handleDeleteClick = () => {
+    deleteExpense.reset();
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const targetId = savedExpense?.id ?? id;
+
+    if (!targetId || !canDeleteExpense) return;
 
     try {
-      await deleteExpense(targetExpenseId);
+      await deleteExpense.mutateAsync(targetId);
+      setIsDeleteModalOpen(false);
       navigate('/expenses');
-    } catch (err) {
-      console.error('지출 삭제 실패:', err);
-
-      throw err instanceof Error
-        ? err
-        : new Error('지출 삭제 중 오류가 발생했습니다.');
-    } finally {
-      setIsDeleting(false);
+    } catch {
+      // 삭제 실패 시 모달 유지
     }
   };
 
   if (id && isLoading) {
-    return (
-      <div className="flex min-h-[400px] w-full items-center justify-center">
-        지출 정보를 불러오는 중...
-      </div>
-    );
+    return <div>지출 정보를 불러오는 중...</div>;
+  }
+
+  if (
+    id &&
+    savedExpense?.groupId &&
+    savedExpense.groupId !== selectedGroupId
+  ) {
+    return <Navigate to="/expenses" replace />;
   }
 
   return (
-    <div className="w-full bg-gray-50">
-    <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-    <div className="min-w-0 w-full">
-  <ExpenseAddForm
-    members={members}
-    membersLoading={membersLoading}
-    initialExpense={savedExpense}
-    onSave={handleSave}
-    onCancel={handleCancel}
-    isEditMode={isEditMode}
-    expenseId={savedExpense?.id ? String(savedExpense.id) : id}
-    receiptUrl={receiptObjectKey}
-    onShare={openShare}
-    isSharing={isSharePending}
-    onDelete={handleDelete}
-    isDeleting={isDeleting}
-    onRefresh={handleExpenseRefresh}
-    mobileReceiptSlot={
-      <Receipt
-        imageUrl={receiptViewUrl}
-        onImageChange={handleReceiptChange}
-        disabled={
-          isReceiptUploading || savedExpense?.status === 'paid'
-        }
-        isUploading={isReceiptUploading}
-      />
-    }
-  />
-</div>
-
-<div className="flex min-w-0 w-full flex-col gap-0 sm:gap-4">
-  {isSubmitted && savedExpense && (
-    <>
-      {/* 모바일에서는 폼의 "정산 미리보기"에 이미 같은 정보 + 정산 버튼이 있으므로 중복 방지 위해 숨김 */}
-      <div className="hidden sm:block">
-        <ExpenseDetailCard
-          expense={savedExpense}
+    <div className="flex min-w-0 w-full flex-col">
+      <div className="flex min-w-0 w-full flex-col">
+        <ExpenseAddForm
+          members={members}
+          membersLoading={membersLoading}
+          initialExpense={savedExpense}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          onDelete={
+            canDeleteExpense
+              ? handleDeleteClick
+              : undefined
+          }
+          isEditMode={isEditMode}
+          expenseId={
+            savedExpense?.id
+              ? String(savedExpense.id)
+              : id
+          }
+          receiptUrl={receiptObjectKey}
+          onShare={openShare}
+          isSharing={isSharePending}
           onRefresh={handleExpenseRefresh}
+          mobileReceiptSlot={
+            <Receipt
+              imageUrl={receiptViewUrl}
+              onImageChange={handleReceiptChange}
+              disabled={
+                isReceiptUploading ||
+                savedExpense?.status === 'paid'
+              }
+              isUploading={isReceiptUploading}
+            />
+          }
         />
-      </div>
 
-      <SettlementPreviewCard
-        expense={savedExpense}
-        currentUserId={currentUserId}
-        onRefresh={handleExpenseRefresh}
-      />
-    </>
-  )}
+        <div className="flex min-w-0 w-full flex-col gap-4">
+          {isSubmitted && savedExpense ? (
+            <>
+              <ExpenseDetailCard
+                expense={savedExpense}
+                onRefresh={handleExpenseRefresh}
+              />
 
-  <div className="hidden sm:block">
-    <Receipt
-      imageUrl={receiptViewUrl}
-      onImageChange={handleReceiptChange}
-      disabled={
-        isReceiptUploading || savedExpense?.status === 'paid'
-      }
-      isUploading={isReceiptUploading}
-    />
-  </div>
-</div>
-</div>
+              <Receipt
+                imageUrl={receiptViewUrl}
+                onImageChange={handleReceiptChange}
+                disabled={
+                  isReceiptUploading ||
+                  savedExpense.status === 'paid'
+                }
+                isUploading={isReceiptUploading}
+              />
+
+              <SettlementPreviewCard
+                expense={savedExpense}
+                currentUserId={currentUserId}
+                onRefresh={handleExpenseRefresh}
+              />
+            </>
+          ) : (
+            <>
+              <Receipt
+                onImageChange={handleReceiptChange}
+                disabled={isReceiptUploading}
+                isUploading={isReceiptUploading}
+              />
+
+              <SettlementPreviewCard
+                currentUserId={currentUserId}
+              />
+            </>
+          )}
+        </div>
       </div>
 
       <ShareItemPickerModal
@@ -305,6 +396,26 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
         isSubmitting={isSharePending}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => void handleConfirmDelete()}
+        icon={<ExpenseIcon className="size-6" />}
+        title="정말 삭제하시겠어요?"
+        highlight={savedExpense?.title}
+        description="데이터를 삭제합니다. 삭제된 데이터는 복구할 수 없습니다."
+        confirmLabel="영구 삭제"
+        isPending={deleteExpense.isPending}
+        errorMessage={
+          deleteExpense.error instanceof Error
+            ? deleteExpense.error.message
+            : deleteExpense.isError
+              ? '생활비 삭제에 실패했습니다. 다시 시도해 주세요.'
+              : undefined
+        }
+        tone="danger"
       />
     </div>
   );

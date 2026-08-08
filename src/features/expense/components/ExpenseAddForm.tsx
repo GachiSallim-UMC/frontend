@@ -7,7 +7,6 @@ import {
   useExpenseSettle,
   ExpenseSaveModal,
   ExpenseCancelModal,
-  ExpenseDeleteModal,
   CustomButton,
   CheckboxModal,
   SettlementConfirm,
@@ -81,13 +80,12 @@ interface ExpenseAddFormProps {
   initialExpense?: Expense;
   onSave?: (newExpense: Expense) => void;
   onCancel?: () => void;
+  onDelete?: () => void;
   isEditMode?: boolean;
   expenseId?: string;
   receiptUrl?: string;
   onShare?: (expenseId: string) => void;
   isSharing?: boolean;
-  onDelete?: (expenseId: string) => Promise<void> | void;
-  isDeleting?: boolean;
   /** 상세(수정) 모드에서 전체/개별 정산 완료 처리 후 최신 데이터를 다시 불러오기 위한 콜백 */
   onRefresh?: () => void;
   /** 저장/취소 버튼 바로 아래(모바일 전용)에 렌더링할 컨텐츠, 예: 영수증 등록 버튼 */
@@ -103,13 +101,12 @@ export const ExpenseAddForm = ({
   initialExpense,
   onSave,
   onCancel,
+  onDelete,
   isEditMode = false,
   expenseId,
   receiptUrl,
   onShare,
   isSharing,
-  onDelete,
-  isDeleting,
   onRefresh,
   mobileReceiptSlot,
 }: ExpenseAddFormProps) => {
@@ -117,10 +114,8 @@ export const ExpenseAddForm = ({
   const [fieldErrors, setFieldErrors] = useState<ExpenseFieldErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | undefined>(undefined);
-  const [deleteErrorMessage, setDeleteErrorMessage] = useState<string | undefined>(undefined);
   const [memberAmountErrors, setMemberAmountErrors] = useState<Record<string, string>>({});
   const [memberRatioErrors, setMemberRatioErrors] = useState<Record<string, string>>({});
   const [isSettlementConfirmOpen, setIsSettlementConfirmOpen] = useState(false);
@@ -418,26 +413,6 @@ export const ExpenseAddForm = ({
   const handleConfirmCancel = () => {
     setIsCancelModalOpen(false);
     onCancel?.();
-  };
-
-  const handleDeleteClick = () => {
-    setDeleteErrorMessage(undefined);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!currentExpenseId) return;
-
-    try {
-      await onDelete?.(currentExpenseId);
-      setIsDeleteModalOpen(false);
-    } catch (error) {
-      setDeleteErrorMessage(
-        error instanceof Error
-          ? error.message
-          : '지출 삭제 중 오류가 발생했습니다.',
-      );
-    }
   };
 
   return (
@@ -951,7 +926,6 @@ export const ExpenseAddForm = ({
         </div>
       </fieldset>
 
-
       <div className="mt-2 flex w-full flex-col-reverse gap-3 pb-6 pt-3 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-4 sm:overflow-x-auto sm:pb-8 sm:pt-4">
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-nowrap sm:shrink-0">
           <Button
@@ -973,11 +947,11 @@ export const ExpenseAddForm = ({
             취소
           </Button>
 
-          {isEditMode && (
+          {onDelete && (
             <Button
               variant="secondary"
               size="md"
-              onClick={handleDeleteClick}
+              onClick={onDelete}
               className="w-full shrink-0 border-none bg-red-700 font-bold text-white hover:bg-red-700 sm:w-[110px]"
             >
               삭제
@@ -1016,17 +990,6 @@ export const ExpenseAddForm = ({
         onClose={() => setIsCancelModalOpen(false)}
         onConfirm={handleConfirmCancel}
       />
-
-      {isEditMode && (
-        <ExpenseDeleteModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={() => void handleConfirmDelete()}
-          expenseName={title.trim()}
-          isDeleting={isDeleting}
-          errorMessage={deleteErrorMessage}
-        />
-      )}
 
       {isEditMode && (
         <>

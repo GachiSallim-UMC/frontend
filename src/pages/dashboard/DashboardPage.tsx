@@ -1,13 +1,14 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { 
-  DashboardSummary, 
-  TodayChoresPanel, 
-  RecentActivityPanel, 
-  UnpaidExpensesPanel, 
+import {
+  DashboardSummary,
+  TodayChoresPanel,
+  RecentActivityPanel,
+  UnpaidExpensesPanel,
   ShortageItemsPanel,
   useDashboardData
 } from '@/features/dashboard';
+import { GroupSwitchDropdown } from '@/features/member';
 import { useGroupStore } from '@/shared/store';
 
 export const DashboardPage = () => {
@@ -29,17 +30,22 @@ export const DashboardPage = () => {
 
     return (
         <div className='flex flex-col'>
-            <DashboardSummary 
-                summary={data.summary} 
-                lowSupplies={data.lowSupplies} 
+            {/* 그룹 전환 드롭다운: 모바일 전용 (Figma 06 · 대시보드) */}
+            <div className="mb-3 lg:hidden">
+                <GroupSwitchDropdown />
+            </div>
+
+            <DashboardSummary
+                summary={data.summary}
+                lowSupplies={data.lowSupplies}
             />
 
-            <div className="mt-7 grid grid-cols-2 gap-5 items-start">
+            <div className="mt-4 grid grid-cols-1 gap-5 items-start lg:mt-7 lg:grid-cols-2">
                 <div className="flex flex-col">
-                    <div className="mb-3 flex items-center justify-between">
-                        <h1 className="text-lg font-bold text-gray-800">오늘의 집안일</h1>
-                        <Link to="/chores" 
-                            className="flex items-center gap-1 text-caption text-gray-600 transition-colors hover:text-gray-900">
+                    <div className="mb-2 flex items-center justify-between lg:mb-3">
+                        <h1 className="text-button font-bold text-gray-800 lg:text-lg">오늘의 집안일</h1>
+                        <Link to="/chores"
+                            className="flex items-center gap-1 text-mobile-label text-gray-600 transition-colors hover:text-gray-900 lg:text-caption">
                             전체 보기
                             <ArrowRight className="h-3 w-3" />
                         </Link>
@@ -50,10 +56,10 @@ export const DashboardPage = () => {
                 </div>
 
                 <div className="flex flex-col">
-                    <div className="mb-3 flex items-center justify-between">
-                        <h1 className="text-lg font-bold text-gray-800">최근 활동</h1>
-                        <Link to="/activity" 
-                            className="flex items-center gap-1 text-caption text-gray-600 transition-colors hover:text-gray-900">
+                    <div className="mb-2 flex items-center justify-between lg:mb-3">
+                        <h1 className="text-button font-bold text-gray-800 lg:text-lg">최근 활동</h1>
+                        <Link to="/activity"
+                            className="flex items-center gap-1 text-mobile-label text-gray-600 transition-colors hover:text-gray-900 lg:text-caption">
                             전체 보기
                             <ArrowRight className="h-3 w-3" />
                         </Link>
@@ -64,11 +70,12 @@ export const DashboardPage = () => {
                 </div>
             </div>
 
-             <div className="mt-7 grid grid-cols-2 gap-5 items-start">
+            {/* 미정산 항목 · 부족한 공용 물품 상세 목록: 데스크톱 전용 (모바일은 상단 요약 카드로 대체) */}
+            <div className="mt-7 hidden grid-cols-2 gap-5 items-start lg:grid">
                 <div className="flex flex-col">
                     <div className="mb-3 flex items-center justify-between">
                         <h1 className="text-lg font-bold text-gray-800">미정산 항목</h1>
-                        <Link to="/expenses" 
+                        <Link to="/expenses"
                             className="flex items-center gap-1 text-caption text-gray-600 transition-colors hover:text-gray-900">
                             전체 보기
                             <ArrowRight className="h-3 w-3" />
@@ -82,7 +89,7 @@ export const DashboardPage = () => {
                 <div className="flex flex-col">
                     <div className="mb-3 flex items-center justify-between">
                         <h1 className="text-lg font-bold text-gray-800">부족한 공용 물품</h1>
-                        <Link to="/items" 
+                        <Link to="/items"
                             className="flex items-center gap-1 text-caption text-gray-600 transition-colors hover:text-gray-900">
                             전체 보기
                             <ArrowRight className="h-3 w-3" />

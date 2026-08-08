@@ -1,7 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, FormInput } from '@/shared/components';
+import { Button, FormInput, BottomSheet } from '@/shared/components';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
 import { AVATAR_ID_TO_URL, AVATAR_ID_BY_URL } from '@/features/mypage/constants/avatars';
 import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from '@/shared/lib/inputValidation';
@@ -219,32 +219,32 @@ export const ProfileBasicInfo = () => {
     
     return (
         <>
-            <section className="flex w-full items-start gap-12 rounded-2xl bg-white p-8">
+            <section className="flex w-full flex-col items-center gap-4 lg:flex-row lg:items-start lg:gap-12 lg:rounded-2xl lg:bg-white lg:p-8">
                 {/* 프로필 이미지 영역 */}
-                <div className='flex shrink-0 flex-col items-center justify-center pt-2'>
-                    <div className='relative mb-4 h-36 w-36'>
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleFileChange} 
-                            accept="image/jpeg, image/png" 
-                            className="hidden" 
+                <div className='flex shrink-0 flex-col items-center justify-center lg:pt-2'>
+                    <div className='relative mb-2 h-[100px] w-[100px] lg:mb-4 lg:h-36 lg:w-36'>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            accept="image/jpeg, image/png"
+                            className="hidden"
                         />
 
                         {renderProfileImage()}
 
                         <div ref={menuRef} className='absolute bottom-0 right-0'>
-                            <button  
+                            <button
                                 aria-label='프로필 이미지 변경'
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                                 disabled={isLoading}
-                                className='flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white shadow-md transition-colors hover:bg-gray-100'
+                                className='flex h-7 w-7 items-center justify-center rounded-full border border-gray-100 bg-white shadow-md transition-colors hover:bg-gray-100 lg:h-10 lg:w-10'
                             >
-                                <CameraIcon className="h-6 w-6 text-gray-700" />
+                                <CameraIcon className="h-4 w-4 text-gray-700 lg:h-6 lg:w-6" />
                             </button>
 
                             {isMenuOpen && (
-                                <div className="absolute left-12 top-0 z-20 flex w-[180px] flex-col rounded-lg bg-white py-2 shadow-lg ring-1 ring-gray-900 ring-dropdown">
+                                <div className="absolute right-0 top-8 z-20 hidden w-[180px] flex-col rounded-lg bg-white py-2 shadow-lg ring-1 ring-gray-900 ring-dropdown lg:left-12 lg:right-auto lg:top-0 lg:flex">
                                     <button
                                         onClick={handleUploadClick}
                                         className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-100"
@@ -268,20 +268,58 @@ export const ProfileBasicInfo = () => {
                                     </button>
                                 </div>
                             )}
+
+                            {/* 모바일: 프로필 이미지 변경 바텀시트 */}
+                            <div className="lg:hidden">
+                                <BottomSheet isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
+                                    <div className="flex flex-col">
+                                        <button
+                                            onClick={handleUploadClick}
+                                            className="flex h-[52px] items-center gap-4 px-4 text-mobile-body text-gray-900"
+                                        >
+                                            <UploadIcon className="h-6 w-6 text-gray-900" />
+                                            사진 업로드
+                                        </button>
+                                        <div className="h-px w-full bg-gray-100" />
+                                        <button
+                                            onClick={handleSelectAvatarMenu}
+                                            className="flex h-[52px] items-center gap-4 px-4 text-mobile-body text-gray-900"
+                                        >
+                                            <ProfileIcon className="h-6 w-6 text-gray-900" />
+                                            기본 아바타 선택
+                                        </button>
+                                        <div className="h-px w-full bg-gray-100" />
+                                        <button
+                                            onClick={handleDeleteImage}
+                                            className="flex h-[52px] items-center gap-4 px-4 text-mobile-body text-red-700"
+                                        >
+                                            <TrashIcon className="h-6 w-6 text-red-700" />
+                                            사진 삭제
+                                        </button>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="mx-4 mt-4 flex h-11 items-center justify-center rounded-lg border border-gray-100 bg-white text-mobile-body font-bold text-gray-700"
+                                    >
+                                        취소
+                                    </button>
+                                </BottomSheet>
+                            </div>
                         </div>
                     </div>
-                    <span className="text-xl font-bold text-gray-900">{nickname || name}</span>
+                    <span className="text-mobile-body font-bold text-gray-900 lg:text-xl">{nickname || name}</span>
                 </div>
 
                 {/* 기본 정보 폼 */}
-                <div className="flex flex-1 flex-col">
-                    <h3 className='mb-5 text-lg font-bold leading-snug text-gray-800'>
+                <div className="flex w-full flex-1 flex-col">
+                    <h3 className='mb-5 hidden text-lg font-bold leading-snug text-gray-800 lg:block'>
                         기본 정보
                     </h3>
 
-                    <div className="mb-5 grid grid-cols-2 gap-5">
+                    <div className="mb-4 flex flex-col gap-4 lg:mb-5 lg:grid lg:grid-cols-2 lg:gap-5">
                         <div className='flex flex-col'>
-                            <label htmlFor="name" className='mb-1 text-sm font-bold text-gray-900'>이름</label>
+                            <label htmlFor="name" className='mb-1.5 text-mobile-label font-bold text-gray-700 lg:mb-1 lg:text-sm lg:text-gray-900'>이름</label>
                             <FormInput
                                 id="name"
                                 value={name}
@@ -292,11 +330,12 @@ export const ProfileBasicInfo = () => {
                                 placeholder='이름을 입력해주세요'
                                 maxLength={30}
                                 error={errors.name}
+                                className="h-11 text-mobile-label lg:h-[50px] lg:text-button"
                             />
                         </div>
 
                         <div className='flex flex-col'>
-                            <label htmlFor="nickname" className='mb-1 text-sm font-bold text-gray-900'>닉네임</label>
+                            <label htmlFor="nickname" className='mb-1.5 text-mobile-label font-bold text-gray-700 lg:mb-1 lg:text-sm lg:text-gray-900'>닉네임</label>
                             <FormInput
                                 id="nickname"
                                 value={nickname}
@@ -307,29 +346,30 @@ export const ProfileBasicInfo = () => {
                                 placeholder='닉네임을 입력해주세요'
                                 maxLength={10}
                                 error={errors.nickname}
+                                className="h-11 text-mobile-label lg:h-[50px] lg:text-button"
                             />
                         </div>
                     </div>
 
-                    <div className='flex items-end gap-5'>
+                    <div className='flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-5'>
                         <div className='flex flex-1 flex-col'>
-                            <label htmlFor="email" className='mb-1 text-sm font-bold text-gray-900'>
+                            <label htmlFor="email" className='mb-1.5 text-mobile-label font-bold text-gray-700 lg:mb-1 lg:text-sm lg:text-gray-900'>
                                 이메일(변경 불가)
                             </label>
                             <FormInput
                                 id="email"
-                                value={email} 
-                                disabled 
+                                value={email}
+                                disabled
                                 readOnly
-                                className="cursor-not-allowed border-transparent bg-gray-100 text-gray-400"
+                                className="h-11 cursor-not-allowed border-transparent bg-gray-100 text-mobile-label text-gray-400 lg:h-[50px] lg:text-button"
                             />
                         </div>
 
-                        <Button 
+                        <Button
                             onClick={handleSave}
                             disabled={isLoading}
-                            variant="primary" 
-                            className="w-32 shrink-0 font-bold"
+                            variant="primary"
+                            className="w-full font-bold lg:w-32 lg:shrink-0"
                         >
                         {isLoading ? '처리 중...' : '저장'}
                         </Button>

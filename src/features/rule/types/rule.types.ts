@@ -44,6 +44,8 @@ export interface RuleAgreement {
 /** 생활 규칙 도메인 모델 */
 export interface Rule {
   id: string;
+  /** 상세 화면이 현재 선택된 그룹의 규칙인지 확인할 때 사용합니다. */
+  groupId?: string;
   category: RuleCategory;
   categoryId?: number | null;
   categoryName?: string | null;
@@ -66,9 +68,7 @@ export interface CreateRuleDto {
   content: string;
 }
 
-export interface UpdateRuleDto extends CreateRuleDto {
-  status: RuleStatus;
-}
+export type UpdateRuleDto = CreateRuleDto;
 
 export interface UpdateRuleAgreementDto {
   status: RuleAgreementApiStatus;
@@ -90,13 +90,14 @@ export interface RuleListItemResponse {
   status: RuleApiStatus;
   createdBy: { userId: number; nickname: string };
   agreementSummary: RuleAgreementSummaryResponse;
+  /** 백엔드가 목록 응답에 아직 내려주지 않을 수 있어 optional로 둔다 (내려주면 자동으로 활용됨) */
+  myAgreementStatus?: RuleAgreementApiStatus | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface RuleDetailResponse extends RuleListItemResponse {
   categoryName: string | null;
-  myAgreementStatus: RuleAgreementApiStatus | null;
   agreements: Array<{
     userId: number;
     nickname: string;

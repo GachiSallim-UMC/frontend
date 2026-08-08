@@ -12,13 +12,14 @@ import {
 } from '@/features/chore';
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
-import { useGroupStore } from '@/shared/store';
+import { useGroupStore, useErrorStore } from '@/shared/store';
 
 export const ChoreCreatePage = () => {
   const navigate = useNavigate();
   const createMutation = useCreateChore();
   const { formData, errors, updateField, getCreateDto } = useChoreForm();
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
+  const showError = useErrorStore(state => state.showError);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
   const { data: members } = useGroupMembers(selectedGroupId);
 
@@ -49,7 +50,7 @@ export const ChoreCreatePage = () => {
 
   const handleSaveClick = () => {
     if (!groupId || !Number.isSafeInteger(groupId)) {
-      alert('선택된 그룹을 확인해 주세요.');
+      showError({ title: '안내', message: '선택된 그룹을 확인해 주세요.' });
       return;
     }
     const dto = getCreateDto(groupId);
@@ -81,7 +82,7 @@ export const ChoreCreatePage = () => {
   };
 
   return (
-    <div className="h-fit flex w-full max-w-[1114px] flex-col gap-[30px] p-[20px]">
+    <div className="h-fit flex w-full max-w-[1114px] flex-col pb-[16px] lg:pb-0 gap-4 lg:gap-[30px]">
       <ChoreBasicInfo
         title={formData.title}
         assigneeId={String(formData.assigneeId)}

@@ -17,7 +17,7 @@ export const EmailSentHeader = ({email}: EmailSentHeaderProps) => {
                 <h1 className="mb-1 text-2xl font-bold text-gray-900">이메일을 보냈어요</h1>
                 <p className="text-sm font-medium text-gray-600">
                     비밀번호 재설정 링크를 보냈어요.<br />
-                    메일함에서 링크를 룰러 비밀번호를 설정해 주세요.
+                    메일함에서 링크를 눌러 새 비밀번호를 설정해 주세요.
                 </p>
             </div>
             <div className="flex items-center justify-center gap-2 text-button">

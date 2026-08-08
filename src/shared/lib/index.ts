@@ -1,6 +1,7 @@
 export { cn } from './cn';
 export { useDropdown } from './useDropdown';
 export { formatRelativeTime } from './formatRelativeTime';
+export { renderTimelineText } from './renderTimelineText';
 export { toSelectOptions } from './toSelectOptions';
 export { josa } from './korean';
 export { formatDate, useDateFormat } from './formatDate';
