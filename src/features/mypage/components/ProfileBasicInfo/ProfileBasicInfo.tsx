@@ -5,7 +5,7 @@ import { Button, FormInput } from '@/shared/components';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
 import { AVATAR_ID_TO_URL, AVATAR_ID_BY_URL } from '@/features/mypage/constants/avatars';
 import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from '@/shared/lib/inputValidation';
-import { useErrorStore } from '@/shared/store';
+import { useAlertStore } from '@/shared/store';
 import CameraIcon from "@/assets/icons/mypage/camera.svg?react"
 import UploadIcon from "@/assets/icons/mypage/upload.svg?react"
 import TrashIcon from "@/assets/icons/mypage/trash.svg?react"
@@ -13,7 +13,7 @@ import ProfileIcon from "@/assets/icons/mypage/profile.svg?react"
 import { AvatarSelectionModal } from '@/features/mypage/components/AvatarSelectionModal/AvatarSelectionModal';
 
 export const ProfileBasicInfo = () => {
-    const showError = useErrorStore((state) => state.showError);
+    const showAlert = useAlertStore((state) => state.showAlert);
     const queryClient = useQueryClient();
 
     const [name, setName] = useState<string>('홍길동');
@@ -91,7 +91,7 @@ export const ProfileBasicInfo = () => {
 
         const validTypes = ['image/jpeg', 'image/png'];
         if (!validTypes.includes(file.type)) {
-            showError({
+            showAlert({
                 title: '지원하지 않는 파일 형식',
                 message: 'JPG 또는 PNG 형식의 이미지만 업로드할 수 있습니다.'
             });
@@ -101,7 +101,7 @@ export const ProfileBasicInfo = () => {
 
         const MAX_SIZE = 10 * 1024 * 1024; 
         if (file.size > MAX_SIZE) {
-            showError({
+            showAlert({
                 title: '파일 용량 초과',
                 message: '이미지 크기는 5MB를 초과할 수 없습니다.'
             });
@@ -122,7 +122,7 @@ export const ProfileBasicInfo = () => {
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
             console.error('S3 Upload Error:', e.response?.data?.message || e.message);
-            showError({
+            showAlert({
                 title: '업로드 실패',
                 message: '이미지 업로드 중 오류가 발생했습니다. 다시 시도해주세요.'
             });
@@ -152,7 +152,7 @@ export const ProfileBasicInfo = () => {
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
             console.error('Avatar Save Error:', e.response?.data?.message || e.message);
-            showError({
+            showAlert({
                 title: '저장 실패',
                 message: '아바타 변경 중 오류가 발생했습니다. 다시 시도해주세요.'
             });
@@ -171,7 +171,7 @@ export const ProfileBasicInfo = () => {
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
             console.error('Profile Image Delete Error:', e.response?.data?.message || e.message);
-            showError({
+            showAlert({
                 title: '삭제 실패',
                 message: '프로필 이미지 삭제 중 오류가 발생했습니다. 다시 시도해주세요.'
             });
@@ -204,11 +204,15 @@ export const ProfileBasicInfo = () => {
             const result = await myPageApi.updateProfile(payload);
             console.log('저장 완료 데이터:', result);
             invalidateMe();
-            alert('프로필이 성공적으로 저장되었습니다.');
+            showAlert({
+                title: '완료',
+                message: '프로필이 성공적으로 저장되었습니다.',
+                tone: 'success',
+            });
         } catch (error: unknown) {
             const e = error as Error & { response?: { data?: { message?: string } } };
             console.error('Profile Save Error:', e.response?.data?.message || e.message);
-            showError({
+            showAlert({
                 title: '저장 실패',
                 message: '프로필 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
             });

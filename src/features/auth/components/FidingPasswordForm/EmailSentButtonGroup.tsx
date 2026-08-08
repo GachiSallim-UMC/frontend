@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/shared/components";
 import { authApi } from "@/features/auth/api/auth.api"
-import { useErrorStore } from "@/shared/store";
+import { useAlertStore } from "@/shared/store";
 import { ApiError } from "@/shared/api";
 
 interface EmailSentButtonGroupProps {
@@ -10,7 +10,7 @@ interface EmailSentButtonGroupProps {
 
 export const EmailSentButtonGroup = ({email}: EmailSentButtonGroupProps) => {
     const [isResending, setIsResending] = useState(false);
-    const showError = useErrorStore((state) => state.showError);
+    const showAlert = useAlertStore((state) => state.showAlert);
 
     const handleResendEmail = async () => {
         if (isResending) return;
@@ -18,7 +18,11 @@ export const EmailSentButtonGroup = ({email}: EmailSentButtonGroupProps) => {
 
         try {
             await authApi.forgotPassword({ email });
-            alert('메일을 다시 보냈습니다. 메일함을 확인해 주세요.');
+            showAlert({
+                title: '완료',
+                message: '메일을 다시 보냈습니다. 메일함을 확인해 주세요.',
+                tone: 'success',
+            });
         } catch (error: unknown) { 
             
             // 기본 에러 메시지 설정
@@ -33,7 +37,7 @@ export const EmailSentButtonGroup = ({email}: EmailSentButtonGroupProps) => {
                 errorMessage = e.response?.data?.message || e.message;
             }
 
-            showError({
+            showAlert({
                 title: '재전송 실패',
                 message: errorMessage,
             });

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { FormInput, Button } from '@/shared/components'
-import { useErrorStore } from '@/shared/store';
+import { useAlertStore } from '@/shared/store';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
 
 export const PasswordChangeForm = () => {
-    const showError = useErrorStore((state) => state.showError);
+    const showAlert = useAlertStore((state) => state.showAlert);
     
     const [currentPassword, setCurrentPassword] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
@@ -41,7 +41,11 @@ export const PasswordChangeForm = () => {
         try {
             await myPageApi.changePassword(currentPassword, newPassword);
 
-            alert('비밀번호가 성공적으로 변경되었습니다.');
+            showAlert({
+                title: '완료',
+                message: '비밀번호가 성공적으로 변경되었습니다.',
+                tone: 'success',
+            });
             
             // 입력창 초기화
             setCurrentPassword('');
@@ -51,7 +55,7 @@ export const PasswordChangeForm = () => {
         } catch (error) {
             console.error('비밀번호 변경 실패:', error);
             
-            showError({
+            showAlert({
                 title: '비밀번호 변경 실패',
                 message: '비밀번호 변경에 실패했습니다. 현재 비밀번호가 맞는지 확인해 주세요.'
             });

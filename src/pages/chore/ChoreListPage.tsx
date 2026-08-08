@@ -10,7 +10,7 @@ import {
   getChoreUIStatus,
 } from '@/features/chore';
 import type { Chore, ChoreFilter, RepeatType, ChoreApiStatus } from '@/features/chore';
-import { useGroupStore } from '@/shared/store';
+import { useAlertStore, useGroupStore } from '@/shared/store';
 import { useGroupMembers } from '@/features/member';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 
@@ -29,6 +29,7 @@ type ExtendedChoreFilter = Omit<ChoreFilter, 'status'> & {
 export const ChoreListPage = () => {
   const [filter, setFilter] = useState<ExtendedChoreFilter>({});
   const navigate = useNavigate();
+  const showAlert = useAlertStore(state => state.showAlert);
   const completeMutation = useCompleteChore();
   const incompleteMutation = useIncompleteChore();
   const { activeType, chatRoomOptions, openShare, closeShare, handleSelectChatRoom, isSharePending } =
@@ -92,7 +93,7 @@ export const ChoreListPage = () => {
       incompleteMutation.mutate(String(chore.id), {
         onError: error => {
           console.error('완료 취소 실패:', error);
-          alert('완료 취소에 실패했습니다.');
+          showAlert({ title: '오류', message: '완료 취소에 실패했습니다.' });
         },
       });
     } else {
@@ -100,7 +101,7 @@ export const ChoreListPage = () => {
       completeMutation.mutate(String(chore.id), {
         onError: error => {
           console.error('완료 처리 실패:', error);
-          alert('완료 처리에 실패했습니다.');
+          showAlert({ title: '오류', message: '완료 처리에 실패했습니다.' });
         },
       });
     }

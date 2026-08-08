@@ -12,10 +12,11 @@ import {
 } from '@/features/chore';
 import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
-import { useGroupStore } from '@/shared/store';
+import { useAlertStore, useGroupStore } from '@/shared/store';
 
 export const ChoreCreatePage = () => {
   const navigate = useNavigate();
+  const showAlert = useAlertStore(state => state.showAlert);
   const createMutation = useCreateChore();
   const { formData, errors, updateField, getCreateDto } = useChoreForm();
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
@@ -49,7 +50,7 @@ export const ChoreCreatePage = () => {
 
   const handleSaveClick = () => {
     if (!groupId || !Number.isSafeInteger(groupId)) {
-      alert('선택된 그룹을 확인해 주세요.');
+      showAlert({ title: '안내', message: '선택된 그룹을 확인해 주세요.' });
       return;
     }
     const dto = getCreateDto(groupId);
