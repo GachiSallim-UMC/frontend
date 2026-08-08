@@ -15,6 +15,7 @@ import {
   type RuleHistoryType,
 } from '@/features/rule';
 import RuleIcon from '@/assets/icons/sidebar/rules.svg?react';
+import { useGroupMembers } from '@/features/member';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import {
   Button,
@@ -26,7 +27,7 @@ import {
 } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
-import { useAuthStore } from '@/shared/store';
+import { useAuthStore, useGroupStore } from '@/shared/store';
 import HistoryRegisterIcon from '@/assets/icons/rule/history-register.svg?react';
 import HistoryEditIcon from '@/assets/icons/rule/history-edit.svg?react';
 import HistoryAgreeIcon from '@/assets/icons/rule/history-agree.svg?react';
@@ -91,6 +92,8 @@ export const RuleDetailPage = () => {
 const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const navigate = useNavigate();
   const currentUserId = useAuthStore(state => state.userId);
+  const selectedGroupId = useGroupStore(state => state.selectedGroupId);
+  const { data: groupMembers = [] } = useGroupMembers(selectedGroupId);
   const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
     useRuleForm(rule);
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
@@ -109,7 +112,11 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const canDeleteRule = Boolean(currentUserId && rule.registeredBy.id === currentUserId);
+  const isGroupAdmin = groupMembers.some(
+    member => member.userId === currentUserId && member.role === 'ADMIN',
+  );
+  const isRuleCreator = Boolean(currentUserId && rule.registeredBy.id === currentUserId);
+  const canDeleteRule = isRuleCreator || isGroupAdmin;
   const isPending = updateRule.isPending || updateAgreement.isPending || deleteRule.isPending;
   const mutationError = updateRule.error ?? updateAgreement.error;
 

@@ -47,6 +47,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
 
   const [members, setMembers] = useState<User[]>([]);
   const [membersLoading, setMembersLoading] = useState<boolean>(true);
+  const [isGroupAdmin, setIsGroupAdmin] = useState(false);
 
   const [savedExpense, setSavedExpense] = useState<Expense | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(!!id);
@@ -55,11 +56,12 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
   const deleteExpense = useDeleteExpense();
 
   const isEditMode = !!id || !!savedExpense;
-  const canDeleteExpense = Boolean(
+  const isExpenseCreator = Boolean(
     savedExpense?.createdById &&
       currentUserId &&
       savedExpense.createdById === String(currentUserId),
   );
+  const canDeleteExpense = Boolean(savedExpense && (isExpenseCreator || isGroupAdmin));
 
   const [receiptObjectKey, setReceiptObjectKey] = useState<string | undefined>(undefined);
   const [receiptViewUrl, setReceiptViewUrl] = useState<string | undefined>(undefined);
@@ -80,9 +82,18 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
           email: '',
           avatarUrl: m.user.profileImage ?? undefined,
         }));
-        if (isMounted) setMembers(mapped);
+        if (isMounted) {
+          setMembers(mapped);
+          setIsGroupAdmin(
+            rawMembers.some(
+              member =>
+                member.userId === String(currentUserId) && member.role === 'ADMIN',
+            ),
+          );
+        }
       } catch (err) {
         console.error('그룹 멤버 조회 실패:', err);
+        if (isMounted) setIsGroupAdmin(false);
       } finally {
         if (isMounted) setMembersLoading(false);
       }
@@ -93,7 +104,7 @@ export const ExpenseAddPage = ({ title: _title }: ExpenseDetailPageProps) => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [currentUserId]);
 
   useEffect(() => {
     let isMounted = true;
