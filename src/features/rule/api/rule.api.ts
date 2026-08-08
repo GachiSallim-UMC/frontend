@@ -25,11 +25,6 @@ const STATUS_FROM_API: Record<RuleApiStatus, RuleStatus> = {
   INACTIVE: 'inactive',
 };
 
-const STATUS_TO_API: Record<RuleStatus, RuleApiStatus> = {
-  active: 'ACTIVE',
-  inactive: 'INACTIVE',
-};
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
@@ -68,6 +63,9 @@ const isRuleListItem = (value: unknown): value is RuleListItemResponse =>
   isRuleApiStatus(value.status) &&
   isRuleUserResponse(value.createdBy) &&
   isAgreementSummary(value.agreementSummary) &&
+  (value.myAgreementStatus === undefined ||
+    value.myAgreementStatus === null ||
+    isAgreementStatus(value.myAgreementStatus)) &&
   typeof value.createdAt === 'string' &&
   typeof value.updatedAt === 'string';
 
@@ -77,7 +75,6 @@ const isRuleDetail = (value: unknown): value is RuleDetailResponse => {
 
   return (
     isNullableString(detail.categoryName) &&
-    (detail.myAgreementStatus === null || isAgreementStatus(detail.myAgreementStatus)) &&
     Array.isArray(detail.agreements) &&
     detail.agreements.every(
       agreement =>
@@ -144,6 +141,7 @@ const toRule = (response: RuleListItemResponse | RuleDetailResponse): Rule => {
 
   return {
     id: String(response.ruleId),
+    groupId: String(response.groupId),
     category:
       (response.categoryId === null ? undefined : RULE_CATEGORY_BY_ID.get(response.categoryId)) ??
       'etc',
@@ -159,7 +157,7 @@ const toRule = (response: RuleListItemResponse | RuleDetailResponse): Rule => {
       agreedMembers,
     },
     agreements,
-    myAgreementStatus: detail?.myAgreementStatus,
+    myAgreementStatus: response.myAgreementStatus,
     histories: detail?.histories.map(history => ({
       id: String(history.logId),
       action: history.action,
@@ -214,7 +212,6 @@ export const ruleApi = {
       categoryId: RULE_CATEGORY_ID[dto.category],
       title: dto.title,
       description: dto.content,
-      status: STATUS_TO_API[dto.status],
     });
   },
 

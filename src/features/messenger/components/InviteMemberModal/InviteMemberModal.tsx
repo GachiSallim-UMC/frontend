@@ -29,7 +29,7 @@ export const InviteMemberModal = ({ isOpen, onClose, candidateMembers, onInvite 
           초대할 수 있는 멤버가 없습니다.
         </p>
       ) : (
-        <div className="flex max-h-[360px] flex-col divide-y divide-gray-100 overflow-y-auto">
+        <div className="flex min-h-0 max-h-[360px] flex-1 flex-col divide-y divide-gray-100 overflow-y-auto">
           {candidateMembers.map(member => (
             <MemberInviteRow
               key={member.id}
@@ -45,7 +45,7 @@ export const InviteMemberModal = ({ isOpen, onClose, candidateMembers, onInvite 
         type="button"
         onClick={() => memberIds.length > 0 && onInvite(memberIds)}
         disabled={memberIds.length === 0}
-        className="mt-4 h-[58px] w-full rounded-lg bg-primary-600 text-[16px] font-bold leading-[normal] text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-4 h-[58px] w-full shrink-0 rounded-lg bg-primary-600 text-[16px] font-bold leading-[normal] text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         초대하기
       </button>

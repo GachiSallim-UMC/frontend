@@ -30,10 +30,20 @@ export const ChatBubble = ({
   onDeleteFailedMessage,
 }: ChatBubbleProps) => {
   return (
-    <div className={cn('flex w-full max-w-[50%] min-w-0 items-start gap-2.5', isMine && 'ml-auto flex-row-reverse')}>
-      <UserAvatar name={senderName} avatarUrl={senderAvatarUrl} size="lg" className="h-11 w-11 shrink-0" />
+    <div
+      className={cn(
+        'flex w-full max-w-[85%] min-w-0 items-start gap-2 lg:max-w-[50%] lg:gap-2.5',
+        isMine && 'ml-auto flex-row-reverse',
+      )}
+    >
+      <UserAvatar
+        name={senderName}
+        avatarUrl={senderAvatarUrl}
+        size="lg"
+        className="h-9 w-9 shrink-0 lg:h-11 lg:w-11"
+      />
       <div className={cn('flex min-w-0 flex-col gap-2', isMine ? 'items-end' : 'items-start')}>
-        <span className="text-[16px] font-bold leading-[normal] text-gray-900">{senderName}</span>
+        <span className="text-[14px] font-bold leading-[normal] text-gray-900 lg:text-[16px]">{senderName}</span>
         {items.map((item, index) => {
           const { shareCard } = item;
           const isFailed = item.status === 'failed';
@@ -57,7 +67,7 @@ export const ChatBubble = ({
                     )}
                     <div
                       className={cn(
-                        'min-h-12 max-w-[420px] min-w-0 whitespace-pre-wrap break-words rounded-[10px] border border-gray-100 bg-white px-4 py-3 text-[16px] font-normal leading-[normal] text-gray-900',
+                        'min-h-12 max-w-[420px] min-w-0 whitespace-pre-wrap break-words rounded-[10px] border border-gray-100 bg-white px-4 py-3 text-[14px] font-normal leading-[normal] text-gray-900 lg:text-[16px]',
                         isMine && 'text-right',
                       )}
                     >
@@ -66,7 +76,7 @@ export const ChatBubble = ({
                   </div>
                 )}
                 {showTimestamp && (
-                  <span className="shrink-0 pb-1 text-[14px] font-normal leading-[normal] text-gray-500">
+                  <span className="shrink-0 pb-1 text-[12px] font-normal leading-[normal] text-gray-500 lg:text-[14px]">
                     {item.timestamp}
                   </span>
                 )}

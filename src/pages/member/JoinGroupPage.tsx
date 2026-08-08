@@ -7,13 +7,14 @@ import {
   JoinGroupAction,
   useJoinGroup,
 } from '@/features/member';
-import { useGroupStore } from '@/shared/store';
-import { GroupPageHeader } from './GroupPageHeader';
+import { useErrorStore, useGroupStore } from '@/shared/store';
+import { GroupPageShell } from './GroupPageShell';
 import { memberApi } from '@/features/member/api/member.api';
 
 export const JoinGroupPage = () => {
   const navigate = useNavigate();
   const setSelectedGroupId = useGroupStore(s => s.setSelectedGroupId);
+  const showError = useErrorStore(s => s.showError);
   const joinGroupMutation = useJoinGroup();
 
   const [inviteCode, setInviteCode] = useState<string>('');
@@ -81,7 +82,13 @@ export const JoinGroupPage = () => {
           navigate('/dashboard');
         },
         onError: () => {
-          setInviteCodeError('가입에 실패했거나 이미 가입된 그룹입니다.');
+          showError({
+            title: '그룹 참여 실패',
+            message: '가입에 실패했거나 이미 가입된 그룹입니다.',
+          });
+          setInviteCode('');
+          setShowPreview(false);
+          setFoundGroup(null);
         },
       },
     );
@@ -93,35 +100,40 @@ export const JoinGroupPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-primary-100">
-      <div className="flex min-h-[696px] w-full max-w-2xl flex-col rounded-3xl bg-white shadow-sm">
-        <GroupPageHeader />
-
-        <div className="flex-1 pt-5 pb-18 px-10">
-          <div className="mb-5">
-            <h1 className="mb-1 text-2xl font-bold text-gray-900">그룹 참여</h1>
-            <p className="text-sm font-medium text-gray-600">
-              초대 코드를 입력하면 그룹에 참여할 수 있습니다.
-            </p>
-          </div>
-
-          <JoinGroupInput
-            inviteCode={inviteCode}
-            onChange={handleCodeChange}
-            onConfirm={handleConfirmCode}
-            error={inviteCodeError}
-            disabled={showPreview || isChecking}
+    <GroupPageShell
+      title="그룹 참여"
+      footer={
+        showPreview && foundGroup ? (
+          <JoinGroupAction
+            onJoin={handleJoinGroup}
+            onCancel={handleCancel}
+            isSubmitting={joinGroupMutation.isPending}
           />
-
-          {showPreview && foundGroup && (
-            <div className="mt-4">
-              <GroupPreviewCard group={foundGroup} />
-
-              <JoinGroupAction onJoin={handleJoinGroup} onCancel={handleCancel} />
-            </div>
-          )}
-        </div>
+        ) : undefined
+      }
+    >
+      <div className="mb-5">
+        <h1 className="mb-0.5 text-base font-bold tracking-[0.04em] text-gray-900 lg:mb-1 lg:text-2xl lg:tracking-normal">
+          그룹 참여
+        </h1>
+        <p className="text-mobile-label font-medium text-gray-600 lg:text-sm">
+          초대 코드를 입력하면 그룹에 참여할 수 있습니다.
+        </p>
       </div>
-    </div>
+
+      <JoinGroupInput
+        inviteCode={inviteCode}
+        onChange={handleCodeChange}
+        onConfirm={handleConfirmCode}
+        error={inviteCodeError}
+        disabled={showPreview || isChecking}
+      />
+
+      {showPreview && foundGroup && (
+        <div className="mt-5">
+          <GroupPreviewCard group={foundGroup} />
+        </div>
+      )}
+    </GroupPageShell>
   );
 };
