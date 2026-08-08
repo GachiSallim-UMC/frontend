@@ -6,6 +6,7 @@ export { GroupActionBox } from './components/GroupSelect/GroupActionBox';
 export { GroupList } from './components/GroupSelect/GroupList';
 export { GroupCard } from './components/GroupSelect/GroupCard';
 export { GroupSelectHeader } from './components/GroupSelect/GroupSelectHeader';
+export { GroupSwitchDropdown } from './components/GroupSelect/GroupSwitchDropdown';
 export { GroupNavigationBar } from './components/GroupSelect/GroupNavigationBar';
 export { GroupEmptyState } from './components/GroupSelect/GroupEmptyState';
 export { GroupOrDivider } from './components/GroupSelect/GroupOrDivider';
