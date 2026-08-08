@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GroupPageHeader } from './GroupPageHeader';
-import { useQueryClient } from '@tanstack/react-query';
+import { GroupPageShell } from './GroupPageShell';
 import {
   type AddGroupDto,
   AddGroupActions,
@@ -15,7 +14,6 @@ export const AddGroupPage = () => {
   const navigate = useNavigate();
   const createGroupMutation = useCreateGroup();
   const setSelectedGroupId = useGroupStore(s => s.setSelectedGroupId);
-  const queryClient = useQueryClient();
 
   const [isCreated, setIsCreated] = useState<boolean>(false);
   const [inviteCode, setInviteCode] = useState<string>('');
@@ -71,8 +69,6 @@ export const AddGroupPage = () => {
           setSelectedGroupId(newGroupId);
         }
 
-        queryClient.invalidateQueries({ queryKey: ['my-groups'] });
-
         if (newInviteCode) {
           setInviteCode(newInviteCode);
         } else {
@@ -110,39 +106,45 @@ export const AddGroupPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-primary-100">
-      <div className="flex min-h-[696px] w-full max-w-2xl flex-col rounded-3xl bg-white shadow-sm">
-        <GroupPageHeader />
-        <div className="px-10 py-7">
-          <h2 className="mb-5 text-2xl font-bold text-gray-900">새 그룹 만들기</h2>
+    <GroupPageShell
+      title="새 그룹 만들기"
+      footer={
+        <AddGroupActions
+          isCreated={isCreated}
+          onCreate={handleCreateGroup}
+          onEnter={handleEnterDashboard}
+          onCancel={handleCancel}
+          isSubmitting={createGroupMutation.isPending}
+        />
+      }
+    >
+      <h2 className="mb-5 text-base font-bold tracking-[0.04em] text-gray-900 lg:text-2xl lg:tracking-normal">
+        기본 정보
+      </h2>
 
-          <AddGroupInput
-            formData={formData}
-            onChange={handleFormChange}
-            errors={errors}
-            disabled={isCreated || createGroupMutation.isPending}
-          />
+      <AddGroupInput
+        formData={formData}
+        onChange={handleFormChange}
+        errors={errors}
+        disabled={isCreated || createGroupMutation.isPending}
+      />
 
-          <InvitationCodeBox
-            isCreated={isCreated}
-            inviteCode={inviteCode}
-            onCopyCode={handleCopyCode}
-          />
-          {copyMessage && (
-            <div className="mb-3 text-center text-sm text-primary-600">{copyMessage}</div>
-          )}
-          {submitError && (
-            <div className="mb-3 text-center text-sm text-red-700">{submitError}</div>
-          )}
-
-          <AddGroupActions
-            isCreated={isCreated}
-            onCreate={handleCreateGroup}
-            onEnter={handleEnterDashboard}
-            onCancel={handleCancel}
-          />
-        </div>
+      <div className="mt-5">
+        <InvitationCodeBox
+          isCreated={isCreated}
+          inviteCode={inviteCode}
+          onCopyCode={handleCopyCode}
+        />
       </div>
-    </div>
+
+      {copyMessage && (
+        <p className="mt-3 text-center text-mobile-label text-primary-600 lg:text-sm">
+          {copyMessage}
+        </p>
+      )}
+      {submitError && (
+        <p className="mt-3 text-center text-mobile-label text-red-700 lg:text-sm">{submitError}</p>
+      )}
+    </GroupPageShell>
   );
 };

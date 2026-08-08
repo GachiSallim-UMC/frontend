@@ -6,6 +6,10 @@ export { GroupActionBox } from './components/GroupSelect/GroupActionBox';
 export { GroupList } from './components/GroupSelect/GroupList';
 export { GroupCard } from './components/GroupSelect/GroupCard';
 export { GroupSelectHeader } from './components/GroupSelect/GroupSelectHeader';
+export { GroupNavigationBar } from './components/GroupSelect/GroupNavigationBar';
+export { GroupEmptyState } from './components/GroupSelect/GroupEmptyState';
+export { GroupOrDivider } from './components/GroupSelect/GroupOrDivider';
+export { ResidenceTypeIcon } from './components/GroupSelect/ResidenceTypeIcon';
 
 export { AddGroupActions } from './components/AddGroup/AddGroupActions';
 export { AddGroupInput } from './components/AddGroup/AddGroupInput';
@@ -57,4 +61,4 @@ export type {
   InviteInfoResponse,
 } from './types/member.types';
 
-export { RESIDENCE_OPTIONS } from './constants/member.constants';
+export { RESIDENCE_OPTIONS, getResidenceLabel } from './constants/member.constants';
