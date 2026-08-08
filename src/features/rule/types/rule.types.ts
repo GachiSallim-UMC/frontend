@@ -66,9 +66,7 @@ export interface CreateRuleDto {
   content: string;
 }
 
-export interface UpdateRuleDto extends CreateRuleDto {
-  status: RuleStatus;
-}
+export type UpdateRuleDto = CreateRuleDto;
 
 export interface UpdateRuleAgreementDto {
   status: RuleAgreementApiStatus;

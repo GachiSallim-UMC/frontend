@@ -1,31 +1,23 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  RULE_CATEGORY_OPTIONS,
-  RULE_STATUS_OPTIONS,
-  useCreateRule,
-  useRuleForm,
-  useUpdateRule,
-} from '@/features/rule';
+import { RULE_CATEGORY_OPTIONS, useCreateRule, useRuleForm } from '@/features/rule';
 import RuleIcon from '@/assets/icons/sidebar/rules.svg?react';
 import { Button, ConfirmModal, FormActions } from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 
-type FormErrors = Partial<Record<'title' | 'category' | 'content' | 'status', string>>;
+type FormErrors = Partial<Record<'title' | 'category' | 'content', string>>;
 
 export const RuleFormPage = () => {
   const navigate = useNavigate();
-  const { title, setTitle, category, setCategory, content, setContent, status, setStatus } =
-    useRuleForm();
+  const { title, setTitle, category, setCategory, content, setContent } = useRuleForm();
   const createRule = useCreateRule();
-  const updateRule = useUpdateRule();
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const mutationError = createRule.error ?? updateRule.error;
+  const mutationError = createRule.error;
 
   const handleSubmitClick = () => {
-    if (createRule.isPending || updateRule.isPending) return;
+    if (createRule.isPending) return;
 
     const nextErrors: FormErrors = {};
     const trimmedTitle = title.trim();
@@ -36,34 +28,22 @@ export const RuleFormPage = () => {
     }
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!content.trim()) nextErrors.content = '상세 설명을 입력해 주세요.';
-    if (!status) nextErrors.status = '적용 상태를 선택해 주세요.';
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || !category || !status) return;
+    if (Object.keys(nextErrors).length > 0 || !category) return;
 
     setIsSaveModalOpen(true);
   };
 
   const handleConfirmSubmit = async () => {
     const trimmedTitle = title.trim();
-    if (!category || !status) return;
+    if (!category) return;
 
     try {
-      const created = await createRule.mutateAsync({
+      await createRule.mutateAsync({
         title: trimmedTitle,
         category,
         content: content.trim(),
       });
-      if (status !== 'active') {
-        await updateRule.mutateAsync({
-          id: String(created.ruleId),
-          dto: {
-            title: trimmedTitle,
-            category,
-            content: content.trim(),
-            status,
-          },
-        });
-      }
       setIsSaveModalOpen(false);
       navigate('/rules');
     } catch {
@@ -130,20 +110,6 @@ export const RuleFormPage = () => {
               labelClassName="leading-[17px] text-gray-800"
               className="block h-[88px] px-4 py-3 text-mobile-label lg:h-[100px] lg:pb-9 lg:pt-4 lg:text-button"
             />
-            <SelectDropdown
-              label="적용 상태"
-              required
-              value={status}
-              onChange={value => {
-                setStatus(value);
-                setErrors(previous => ({ ...previous, status: undefined }));
-              }}
-              options={RULE_STATUS_OPTIONS}
-              error={errors.status}
-              containerClassName="order-3 gap-2 lg:order-4 lg:gap-1"
-              labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
-            />
           </div>
         </Panel>
 
@@ -167,7 +133,7 @@ export const RuleFormPage = () => {
             type="button"
             className="h-11 w-full text-mobile-label font-bold"
             onClick={handleSubmitClick}
-            disabled={createRule.isPending || updateRule.isPending}
+            disabled={createRule.isPending}
           >
             저장
           </Button>
@@ -182,7 +148,7 @@ export const RuleFormPage = () => {
         title="생활 규칙을 등록할까요?"
         highlight={title.trim()}
         description="내용으로 생활 규칙을 등록합니다."
-        isPending={createRule.isPending || updateRule.isPending}
+        isPending={createRule.isPending}
         errorMessage={mutationError instanceof Error ? mutationError.message : undefined}
       />
     </div>

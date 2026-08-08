@@ -25,11 +25,6 @@ const STATUS_FROM_API: Record<RuleApiStatus, RuleStatus> = {
   INACTIVE: 'inactive',
 };
 
-const STATUS_TO_API: Record<RuleStatus, RuleApiStatus> = {
-  active: 'ACTIVE',
-  inactive: 'INACTIVE',
-};
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
@@ -214,7 +209,6 @@ export const ruleApi = {
       categoryId: RULE_CATEGORY_ID[dto.category],
       title: dto.title,
       description: dto.content,
-      status: STATUS_TO_API[dto.status],
     });
   },
 
