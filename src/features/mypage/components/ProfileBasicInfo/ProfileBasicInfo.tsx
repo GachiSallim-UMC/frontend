@@ -99,7 +99,7 @@ export const ProfileBasicInfo = () => {
             return;
         }
 
-        const MAX_SIZE = 10 * 1024 * 1024; 
+        const MAX_SIZE = 5 * 1024 * 1024;
         if (file.size > MAX_SIZE) {
             showAlert({
                 title: '파일 용량 초과',
