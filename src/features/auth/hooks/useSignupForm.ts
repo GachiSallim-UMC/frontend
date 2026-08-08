@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { authApi } from "@/features/auth/api/auth.api"
 import { ApiError } from "@/shared/api";
 import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from "@/shared/lib/inputValidation";
-import { useErrorStore, useSuccessStore } from "@/shared/store";
+import { useErrorStore } from "@/shared/store";
 import type { SignupFormData, SignupFormErrors } from "@/features/auth/types/auth.type";
 
 interface TermsNavigationState {
@@ -21,7 +21,6 @@ export const useSignupForm = () => {
     const [isVerified, setIsVerified] = useState(false);
 
     const showError = useErrorStore((state) => state.showError);
-    const showSuccess = useSuccessStore((state) => state.showSuccess);
 
     const [formData, setFormData] = useState<SignupFormData>({
         name: '',
@@ -128,7 +127,7 @@ export const useSignupForm = () => {
 
             setIsCodeError(false);
             setIsVerified(true); // 인증 성공 상태로 변경
-            showSuccess({ title: '인증 완료', message: '인증이 완료되었습니다.' });
+            alert('인증이 완료되었습니다.');
 
         } catch (error) {
             // 실패 시 UI 테두리를 빨갛게 만들기 위해 true로 변경
@@ -152,7 +151,7 @@ export const useSignupForm = () => {
         }
 
         // 인증이 완료된 상태에서만 최종 완료 알림 및 이동
-        showSuccess({ title: '회원가입 완료', message: '회원가입이 완료되었습니다.' });
+        alert('회원가입이 완료되었습니다.');
         navigate('/login');
     }
 

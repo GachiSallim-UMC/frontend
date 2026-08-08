@@ -13,4 +13,3 @@ export * from './SummaryCard';
 export * from './TimelineItem';
 export * from './UserAvatar';
 export * from './Switch'
-export * from './SuccessModal';

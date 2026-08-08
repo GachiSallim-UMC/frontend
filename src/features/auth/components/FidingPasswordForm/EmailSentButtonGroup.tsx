@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/shared/components";
 import { authApi } from "@/features/auth/api/auth.api"
-import { useErrorStore, useSuccessStore } from "@/shared/store";
+import { useErrorStore } from "@/shared/store";
 import { ApiError } from "@/shared/api";
 
 interface EmailSentButtonGroupProps {
@@ -11,7 +11,6 @@ interface EmailSentButtonGroupProps {
 export const EmailSentButtonGroup = ({email}: EmailSentButtonGroupProps) => {
     const [isResending, setIsResending] = useState(false);
     const showError = useErrorStore((state) => state.showError);
-    const showSuccess = useSuccessStore((state) => state.showSuccess);
 
     const handleResendEmail = async () => {
         if (isResending) return;
@@ -19,7 +18,7 @@ export const EmailSentButtonGroup = ({email}: EmailSentButtonGroupProps) => {
 
         try {
             await authApi.forgotPassword({ email });
-            showSuccess({ title: '전송 완료', message: '메일을 다시 보냈습니다. 메일함을 확인해 주세요.' });
+            alert('메일을 다시 보냈습니다. 메일함을 확인해 주세요.');
         } catch (error: unknown) { 
             
             // 기본 에러 메시지 설정
