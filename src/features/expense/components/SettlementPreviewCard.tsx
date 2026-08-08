@@ -115,7 +115,7 @@ export const SettlementPreviewCard = ({
 
   return (
     <>
-      <div>
+      <div className="w-full sm:bg-white p-3 sm:rounded-[18px] sm:border sm:border-gray-100 sm:p-5 lg:p-[32px]">
         <h2 className="mb-4 text-subtitle font-bold text-gray-800">
           정산 상세 미리보기
         </h2>
@@ -191,11 +191,12 @@ export const SettlementPreviewCard = ({
             className="w-full sm:flex-1"
           />
 
+          {/* 정산하기: 웹(데스크톱)에서만 노출, 모바일에서는 숨김 */}
           <CustomButton
             label="정산하기"
             variant="settlement"
             onClick={() => setIsSettlementConfirmOpen(true)}
-            className="h-[50px] w-full rounded-[8px] sm:flex-1"
+            className="hidden h-[50px] rounded-[8px] sm:flex sm:flex-1"
           />
         </div>
       </div>

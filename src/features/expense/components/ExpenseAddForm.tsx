@@ -28,7 +28,7 @@ const labelClass = 'font-sans text-caption font-bold text-gray-800';
 // 모바일에서는 두 카드가 배경 위에 완전히 이어지도록 border/rounded/gap을 없애고,
 // 데스크톱(sm:)에서만 기존처럼 독립된 카드 스타일을 적용한다.
 const cardClass =
-  'w-full bg-white p-3 sm:p-5 sm:rounded-[18px] flex flex-col gap-4 sm:gap-5 lg:p-[32px] sm:border sm:border-gray-100';
+  'w-full p-0 sm:bg-white sm:p-5 sm:rounded-[18px] flex flex-col gap-4 sm:gap-5 lg:p-[32px] ';
 
 const toLocalDateOnly = (date: Date) => {
   const year = date.getFullYear();
@@ -433,7 +433,7 @@ export const ExpenseAddForm = ({
         className={`flex w-full flex-col gap-0 sm:gap-6 ${isSettled ? 'opacity-60' : ''}`}
       >
         <div className={cardClass}>
-          <h2 className="font-sans text-body font-bold text-gray-800">
+          <h2 className="hidden font-sans text-body font-bold text-gray-800 sm:block">
             기본 정보
           </h2>
 
@@ -541,7 +541,7 @@ export const ExpenseAddForm = ({
         <div
           className={`${cardClass} border-t border-gray-100 sm:border-t sm:border-gray-100`}
         >
-          <h2 className="font-sans text-body font-bold text-gray-800">
+          <h2 className="hidden font-sans text-body font-bold text-gray-800 sm:block">
             정산 방식
           </h2>
 
