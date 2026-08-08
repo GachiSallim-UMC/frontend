@@ -1,6 +1,7 @@
 export { useAuthStore } from './useAuthStore';
 export { useGroupStore } from './useGroupStore';
-export { useErrorStore } from './useErrorStore';
+export { useAlertStore } from './useAlertStore';
+export type { AlertModalTone } from './useAlertStore';
 export { useStartDayStore } from './useStartDayStore';
 export { useDateFormatStore } from './useDateFormatStore';
 export { useAutoLoginStore } from './useAutoLoginStore';

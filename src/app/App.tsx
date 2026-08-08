@@ -2,8 +2,8 @@ import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query';
 import { router } from '@/app/router';
 import { ApiError, getApiErrorTitle, isUnexpectedApiError } from '@/shared/api';
-import { useErrorStore } from '@/shared/store';
-import { ErrorModal } from '@/shared/components/ui/ErrorModal';
+import { useAlertStore } from '@/shared/store';
+import { AlertModal } from '@/shared/components/ui/AlertModal';
 import { PushSubscriptionSync } from './PushSubscriptionSync';
 
 const shouldSkipGlobalError = (meta: unknown) =>
@@ -13,7 +13,7 @@ const handleGlobalError = (error: unknown, meta: unknown) => {
   if (shouldSkipGlobalError(meta)) return;
   if (!isUnexpectedApiError(error)) return;
 
-  useErrorStore.getState().showError({
+  useAlertStore.getState().showAlert({
     title: getApiErrorTitle(error.statusCode, error.code),
     message: error.message,
   });
@@ -43,7 +43,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <RouterProvider router={router} />
     <PushSubscriptionSync />
-    <ErrorModal />
+    <AlertModal />
   </QueryClientProvider>
 );
 
