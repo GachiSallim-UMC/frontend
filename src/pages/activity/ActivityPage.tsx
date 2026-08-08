@@ -36,7 +36,7 @@ export const ActivityPage = () => {
     <div className="flex w-full flex-1 min-h-0 bg-gray-50">
       <div className="flex h-full w-full flex-col pb-[28px]">
         <div className="flex w-full flex-1 min-h-0 flex-col py-4 lg:max-h-[720px] lg:overflow-hidden lg:rounded-[20px] lg:bg-white lg:py-[30px]">
-          <div className="flex flex-wrap shrink-0 items-center gap-3 px-4 lg:px-[30px]">
+          <div className="flex flex-wrap shrink-0 items-center gap-3 lg:px-[30px]">
             <div className="hidden lg:block">
               <LabelFilterDropdown
                 value={typeFilter}
@@ -60,7 +60,7 @@ export const ActivityPage = () => {
               mobileIcon={<Calendar className="size-4 shrink-0 text-gray-400" />}
             />
           </div>
-          <div className="mt-5 min-h-0 flex-1 overflow-y-auto px-4 lg:px-[30px]">
+          <div className="mt-5 min-h-0 flex-1 overflow-y-auto lg:px-[30px]">
             <ActivityList
               groups={groupedLogs}
               isLoading={isLoading}
