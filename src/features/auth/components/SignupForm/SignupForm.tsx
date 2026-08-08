@@ -22,6 +22,7 @@ interface SignupFormProps {
     onSubmit?: (e: FormEvent) => void;
     isCodeError: boolean;
     isVerified: boolean;
+    isResending?: boolean;
     onFinalSubmit: (e: FormEvent) => void;
     onResendCode?: () => void;
 }
@@ -38,6 +39,7 @@ export const SignupForm = ({
     onSubmit,
     isCodeError,
     isVerified,
+    isResending,
     onFinalSubmit,
     onResendCode,
 }: SignupFormProps) => {
@@ -367,10 +369,10 @@ export const SignupForm = ({
                             <button
                                 type="button"
                                 onClick={onResendCode}
-                                disabled={isVerified}
-                                className="text-mobile-label font-medium text-gray-600 underline disabled:cursor-not-allowed disabled:opacity-50"
+                                disabled={isVerified || isResending}
+                                className="text-mobile-label font-medium text-primary-500 underline disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                인증번호 다시 보내기
+                                {isResending ? '전송 중...' : '인증번호 다시 보내기'}
                             </button>
                         </div>
 
@@ -450,6 +452,18 @@ export const SignupForm = ({
                                     인증
                                 </Button>
                             </div>
+                        </div>
+
+                        {/* 인증번호 다시 보내기 */}
+                        <div className="mb-5 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={onResendCode}
+                                disabled={isVerified || isResending}
+                                className="text-sm font-medium text-primary-500 underline disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {isResending ? '전송 중...' : '인증번호 다시 보내기'}
+                            </button>
                         </div>
 
                         {/* 최종 회원가입 버튼 */}

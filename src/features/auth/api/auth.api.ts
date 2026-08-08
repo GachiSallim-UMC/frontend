@@ -7,6 +7,7 @@ import type {
   SocialFormDto,
   ForgotPasswordDto,
   SignupConfirmDto,
+  SignupResendDto,
   ResetPasswordDto } from '../types/auth.type';
 import type { 
     UpdateProfileDto,
@@ -67,6 +68,9 @@ export const authApi = {
   },
   signupConfirm: async (dto: SignupConfirmDto): Promise<void> => {
     await apiClient.post(`${BASE}/signup/confirm`, dto);
+  },
+  signupResend: async (dto: SignupResendDto): Promise<void> => {
+    await apiClient.post(`${BASE}/signup/resend`, dto);
   },
   socialSignup: async (dto: SocialFormDto, accessToken: string): Promise<MeResponsePayload> => {
     const { data } = await apiClient.post<MeResponsePayload>(`${BASE}/social/signup`, dto, {

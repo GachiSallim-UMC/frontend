@@ -33,6 +33,7 @@ export const useSignupForm = () => {
     const [agreedTerms, setAgreedTerms] = useState<string[]>([]);
 
     const [isCodeError, setIsCodeError] = useState(false);
+    const [isResending, setIsResending] = useState(false);
     const [errors, setErrors] = useState<SignupFormErrors>({});
 
     const handleFormDataChange = (nextData: SignupFormData) => {
@@ -144,17 +145,21 @@ export const useSignupForm = () => {
 
     // 인증번호 재전송
     const handleResendCode = async () => {
+        if (isResending) return;
+        setIsResending(true);
+
         try {
-            await authApi.signup({
-                email: formData.email,
-                password: formData.password,
-                name: formData.name,
-                nickname: formData.nickname,
-            });
+            await authApi.signupResend({ email: formData.email });
             setIsCodeError(false);
             alert('인증번호를 다시 보냈습니다.');
-        } catch {
-            showError({ title: '전송 실패', message: '인증번호 재전송에 실패했습니다. 다시 시도해주세요.' });
+        } catch (error) {
+            if (error instanceof ApiError) {
+                showError({ title: '전송 실패', message: error.message });
+            } else {
+                showError({ title: '전송 실패', message: '인증번호 재전송에 실패했습니다. 다시 시도해주세요.' });
+            }
+        } finally {
+            setIsResending(false);
         }
     };
 
@@ -198,6 +203,7 @@ export const useSignupForm = () => {
         handleSubmitInfo,
         isCodeError,
         isVerified,
+        isResending,
         handleFinalSubmit,
         handleResendCode,
     };

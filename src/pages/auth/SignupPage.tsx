@@ -16,6 +16,7 @@ export const SignupPage = () => {
         handleSubmitInfo,
         isCodeError,
         isVerified,
+        isResending,
         handleFinalSubmit,
         handleResendCode,
      } = useSignupForm();
@@ -61,6 +62,7 @@ export const SignupPage = () => {
                         onSubmit={handleSubmitInfo}
                         isCodeError={isCodeError}
                         isVerified={isVerified}
+                        isResending={isResending}
                         onFinalSubmit={handleFinalSubmit}
                         onResendCode={handleResendCode}
                     />
@@ -84,6 +86,7 @@ export const SignupPage = () => {
                         onSubmit={handleSubmitInfo}
                         isCodeError={isCodeError}
                         isVerified={isVerified}
+                        isResending={isResending}
                         onFinalSubmit={handleFinalSubmit}
                         onResendCode={handleResendCode}
                     />
