@@ -90,13 +90,14 @@ export interface RuleListItemResponse {
   status: RuleApiStatus;
   createdBy: { userId: number; nickname: string };
   agreementSummary: RuleAgreementSummaryResponse;
+  /** 백엔드가 목록 응답에 아직 내려주지 않을 수 있어 optional로 둔다 (내려주면 자동으로 활용됨) */
+  myAgreementStatus?: RuleAgreementApiStatus | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface RuleDetailResponse extends RuleListItemResponse {
   categoryName: string | null;
-  myAgreementStatus: RuleAgreementApiStatus | null;
   agreements: Array<{
     userId: number;
     nickname: string;

@@ -68,13 +68,16 @@ export const useShareCardActions = (
         await completeChore.mutateAsync(message.refId);
       } else if (type === 'rule') {
         const ruleId = message.refId;
-        // rules 목록 응답에는 myAgreementStatus가 없어 캐시로는 동의 여부를 판단할 수 없다.
-        // ref에만 의존해 중복 요청을 막고, 실패하면 재시도할 수 있도록 되돌린다.
-        if (agreedRuleIdsRef.current.has(ruleId)) return;
+        const rule = shareSourceData.rules.find(item => item.id === ruleId);
+        // rules 목록 캐시(새로고침 등으로 갱신된 경우)와 ref(같은 세션 내 연타)를 함께 확인한다.
+        const alreadyAgreed = agreedRuleIdsRef.current.has(ruleId) || rule?.myAgreementStatus === 'AGREED';
+        if (alreadyAgreed) return;
+
         agreedRuleIdsRef.current.add(ruleId);
         try {
           await updateRuleAgreement.mutateAsync({ id: ruleId, dto: { status: 'AGREED' } });
         } catch (error) {
+          // 실패한 요청은 다시 시도할 수 있도록 되돌린다.
           agreedRuleIdsRef.current.delete(ruleId);
           throw error;
         }
