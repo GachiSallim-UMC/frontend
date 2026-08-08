@@ -67,16 +67,16 @@ export const useShareCardActions = (
       if (type === 'chore') {
         await completeChore.mutateAsync(message.refId);
       } else if (type === 'rule') {
-        const rule = shareSourceData.rules.find(item => item.id === message.refId);
-        // rules 캐시가 AGREED가 아닌 다른 값으로 갱신되면, 다른 화면에서 상태가 바뀐 것이므로 ref도 함께 지운다.
-        if (rule && rule.myAgreementStatus !== 'AGREED') {
-          agreedRuleIdsRef.current.delete(message.refId);
-        }
-        const alreadyAgreed =
-          agreedRuleIdsRef.current.has(message.refId) || rule?.myAgreementStatus === 'AGREED';
-        if (!alreadyAgreed) {
-          await updateRuleAgreement.mutateAsync({ id: message.refId, dto: { status: 'AGREED' } });
-          agreedRuleIdsRef.current.add(message.refId);
+        const ruleId = message.refId;
+        // rules 목록 응답에는 myAgreementStatus가 없어 캐시로는 동의 여부를 판단할 수 없다.
+        // ref에만 의존해 중복 요청을 막고, 실패하면 재시도할 수 있도록 되돌린다.
+        if (agreedRuleIdsRef.current.has(ruleId)) return;
+        agreedRuleIdsRef.current.add(ruleId);
+        try {
+          await updateRuleAgreement.mutateAsync({ id: ruleId, dto: { status: 'AGREED' } });
+        } catch (error) {
+          agreedRuleIdsRef.current.delete(ruleId);
+          throw error;
         }
       } else if (type === 'expense') {
         const expense = shareSourceData.expenses.find(item => item.id === message.refId);
