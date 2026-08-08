@@ -25,6 +25,21 @@ export interface ErrorDetail {
   reason: string;
 }
 
+/** S3 presigned URL 방식 파일 업로드 요청/응답 (프로필·그룹 이미지 등 여러 도메인에서 공용으로 사용) */
+export interface UploadUrlRequestDto {
+  contentType: string;
+  fileSize: number;
+}
+
+export interface UploadUrlResponse {
+  uploadMethod: string;
+  uploadUrl: string;
+  fields: Record<string, string>;
+  objectKey: string;
+  profileImageUrl: string;
+  expiresAt: string;
+}
+
 export interface ApiSuccessResponse<T> {
   statusCode: number;
   data: T;

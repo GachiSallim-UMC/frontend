@@ -1,6 +1,11 @@
-import type { DateFormatValue, StartDayValue } from '@/shared/types/common';
+import type {
+  DateFormatValue,
+  StartDayValue,
+  UploadUrlRequestDto,
+  UploadUrlResponse,
+} from '@/shared/types/common';
 
-export type { StartDayValue, DateFormatValue };
+export type { StartDayValue, DateFormatValue, UploadUrlRequestDto, UploadUrlResponse };
 export type ThemeValue = 'light' | 'dark';
 export type LanguageValue = 'ko' | 'en';
 export type TimezoneValue = 'seoul';
@@ -19,20 +24,6 @@ export interface UpdateProfileDto {
   name: string;
   nickname: string;
   profileImage: string | null;
-}
-
-export interface UploadUrlRequestDto {
-  contentType: string;
-  fileSize: number;
-}
-
-export interface UploadUrlResponse {
-  uploadMethod: string;
-  uploadUrl: string;
-  fields: Record<string, string>;
-  objectKey: string;
-  profileImageUrl: string;
-  expiresAt: string;
 }
 
 export interface NotificationPreferencesDto {
