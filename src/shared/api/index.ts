@@ -10,6 +10,7 @@ export {
 } from './errorCodes';
 export type { BackendErrorCode, ClientErrorCode, KnownApiErrorCode } from './errorCodes';
 export { isApiResponse, unwrapApiResponse } from './response';
+export { profileImageApi } from './profileImage.api';
 export {
   requireSelectedGroupId,
   withSelectedGroupBody,

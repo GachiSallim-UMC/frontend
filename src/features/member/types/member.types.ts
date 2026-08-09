@@ -43,7 +43,8 @@ export interface GroupMemberRelationResponse {
 export type PermissionType =
   | 'allowChoreRegistration'
   | 'allowItemStatusChange'
-  | 'allowSettlementRegistration';
+  | 'allowSettlementRegistration'
+  | 'autoApproveNewMembers';
 
 export interface Group {
   id: string;

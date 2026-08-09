@@ -1,0 +1,44 @@
+import { useCallback, useState } from 'react';
+import type { Rule } from '../types/rule.types';
+import { useRuleForm } from './useRuleForm';
+import { validateRuleForm, type RuleFormErrors } from '../lib/ruleFormValidation';
+
+export const useRuleEditor = (rule?: Rule) => {
+  const { title, setTitle, category, setCategory, content, setContent } = useRuleForm(rule);
+  const [errors, setErrors] = useState<RuleFormErrors>({});
+
+  const clearError = useCallback((field: keyof RuleFormErrors) => {
+    setErrors(previous => ({ ...previous, [field]: undefined }));
+  }, []);
+
+  const validate = useCallback(() => {
+    const nextErrors = validateRuleForm({ title, category, content });
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }, [category, content, title]);
+
+  return {
+    title,
+    category,
+    content,
+    validate,
+    fieldProps: {
+      title,
+      category,
+      content,
+      errors,
+      onTitleChange: (value: string) => {
+        setTitle(value);
+        clearError('title');
+      },
+      onCategoryChange: (value: typeof category) => {
+        setCategory(value);
+        clearError('category');
+      },
+      onContentChange: (value: string) => {
+        setContent(value);
+        clearError('content');
+      },
+    },
+  };
+};

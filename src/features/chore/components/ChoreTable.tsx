@@ -1,6 +1,12 @@
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
-import { DataTable, StatusBadge, UserAvatar, type Column } from '@/shared/components/ui';
+import {
+  DataTable,
+  StatusBadge,
+  TableRowActions,
+  UserAvatar,
+  type Column,
+} from '@/shared/components/ui';
 import type { Chore } from '../types/chore.types';
 import { getChoreUIStatus } from '../hooks/useChoreStatus';
 
@@ -77,14 +83,11 @@ export const ChoreTable = ({
       header: '',
       align: 'right',
       render: chore => (
-        <span className="flex justify-end gap-0 text-gray-400">
-          <button onClick={() => onEdit?.(chore)} aria-label="수정">
-            <EditIcon className="h-[39px] w-[39px]" />
-          </button>
-          <button onClick={() => onShare?.(chore)} aria-label="공유">
-            <ShareIcon className="h-[39px] w-[39px]" />
-          </button>
-        </span>
+        <TableRowActions
+          onEdit={onEdit ? () => onEdit(chore) : undefined}
+          onShare={onShare ? () => onShare(chore) : undefined}
+          className="gap-0 text-gray-400"
+        />
       ),
     },
   ];

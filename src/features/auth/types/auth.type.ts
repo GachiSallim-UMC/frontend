@@ -1,19 +1,21 @@
+import type { AccountProfile } from '@/shared/types';
+
 export interface SignupFormData {
-    name: string;
-    nickname: string;
-    email: string;
-    verificationCode: string;
-    password: string;
-    passwordConfirm: string;
+  name: string;
+  nickname: string;
+  email: string;
+  verificationCode: string;
+  password: string;
+  passwordConfirm: string;
 }
 
 export const INITIAL_SIGNUP_FORM_DATA: SignupFormData = {
-    name: '',
-    nickname: '',
-    email: '',
-    verificationCode: '',
-    password: '',
-    passwordConfirm: '',
+  name: '',
+  nickname: '',
+  email: '',
+  verificationCode: '',
+  password: '',
+  passwordConfirm: '',
 };
 
 export interface LoginDto {
@@ -29,13 +31,7 @@ export interface LoginResponsePayload {
   tokenType: string;
 }
 
-export interface MeResponsePayload {
-  userId: string | number;
-  name: string;
-  nickname: string;
-  email: string;
-  profileImage?: string | null;
-}
+export type MeResponsePayload = AccountProfile;
 
 export interface SignupDto {
   email: string;
@@ -56,13 +52,13 @@ export interface SignupResendDto {
 export type SignupFormErrors = Partial<Record<keyof SignupFormData, string>>;
 
 export interface SocialFormDto {
-    name: string;
-    nickname: string;
+  name: string;
+  nickname: string;
 }
 
 export const INITIAL_SOCIAL_FORM_DATA: SocialFormDto = {
-    name: '',
-    nickname: ''
+  name: '',
+  nickname: '',
 };
 
 export type SocialProvider = 'Kakao' | 'Google';
@@ -78,6 +74,6 @@ export interface ResetPasswordDto {
 }
 
 export interface ResetPasswordFormData {
-    newPassword: string;
-    newPasswordConfirm: string;
+  newPassword: string;
+  newPasswordConfirm: string;
 }

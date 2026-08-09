@@ -1,13 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { Button, FormInput, SelectDropdown } from '@/shared/components';
 import { formatDate, useDateFormat } from '@/shared/lib';
-import { memberApi } from '@/features/member/api/member.api';
-import { useUpdateGroup } from '../../hooks/useGroupMutations';
-import { useGroupStore } from '@/shared/store';
-import { authApi } from '@/features/auth';
 import { RefreshCw } from 'lucide-react';
 import { MemberUpdateModal } from '../MemberUpdateModal';
+import { useGroupBasicInfoForm } from '../../hooks/useGroupBasicInfoForm';
 
 import CameraIcon from '@/assets/icons/member/camera.svg?react';
 import UploadIcon from '@/assets/icons/member/upload.svg?react';
@@ -20,183 +16,58 @@ import FamilyIcon from '@/assets/icons/member/ResidenceType/family.svg?react';
 import BoardingIcon from '@/assets/icons/member/ResidenceType/boarding.svg?react';
 import EtcIcon from '@/assets/icons/member/ResidenceType/etc.svg?react';
 
-interface MemberManagementProps {
+interface GroupBasicInfoProps {
   isAdmin?: boolean;
   onUnauthorized?: () => void;
 }
 
-export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManagementProps) => {
-  const selectedGroupId = useGroupStore(s => s.selectedGroupId);
-  const updateGroupMutation = useUpdateGroup();
+const MAX_MEMBER_OPTIONS = Array.from({ length: 11 }, (_, index) => {
+  const count = index + 2;
+  return { value: String(count), label: `${count}명` };
+});
+
+export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: GroupBasicInfoProps) => {
   const dateFormat = useDateFormat();
-  const queryClient = useQueryClient();
-
-  const [groupName, setGroupName] = useState<string>('');
-  const [maxMemberCount, setMaxMemberCount] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [groupImage, setGroupImage] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<
-    Partial<Record<'groupName' | 'maxMemberCount' | 'description', string>>
-  >({});
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [codeError, setCodeError] = useState<string | undefined>(undefined);
-
-  const { data: groupData, refetch } = useQuery({
-    queryKey: ['group', selectedGroupId],
-    queryFn: () => memberApi.getGroupDetail(selectedGroupId as string),
-    enabled: Boolean(selectedGroupId),
-  });
-
-  useEffect(() => {
-    if (selectedGroupId) {
-      refetch();
-    }
-  }, [selectedGroupId, refetch]);
-
-  useEffect(() => {
-    if (groupData) {
-      setGroupName(groupData.name || '');
-      setMaxMemberCount(String(groupData.maxMembers || ''));
-      setDescription(groupData.description || '');
-      setGroupImage(groupData.groupImage || null);
-    }
-  }, [groupData]);
-
-  const maxMemberOptions = [
-    { value: '2', label: '2명' },
-    { value: '3', label: '3명' },
-    { value: '4', label: '4명' },
-    { value: '5', label: '5명' },
-    { value: '6', label: '6명' },
-    { value: '7', label: '7명' },
-    { value: '8', label: '8명' },
-    { value: '9', label: '9명' },
-    { value: '10', label: '10명' },
-    { value: '11', label: '11명' },
-    { value: '12', label: '12명' },
-  ];
+  const {
+    groupData,
+    isGroupLoading,
+    isGroupError,
+    isGroupFetching,
+    refetchGroup,
+    groupName,
+    setGroupName,
+    maxMemberCount,
+    setMaxMemberCount,
+    description,
+    setDescription,
+    groupImage,
+    errors,
+    setErrors,
+    isUpdateModalOpen,
+    setIsUpdateModalOpen,
+    saveError,
+    setSaveError,
+    codeError,
+    handleFileChange,
+    clearGroupImage,
+    handleSave,
+    handleConfirmSave,
+    handleCopyCode,
+    handleRegenerateCode,
+    isRegeneratingCode,
+    isSaving,
+  } = useGroupBasicInfoForm({ isAdmin, onUnauthorized });
 
   const handleUploadClick = () => {
     setIsMenuOpen(false);
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setGroupImage(URL.createObjectURL(file));
-    }
-  };
-
   const handleImageDelete = () => {
     setIsMenuOpen(false);
-    setGroupImage(null);
-    setSelectedFile(null);
-  };
-
-  const handleSave = async () => {
-    if (!isAdmin) {
-      if (onUnauthorized) onUnauthorized();
-      return;
-    }
-
-    if (!selectedGroupId) return;
-
-    const nextErrors: typeof errors = {};
-    const trimmedGroupName = groupName.trim();
-    const parsedMaxMemberCount = Number(maxMemberCount);
-    if (!trimmedGroupName) nextErrors.groupName = '그룹 이름을 입력해 주세요.';
-    else if (trimmedGroupName.length > 40)
-      nextErrors.groupName = '그룹 이름은 40자 이하로 입력해 주세요.';
-    if (
-      !Number.isInteger(parsedMaxMemberCount) ||
-      parsedMaxMemberCount < 2 ||
-      parsedMaxMemberCount > 12
-    ) {
-      nextErrors.maxMemberCount = '최대 인원은 2명부터 12명까지 선택해 주세요.';
-    }
-    if (description.length > 255)
-      nextErrors.description = '그룹 소개는 255자 이하로 입력해 주세요.';
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) {
-      return;
-    }
-    setSaveError(null);
-    setIsUpdateModalOpen(true);
-  };
-
-  const handleConfirmSave = async () => {
-    if (!selectedGroupId) return;
-    setSaveError(null);
-    let finalGroupImageUrl = groupImage;
-
-    try {
-      if (selectedFile) {
-        setIsUploading(true);
-        const uploadData = await authApi.getUploadUrl({
-          contentType: selectedFile.type,
-          fileSize: selectedFile.size,
-        });
-        finalGroupImageUrl = await authApi.uploadToS3(uploadData, selectedFile);
-      }
-
-      updateGroupMutation.mutate(
-        {
-          groupId: selectedGroupId,
-          body: {
-            name: groupName.trim(),
-            description: description,
-            maxMembers: Number(maxMemberCount),
-            groupImage: finalGroupImageUrl,
-          },
-        },
-        {
-          onSuccess: () => {
-            setSelectedFile(null);
-            setIsUploading(false);
-            setIsUpdateModalOpen(false);
-          },
-          onError: () => {
-            setSaveError('그룹 정보 수정에 실패했습니다. 다시 시도해 주세요.');
-            setIsUploading(false);
-          },
-        },
-      );
-    } catch {
-      setSaveError('이미지 저장 중 오류가 발생했습니다.');
-      setIsUploading(false);
-    }
-  };
-
-  const handleCopyCode = () => {
-    if (!groupData?.inviteCode) return;
-    navigator.clipboard.writeText(groupData.inviteCode);
-  };
-
-  const regenerateCodeMutation = useMutation({
-    mutationFn: () => memberApi.regenerateInviteCode(selectedGroupId as string),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['group', selectedGroupId] });
-      setCodeError(undefined);
-    },
-    onError: () => {
-      setCodeError('초대 코드 재발급에 실패했습니다.');
-    },
-  });
-
-  const handleRegenerateCode = () => {
-    if (!isAdmin) {
-      if (onUnauthorized) onUnauthorized();
-      return;
-    }
-    setCodeError(undefined);
-    regenerateCodeMutation.mutate();
+    clearGroupImage();
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -234,6 +105,32 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
     }
   };
 
+  if (isGroupLoading) {
+    return (
+      <section className="flex min-h-48 w-full items-center justify-center rounded-2xl bg-white p-8">
+        <span className="text-sm text-gray-500">그룹 정보를 불러오는 중...</span>
+      </section>
+    );
+  }
+
+  if (isGroupError || !groupData) {
+    return (
+      <section className="flex min-h-48 w-full flex-col items-center justify-center rounded-2xl bg-white p-8 text-center">
+        <span className="text-sm text-red-700">그룹 정보를 불러오지 못했습니다.</span>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-3"
+          isLoading={isGroupFetching}
+          onClick={() => void refetchGroup()}
+        >
+          다시 시도
+        </Button>
+      </section>
+    );
+  }
+
   return (
     <section
       className="mx-auto flex w-full max-w-[390px] flex-col items-center bg-transparent
@@ -243,7 +140,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
       />
       {/* 좌측: 프로필 */}
@@ -262,35 +159,37 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
           )}
 
           {/* 카메라 버튼 및 드롭다운 메뉴 래퍼 */}
-          <div ref={menuRef} className="absolute bottom-0 right-0">
-            <button
-              aria-label="프로필 이미지 변경"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex h-[30px] w-[30px] lg:h-[40px] lg:w-[40px] items-center justify-center rounded-full border border-gray-100 bg-white shadow-md transition-colors hover:bg-gray-100"
-            >
-              <CameraIcon className="h-[18px] w-[18px] lg:h-[24px] lg:w-[24px] text-gray-700" />
-            </button>
+          {isAdmin && (
+            <div ref={menuRef} className="absolute bottom-0 right-0">
+              <button
+                aria-label="프로필 이미지 변경"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="flex h-[30px] w-[30px] lg:h-[40px] lg:w-[40px] items-center justify-center rounded-full border border-gray-100 bg-white shadow-md transition-colors hover:bg-gray-100"
+              >
+                <CameraIcon className="h-[18px] w-[18px] lg:h-[24px] lg:w-[24px] text-gray-700" />
+              </button>
 
-            {/* 팝업 드롭다운 창 -> 데스크탑 전용*/}
-            {isMenuOpen && (
-              <div className="absolute left-12 top-0 z-20 lg:flex hidden w-[180px] flex-col rounded-lg bg-white py-2 shadow-lg ring-1 ring-gray-900 ring-dropdown">
-                <button
-                  onClick={handleUploadClick}
-                  className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-100"
-                >
-                  <UploadIcon />
-                  사진 업로드
-                </button>
-                <button
-                  onClick={handleImageDelete}
-                  className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-red-700 transition-colors hover:bg-red-50"
-                >
-                  <TrashIcon />
-                  사진 삭제
-                </button>
-              </div>
-            )}
-          </div>
+              {/* 팝업 드롭다운 창 -> 데스크탑 전용*/}
+              {isMenuOpen && (
+                <div className="absolute left-12 top-0 z-20 lg:flex hidden w-[180px] flex-col rounded-lg bg-white py-2 shadow-lg ring-1 ring-gray-900 ring-dropdown">
+                  <button
+                    onClick={handleUploadClick}
+                    className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-100"
+                  >
+                    <UploadIcon />
+                    사진 업로드
+                  </button>
+                  <button
+                    onClick={handleImageDelete}
+                    className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-red-700 transition-colors hover:bg-red-50"
+                  >
+                    <TrashIcon />
+                    사진 삭제
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <span className="text-[16px] lg:text-[20px] font-bold text-gray-900">
           {groupData?.name || ''}
@@ -302,22 +201,25 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
           <span className="text-[12px] font-bold uppercase tracking-widest text-primary-700">
             {groupData?.inviteCode || ''}
           </span>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={handleRegenerateCode}
+              disabled={isRegeneratingCode}
+              aria-label="그룹 코드 재발급"
+              className="flex items-center justify-center text-primary-700 transition-colors hover:text-gray-900 disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`h-[12px] w-[12px] ${isRegeneratingCode ? 'animate-spin' : ''}`}
+              />
+            </button>
+          )}
           <button
             type="button"
-            onClick={handleRegenerateCode}
-            disabled={regenerateCodeMutation.isPending}
-            aria-label="그룹 코드 재발급"
-            className="flex items-center justify-center text-primary-700 transition-colors hover:text-gray-900 disabled:opacity-50"
-          >
-            <RefreshCw
-              className={`h-[12px] w-[12px] ${regenerateCodeMutation.isPending ? 'animate-spin' : ''}`}
-            />
-          </button>
-          <button
-            type="button"
-            onClick={handleCopyCode}
+            onClick={() => void handleCopyCode()}
+            disabled={!groupData.inviteCode}
             aria-label="그룹 코드 복사"
-            className="flex items-center justify-center text-primary-700 transition-colors hover:text-primary-600"
+            className="flex items-center justify-center text-primary-700 transition-colors hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <CopyIcon className="h-[12px] w-[12px]" />
           </button>
@@ -346,6 +248,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
               placeholder="그룹 이름을 입력해주세요"
               maxLength={40}
               error={errors.groupName}
+              disabled={!isAdmin}
               className="h-[44px] lg:h-[50px] text-[12px] lg:text-[16px]"
             />
           </div>
@@ -366,6 +269,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
                 placeholder="그룹을 소개하는 한 줄 평을 적어주세요"
                 maxLength={255}
                 error={errors.description}
+                disabled={!isAdmin}
                 className="h-[44px] lg:h-[50px] text-[12px] lg:text-[16px]"
               />
             </div>
@@ -374,7 +278,8 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
               onClick={handleSave}
               variant="primary"
               className="hidden lg:flex w-32 shrink-0 font-bold h-[50px]"
-              isLoading={updateGroupMutation.isPending || isUploading}
+              isLoading={isSaving}
+              disabled={!isAdmin}
             >
               저장
             </Button>
@@ -389,9 +294,10 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
                 setMaxMemberCount(value);
                 setErrors(previous => ({ ...previous, maxMemberCount: undefined }));
               }}
-              options={maxMemberOptions}
+              options={MAX_MEMBER_OPTIONS}
               placeholder="인원 선택"
               error={errors.maxMemberCount}
+              disabled={!isAdmin}
               className="h-[44px] lg:h-[50px] text-[12px] lg:text-[16px]"
             />
           </div>
@@ -400,7 +306,8 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
               onClick={handleSave}
               variant="primary"
               className="h-[44px] w-full font-bold text-[14px]"
-              isLoading={updateGroupMutation.isPending || isUploading}
+              isLoading={isSaving}
+              disabled={!isAdmin}
             >
               저장
             </Button>
@@ -422,22 +329,23 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
             />
             <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1">
               {/* 새로고침(재발급) 버튼 */}
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={handleRegenerateCode}
+                  disabled={isRegeneratingCode}
+                  aria-label="그룹 코드 재발급"
+                  className="flex h-8 w-8 items-center justify-center rounded-md text-primary-600 transition-colors hover:bg-gray-200 hover:text-gray-900 disabled:opacity-50"
+                >
+                  <RefreshCw className={`h-5 w-5 ${isRegeneratingCode ? 'animate-spin' : ''}`} />
+                </button>
+              )}
               <button
                 type="button"
-                onClick={handleRegenerateCode}
-                disabled={regenerateCodeMutation.isPending}
-                aria-label="그룹 코드 재발급"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-primary-600 transition-colors hover:bg-gray-200 hover:text-gray-900 disabled:opacity-50"
-              >
-                <RefreshCw
-                  className={`h-5 w-5 ${regenerateCodeMutation.isPending ? 'animate-spin' : ''}`}
-                />
-              </button>
-              <button
-                type="button"
-                onClick={handleCopyCode}
+                onClick={() => void handleCopyCode()}
+                disabled={!groupData.inviteCode}
                 aria-label="그룹 코드 복사"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <CopyIcon className="h-5 w-5" />
               </button>
@@ -452,12 +360,12 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: MemberManage
           setSaveError(null);
         }}
         onConfirm={handleConfirmSave}
-        isSaving={updateGroupMutation.isPending || isUploading}
+        isSaving={isSaving}
         errorMessage={saveError}
       />
       <div className="mt-5 w-full border-b border-gray-100 lg:hidden" />
 
-      {isMenuOpen && (
+      {isAdmin && isMenuOpen && (
         <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-gray-900/60 lg:hidden">
           <div className="absolute inset-0" onClick={() => setIsMenuOpen(false)} />
           <div

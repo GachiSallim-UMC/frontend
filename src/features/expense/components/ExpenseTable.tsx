@@ -1,6 +1,12 @@
 import EditIcon from '@/assets/icons/action/edit.svg?react';
 import ShareIcon from '@/assets/icons/action/share.svg?react';
-import { DataTable, UserAvatar, StatusBadge, type Column } from '@/shared/components/ui';
+import {
+  DataTable,
+  UserAvatar,
+  StatusBadge,
+  TableRowActions,
+  type Column,
+} from '@/shared/components/ui';
 import { useDateFormat } from '@/shared/lib';
 import type { Expense } from '@/features/expense';
 
@@ -99,15 +105,13 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
       key: 'actions',
       header: '',
       align: 'right',
-      render: (row) => (
-        <span className="flex justify-end gap-1 text-gray-500">
-          <button onClick={() => onEdit?.(row)} aria-label="수정">
-            <EditIcon className="h-[32px] w-[32px]" />
-          </button>
-          <button onClick={() => onShare?.(row)} aria-label="공유">
-            <ShareIcon className="h-[32px] w-[32px]" />
-          </button>
-        </span>
+      render: row => (
+        <TableRowActions
+          onEdit={onEdit ? () => onEdit(row) : undefined}
+          onShare={onShare ? () => onShare(row) : undefined}
+          className="gap-1"
+          iconClassName="h-[32px] w-[32px]"
+        />
       ),
     },
   ];

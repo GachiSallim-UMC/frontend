@@ -14,6 +14,7 @@ interface CheckboxGroupProps<T extends string> {
   direction?: 'row' | 'col';
   className?: string;
   size?: 'sm' | 'lg';
+  disabled?: boolean;
 }
 
 export const CheckboxGroup = <T extends string>({
@@ -24,6 +25,7 @@ export const CheckboxGroup = <T extends string>({
   direction = 'row',
   className,
   size = 'lg',
+  disabled = false,
 }: CheckboxGroupProps<T>) => {
   const toggle = (optValue: T) => {
     if (value.includes(optValue)) {
@@ -38,15 +40,23 @@ export const CheckboxGroup = <T extends string>({
       {label && <span className="text-sm font-medium text-gray-700">{label}</span>}
       <div className={cn('flex gap-3', direction === 'col' ? 'flex-col' : 'flex-row flex-wrap')}>
         {options.map(opt => (
-          <label key={opt.value} className="flex cursor-pointer items-center gap-2">
+          <label
+            key={opt.value}
+            className={cn(
+              'flex items-center gap-2',
+              disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+            )}
+          >
             <input
               type="checkbox"
               checked={value.includes(opt.value)}
+              disabled={disabled}
               onChange={() => toggle(opt.value)}
               className={cn(
                 // Figma: 체크 시 Blue500(#358CFF) 배경, 테두리 Gray400(#C4C4C4)
                 'rounded-[4px] border-gray-400 accent-primary-500',
                 'focus:ring-primary-500',
+                'disabled:cursor-not-allowed',
                 size === 'lg' ? 'h-6 w-6' : 'h-[16px] w-[16px] lg:h-[20px] lg:w-[20px]', // 모바일 반응형 체크박스
               )}
             />

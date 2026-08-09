@@ -21,9 +21,9 @@ export type NotificationType =
 
 
 export interface UpdateProfileDto {
-  name: string;
-  nickname: string;
-  profileImage: string | null;
+  name?: string;
+  nickname?: string;
+  profileImage?: string | null;
 }
 
 export interface NotificationPreferencesDto {

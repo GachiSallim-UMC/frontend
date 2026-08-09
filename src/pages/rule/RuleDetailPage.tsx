@@ -1,11 +1,11 @@
 import { useState, type ComponentProps, type ComponentType } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
-  RULE_CATEGORY_OPTIONS,
+  RuleBasicInfoFields,
   useRuleAgreement,
   useDeleteRule,
   useRuleDetail,
-  useRuleForm,
+  useRuleEditor,
   useUpdateRule,
   useUpdateRuleAgreement,
   type MyAgreement,
@@ -24,7 +24,6 @@ import {
   StatusBadge,
   UserAvatar,
 } from '@/shared/components/ui';
-import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { useAuthStore, useGroupStore } from '@/shared/store';
 import HistoryRegisterIcon from '@/assets/icons/rule/history-register.svg?react';
@@ -58,8 +57,6 @@ const AGREEMENT_SUBLABEL: Record<MyAgreement, string> = {
   disagree: '반대함',
   pending: '미응답',
 };
-
-type FormErrors = Partial<Record<'title' | 'category' | 'content', string>>;
 
 export const RuleDetailPage = () => {
   const { id = '' } = useParams();
@@ -96,7 +93,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const navigate = useNavigate();
   const currentUserId = useAuthStore(state => state.userId);
   const { data: groupMembers = [] } = useGroupMembers(rule.groupId ?? null);
-  const { title, setTitle, category, setCategory, content, setContent } = useRuleForm(rule);
+  const { title, category, content, validate, fieldProps } = useRuleEditor(rule);
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
   const updateRule = useUpdateRule();
   const deleteRule = useDeleteRule();
@@ -109,7 +106,6 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
     handleSelectChatRoom,
     isSharePending,
   } = useShareToMessenger('rule');
-  const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -124,18 +120,9 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const handleSaveClick = () => {
     if (isPending) return;
 
-    const nextErrors: FormErrors = {};
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
-    if (!trimmedTitle) {
-      nextErrors.title = '규칙 제목을 입력해 주세요.';
-    } else if (trimmedTitle.length > 30) {
-      nextErrors.title = '규칙 제목은 30자 이하로 입력해 주세요.';
-    }
-    if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
-    if (!trimmedContent) nextErrors.content = '상세 설명을 입력해 주세요.';
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || !category) return;
+    if (!validate() || !category) return;
 
     const hasChanges =
       trimmedTitle !== rule.title.trim() ||
@@ -208,68 +195,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   return (
     <div className="grid min-h-full w-full content-start grid-cols-1 gap-5 bg-white pb-6 lg:min-h-0 lg:max-w-[1114px] lg:gap-5 lg:bg-transparent lg:p-0 xl:grid-cols-2">
       <div className="flex min-w-0 flex-col gap-4 lg:gap-[30px]">
-        <Panel
-          title="기본 정보"
-          className="h-auto rounded-none p-0 shadow-none lg:min-h-[500px] lg:rounded-[18px] lg:p-[32px]"
-          headerClassName="hidden lg:mb-6 lg:flex"
-          titleClassName="text-gray-800"
-        >
-          <div className="grid grid-cols-2 gap-x-2 gap-y-4 lg:grid-cols-1 lg:gap-5">
-            <FormInput
-              label="규칙 제목"
-              required
-              maxLength={30}
-              value={title}
-              onChange={e => {
-                setTitle(e.target.value);
-                setErrors(previous => ({ ...previous, title: undefined }));
-              }}
-              error={errors.title}
-              containerClassName="order-1 col-span-2 gap-2 lg:col-span-1 lg:gap-1"
-              labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:text-button"
-            />
-            <SelectDropdown
-              label="카테고리"
-              required
-              value={category}
-              onChange={value => {
-                setCategory(value);
-                setErrors(previous => ({ ...previous, category: undefined }));
-              }}
-              options={RULE_CATEGORY_OPTIONS}
-              error={errors.category}
-              containerClassName="order-2 gap-2 lg:gap-1"
-              labelClassName="leading-[17px] text-gray-800"
-              className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
-            />
-            <TextArea
-              label="상세 설명"
-              mobileLabel="메모"
-              required
-              placeholder="규칙에 대한 자세한 설명, 예외 상황 등"
-              maxLength={200}
-              showCount
-              countInside
-              countClassName="hidden lg:block"
-              value={content}
-              onChange={e => {
-                setContent(e.target.value);
-                setErrors(previous => ({ ...previous, content: undefined }));
-              }}
-              error={errors.content}
-              containerClassName="order-4 col-span-2 gap-2 lg:order-3 lg:col-span-1 lg:gap-1"
-              labelClassName="leading-[17px] text-gray-800"
-              className="block h-[88px] px-4 py-3 text-mobile-label lg:h-[100px] lg:pb-9 lg:pt-4 lg:text-button"
-            />
-            <div className="order-3 flex flex-col gap-2 lg:order-4 lg:gap-1">
-              <span className="text-caption font-bold leading-[17px] text-gray-800">적용 상태</span>
-              <div className="flex h-11 items-center lg:h-[50px]">
-                <StatusBadge variant={rule.status} />
-              </div>
-            </div>
-          </div>
-        </Panel>
+        <RuleBasicInfoFields {...fieldProps} status={rule.status} />
 
         {mutationError && (
           <p className="text-caption text-red-500">

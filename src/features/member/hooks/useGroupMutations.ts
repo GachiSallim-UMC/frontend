@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memberApi } from '@/features/member/api/member.api';
 import { MEMBER_QUERY_KEYS } from './useMyGroups';
-import { useAlertStore, useAuthStore } from '@/shared/store';
+import { useAuthStore } from '@/shared/store';
 import type {
   CreateGroupDto,
   JoinGroupDto,
@@ -123,13 +123,6 @@ export const useUpdateGroupPermissions = () => {
     mutationFn: memberApi.updateGroupPermissions,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['group-permissions', variables.groupId] });
-    },
-    onError: error => {
-      console.error('권한 수정 실패:', error);
-      useAlertStore.getState().showAlert({
-        title: '오류',
-        message: '권한 수정에 실패했습니다. 권한이 있는지 확인해주세요.',
-      });
     },
   });
 };
