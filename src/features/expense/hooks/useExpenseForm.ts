@@ -145,8 +145,11 @@ export function useExpenseForm({
           totalAmount: numericTotalAmount,
           category,
           splitType: settlementMethod,
-          targetMemberIds,
         };
+
+        if (settlementMethod !== 'EQUAL') {
+          updatePayload.targetMemberIds = targetMemberIds;
+        }
 
         if (receiptUrl) {
           updatePayload.receiptUrl = receiptUrl;
