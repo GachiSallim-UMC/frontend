@@ -37,9 +37,13 @@ export const LoginForm = ({ onSubmit, isSubmitting = false, errorMessage }: Logi
             <form noValidate onSubmit={handleSubmit} className= "flex flex-col">
                 {/* 이메일 입력 영역*/}
                 <div>
-                    <label className="mb-2 block text-mobile-body font-bold text-gray-700 lg:text-base lg:text-gray-800">이메일</label>
+                    <label htmlFor="login-email" className="mb-2 block text-mobile-body font-bold text-gray-700 lg:text-base lg:text-gray-800">이메일</label>
                     <FormInput
+                        id="login-email"
+                        name="email"
                         type="email"
+                        required
+                        autoComplete="username"
                         placeholder="이메일 주소를 입력해주세요"
                         value={email}
                         onChange={e => {
@@ -52,9 +56,13 @@ export const LoginForm = ({ onSubmit, isSubmitting = false, errorMessage }: Logi
                 </div>
 
                 <div>
-                    <label className="mt-4 mb-2 block text-mobile-body font-bold text-gray-700 lg:text-base lg:text-gray-800">비밀번호</label>
+                    <label htmlFor="login-password" className="mt-4 mb-2 block text-mobile-body font-bold text-gray-700 lg:text-base lg:text-gray-800">비밀번호</label>
                     <FormInput
+                        id="login-password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
+                        required
+                        autoComplete="current-password"
                         placeholder="비밀번호를 입력해주세요"
                         value={password}
                         onChange={e => {

@@ -29,11 +29,15 @@ export const ResetPasswordForm = ({
     return (
         <form onSubmit={onSubmit} className="flex w-full flex-col">
             <div className="mb-4">
-                <label className="mb-1.5 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
+                <label htmlFor="new-password" className="mb-1.5 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
                     새 비밀번호 <span className="text-red-700">*</span>
                 </label>
                 <FormInput
+                    id="new-password"
+                    name="newPassword"
                     type="password"
+                    required
+                    autoComplete="new-password"
                     placeholder="비밀번호를 입력해주세요"
                     value={formData.newPassword}
                     onChange={onChange('newPassword')}
@@ -46,11 +50,15 @@ export const ResetPasswordForm = ({
             </div>
 
             <div className="mb-5 lg:mb-8">
-                <label className="mb-1.5 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
+                <label htmlFor="new-password-confirm" className="mb-1.5 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
                     비밀번호 재입력 <span className="text-red-700">*</span>
                 </label>
                 <FormInput
+                    id="new-password-confirm"
+                    name="newPasswordConfirm"
                     type="password"
+                    required
+                    autoComplete="new-password"
                     placeholder="비밀번호를 다시 입력해주세요"
                     value={formData.newPasswordConfirm}
                     onChange={onChange('newPasswordConfirm')}

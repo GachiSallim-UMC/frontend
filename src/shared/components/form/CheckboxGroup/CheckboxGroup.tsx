@@ -8,6 +8,8 @@ export interface CheckboxOption<T extends string> {
 
 interface CheckboxGroupProps<T extends string> {
   label?: string;
+  name?: string;
+  required?: boolean;
   options: CheckboxOption<T>[];
   value: T[];
   onChange: (value: T[]) => void;
@@ -18,6 +20,8 @@ interface CheckboxGroupProps<T extends string> {
 
 export const CheckboxGroup = <T extends string>({
   label,
+  name,
+  required = false,
   options,
   value,
   onChange,
@@ -40,7 +44,9 @@ export const CheckboxGroup = <T extends string>({
         {options.map(opt => (
           <label key={opt.value} className="flex cursor-pointer items-center gap-2">
             <input
+              name={name}
               type="checkbox"
+              required={required && value.length === 0}
               checked={value.includes(opt.value)}
               onChange={() => toggle(opt.value)}
               className={cn(
