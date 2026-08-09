@@ -113,9 +113,9 @@ export const JoinGroupPage = () => {
       }
     >
       <div className="mb-5">
-        <h1 className="mb-0.5 text-base font-bold tracking-[0.04em] text-gray-900 lg:mb-1 lg:text-2xl lg:tracking-normal">
+        <h2 className="mb-0.5 text-base font-bold tracking-[0.04em] text-gray-900 lg:mb-1 lg:text-2xl lg:tracking-normal">
           그룹 참여
-        </h1>
+        </h2>
         <p className="text-mobile-label font-medium text-gray-600 lg:text-sm">
           초대 코드를 입력하면 그룹에 참여할 수 있습니다.
         </p>

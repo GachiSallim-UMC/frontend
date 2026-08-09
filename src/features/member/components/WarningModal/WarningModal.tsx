@@ -57,7 +57,7 @@ export const WarningModal = ({
               <TrashIcon className="h-[30px] w-[30px] text-red-500" />
             </div>
             <div className="mt-[20px] flex flex-col text-center items-center">
-              <h1 className="text-[24px] text-gray-900 font-bold">그룹을 삭제하시겠습니까?</h1>
+              <h2 className="text-[24px] text-gray-900 font-bold">그룹을 삭제하시겠습니까?</h2>
               <p className="text-[14px] font-medium text-gray-600">
                 삭제 전 아래 내용을 꼭 확인해주세요.
               </p>
