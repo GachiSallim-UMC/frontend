@@ -5,16 +5,20 @@ import { FilterDropdown } from '@/shared/components/ui/Button';
 import { SearchInput } from '@/shared/components/ui/SearchInput';
 import { Button } from '@/shared/components/ui/Button';
 import type { ChoreFilter } from '../types/chore.types';
-import type { Member } from '@/features/member';
 import {
   CHORE_STATUS_FILTER_OPTIONS,
   CHORE_REPEAT_FILTER_OPTIONS,
 } from '../constants/chore.constants';
 
+interface AssigneeFilterOption {
+  id: string;
+  name: string;
+}
+
 interface ChoreFilterBarProps {
   filter: ChoreFilter;
   onFilterChange: (filter: ChoreFilter) => void;
-  groupMembers?: Member[];
+  groupMembers?: AssigneeFilterOption[];
 }
 
 export const ChoreFilterBar = ({

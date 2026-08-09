@@ -3,20 +3,25 @@ import { WarningModal } from '@/features/mypage/components/WarningModal'
 import { Button } from '@/shared/components';
 import { useAlertStore } from '@/shared/store';
 import {myPageApi} from '@/features/mypage/api/myPage.api'
-import { useLogout } from '@/features/auth';
 import LogoutIcon from "@/assets/icons/mypage/logout.svg?react"
 import CrossIcon from "@/assets/icons/mypage/cross.svg?react"
 
-export const MyPageButtonGroup = () => {
-    const showAlert = useAlertStore((state) => state.showAlert);
+interface MyPageButtonGroupProps {
+    onLogout: () => void;
+    isLoggingOut?: boolean;
+}
 
-    const { mutate: logout, isPending: isLoggingOut } = useLogout();
+export const MyPageButtonGroup = ({
+    onLogout,
+    isLoggingOut = false,
+}: MyPageButtonGroupProps) => {
+    const showAlert = useAlertStore((state) => state.showAlert);
 
     const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
     const [isWithdrawing, setIsWithdrawing] = useState(false);
 
     const handleLogout = () => {
-        logout(); 
+        onLogout();
     };
 
     const handleConfirmWithdraw = async () => {
@@ -26,7 +31,7 @@ export const MyPageButtonGroup = () => {
             showAlert({ title: '완료', message: '회원 탈퇴가 완료되었습니다.', tone: 'success' });
             setIsWithdrawalModalOpen(false);
 
-            logout();
+            onLogout();
         } catch {
             showAlert({ title: '탈퇴 실패', message: '문제가 발생했습니다.' });
         } finally {
