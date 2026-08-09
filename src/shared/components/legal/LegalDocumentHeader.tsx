@@ -54,9 +54,9 @@ export const LegalDocumentHeader = ({
         >
           <ChevronLeft className="h-5 w-5 text-gray-800 lg:h-6 lg:w-6" />
         </button>
-        <h1 className="truncate text-mobile-body font-bold tracking-wider text-gray-900 lg:text-xl">
+        <h2 className="truncate text-mobile-body font-bold tracking-wider text-gray-900 lg:text-xl">
           {title}
-        </h1>
+        </h2>
       </div>
       <span className="shrink-0 text-mobile-caption font-medium text-gray-500 lg:text-sm">
         시행일 {effectiveDate}
