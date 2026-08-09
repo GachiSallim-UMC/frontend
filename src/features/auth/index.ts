@@ -1,6 +1,6 @@
 export {LoginForm} from './components/LoginForm/LoginForm';
 export {SocialLoginForm} from './components/LoginForm/SocialLoginForm';
-export { SendingEmailForm, EmailSentHeader, EmailSentButtonGroup } from './components/FidingPasswordForm'
+export { SendingEmailForm, EmailSentHeader, EmailSentButtonGroup } from './components/FindingPasswordForm'
 export {SignupForm} from './components/SignupForm/SignupForm';
 export {TermsButtonGroup} from './components/Terms'
 export {TermsContent} from './components/Terms'

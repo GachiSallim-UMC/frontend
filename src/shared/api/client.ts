@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type { ApiResponse } from '@/shared/types';
 import { useAuthStore } from '@/shared/store/useAuthStore';
 import { useGroupStore } from '@/shared/store/useGroupStore';
@@ -40,10 +40,7 @@ export const apiClient = axios.create({
 
 const clearClientSession = (expectedSessionVersion?: number): boolean => {
   const authState = useAuthStore.getState();
-  if (
-    expectedSessionVersion !== undefined &&
-    authState.sessionVersion !== expectedSessionVersion
-  ) {
+  if (expectedSessionVersion !== undefined && authState.sessionVersion !== expectedSessionVersion) {
     return false;
   }
 
@@ -122,12 +119,7 @@ const toApiError = (error: unknown): ApiError => {
 
   const body = response.data;
   if (isApiResponse(body) && body.error) {
-    return new ApiError(
-      body.statusCode,
-      body.error.code,
-      body.error.message,
-      body.error.errors,
-    );
+    return new ApiError(body.statusCode, body.error.code, body.error.message, body.error.errors);
   }
 
   const statusCode = response.status;
@@ -165,10 +157,7 @@ const getRefreshedAccessToken = (): Promise<string | null> => {
   const { refreshToken, sessionVersion } = useAuthStore.getState();
   if (!refreshToken) return Promise.resolve(null);
 
-  if (
-    refreshTask?.sessionVersion === sessionVersion &&
-    refreshTask.refreshToken === refreshToken
-  ) {
+  if (refreshTask?.sessionVersion === sessionVersion && refreshTask.refreshToken === refreshToken) {
     return refreshTask.promise;
   }
 
@@ -179,6 +168,30 @@ const getRefreshedAccessToken = (): Promise<string | null> => {
   });
   refreshTask = task;
   return task.promise;
+};
+
+const retryRequestWithRefreshedToken = async (
+  config: RetryableRequestConfig,
+  expectedSessionVersion: number | undefined,
+  suppressNonTerminalRefreshError = false,
+): Promise<AxiosResponse | undefined> => {
+  config._retry = true;
+
+  try {
+    const newAccessToken = await getRefreshedAccessToken();
+    if (!newAccessToken) return undefined;
+
+    config.headers.Authorization = `Bearer ${newAccessToken}`;
+    return apiClient(config);
+  } catch (refreshError) {
+    const normalizedRefreshError = toApiError(refreshError);
+    if (isTerminalRefreshError(normalizedRefreshError)) {
+      clearClientSession(expectedSessionVersion);
+      throw new ApiError(401, 'AUTH_SESSION_EXPIRED');
+    }
+    if (!suppressNonTerminalRefreshError) throw normalizedRefreshError;
+    return undefined;
+  }
 };
 
 apiClient.interceptors.request.use(async config => {
@@ -249,22 +262,8 @@ apiClient.interceptors.response.use(
       isCurrentSession;
 
     if (canRefresh && config) {
-      config._retry = true;
-
-      try {
-        const newAccessToken = await getRefreshedAccessToken();
-        if (newAccessToken) {
-          config.headers.Authorization = `Bearer ${newAccessToken}`;
-          return apiClient(config);
-        }
-      } catch (refreshError) {
-        const normalizedRefreshError = toApiError(refreshError);
-        if (isTerminalRefreshError(normalizedRefreshError)) {
-          clearClientSession(expectedSessionVersion);
-          return Promise.reject(new ApiError(401, 'AUTH_SESSION_EXPIRED'));
-        }
-        return Promise.reject(normalizedRefreshError);
-      }
+      const retryResponse = await retryRequestWithRefreshedToken(config, expectedSessionVersion);
+      if (retryResponse) return retryResponse;
     }
 
     // 일부 게이트웨이는 401 응답에 CORS 헤더를 붙이지 않아 브라우저가 status를 숨깁니다.
@@ -277,21 +276,12 @@ apiClient.interceptors.response.use(
       Boolean(config.headers.Authorization) &&
       Boolean(useAuthStore.getState().refreshToken)
     ) {
-      config._retry = true;
-
-      try {
-        const newAccessToken = await getRefreshedAccessToken();
-        if (newAccessToken) {
-          config.headers.Authorization = `Bearer ${newAccessToken}`;
-          return apiClient(config);
-        }
-      } catch (refreshError) {
-        const normalizedRefreshError = toApiError(refreshError);
-        if (isTerminalRefreshError(normalizedRefreshError)) {
-          clearClientSession(expectedSessionVersion);
-          return Promise.reject(new ApiError(401, 'AUTH_SESSION_EXPIRED'));
-        }
-      }
+      const retryResponse = await retryRequestWithRefreshedToken(
+        config,
+        expectedSessionVersion,
+        true,
+      );
+      if (retryResponse) return retryResponse;
     }
 
     if (apiError.statusCode === 401 && isCurrentSession) {
