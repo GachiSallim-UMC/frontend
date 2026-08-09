@@ -160,8 +160,8 @@ export const ExpenseAddPage = ({
     }
   };
 
-  const handleSave = (_newExpense: Expense) => {
-    navigate('/expenses');
+  const handleSave = (newExpense: Expense) => {
+    navigate(`/expenses/${newExpense.id}`);
   };
 
   const handleCancel = () => {
