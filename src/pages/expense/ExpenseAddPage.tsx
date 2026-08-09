@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import {
   ExpenseAddForm,
   ExpenseDetailCard,
   Receipt,
   SettlementPreviewCard,
-  getExpenseById,
+  useExpenseDetail,
   requestReceiptUploadUrl,
   uploadReceiptToS3,
   getReceiptViewUrl,
@@ -13,7 +13,7 @@ import {
   type Expense,
 } from '@/features/expense';
 import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
-import { memberApi } from '@/features/member';
+import { useGroupMembers } from '@/features/member';
 import {
   ShareItemPickerModal,
   useShareToMessenger,
@@ -21,30 +21,10 @@ import {
 import { requireSelectedGroupId } from '@/shared/api';
 import { ConfirmModal } from '@/shared/components/ui';
 import { useAuthStore, useAlertStore, useGroupStore } from '@/shared/store';
-import type { User } from '@/shared/types';
+import { enrichExpenseWithMembers, mapGroupMembersToUsers } from './expenseMembers';
 
 interface ExpenseDetailPageProps {
   title?: string;
-}
-
-function enrichExpenseWithMembers(
-  expense: Expense,
-  memberList: User[],
-): Expense {
-  const memberMap = new Map(
-    memberList.map((m) => [String(m.id), m]),
-  );
-
-  const payer =
-    memberMap.get(String(expense.payer.id)) ?? expense.payer;
-
-  const shares = expense.shares?.map((share) => ({
-    ...share,
-    user:
-      memberMap.get(String(share.user.id)) ?? share.user,
-  }));
-
-  return { ...expense, payer, shares };
 }
 
 export const ExpenseAddPage = ({
@@ -70,16 +50,23 @@ export const ExpenseAddPage = ({
     isSharePending,
   } = useShareToMessenger('expense');
 
-  const [members, setMembers] = useState<User[]>([]);
-  const [membersLoading, setMembersLoading] = useState(true);
-  const [isGroupAdmin, setIsGroupAdmin] = useState(false);
-
-  const [savedExpense, setSavedExpense] = useState<
-    Expense | undefined
-  >(undefined);
-
-  const [isLoading, setIsLoading] = useState(!!id);
-  const [isSubmitted, setIsSubmitted] = useState(!!id);
+  const membersQuery = useGroupMembers(selectedGroupId);
+  const members = useMemo(() => mapGroupMembersToUsers(membersQuery.data), [membersQuery.data]);
+  const {
+    data: expenseData,
+    isLoading: expenseLoading,
+    isError: expenseError,
+    refetch: refetchExpense,
+  } = useExpenseDetail(id);
+  const savedExpense = useMemo(
+    () => (expenseData ? enrichExpenseWithMembers(expenseData, members) : undefined),
+    [expenseData, members],
+  );
+  const membersLoading = membersQuery.isLoading;
+  const isGroupAdmin = membersQuery.data.some(
+    member => member.userId === String(currentUserId) && member.role === 'ADMIN',
+  );
+  const isSubmitted = Boolean(id);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const deleteExpense = useDeleteExpense();
@@ -114,87 +101,6 @@ export const ExpenseAddPage = ({
 
   const [isReceiptUploading, setIsReceiptUploading] =
     useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchMembers = async () => {
-      setMembersLoading(true);
-
-      try {
-        const groupId = requireSelectedGroupId();
-        const rawMembers = await memberApi.getGroupMembers(groupId);
-
-        const mapped: User[] = rawMembers.map((m) => ({
-          id: m.user.id,
-          name: m.user.nickname || m.user.name,
-          nickname: m.user.nickname,
-          email: '',
-          avatarUrl: m.user.profileImage ?? undefined,
-        }));
-
-        if (isMounted) {
-          setMembers(mapped);
-          setIsGroupAdmin(
-            rawMembers.some(
-              (member) =>
-                member.userId === String(currentUserId) &&
-                member.role === 'ADMIN',
-            ),
-          );
-        }
-      } catch (err) {
-        console.error('그룹 멤버 조회 실패:', err);
-
-        if (isMounted) {
-          setIsGroupAdmin(false);
-        }
-      } finally {
-        if (isMounted) {
-          setMembersLoading(false);
-        }
-      }
-    };
-
-    fetchMembers();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [currentUserId]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchExpenseDetail = async () => {
-      if (!id) return;
-      if (membersLoading) return;
-
-      setIsLoading(true);
-
-      try {
-        const data = await getExpenseById(id);
-
-        if (isMounted) {
-          setSavedExpense(
-            enrichExpenseWithMembers(data, members),
-          );
-        }
-      } catch (err) {
-        console.error('지출 단건 조회 실패:', err);
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchExpenseDetail();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [id, membersLoading, members]);
 
   useEffect(() => {
     let isMounted = true;
@@ -254,28 +160,8 @@ export const ExpenseAddPage = ({
     }
   };
 
-  const handleSave = (newExpense: Expense) => {
-    setSavedExpense(
-      enrichExpenseWithMembers(newExpense, members),
-    );
-    setIsSubmitted(true);
+  const handleSave = (_newExpense: Expense) => {
     navigate('/expenses');
-  };
-
-  const handleExpenseRefresh = async () => {
-    const targetId = savedExpense?.id ?? id;
-
-    if (!targetId) return;
-
-    try {
-      const data = await getExpenseById(targetId);
-
-      setSavedExpense(
-        enrichExpenseWithMembers(data, members),
-      );
-    } catch (err) {
-      console.error('지출 정산 정보 갱신 실패:', err);
-    }
   };
 
   const handleCancel = () => {
@@ -301,8 +187,30 @@ export const ExpenseAddPage = ({
     }
   };
 
-  if (id && isLoading) {
+  if ((id && expenseLoading) || membersLoading) {
     return <div>지출 정보를 불러오는 중...</div>;
+  }
+
+  if (membersQuery.isError || (id && expenseError)) {
+    return (
+      <div className="flex min-h-[300px] w-full flex-col items-center justify-center gap-3 text-center">
+        <p className="text-red-500">
+          {membersQuery.isError
+            ? '그룹원 정보를 불러오지 못했습니다.'
+            : '생활비 정보를 불러오지 못했습니다.'}
+        </p>
+        <button
+          type="button"
+          className="text-button font-bold text-primary-600"
+          onClick={() => {
+            void membersQuery.refetch();
+            if (id) void refetchExpense();
+          }}
+        >
+          다시 시도
+        </button>
+      </div>
+    );
   }
 
   if (
@@ -338,7 +246,6 @@ export const ExpenseAddPage = ({
               receiptUrl={receiptObjectKey}
               onShare={openShare}
               isSharing={isSharePending}
-              onRefresh={handleExpenseRefresh}
               mobileReceiptSlot={
                 <Receipt
                   imageUrl={receiptViewUrl}
@@ -358,10 +265,7 @@ export const ExpenseAddPage = ({
               <>
                 {/* 모바일에서는 폼의 "정산 미리보기" 섹션에 이미 동일한 정보 + 전체/개별 정산 버튼이 있으므로 중복 방지를 위해 숨김 */}
                 <div className="hidden sm:block">
-                  <ExpenseDetailCard
-                    expense={savedExpense}
-                    onRefresh={handleExpenseRefresh}
-                  />
+                  <ExpenseDetailCard expense={savedExpense} />
                 </div>
 
                 {/* 모바일에서는 폼의 mobileReceiptSlot에 이미 동일한 영수증 첨부가 있으므로 중복 방지를 위해 숨김 */}
@@ -380,7 +284,6 @@ export const ExpenseAddPage = ({
                 <SettlementPreviewCard
                   expense={savedExpense}
                   currentUserId={currentUserId}
-                  onRefresh={handleExpenseRefresh}
                 />
               </>
             ) : (

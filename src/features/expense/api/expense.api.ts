@@ -1,9 +1,15 @@
-import { apiClient, withSelectedNumericGroupBody, withSelectedGroupParams, ApiError } from '@/shared/api';
+import {
+  apiClient,
+  withSelectedNumericGroupBody,
+  withSelectedGroupParams,
+  ApiError,
+} from '@/shared/api';
 import type {
   Expense,
   CreateExpenseDto,
   ExpenseCategory,
   CalculateExpenseDto,
+  CalculateExpenseSplitResponse,
   SettleExpenseSplitDto,
   UpdateExpenseDto,
   RequestReceiptUploadUrlDto,
@@ -19,12 +25,10 @@ export interface GetExpensesParams {
   [key: string]: unknown;
 }
 
-function unwrap(raw: unknown): unknown {
-  if (raw && typeof raw === 'object' && 'data' in raw && ('statusCode' in raw || 'error' in raw)) {
-    return (raw as Record<string, unknown>).data;
-  }
-  return raw;
-}
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const invalidResponse = (message: string) => new ApiError(502, 'INVALID_API_RESPONSE', message);
 
 function toExpenseStatus(rawStatus: string): ExpenseStatus {
   return rawStatus === 'PAID' || rawStatus === 'DONE' ? 'paid' : 'unpaid';
@@ -35,12 +39,15 @@ function toSplitIsPaid(rawStatus: string): boolean {
 }
 
 export function toExpense(rawResponse: unknown): Expense {
-  const raw = unwrap(rawResponse) as Record<string, unknown>;
+  if (!isRecord(rawResponse)) {
+    throw invalidResponse('생활비 응답 형식이 올바르지 않습니다.');
+  }
+  const raw = rawResponse;
 
   const payerIdStr = String(raw.payerId ?? '');
 
   const shares = Array.isArray(raw.splits)
-    ? raw.splits.map((s: Record<string, unknown>) => {
+    ? raw.splits.filter(isRecord).map(s => {
         const sUser = s.user as Record<string, unknown> | undefined;
         const userNickname = typeof sUser?.nickname === 'string' ? sUser.nickname : '';
         const userName = typeof sUser?.name === 'string' ? sUser.name : '';
@@ -67,7 +74,7 @@ export function toExpense(rawResponse: unknown): Expense {
       })
     : [];
 
-  const allSharesPaid = shares.length > 0 && shares.every((s) => s.isPaid);
+  const allSharesPaid = shares.length > 0 && shares.every(s => s.isPaid);
   const derivedStatus: ExpenseStatus = allSharesPaid
     ? 'paid'
     : toExpenseStatus(raw.status as string);
@@ -102,12 +109,13 @@ export function toExpense(rawResponse: unknown): Expense {
 }
 
 export const createExpense = async (formData: CreateExpenseDto): Promise<Expense> => {
-  const payload = withSelectedNumericGroupBody(
-    formData as unknown as Record<string, unknown>
-  );
+  const payload = withSelectedNumericGroupBody(formData as unknown as Record<string, unknown>);
 
   const response = await apiClient.post('/expenses', payload);
-  const created = unwrap(response.data) as Record<string, unknown>;
+  if (!isRecord(response.data)) {
+    throw invalidResponse('생활비 생성 응답 형식이 올바르지 않습니다.');
+  }
+  const created = response.data;
   const expenseId = (created?.expenseId ?? created?.id) as string | number | undefined;
 
   if (!expenseId) {
@@ -121,26 +129,48 @@ export const getExpense = async (params: GetExpensesParams): Promise<Expense[]> 
   const queryParams = withSelectedGroupParams(params);
 
   const response = await apiClient.get('/expenses', { params: queryParams });
-  const unwrapped = unwrap(response.data);
-  const rawList = Array.isArray(unwrapped) ? unwrapped : [];
-  return rawList.map((raw: unknown) => toExpense(raw));
+  if (!Array.isArray(response.data)) {
+    throw invalidResponse('생활비 목록 응답 형식이 올바르지 않습니다.');
+  }
+  return response.data.map((raw: unknown) => toExpense(raw));
 };
 
-export const calculateExpenseSplit = async (data: CalculateExpenseDto): Promise<Record<string, any>> => {
+export const calculateExpenseSplit = async (
+  data: CalculateExpenseDto,
+): Promise<CalculateExpenseSplitResponse> => {
   const response = await apiClient.post('/expenses/calculate', data);
-  return unwrap(response.data) as Record<string, any>;
+  if (
+    !isRecord(response.data) ||
+    typeof response.data.totalAmount !== 'number' ||
+    !Array.isArray(response.data.calculatedSplits) ||
+    !response.data.calculatedSplits.every(
+      split =>
+        isRecord(split) &&
+        (typeof split.userId === 'string' || typeof split.userId === 'number') &&
+        typeof split.amount === 'number' &&
+        (split.role === 'RECEIVER' || split.role === 'SENDER'),
+    )
+  ) {
+    throw invalidResponse('생활비 분담 계산 응답 형식이 올바르지 않습니다.');
+  }
+  return response.data as unknown as CalculateExpenseSplitResponse;
 };
 
-export const createPayLink = async (
-  splitId: number | string
-): Promise<PayLinkResponse> => {
+export const createPayLink = async (splitId: number | string): Promise<PayLinkResponse> => {
   const response = await apiClient.post(`/expenses/splits/${splitId}/paylink`);
-  return response.data;
+  if (
+    !isRecord(response.data) ||
+    typeof response.data.deepLinkUrl !== 'string' ||
+    typeof response.data.status !== 'string'
+  ) {
+    throw invalidResponse('송금 링크 응답 형식이 올바르지 않습니다.');
+  }
+  return response.data as unknown as PayLinkResponse;
 };
 
 export const settleExpenseSplit = async (
   splitId: number,
-  data: SettleExpenseSplitDto
+  data: SettleExpenseSplitDto,
 ): Promise<void> => {
   await apiClient.patch(`/expenses/splits/${splitId}/settle`, data);
 };
@@ -152,7 +182,7 @@ export const getExpenseById = async (expenseId: number | string): Promise<Expens
 
 export const updateExpense = async (
   expenseId: number | string,
-  updateData: UpdateExpenseDto
+  updateData: UpdateExpenseDto,
 ): Promise<Expense> => {
   await apiClient.patch(`/expenses/${expenseId}`, updateData);
   return getExpenseById(expenseId);
@@ -163,22 +193,32 @@ export const deleteExpense = async (expenseId: number | string): Promise<void> =
 };
 
 export const requestReceiptUploadUrl = async (
-  dto: RequestReceiptUploadUrlDto
+  dto: RequestReceiptUploadUrlDto,
 ): Promise<ReceiptUploadUrlResponse> => {
   const response = await apiClient.post('/expenses/receipt-image/upload-url', dto);
-  const data = unwrap(response.data) as Record<string, unknown>;
+  const data = response.data;
+
+  if (
+    !isRecord(data) ||
+    typeof data.uploadUrl !== 'string' ||
+    !isRecord(data.fields) ||
+    !Object.values(data.fields).every(value => typeof value === 'string') ||
+    typeof data.objectKey !== 'string'
+  ) {
+    throw invalidResponse('영수증 업로드 응답 형식이 올바르지 않습니다.');
+  }
 
   return {
-    uploadUrl: data.uploadUrl as string,
+    uploadUrl: data.uploadUrl,
     fields: data.fields as Record<string, string>,
-    objectKey: data.objectKey as string,
+    objectKey: data.objectKey,
   };
 };
 
 export const uploadReceiptToS3 = async (
   uploadUrl: string,
   fields: Record<string, string>,
-  file: File
+  file: File,
 ): Promise<void> => {
   const formData = new FormData();
   Object.entries(fields).forEach(([key, value]) => {
@@ -192,12 +232,19 @@ export const uploadReceiptToS3 = async (
   }
 };
 
-
-export const getReceiptViewUrl = async (expenseId: number | string): Promise<string | undefined> => {
+export const getReceiptViewUrl = async (
+  expenseId: number | string,
+): Promise<string | undefined> => {
   try {
     const response = await apiClient.get(`/expenses/${expenseId}/receipt-image`);
-    const data = unwrap(response.data) as Record<string, unknown>;
-    return data.viewUrl as string;
+    if (!isRecord(response.data)) {
+      throw invalidResponse('영수증 조회 응답 형식이 올바르지 않습니다.');
+    }
+    if (response.data.viewUrl === null) return undefined;
+    if (typeof response.data.viewUrl !== 'string') {
+      throw invalidResponse('영수증 조회 응답 형식이 올바르지 않습니다.');
+    }
+    return response.data.viewUrl;
   } catch (err) {
     if (err instanceof ApiError && err.statusCode === 400) {
       return undefined;

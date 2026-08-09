@@ -57,8 +57,12 @@ export interface PayLinkResponse {
 }
 export const expenseKeys = {
   all: ['expenses'] as const,
-  lists: () => [...expenseKeys.all, 'list'] as const,
-  detail: (id: number | string) => [...expenseKeys.all, 'detail', id] as const,
+  scope: (userId: string | null, groupId: string | null) =>
+    [...expenseKeys.all, userId, groupId] as const,
+  lists: (userId: string | null, groupId: string | null) =>
+    [...expenseKeys.scope(userId, groupId), 'list'] as const,
+  detail: (userId: string | null, groupId: string | null, id: number | string) =>
+    [...expenseKeys.scope(userId, groupId), 'detail', id] as const,
 };
 
 /** 생활비 등록 DTO */
@@ -80,6 +84,15 @@ export interface CalculateExpenseDto {
   splitType: SplitType;
   participants: number[];
   [key: string]: unknown;
+}
+
+export interface CalculateExpenseSplitResponse {
+  totalAmount: number;
+  calculatedSplits: Array<{
+    userId: string | number;
+    amount: number;
+    role: 'RECEIVER' | 'SENDER';
+  }>;
 }
 
 export interface SettleExpenseSplitDto {
