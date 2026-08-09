@@ -1,11 +1,9 @@
 import type {
   DateFormatValue,
   StartDayValue,
-  UploadUrlRequestDto,
-  UploadUrlResponse,
 } from '@/shared/types/common';
 
-export type { StartDayValue, DateFormatValue, UploadUrlRequestDto, UploadUrlResponse };
+export type { StartDayValue, DateFormatValue };
 export type ThemeValue = 'light' | 'dark';
 export type LanguageValue = 'ko' | 'en';
 export type TimezoneValue = 'seoul';
