@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getExpenseById } from '../api/expense.api';
-import { expenseKeys } from '../types/expense.types';
+import { expenseKeys } from './expense.keys';
 import { useExpenseQueryScope } from './useExpenseQueryScope';
 
 export const useExpenseDetail = (expenseId?: string) => {
