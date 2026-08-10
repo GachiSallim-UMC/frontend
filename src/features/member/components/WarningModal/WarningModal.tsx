@@ -88,7 +88,8 @@ export const WarningModal = ({
               options={GROUP_DELETE_AGREE_OPTIONS}
               value={checkedValues}
               onChange={setCheckedValues}
-              className="[&_input]:!h-5 [&_input]:!w-5 [&_label]:gap-3"
+              size="sm"
+              className="[&_label]:gap-3"
             />
           </div>
           {errorMessage && (

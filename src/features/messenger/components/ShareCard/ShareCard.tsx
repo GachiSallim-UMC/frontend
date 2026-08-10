@@ -23,7 +23,7 @@ export const ShareCard = ({
   const { Icon } = style;
 
   return (
-    <div className="w-[260px] shrink-0 overflow-hidden rounded-[10px] bg-white lg:w-[325px]">
+    <div className="w-[calc(100vw-64px)] max-w-[326px] shrink-0 overflow-hidden rounded-[10px] bg-white lg:w-[325px]">
       <div className={cn('flex items-center gap-1.5 px-4 py-3', style.headerBg)}>
         <Icon className="h-4 w-4" />
         <span className={cn('text-[14px] font-bold leading-[normal]', style.accent)}>{style.label}</span>

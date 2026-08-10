@@ -32,7 +32,7 @@ export const ChatBubble = ({
   return (
     <div
       className={cn(
-        'flex w-full max-w-[85%] min-w-0 items-start gap-2 lg:max-w-[50%] lg:gap-2.5',
+        'flex w-full min-w-0 items-start gap-2 lg:max-w-[50%] lg:gap-2.5',
         isMine && 'ml-auto flex-row-reverse',
       )}
     >
@@ -40,7 +40,7 @@ export const ChatBubble = ({
         name={senderName}
         avatarUrl={senderAvatarUrl}
         size="lg"
-        className="h-9 w-9 shrink-0 lg:h-11 lg:w-11"
+        className="h-11 w-11 shrink-0"
       />
       <div className={cn('flex min-w-0 flex-col gap-2', isMine ? 'items-end' : 'items-start')}>
         <span className="text-[14px] font-bold leading-[normal] text-gray-900 lg:text-[16px]">{senderName}</span>
@@ -52,7 +52,13 @@ export const ChatBubble = ({
 
           return (
             <div key={item.id} className={cn('flex min-w-0 flex-col gap-1', isMine && 'items-end')}>
-              <div className={cn('flex min-w-0 items-end gap-3', isMine && 'flex-row-reverse')}>
+              <div
+                className={cn(
+                  'flex min-w-0 items-end gap-3',
+                  shareCard && 'flex-col items-end gap-1 lg:flex-row lg:gap-3',
+                  isMine && !shareCard && 'flex-row-reverse',
+                )}
+              >
                 {shareCard ? (
                   <ShareCard
                     {...shareCard}

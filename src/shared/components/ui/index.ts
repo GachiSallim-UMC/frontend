@@ -6,6 +6,7 @@ export * from './AlertModal';
 export * from './FilterTabGroup';
 export * from './FormActions';
 export * from './MetricList';
+export * from './MobileListRow';
 export * from './Modal';
 export * from './SearchInput';
 export * from './StatusBadge';

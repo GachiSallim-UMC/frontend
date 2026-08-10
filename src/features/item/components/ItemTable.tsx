@@ -1,7 +1,11 @@
-import { Link } from 'react-router-dom';
-import EditIcon from '@/assets/icons/action/edit.svg?react';
-import ShareIcon from '@/assets/icons/action/share.svg?react';
-import { DataTable, StatusBadge, UserAvatar, type Column } from '@/shared/components/ui';
+import {
+  DataTable,
+  MobileListRow,
+  StatusBadge,
+  TableRowActions,
+  UserAvatar,
+  type Column,
+} from '@/shared/components/ui';
 import { formatDate, useDateFormat } from '@/shared/lib';
 import { ITEM_CATEGORY_LABEL } from '../hooks/useItemFilters';
 import type { Item, ItemCategory } from '../types/item.types';
@@ -64,23 +68,15 @@ export const ItemTable = ({ items, onShare }: ItemTableProps) => {
       header: '',
       align: 'right',
       render: item => (
-        <span className="flex justify-end text-gray-400">
-          <Link
-            to={`/items/${item.id}/edit`}
-            aria-label={`${item.name} 수정`}
-            className="flex size-[39px] items-center justify-center transition-colors hover:text-gray-500"
-          >
-            <EditIcon className="size-[39px]" />
-          </Link>
-          <button
-            type="button"
-            aria-label={`${item.name} 공유`}
-            onClick={() => onShare?.(item)}
-            className="flex size-[39px] items-center justify-center transition-colors hover:text-gray-500"
-          >
-            <ShareIcon className="size-[39px]" />
-          </button>
-        </span>
+        <TableRowActions
+          editTo={`/items/${item.id}/edit`}
+          onShare={onShare ? () => onShare(item) : undefined}
+          editLabel={`${item.name} 수정`}
+          shareLabel={`${item.name} 공유`}
+          className="text-gray-400"
+          actionClassName="size-[39px]"
+          iconClassName="size-[39px]"
+        />
       ),
     },
   ];
@@ -97,12 +93,14 @@ export const ItemTable = ({ items, onShare }: ItemTableProps) => {
           const isLast = index === items.length - 1;
 
           return (
-            <div
+            <MobileListRow
               key={item.id}
+              isLast={isLast}
+              separatorClassName="after:left-4 after:right-4"
               className={`relative grid grid-cols-[minmax(0,1fr)_52px_56px] items-center gap-3 px-4 ${
                 isLast
                   ? 'h-[60px]'
-                  : 'h-[62px] after:absolute after:bottom-0 after:left-4 after:right-4 after:h-px after:bg-gray-100'
+                  : 'h-[62px]'
               }`}
             >
               <span className="flex min-w-0 flex-col gap-0.5">
@@ -115,26 +113,19 @@ export const ItemTable = ({ items, onShare }: ItemTableProps) => {
               </span>
               <StatusBadge
                 variant={item.status}
-                className="h-[26px] w-[52px] px-0 text-mobile-caption leading-normal"
+                size="sm"
+                className="shrink-0"
               />
-              <span className="flex items-center text-gray-200">
-                <Link
-                  to={`/items/${item.id}/edit`}
-                  aria-label={`${item.name} 수정`}
-                  className="flex size-7 items-center justify-center transition-colors hover:text-gray-500"
-                >
-                  <EditIcon className="size-7" />
-                </Link>
-                <button
-                  type="button"
-                  aria-label={`${item.name} 공유`}
-                  onClick={() => onShare?.(item)}
-                  className="flex size-7 items-center justify-center transition-colors hover:text-gray-500"
-                >
-                  <ShareIcon className="size-7" />
-                </button>
-              </span>
-            </div>
+              <TableRowActions
+                editTo={`/items/${item.id}/edit`}
+                onShare={onShare ? () => onShare(item) : undefined}
+                editLabel={`${item.name} 수정`}
+                shareLabel={`${item.name} 공유`}
+                className="items-center text-gray-200"
+                actionClassName="size-7"
+                iconClassName="size-7"
+              />
+            </MobileListRow>
           );
         })
       )}
