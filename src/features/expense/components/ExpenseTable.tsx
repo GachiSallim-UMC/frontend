@@ -8,7 +8,7 @@ import {
   type Column,
 } from '@/shared/components/ui';
 import { useDateFormat } from '@/shared/lib';
-import type { Expense } from '@/features/expense';
+import type { Expense } from '@/features/expense/types';
 
 interface ExpenseTableProps {
   expenses: Expense[];
@@ -98,6 +98,7 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
       render: (row) => (
         <StatusBadge
           variant={row.status === 'paid' ? 'done' : 'unpaid'}
+          size="sm"
         />
       ),
     },
@@ -110,7 +111,7 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
           onEdit={onEdit ? () => onEdit(row) : undefined}
           onShare={onShare ? () => onShare(row) : undefined}
           className="gap-1"
-          iconClassName="h-[32px] w-[32px]"
+          iconClassName="h-[39px] w-[39px] text-gray-400"
         />
       ),
     },
@@ -161,10 +162,11 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
                   {row.title || '제목 없음'}
                 </div>
 
-                <div className="mt-1.5 truncate text-[13px] text-gray-500">
-                  {row.payer?.nickname ?? '알 수 없음'} ·{' '}
-                  {formatDotDate(row.date, dateOrder)} |{' '}
-                  {(row.amount ?? 0).toLocaleString()}원
+                {/* truncate 제거: 잘리지 않고 필요하면 자연스럽게 줄바꿈되도록 처리 */}
+                <div className="mt-1.5 text-[13px] leading-[18px] text-gray-500">
+                  {row.payer?.nickname ?? '알 수 없음'} 선지불 |{' '}
+                  {(row.amount ?? 0).toLocaleString()}원 ·{' '}
+                  {formatDotDate(row.date, dateOrder)}
                 </div>
               </div>
 
@@ -172,6 +174,7 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
               <div className="flex shrink-0 items-center gap-2 self-center">
                 <StatusBadge
                   variant={row.status === 'paid' ? 'done' : 'unpaid'}
+                  size="sm"
                 />
 
                 <span className="flex items-center gap-1 text-gray-400">
