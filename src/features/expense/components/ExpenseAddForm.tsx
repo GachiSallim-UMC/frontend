@@ -146,11 +146,11 @@ export const ExpenseAddForm = ({
   };
 
   const handleDateBlur = () => {
-    if (expenseDate && expenseDate < todayStr) {
+    if (expenseDate && expenseDate > todayStr) {
       setExpenseDate(todayStr);
       useAlertStore.getState().showAlert({
         title: '알림',
-        message: '오늘 이전의 날짜는 선택할 수 없습니다.',
+        message: '오늘 이후의 날짜는 선택할 수 없습니다.',
       });
     }
   };
@@ -190,7 +190,7 @@ export const ExpenseAddForm = ({
   } = useExpenseForm({
     initialExpense,
     selectedPayerId,
-    mockUsers: members,
+    members,
     onSave: handleFormSave,
     isEditMode,
     expenseId,
@@ -317,15 +317,13 @@ export const ExpenseAddForm = ({
       nextErrors.amount =
         `금액은 1원부터 ${MAX_EXPENSE_AMOUNT.toLocaleString()}원 사이의 정수로 입력해 주세요.`;
     }
-
     if (!expenseDate) {
       nextErrors.date = '지출일을 선택해 주세요.';
     } else if (!isValidDateOnly(expenseDate)) {
       nextErrors.date = '올바른 지출일을 선택해 주세요.';
-    } else if (expenseDate < todayStr) {
-      nextErrors.date = '지출일은 오늘 이후로 선택해 주세요.';
+    } else if (expenseDate > todayStr) {
+      nextErrors.date = '지출일은 오늘 또는 이전 날짜로 선택해 주세요.';
     }
-
     if (!payerId) nextErrors.payerId = '선지불자를 선택해 주세요.';
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
 
@@ -480,9 +478,10 @@ export const ExpenseAddForm = ({
                   value={expenseDate}
                   onChange={handleDateChange}
                   onBlur={handleDateBlur}
-                  min={todayStr}
+                  max={todayStr}
+                  disabled={isEditMode}
                   placeholder="yyyy-mm-dd"
-                  className={`h-[50px] w-full rounded-[8px] border bg-white px-4 pr-12 text-button text-gray-800 outline-none placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-primary-500 [&::-webkit-calendar-picker-indicator]:hidden ${
+                  className={`h-[50px] w-full rounded-[8px] border bg-white px-4 pr-12 text-button text-gray-800 outline-none placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 [&::-webkit-calendar-picker-indicator]:hidden ${
                     fieldErrors.date ? 'border-red-500' : 'border-gray-100'
                   }`}
                 />
@@ -490,8 +489,9 @@ export const ExpenseAddForm = ({
                 <button
                   type="button"
                   onClick={handleIconClick}
+                  disabled={isEditMode}
                   aria-label="달력 열기"
-                  className="absolute right-4 top-1/2 flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center"
+                  className="absolute right-4 top-1/2 flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <img src={calendarIcon} alt="" />
                 </button>
@@ -518,7 +518,7 @@ export const ExpenseAddForm = ({
               membersLoading ? '멤버 불러오는 중...' : '선지불자 선택'
             }
             error={fieldErrors.payerId}
-            disabled={membersLoading}
+            disabled={membersLoading || isEditMode}
           />
 
           <SelectDropdown
@@ -856,6 +856,8 @@ export const ExpenseAddForm = ({
             placeholder="예: 장보기, 전기요금"
             maxLength={MEMO_MAX_LENGTH}
             error={fieldErrors.memo}
+            disabled={isEditMode}
+            className={isEditMode ? 'cursor-not-allowed bg-gray-100 text-gray-400' : undefined}
             showCount
             countInside
           />

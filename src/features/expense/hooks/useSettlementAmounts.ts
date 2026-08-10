@@ -7,8 +7,8 @@ interface UseSettlementAmountsParams {
   amount: string;
   memberIds: string[];
   settlementMethod: SettlementMethod;
-  memberAmounts?: Record<string, number>; 
-  memberRatios?: Record<string, number>;  
+  memberAmounts?: Record<string, number>;
+  memberRatios?: Record<string, number>;
 }
 
 export function useSettlementAmounts({
@@ -29,7 +29,6 @@ export function useSettlementAmounts({
       return;
     }
 
-    
     if (settlementMethod === 'CUSTOM') {
       const result = memberIds.reduce<Record<string, number>>((acc, id) => {
         acc[id] = memberAmounts?.[id] || 0;
@@ -39,7 +38,6 @@ export function useSettlementAmounts({
       return;
     }
 
-    
     if (settlementMethod === 'RATIO') {
       const result = memberIds.reduce<Record<string, number>>((acc, id) => {
         const percentage = memberRatios?.[id] || 0;
@@ -50,7 +48,6 @@ export function useSettlementAmounts({
       return;
     }
 
-    
     const fetchSplit = async () => {
       try {
         const response = await calculateExpenseSplit({
@@ -60,15 +57,14 @@ export function useSettlementAmounts({
         });
 
         if (isMounted) {
-          const data = response?.data ?? response;
-          const splits = data?.calculatedSplits ?? [];
+          const splits = response.calculatedSplits ?? [];
 
           const result: Record<string, number> = splits.reduce(
             (acc: Record<string, number>, split: { userId: string | number; amount: number }) => {
               acc[String(split.userId)] = split.amount;
               return acc;
             },
-            {}
+            {},
           );
 
           setCalculatedAmounts(result);

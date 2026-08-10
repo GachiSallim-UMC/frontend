@@ -24,6 +24,13 @@ export const Receipt = ({
     setPreviewUrl(imageUrl);
   }, [imageUrl]);
 
+  useEffect(
+    () => () => {
+      if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+    },
+    [previewUrl],
+  );
+
   const handleButtonClick = () => {
     if (disabled) return;
     fileInputRef.current?.click();
@@ -43,7 +50,7 @@ export const Receipt = ({
       return;
     }
 
-    if (file.size > MAX_RECEIPT_SIZE) {
+    if (file.size < 1 || file.size > MAX_RECEIPT_SIZE) {
       useAlertStore.getState().showAlert({
         title: '알림',
         message: '파일 크기는 10MB를 초과할 수 없습니다.',

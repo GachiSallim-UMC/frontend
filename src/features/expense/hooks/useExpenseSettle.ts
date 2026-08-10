@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { settleExpenseSplit, expenseKeys } from '@/features/expense';
 import type { Expense } from '@/features/expense';
 import { useAlertStore } from '@/shared/store';
+import { useExpenseQueryScope } from './useExpenseQueryScope';
 
 export const settleMyExpenseShare = async (
   expense: Expense,
@@ -30,7 +31,7 @@ export const settleMyExpenseShare = async (
 
   try {
     await settleExpenseSplit(Number(myShare.id), {
-      isBulkComplete: false,
+      isBulkComplete: true,
     });
 
     return { ok: true };
@@ -51,25 +52,16 @@ export const useExpenseSettle = (
   const [paidSplitIds, setPaidSplitIds] = useState<(number | string)[]>([]);
   const queryClient = useQueryClient();
   const showAlert = useAlertStore((state) => state.showAlert);
+  const { userId, groupId } = useExpenseQueryScope();
 
   const refreshExpenses = async () => {
     await queryClient.invalidateQueries({
-      queryKey: expenseKeys.lists(),
+      queryKey: expenseKeys.lists(userId, groupId),
     });
 
     if (expense?.id) {
       await queryClient.invalidateQueries({
-        queryKey: expenseKeys.detail(expense.id),
-      });
-    }
-
-    await queryClient.refetchQueries({
-      queryKey: expenseKeys.lists(),
-    });
-
-    if (expense?.id) {
-      await queryClient.refetchQueries({
-        queryKey: expenseKeys.detail(expense.id),
+        queryKey: expenseKeys.detail(userId, groupId, expense.id),
       });
     }
 
@@ -130,7 +122,7 @@ export const useExpenseSettle = (
     try {
       for (const splitId of selectedSplitIds) {
         await settleExpenseSplit(Number(splitId), {
-          isBulkComplete: false,
+          isBulkComplete: true,
         });
       }
 

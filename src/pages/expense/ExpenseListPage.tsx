@@ -1,46 +1,20 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ExpenseTable } from '@/features/expense';
-import { ExpenseFilter } from '@/features/expense/components/ExpenseFilter';
+import { ExpenseFilterControl, ExpenseTable } from '@/features/expense';
 import type { ExpenseFilter as ExpenseFilterValue } from '@/features/expense';
 import { useExpenseList, useExpenseSummary } from '@/features/expense';
 import type { Expense } from '@/features/expense';
-import { memberApi } from '@/features/member';
+import { useGroupMembers } from '@/features/member';
 import {
   ShareItemPickerModal,
   useShareToMessenger,
 } from '@/features/messenger';
-import { requireSelectedGroupId } from '@/shared/api';
-import { useAuthStore } from '@/shared/store';
-import type { User } from '@/shared/types';
-import { SummaryCard } from '@/shared/components/ui';
+import { useAuthStore, useGroupStore } from '@/shared/store';
+import { Button, SummaryCard } from '@/shared/components/ui';
 import totalExpenseIcon from '@/assets/icons/expense/totalexpense.svg';
 import receiveIcon from '@/assets/icons/expense/recive.svg';
 import payIcon from '@/assets/icons/expense/pay.svg';
-
-function enrichExpenseWithMembers(
-  expense: Expense,
-  memberList: User[],
-): Expense {
-  const memberMap = new Map(
-    memberList.map(m => [String(m.id), m]),
-  );
-
-  const payer =
-    memberMap.get(String(expense.payer.id)) ?? expense.payer;
-
-  const shares = expense.shares?.map(share => ({
-    ...share,
-    user:
-      memberMap.get(String(share.user.id)) ?? share.user,
-  }));
-
-  return {
-    ...expense,
-    payer,
-    shares,
-  };
-}
+import { enrichExpenseWithMembers, mapGroupMembersToUsers } from './expenseMembers';
 
 export const ExpenseListPage = () => {
   const [activeFilter, setActiveFilter] =
@@ -60,52 +34,16 @@ export const ExpenseListPage = () => {
   const currentUserId = useAuthStore(
     state => state.userId ?? undefined,
   );
-
-  const [members, setMembers] = useState<User[]>([]);
-  const [membersLoading, setMembersLoading] = useState(true);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchMembers = async () => {
-      setMembersLoading(true);
-
-      try {
-        const groupId = requireSelectedGroupId();
-        const rawMembers =
-          await memberApi.getGroupMembers(groupId);
-
-        const mapped: User[] = rawMembers.map(m => ({
-          id: m.user.id,
-          name: m.user.nickname || m.user.name,
-          nickname: m.user.nickname,
-          email: '',
-          avatarUrl: m.user.profileImage ?? undefined,
-        }));
-
-        if (isMounted) {
-          setMembers(mapped);
-        }
-      } catch (err) {
-        console.error('그룹 멤버 조회 실패:', err);
-      } finally {
-        if (isMounted) {
-          setMembersLoading(false);
-        }
-      }
-    };
-
-    fetchMembers();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const selectedGroupId = useGroupStore(state => state.selectedGroupId);
+  const membersQuery = useGroupMembers(selectedGroupId);
+  const members = useMemo(() => mapGroupMembersToUsers(membersQuery.data), [membersQuery.data]);
+  const membersLoading = membersQuery.isLoading;
 
   const {
     expenses,
     isLoading,
     error,
+    refetch,
   } = useExpenseList(activeFilter);
 
   const enrichedExpenses = useMemo(
@@ -259,7 +197,7 @@ export const ExpenseListPage = () => {
 
         <div className="mt-4 mb-6 flex h-auto w-full flex-col rounded-[16px] bg-white pb-6 lg:mt-[30px] lg:mb-10 lg:rounded-[20px] lg:pb-8">
           <div className="w-full px-3 pt-4 sm:px-4 lg:px-[30px] lg:pt-[30px]">
-            <ExpenseFilter
+            <ExpenseFilterControl
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
             />
@@ -270,9 +208,20 @@ export const ExpenseListPage = () => {
               <div className="w-full py-12 text-center text-gray-400 lg:py-20">
                 지출 목록을 불러오는 중...
               </div>
-            ) : error ? (
-              <div className="w-full py-12 text-center text-red-500 lg:py-20">
-                {error}
+            ) : error || membersQuery.isError ? (
+              <div className="flex w-full flex-col items-center gap-3 py-12 text-center text-red-500 lg:py-20">
+                <p>{membersQuery.isError ? '그룹원 정보를 불러오지 못했습니다.' : error}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    void refetch();
+                    void membersQuery.refetch();
+                  }}
+                >
+                  다시 시도
+                </Button>
               </div>
             ) : (
               <ExpenseTable
