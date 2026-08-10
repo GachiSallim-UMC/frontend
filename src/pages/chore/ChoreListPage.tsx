@@ -50,7 +50,13 @@ export const ChoreListPage = () => {
     return filter.status as ChoreApiStatus | undefined;
   }, [filter.status]);
 
-  const { data: chores = [] } = useChores(
+  const {
+    data: chores = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useChores(
     groupId && Number.isSafeInteger(groupId)
       ? {
           groupId,
@@ -142,13 +148,30 @@ export const ChoreListPage = () => {
         <h3 className="text-[14px] font-bold text-gray-700">{todayText}</h3>
       </div>
       <div className="order-4 mt-[8px] w-full flex-1 pb-[16px] lg:order-3 lg:mt-0 lg:pb-0">
-        <ChoreTable
-          chores={filteredChores}
-          onEdit={handleEdit}
-          onShare={handleShareClick}
-          onToggleComplete={handleToggleComplete}
-          isUpdating={completeMutation.isPending || incompleteMutation.isPending}
-        />
+        {isLoading ? (
+          <div className="flex min-h-[104px] items-center justify-center text-mobile-label text-gray-500 lg:text-button">
+            집안일 목록을 불러오는 중입니다.
+          </div>
+        ) : isError ? (
+          <div className="flex min-h-[104px] flex-col items-center justify-center gap-3 text-mobile-label text-gray-500 lg:text-button">
+            <p>{error instanceof Error ? error.message : '집안일 목록을 불러오지 못했습니다.'}</p>
+            <button
+              type="button"
+              className="text-button font-bold text-primary-600"
+              onClick={() => void refetch()}
+            >
+              다시 시도
+            </button>
+          </div>
+        ) : (
+          <ChoreTable
+            chores={filteredChores}
+            onEdit={handleEdit}
+            onShare={handleShareClick}
+            onToggleComplete={handleToggleComplete}
+            isUpdating={completeMutation.isPending || incompleteMutation.isPending}
+          />
+        )}
       </div>
       <ShareItemPickerModal
         type={activeType}
