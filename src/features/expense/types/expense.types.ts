@@ -63,6 +63,8 @@ export const expenseKeys = {
     [...expenseKeys.scope(userId, groupId), 'list'] as const,
   detail: (userId: string | null, groupId: string | null, id: number | string) =>
     [...expenseKeys.scope(userId, groupId), 'detail', id] as const,
+  receipt: (userId: string | null, groupId: string | null, id: number | string) =>
+    [...expenseKeys.detail(userId, groupId, id), 'receipt'] as const,
 };
 
 /** 생활비 등록 DTO */
