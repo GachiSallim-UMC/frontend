@@ -122,6 +122,11 @@ export const ChoreTable = ({
                   "
                 />
               </div>
+              <UserAvatar
+                name={chore.assignee.name}
+                avatarUrl={chore.assignee.avatarUrl}
+                size="xs"
+              />
               <div className="flex min-w-0 flex-1 flex-col gap-0">
                 <span className="truncate text-[12px] text-gray-900 font-bold">{chore.name}</span>
                 <span className="truncate text-[10px] text-gray-600">
