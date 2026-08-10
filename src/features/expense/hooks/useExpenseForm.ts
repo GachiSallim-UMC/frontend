@@ -4,9 +4,9 @@ import type {
   UpdateExpenseDto,
   Expense,
   ExpenseCategory,
+  SettlementMethod,
 } from '../types/expense.types';
 import { useCreateExpense, useUpdateExpense } from './useExpenseMutations';
-import type { SettlementMethod } from './useSettlementAmounts';
 
 const normalizeNumericInput = (value: string) => {
   const normalized = value.replace(/,/g, '').trim();
@@ -65,7 +65,6 @@ export function useExpenseForm({
   const [customMemberRatios, setCustomMemberRatios] = useState<Record<string, number>>({});
 
   const [isDirectInputCompleted, setIsDirectInputCompleted] = useState(!!initialExpense);
-  const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
 
@@ -98,7 +97,6 @@ export function useExpenseForm({
   const handleMethodChange = (newMethod: SettlementMethod) => {
     setSettlementMethod(newMethod);
     setIsDirectInputCompleted(false);
-    setWarningMessage(null);
   };
 
   const toggleMember = (id: string) => {
@@ -120,30 +118,6 @@ export function useExpenseForm({
     (sum, memberId) => sum + (customMemberRatios[memberId] ?? 0),
     0,
   );
-
-  const handleCompleteDirectInput = () => {
-    if (settlementMethod === 'RATIO') {
-      if (totalRatioSum > 100) {
-        setWarningMessage('입력된 비율의 합이 100%를 초과했습니다.');
-        return;
-      }
-      if (totalRatioSum < 100) {
-        setWarningMessage('입력된 비율의 합이 100%보다 부족합니다.');
-        return;
-      }
-    } else {
-      if (totalCustomSum > numericTotalAmount) {
-        setWarningMessage('입력된 금액이 총액을 초과했습니다.');
-        return;
-      }
-      if (totalCustomSum < numericTotalAmount) {
-        setWarningMessage('입력된 금액이 총액보다 부족합니다.');
-        return;
-      }
-    }
-    setWarningMessage(null);
-    setIsDirectInputCompleted(true);
-  };
 
   const handleSaveClick = async () => {
     try {
@@ -230,14 +204,11 @@ export function useExpenseForm({
     totalRatioSum,
     isDirectInputCompleted,
     setIsDirectInputCompleted,
-    warningMessage,
-    setWarningMessage,
     isDirty: dirtySnapshot !== initialDirtySnapshotRef.current,
     dateInputRef,
     handleIconClick,
     numericTotalAmount,
     totalCustomSum,
-    handleCompleteDirectInput,
     handleSaveClick,
   };
 }
