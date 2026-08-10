@@ -55,7 +55,7 @@ export const DashboardPage = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col">
+                <div className="mb-4 flex flex-col lg:mb-0">
                     <div className="mb-2 flex items-center justify-between lg:mb-3">
                         <h2 className="text-button font-bold text-gray-800 lg:text-lg">최근 활동</h2>
                         <Link to="/activity"
