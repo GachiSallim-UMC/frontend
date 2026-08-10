@@ -914,16 +914,18 @@ export const ExpenseAddForm = ({
           )}
         </div>
 
-        <ShareMessengerButton
-          label={isSharing ? '공유 중...' : '메신저에 공유'}
-          onClick={() => {
-            if (currentExpenseId) {
-              onShare?.(currentExpenseId);
-            }
-          }}
-          className="w-full shrink-0 sm:w-auto sm:min-w-[140px]"
-          disabled={isSharing || !currentExpenseId}
-        />
+        {isEditMode && (
+          <ShareMessengerButton
+            label={isSharing ? '공유 중...' : '메신저에 공유'}
+            onClick={() => {
+              if (currentExpenseId) {
+                onShare?.(currentExpenseId);
+              }
+            }}
+            className="w-full shrink-0 sm:w-auto sm:min-w-[140px]"
+            disabled={isSharing || !currentExpenseId}
+          />
+        )}
       </div>
 
       {mobileReceiptSlot && (
