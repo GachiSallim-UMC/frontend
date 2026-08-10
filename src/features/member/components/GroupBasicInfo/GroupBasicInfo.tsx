@@ -249,7 +249,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: GroupBasicIn
               maxLength={40}
               error={errors.groupName}
               disabled={!isAdmin}
-              className="h-[44px] lg:h-[50px] text-[12px] lg:text-[16px]"
+              inputSize="sm"
             />
           </div>
 
@@ -270,7 +270,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: GroupBasicIn
                 maxLength={255}
                 error={errors.description}
                 disabled={!isAdmin}
-                className="h-[44px] lg:h-[50px] text-[12px] lg:text-[16px]"
+                inputSize="sm"
               />
             </div>
 
@@ -298,7 +298,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: GroupBasicIn
               placeholder="인원 선택"
               error={errors.maxMemberCount}
               disabled={!isAdmin}
-              className="h-[44px] lg:h-[50px] text-[12px] lg:text-[16px]"
+              inputSize="sm"
             />
           </div>
           <div className="order-4 mt-[10px] lg:hidden">

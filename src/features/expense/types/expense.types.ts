@@ -4,6 +4,7 @@ import type { ExpenseStatus, User } from '@/shared/types';
 export type SplitType = 'EQUAL' | 'RATIO' | 'CUSTOM';
 
 export type ExpenseFilter = 'TOTAL' | 'THIS_MONTH';
+export type ExpenseStatusFilter = 'ALL' | ExpenseStatus;
 
 /* 생활비 카테고리 */
 export type ExpenseCategory = 
