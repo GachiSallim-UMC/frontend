@@ -9,7 +9,7 @@ import {
 } from '@/features/member';
 import { useAlertStore, useGroupStore } from '@/shared/store';
 import { GroupPageShell } from './GroupPageShell';
-import { memberApi } from '@/features/member/api/member.api';
+import { memberApi } from '@/features/member';
 
 export const JoinGroupPage = () => {
   const navigate = useNavigate();

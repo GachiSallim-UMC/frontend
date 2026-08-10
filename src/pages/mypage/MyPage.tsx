@@ -7,12 +7,14 @@ import {
     DataInfoSettings,
     MyPageButtonGroup
  } from "@/features/mypage";
+import { useLogout } from '@/features/auth';
 import { MyPagePrivacyPage } from "@/pages/mypage/MyPagePrivacyPage";
 import { MyPageTermsPage } from "@/pages/mypage/MyPageTermsPage";
 
  export const MyPage = () => {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
   return (
     <div className="flex min-h-0 w-full flex-1 bg-primary-50 pb-7">
@@ -31,7 +33,7 @@ import { MyPageTermsPage } from "@/pages/mypage/MyPageTermsPage";
               onViewPrivacy={() => setIsPrivacyOpen(true)}
               onViewTerms={() => setIsTermsOpen(true)}
             />
-            <MyPageButtonGroup />
+            <MyPageButtonGroup onLogout={() => logout()} isLoggingOut={isLoggingOut} />
 
           </div>
         </div>
