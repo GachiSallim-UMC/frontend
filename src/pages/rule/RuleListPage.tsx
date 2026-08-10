@@ -10,7 +10,6 @@ import {
 } from '@/features/rule';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
 import { FilterDropdown, FilterTabGroup } from '@/shared/components/ui';
-import { cn } from '@/shared/lib/cn';
 
 const MOBILE_CATEGORY_FILTERS: { value: RuleCategory | ''; label: string }[] = [
   { value: '', label: '전체' },
@@ -58,18 +57,13 @@ export const RuleListPage = () => {
         </Link>
       </div>
 
-      <div
-        className={cn(
-          'flex w-full flex-col overflow-hidden rounded-lg bg-white lg:h-[342px] lg:min-h-0 lg:rounded-[10px] lg:border lg:border-gray-100',
-          (isLoading || error || filteredRules.length === 0) && 'min-h-[246px]',
-        )}
-      >
+      <div className="flex w-full flex-col overflow-hidden rounded-lg bg-white lg:h-[342px] lg:min-h-0 lg:rounded-[10px] lg:border lg:border-gray-100">
         {isLoading ? (
-          <p className="flex h-full items-center justify-center text-gray-500">
+          <p className="flex min-h-[104px] items-center justify-center text-mobile-label text-gray-500 lg:h-full lg:text-button">
             생활규칙을 불러오는 중입니다.
           </p>
         ) : error ? (
-          <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-500">
+          <div className="flex min-h-[104px] flex-col items-center justify-center gap-3 text-mobile-label text-gray-500 lg:h-full lg:text-button">
             <p>{error instanceof Error ? error.message : '생활규칙을 불러오지 못했습니다.'}</p>
             <button
               type="button"
@@ -80,7 +74,7 @@ export const RuleListPage = () => {
             </button>
           </div>
         ) : filteredRules.length === 0 ? (
-          <p className="flex h-full items-center justify-center text-gray-400">
+          <p className="py-10 text-center text-mobile-label text-gray-400 lg:flex lg:h-full lg:items-center lg:justify-center lg:py-0 lg:text-button">
             등록된 생활 규칙이 없습니다.
           </p>
         ) : (
