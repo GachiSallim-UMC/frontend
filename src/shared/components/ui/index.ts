@@ -5,6 +5,7 @@ export * from './DataTable';
 export * from './AlertModal';
 export * from './FilterTabGroup';
 export * from './FormActions';
+export * from './FormCancelModal';
 export * from './MetricList';
 export * from './MobileListRow';
 export * from './Modal';

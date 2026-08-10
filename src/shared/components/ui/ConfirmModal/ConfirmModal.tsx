@@ -27,6 +27,8 @@ interface ConfirmModalProps {
   errorMessage?: string;
   /** danger는 삭제 등 파괴적 동작 (Figma: Delete 모달) */
   tone?: ConfirmTone;
+  /** 취소 확인처럼 비파괴적인 모달에서만 배경 클릭 닫기를 허용합니다. */
+  closeOnOverlayClick?: boolean;
 }
 
 const toneStyles: Record<ConfirmTone, { iconBg: string; iconColor: string; confirm: string }> = {
@@ -64,6 +66,7 @@ export const ConfirmModal = ({
   isPending = false,
   errorMessage,
   tone = 'default',
+  closeOnOverlayClick = false,
 }: ConfirmModalProps) => {
   const styles = toneStyles[tone];
 
@@ -72,6 +75,7 @@ export const ConfirmModal = ({
       isOpen={isOpen}
       onClose={onClose}
       dismissible={false}
+      closeOnOverlayClick={closeOnOverlayClick && !isPending}
       className="w-[357px] max-w-[calc(100vw-32px)] min-h-[202px] flex flex-col overflow-hidden rounded-[20px] p-0
       lg:block lg:h-auto lg:w-full lg:max-w-[500px] lg:rounded-[28px]"
     >
