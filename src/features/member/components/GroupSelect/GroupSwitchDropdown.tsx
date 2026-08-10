@@ -23,15 +23,17 @@ export const GroupSwitchDropdown = () => {
   if (!selectedGroup) return null;
 
   return (
-    <div className="relative inline-block" ref={containerRef}>
+    <div className="relative w-[184px] shrink-0" ref={containerRef}>
       <button
         type="button"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={toggle}
-        className="flex h-8 max-w-full items-center gap-1 rounded-full border border-gray-100 bg-white px-3 text-mobile-label"
+        className="flex h-8 w-full min-w-0 items-center gap-1 rounded-full border border-gray-100 bg-white px-3 text-mobile-label"
       >
-        <span className="truncate font-bold text-gray-600">{selectedGroup.name}</span>
+        <span className="min-w-0 flex-1 truncate text-left font-bold text-gray-600">
+          {selectedGroup.name}
+        </span>
         <span className="shrink-0 text-gray-600">· 멤버 {selectedGroup.memberCount}명</span>
         <ChevronDown
           className={cn('size-3 shrink-0 text-gray-400 transition-transform', isOpen && 'rotate-180')}
