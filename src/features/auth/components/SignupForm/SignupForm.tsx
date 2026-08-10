@@ -79,9 +79,13 @@ export const SignupForm = ({
                     {/* 이름 & 닉네임 영역 */}
                     <div className="mb-4 grid grid-cols-2 gap-4">
                         <div>
-                            <label className="mb-2 block text-base font-bold text-gray-800">이름</label>
+                            <label htmlFor="signup-name" className="mb-2 block text-base font-bold text-gray-800">이름</label>
                             <FormInput
+                                id="signup-name"
+                                name="name"
                                 type="text"
+                                required
+                                autoComplete="name"
                                 maxLength={30}
                                 placeholder="이름을 입력해주세요"
                                 value={formData.name}
@@ -91,9 +95,13 @@ export const SignupForm = ({
                             />
                         </div>
                         <div>
-                            <label className="mb-2 block text-base font-bold text-gray-800">닉네임</label>
+                            <label htmlFor="signup-nickname" className="mb-2 block text-base font-bold text-gray-800">닉네임</label>
                             <FormInput
+                                id="signup-nickname"
+                                name="nickname"
                                 type="text"
+                                required
+                                autoComplete="nickname"
                                 maxLength={10}
                                 placeholder="닉네임을 입력해주세요"
                                 value={formData.nickname}
@@ -106,9 +114,13 @@ export const SignupForm = ({
 
                     {/* 이메일 영역 */}
                     <div className="mb-4">
-                        <label className="mb-2 block text-base font-bold text-gray-800">이메일</label>
+                        <label htmlFor="signup-email" className="mb-2 block text-base font-bold text-gray-800">이메일</label>
                         <FormInput
+                            id="signup-email"
+                            name="email"
                             type="email"
+                            required
+                            autoComplete="email"
                             maxLength={100}
                             placeholder="이메일 주소를 입력해주세요"
                             value={formData.email}
@@ -120,9 +132,13 @@ export const SignupForm = ({
 
                     {/* 비밀번호 영역 */}
                     <div className="mb-4">
-                        <label className="mb-2 block text-base font-bold text-gray-800">비밀번호</label>
+                        <label htmlFor="signup-password" className="mb-2 block text-base font-bold text-gray-800">비밀번호</label>
                         <FormInput
+                            id="signup-password"
+                            name="password"
                             type="password"
+                            required
+                            autoComplete="new-password"
                             maxLength={16}
                             placeholder="비밀번호를 입력해주세요"
                             value={formData.password}
@@ -134,9 +150,13 @@ export const SignupForm = ({
 
                     {/* 비밀번호 확인 영역 */}
                     <div className="mb-4">
-                        <label className="mb-2 block text-base font-bold text-gray-800">비밀번호 확인</label>
+                        <label htmlFor="signup-password-confirm" className="mb-2 block text-base font-bold text-gray-800">비밀번호 확인</label>
                         <FormInput
+                            id="signup-password-confirm"
+                            name="passwordConfirm"
                             type="password"
+                            required
+                            autoComplete="new-password"
                             maxLength={16}
                             placeholder="비밀번호를 다시 입력해주세요"
                             value={formData.passwordConfirm}
@@ -149,6 +169,8 @@ export const SignupForm = ({
                     {/* 약관 동의 체크박스 */}
                     <div className="mb-5 flex items-center gap-2">
                         <CheckboxGroup
+                            name="terms"
+                            required
                             value={agreedTerms}
                             onChange={onAgreedTermsChange}
                             options={[
@@ -186,11 +208,15 @@ export const SignupForm = ({
                     {/* 이름 & 닉네임 영역 */}
                     <div className="mb-4 grid grid-cols-2 gap-2">
                         <div>
-                            <label className="mb-1.5 block text-mobile-body font-bold text-gray-700">
+                            <label htmlFor="signup-name" className="mb-1.5 block text-mobile-body font-bold text-gray-700">
                                 이름 <span className="text-red-700">*</span>
                             </label>
                             <FormInput
+                                id="signup-name"
+                                name="name"
                                 type="text"
+                                required
+                                autoComplete="name"
                                 maxLength={30}
                                 placeholder="이름을 입력해주세요"
                                 value={formData.name}
@@ -200,11 +226,15 @@ export const SignupForm = ({
                             />
                         </div>
                         <div>
-                            <label className="mb-1.5 block text-mobile-body font-bold text-gray-700">
+                            <label htmlFor="signup-nickname" className="mb-1.5 block text-mobile-body font-bold text-gray-700">
                                 닉네임 <span className="text-red-700">*</span>
                             </label>
                             <FormInput
+                                id="signup-nickname"
+                                name="nickname"
                                 type="text"
+                                required
+                                autoComplete="nickname"
                                 maxLength={10}
                                 placeholder="닉네임을 입력해주세요"
                                 value={formData.nickname}
@@ -217,11 +247,15 @@ export const SignupForm = ({
 
                     {/* 이메일 영역 */}
                     <div className="mb-4">
-                        <label className="mb-1.5 block text-mobile-body font-bold text-gray-700">
+                        <label htmlFor="signup-email" className="mb-1.5 block text-mobile-body font-bold text-gray-700">
                             이메일 <span className="text-red-700">*</span>
                         </label>
                         <FormInput
+                            id="signup-email"
+                            name="email"
                             type="email"
+                            required
+                            autoComplete="email"
                             maxLength={100}
                             placeholder="이메일 주소를 입력해주세요"
                             value={formData.email}
@@ -233,11 +267,15 @@ export const SignupForm = ({
 
                     {/* 비밀번호 영역 */}
                     <div className="mb-4">
-                        <label className="mb-1.5 block text-mobile-body font-bold text-gray-700">
+                        <label htmlFor="signup-password" className="mb-1.5 block text-mobile-body font-bold text-gray-700">
                             비밀번호 <span className="text-red-700">*</span>
                         </label>
                         <FormInput
+                            id="signup-password"
+                            name="password"
                             type="password"
+                            required
+                            autoComplete="new-password"
                             maxLength={16}
                             placeholder="영문 대소문자, 숫자 포함 8~16자"
                             value={formData.password}
@@ -249,11 +287,15 @@ export const SignupForm = ({
 
                     {/* 비밀번호 확인 영역 */}
                     <div className="mb-5">
-                        <label className="mb-1.5 block text-mobile-body font-bold text-gray-700">
+                        <label htmlFor="signup-password-confirm" className="mb-1.5 block text-mobile-body font-bold text-gray-700">
                             비밀번호 확인 <span className="text-red-700">*</span>
                         </label>
                         <FormInput
+                            id="signup-password-confirm"
+                            name="passwordConfirm"
                             type="password"
+                            required
+                            autoComplete="new-password"
                             maxLength={16}
                             placeholder="비밀번호를 다시 입력해주세요"
                             value={formData.passwordConfirm}
@@ -266,6 +308,8 @@ export const SignupForm = ({
                     {/* 약관 동의 체크박스 */}
                     <div className="flex items-center gap-2">
                         <CheckboxGroup
+                            name="terms"
+                            required
                             value={agreedTerms}
                             onChange={onAgreedTermsChange}
                             options={[
@@ -323,9 +367,12 @@ export const SignupForm = ({
                     <form noValidate onSubmit={onFinalSubmit} className="flex w-full flex-col">
                         {/* 이메일 확인 영역 */}
                         <div className="mb-4 w-full">
-                            <label className="mb-1.5 block text-mobile-body font-bold text-gray-700">이메일</label>
+                            <label htmlFor="signup-confirm-email" className="mb-1.5 block text-mobile-body font-bold text-gray-700">이메일</label>
                             <FormInput
+                                id="signup-confirm-email"
+                                name="email"
                                 type="email"
+                                autoComplete="email"
                                 value={formData.email}
                                 readOnly
                                 disabled
@@ -335,11 +382,15 @@ export const SignupForm = ({
 
                         {/* 인증번호 입력 및 인증 버튼 영역 */}
                         <div className="w-full">
-                            <label className="mb-1.5 block text-mobile-body font-bold text-gray-700">인증번호</label>
+                            <label htmlFor="signup-verification-code" className="mb-1.5 block text-mobile-body font-bold text-gray-700">인증번호</label>
                             <div className="flex w-full gap-2">
                                 <div className="flex-1">
                                     <FormInput
+                                        id="signup-verification-code"
+                                        name="verificationCode"
                                         type="text"
+                                        required
+                                        autoComplete="one-time-code"
                                         inputMode="numeric"
                                         pattern="[0-9]*"
                                         maxLength={6}
@@ -413,9 +464,12 @@ export const SignupForm = ({
 
                         {/* 이메일 확인 영역 */}
                         <div className="mb-4 w-full">
-                            <label className="mb-2 block text-base font-bold text-gray-800">이메일</label>
+                            <label htmlFor="signup-confirm-email" className="mb-2 block text-base font-bold text-gray-800">이메일</label>
                             <FormInput
+                                id="signup-confirm-email"
+                                name="email"
                                 type="email"
+                                autoComplete="email"
                                 value={formData.email}
                                 readOnly
                                 disabled
@@ -425,11 +479,15 @@ export const SignupForm = ({
 
                         {/* 인증번호 입력 및 인증 버튼 영역 */}
                         <div className='mb-5 w-full'>
-                            <label className="mb-2 block text-base font-bold text-gray-800">인증번호</label>
+                            <label htmlFor="signup-verification-code" className="mb-2 block text-base font-bold text-gray-800">인증번호</label>
                             <div className='flex w-full gap-2'>
                                 <div className='flex-1'>
                                     <FormInput
+                                        id="signup-verification-code"
+                                        name="verificationCode"
                                         type="text"
+                                        required
+                                        autoComplete="one-time-code"
                                         inputMode="numeric"
                                         pattern="[0-9]*"
                                         maxLength={6}

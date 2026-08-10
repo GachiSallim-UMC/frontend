@@ -41,7 +41,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <RouterProvider router={router} />
+    <RouterProvider router={router} future={{ v7_startTransition: true }} />
     <PushSubscriptionSync />
     <AlertModal />
   </QueryClientProvider>

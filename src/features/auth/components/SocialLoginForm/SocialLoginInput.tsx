@@ -45,12 +45,16 @@ export const SocialLoginInput = ({
                 <form onSubmit={handleSubmit} className="flex flex-col">
                     {/* 이름 영역 */}
                     <div className="mb-4">
-                        <label className="mt-4 mb-1 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
+                        <label htmlFor="social-signup-name" className="mt-4 mb-1 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
                             이름
                             <span className="text-red-700">*</span>
                             </label>
                         <FormInput
+                            id="social-signup-name"
+                            name="name"
                             type="text"
+                            required
+                            autoComplete="name"
                             maxLength={30}
                             placeholder="이름을 입력해주세요"
                             value={formData.name}
@@ -61,12 +65,16 @@ export const SocialLoginInput = ({
 
                     {/* 닉네임 영역 */}
                     <div className="mb-4">
-                        <label className="mb-1 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
+                        <label htmlFor="social-signup-nickname" className="mb-1 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-base lg:text-gray-800">
                             닉네임
                             <span className="text-red-700">*</span>
                             </label>
                         <FormInput
+                            id="social-signup-nickname"
+                            name="nickname"
                             type="text"
+                            required
+                            autoComplete="nickname"
                             maxLength={10}
                             placeholder="닉네임을 입력해주세요"
                             value={formData.nickname}
@@ -79,6 +87,8 @@ export const SocialLoginInput = ({
                     {/* 약관 동의 체크박스 */}
                     <div className="mb-5 flex items-center gap-2">
                         <CheckboxGroup
+                            name="terms"
+                            required
                             value={agreedTerms}
                             onChange={onAgreedTermsChange}
                             options={[

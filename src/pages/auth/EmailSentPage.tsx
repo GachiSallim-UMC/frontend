@@ -24,7 +24,7 @@ export const EmailSentPage = () => {
                     >
                         <ArrowIcon className="size-6" strokeWidth={1.5} />
                     </button>
-                    <h1 className="text-mobile-title font-bold tracking-[0.04em] text-gray-900">비밀번호 찾기</h1>
+                    <span className="text-mobile-title font-bold tracking-[0.04em] text-gray-900">비밀번호 찾기</span>
                 </header>
 
                 <div className="flex-1 px-4 pt-8">

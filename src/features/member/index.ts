@@ -1,5 +1,5 @@
 export { GroupBasicInfo } from './components/GroupBasicInfo';
-export { MemberManagement } from './components/MemberMagagement';
+export { MemberManagement } from './components/MemberManagement';
 export { PermissionSettings } from './components/PermissionSettings';
 
 export { GroupActionBox } from './components/GroupSelect/GroupActionBox';

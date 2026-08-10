@@ -60,11 +60,15 @@ export const SendingEmailForm = ({onSubmit}: SendingEmailFormProps) => {
     return (
         <form noValidate onSubmit={handleSubmit} className= "flex flex-col">
             <div className="flex flex-col">
-                <label className="mb-1.5 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-button lg:text-gray-800">
+                <label htmlFor="password-reset-email" className="mb-1.5 block text-mobile-body font-bold text-gray-700 lg:mb-2 lg:text-button lg:text-gray-800">
                     이메일 <span className="text-red-700">*</span>
                 </label>
                 <FormInput
+                    id="password-reset-email"
+                    name="email"
                     type="email"
+                    required
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => {
                         setEmail(e.target.value);

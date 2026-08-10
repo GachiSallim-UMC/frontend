@@ -20,27 +20,27 @@
 
 ## 팀원 및 역할 분담
 
-| 파트 | 닉네임 / 이름 | 역할 | 담당 화면 |
-|------|--------------|------|----------|
-| A | 소리 / 오소윤 | 팀원 | 01 로그인 · 06 대시보드 · 18 마이페이지 |
-| B | 루피 / 오성이 | 팀원 | 07 집안일 목록 · 08 집안일 등록·수정 |
-| C | 하루 / 박금별 | 팀원 | 09 생활비 목록 · 10 생활비 등록·상세 |
-| D | 천월 / 임석현 | 소통팀장 | 11 공용 물품 목록 · 12 물품 등록 · 13 생활 규칙 목록 · 14 규칙 상세 |
-| E | 주노 / 조혜인 | 기술팀장 | 15 메신저 · 16 알림 · 17 활동내역 |
+| 파트 | 닉네임 / 이름 | 역할     | 담당 화면                                                           |
+| ---- | ------------- | -------- | ------------------------------------------------------------------- |
+| A    | 소리 / 오소윤 | 팀원     | 01 로그인 · 06 대시보드 · 18 마이페이지                             |
+| B    | 루피 / 오성이 | 팀원     | 07 집안일 목록 · 08 집안일 등록·수정                                |
+| C    | 하루 / 박금별 | 팀원     | 09 생활비 목록 · 10 생활비 등록·상세                                |
+| D    | 천월 / 임석현 | 소통팀장 | 11 공용 물품 목록 · 12 물품 등록 · 13 생활 규칙 목록 · 14 규칙 상세 |
+| E    | 주노 / 조혜인 | 기술팀장 | 15 메신저 · 16 알림 · 17 활동내역                                   |
 
 <br />
 
 ## 기술 스택
 
-| 구분 | 스택 |
-|------|------|
-| Core | React 18, TypeScript 5.6 |
-| Build | Vite 6 |
-| Routing | React Router 6 |
-| Server State | TanStack Query 5 |
-| HTTP | Axios |
-| Styling | Tailwind CSS 3 (Figma 디자인 토큰 연동) |
-| Quality | ESLint 9, Prettier 3 |
+| 구분         | 스택                                    |
+| ------------ | --------------------------------------- |
+| Core         | React 18, TypeScript 5.6                |
+| Build        | Vite 6                                  |
+| Routing      | React Router 6                          |
+| Server State | TanStack Query 5                        |
+| HTTP         | Axios                                   |
+| Styling      | Tailwind CSS 3 (Figma 디자인 토큰 연동) |
+| Quality      | ESLint 9, Prettier 3                    |
 
 <br />
 
@@ -55,7 +55,6 @@ src/
 │   └── router/
 ├── assets/              # SVG 아이콘, 아바타 이미지
 ├── pages/               # 라우트 단위 화면 (도메인 조합만, 얇게 유지)
-│   ├── _shared/         # mockData 등 페이지 공통 자원
 │   └── <domain>/        # 각 담당자가 도메인별로 추가 예정
 ├── features/            # 도메인 레이어 (비즈니스 로직)
 │   ├── chore/           # api·components·hooks·types·index 구조
@@ -127,21 +126,21 @@ cp .env.example .env
 
 ## 화면 목록 및 플로우
 
-| # | 화면 | 경로 | 도메인 | 파트 |
-|---|------|------|--------|------|
-| 01 | 로그인 | `/login` | auth | A (소리) |
-| 06 | 메인 대시보드 | `/dashboard` | dashboard | A (소리) |
-| 07 | 집안일 목록 | `/chores` | chore | B (루피) |
-| 08 | 집안일 등록·수정 | `/chores/new`, `/chores/:id/edit` | chore | B (루피) |
-| 09 | 생활비 정산 목록 | `/expenses` | expense | C (하루) |
-| 10 | 생활비 등록·정산 상세 | `/expenses/new`, `/expenses/:id` | expense | C (하루) |
-| 11 | 공용 물품 목록 | `/items` | item | D (천월) |
-| 12 | 공용 물품 등록·상태 변경 | `/items/new`, `/items/:id/edit` | item | D (천월) |
-| 13 | 생활 규칙 목록 | `/rules` | rule | D (천월) |
-| 14 | 생활 규칙 등록·상세 | `/rules/new`, `/rules/:id` | rule | D (천월) |
-| 15 | 그룹 실시간 메신저 | `/messenger` | messenger | E (주노) |
-| 16 | 알림 목록 | `/notifications` | notification | E (주노) |
-| 17 | 최근 활동 내역 | `/activity` | activity | E (주노) |
-| 18 | 마이페이지·프로필 설정 | `/mypage` | member | A (소리) |
+| #   | 화면                     | 경로                              | 도메인       | 파트     |
+| --- | ------------------------ | --------------------------------- | ------------ | -------- |
+| 01  | 로그인                   | `/login`                          | auth         | A (소리) |
+| 06  | 메인 대시보드            | `/dashboard`                      | dashboard    | A (소리) |
+| 07  | 집안일 목록              | `/chores`                         | chore        | B (루피) |
+| 08  | 집안일 등록·수정         | `/chores/new`, `/chores/:id/edit` | chore        | B (루피) |
+| 09  | 생활비 정산 목록         | `/expenses`                       | expense      | C (하루) |
+| 10  | 생활비 등록·정산 상세    | `/expenses/new`, `/expenses/:id`  | expense      | C (하루) |
+| 11  | 공용 물품 목록           | `/items`                          | item         | D (천월) |
+| 12  | 공용 물품 등록·상태 변경 | `/items/new`, `/items/:id/edit`   | item         | D (천월) |
+| 13  | 생활 규칙 목록           | `/rules`                          | rule         | D (천월) |
+| 14  | 생활 규칙 등록·상세      | `/rules/new`, `/rules/:id`        | rule         | D (천월) |
+| 15  | 그룹 실시간 메신저       | `/messenger`                      | messenger    | E (주노) |
+| 16  | 알림 목록                | `/notifications`                  | notification | E (주노) |
+| 17  | 최근 활동 내역           | `/activity`                       | activity     | E (주노) |
+| 18  | 마이페이지·프로필 설정   | `/mypage`                         | member       | A (소리) |
 
 **메인 플로우:** 로그인 → 대시보드(요약) → 각 관리 화면(집안일/생활비/물품/규칙) → 메신저로 공유·소통

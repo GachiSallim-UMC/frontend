@@ -50,7 +50,7 @@ export const WarningModal = ({isOpen, onClose, onConfirm, isWithdrawing}: Warnin
                     <BangIcon className="h-7 w-7 text-red-500 lg:h-10 lg:w-10" />
                 </div>
                 <div className="mb-4 flex flex-col items-center lg:mb-5">
-                     <h1 className="mb-1 text-mobile-title font-bold text-gray-900 lg:text-2xl">정말 회원 탈퇴하시겠어요?</h1>
+                     <h2 className="mb-1 text-mobile-title font-bold text-gray-900 lg:text-2xl">정말 회원 탈퇴하시겠어요?</h2>
                      <p className="text-mobile-label font-medium text-gray-600 lg:text-sm">탈퇴 전 아래 내용을 꼭 확인해주세요.</p>
                 </div>
             </div>

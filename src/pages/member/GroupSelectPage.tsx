@@ -19,9 +19,9 @@ export const GroupSelectPage = () => {
       ) : (
         <>
           <div className="mb-5">
-            <h1 className="mb-0.5 text-base font-bold tracking-[0.04em] text-gray-900 lg:mb-1 lg:text-2xl lg:tracking-normal">
+            <h2 className="mb-0.5 text-base font-bold tracking-[0.04em] text-gray-900 lg:mb-1 lg:text-2xl lg:tracking-normal">
               어느 그룹으로 들어갈까요?
-            </h1>
+            </h2>
             <p className="text-mobile-label font-medium text-gray-600 lg:text-sm">
               기존 그룹에 참여하거나 새 그룹을 만들어보세요.
             </p>
