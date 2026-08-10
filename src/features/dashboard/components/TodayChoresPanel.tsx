@@ -25,7 +25,10 @@ export const TodayChoresPanel = ({ chores }: TodayChoresPanelProps) => {
                     >
                         <div className="flex min-w-0 flex-col">
                             <div className="flex items-center gap-2">
-                                <Circle className="shrink-0 h-2 w-2 fill-green-700 lg:h-3 lg:w-3" strokeWidth={0}/>
+                                <Circle
+                                    className={`shrink-0 h-2 w-2 lg:h-3 lg:w-3 ${chore.status === 'DONE' ? 'fill-green-700' : 'fill-primary-700'}`}
+                                    strokeWidth={0}
+                                />
                                 <p className="truncate text-mobile-label font-bold text-gray-900 lg:text-base">{chore.title}</p>
                             </div>
                             <div>

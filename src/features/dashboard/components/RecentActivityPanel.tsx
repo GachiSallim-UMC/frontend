@@ -28,7 +28,7 @@ const getRelativeTime = (dateString: string) => {
         return `${diffInHours}시간 전`;
     } else if (diffInDays < 30) {
         return `${diffInDays}일 전`;
-    } else if (diffInMonths < 12) {
+    } else if (diffInDays < 365) {
         return `${diffInMonths}개월 전`;
     } else {
         return `${diffInYears}년 전`;
