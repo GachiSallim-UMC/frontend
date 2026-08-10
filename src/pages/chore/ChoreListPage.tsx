@@ -79,11 +79,25 @@ export const ChoreListPage = () => {
     }));
   }, [rawMembers]);
 
+  const choresWithAssigneeAvatars = useMemo(() => {
+    const avatarByUserId = new Map(
+      rawMembers.map(member => [String(member.userId), member.user.profileImage || undefined]),
+    );
+
+    return chores.map(chore => ({
+      ...chore,
+      assignee: {
+        ...chore.assignee,
+        avatarUrl: avatarByUserId.get(String(chore.assignee.id)),
+      },
+    }));
+  }, [chores, rawMembers]);
+
   const filteredChores = useMemo(() => {
     const keyword = filter.keyword?.trim().toLocaleLowerCase();
     const repeatType = filter.repeatType ? REPEAT_TYPE_FROM_FILTER[filter.repeatType] : undefined;
 
-    return chores.filter(chore => {
+    return choresWithAssigneeAvatars.filter(chore => {
       const matchesKeyword = !keyword || chore.name.toLocaleLowerCase().includes(keyword);
       const matchesRepeat = !repeatType || chore.repeatType === repeatType;
 
@@ -95,7 +109,7 @@ export const ChoreListPage = () => {
 
       return matchesKeyword && matchesRepeat && matchesStatus;
     });
-  }, [chores, filter.keyword, filter.repeatType, filter.status]);
+  }, [choresWithAssigneeAvatars, filter.keyword, filter.repeatType, filter.status]);
 
   const handleEdit = (chore: Chore) => navigate(`/chores/${chore.id}/edit`);
 

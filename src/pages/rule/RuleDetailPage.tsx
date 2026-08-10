@@ -1,4 +1,4 @@
-import { useState, type ComponentProps, type ComponentType } from 'react';
+import { useMemo, useState, type ComponentProps, type ComponentType } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   RuleBasicInfoFields,
@@ -94,8 +94,22 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const navigate = useNavigate();
   const currentUserId = useAuthStore(state => state.userId);
   const { data: groupMembers = [] } = useGroupMembers(rule.groupId ?? null);
+  const avatarByUserId = useMemo(
+    () =>
+      new Map(
+        groupMembers.map(member => [
+          String(member.userId),
+          member.user.profileImage || undefined,
+        ]),
+      ),
+    [groupMembers],
+  );
   const { title, category, content, isDirty, validate, fieldProps } = useRuleEditor(rule);
-  const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
+  const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(
+    rule,
+    currentUserId,
+    avatarByUserId,
+  );
   const updateRule = useUpdateRule();
   const deleteRule = useDeleteRule();
   const updateAgreement = useUpdateRuleAgreement();
@@ -250,6 +264,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                   <span className="flex min-w-0 items-center gap-2 lg:gap-[9px]">
                     <UserAvatar
                       name={member.name}
+                      avatarUrl={member.avatarUrl}
                       size="sm"
                       className="h-8 w-8 shrink-0 lg:h-10 lg:w-10"
                     />
