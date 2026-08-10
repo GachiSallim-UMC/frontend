@@ -116,29 +116,36 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
     },
   ];
 
+  const desktopTable = (
+    <div className="hidden w-full lg:block">
+      <DataTable
+        columns={columns}
+        data={expenses}
+        emptyMessage="등록된 정산이 없습니다."
+        className="
+          border border-gray-100 overflow-hidden
+          !rounded-[10px] !shadow-none
+          [&_thead]:bg-primary-50 [&_th]:h-[60px] [&_th]:py-0 [&_th]:border-gray-100
+        "
+      />
+    </div>
+  );
+
   if (expenses.length === 0) {
     return (
-      <div className="w-full py-16 text-center text-gray-400">
-        등록된 정산이 없습니다.
-      </div>
+      <>
+        {desktopTable}
+        <div className="w-full py-16 text-center text-gray-400 lg:hidden">
+          등록된 정산이 없습니다.
+        </div>
+      </>
     );
   }
 
   return (
     <>
       {/* 데스크톱: 기존 테이블 */}
-      <div className="hidden w-full lg:block">
-        <DataTable
-          columns={columns}
-          data={expenses}
-          emptyMessage="등록된 정산이 없습니다."
-          className="
-            border border-gray-100 overflow-hidden
-            !rounded-[10px] !shadow-none
-            [&_thead]:bg-primary-50 [&_th]:h-[60px] [&_th]:py-0 [&_th]:border-gray-100
-          "
-        />
-      </div>
+      {desktopTable}
 
       {/* 모바일: 카드 리스트 */}
       <div className="flex w-full flex-col gap-3 lg:hidden">
