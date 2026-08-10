@@ -20,6 +20,7 @@ import {
   Button,
   ConfirmModal,
   FormActions,
+  FormCancelModal,
   ShareMessengerButton,
   StatusBadge,
   UserAvatar,
@@ -103,7 +104,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
       ),
     [groupMembers],
   );
-  const { title, category, content, validate, fieldProps } = useRuleEditor(rule);
+  const { title, category, content, isDirty, validate, fieldProps } = useRuleEditor(rule);
   const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(
     rule,
     currentUserId,
@@ -122,6 +123,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   } = useShareToMessenger('rule');
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const isGroupAdmin = groupMembers.some(
     member => member.userId === currentUserId && member.role === 'ADMIN',
@@ -188,6 +190,19 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
     openShare(rule.id);
   };
 
+  const handleCancelClick = () => {
+    if (!isDirty) {
+      navigate(-1);
+      return;
+    }
+    setIsCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setIsCancelModalOpen(false);
+    navigate(-1);
+  };
+
   const handleDeleteClick = () => {
     if (!canDeleteRule) return;
     deleteRule.reset();
@@ -221,7 +236,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
         <FormActions
           onSave={handleSaveClick}
-          onCancel={() => navigate(-1)}
+          onCancel={handleCancelClick}
           onDelete={canDeleteRule ? handleDeleteClick : undefined}
           rightSlot={<ShareMessengerButton onClick={handleShare} />}
           className="hidden lg:flex"
@@ -363,6 +378,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           </div>
         </Panel>
       </div>
+
+      <FormCancelModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+        icon={<RuleIcon className="size-6" />}
+        isPending={isPending}
+      />
 
       <ConfirmModal
         isOpen={isSaveModalOpen}

@@ -98,6 +98,7 @@ export const ExpenseAddForm = ({
     totalRatioSum,
     isDirectInputCompleted,
     setIsDirectInputCompleted,
+    isDirty,
     dateInputRef,
     handleIconClick,
     numericTotalAmount,
@@ -163,6 +164,7 @@ export const ExpenseAddForm = ({
   const dialogs = useExpenseFormDialogs({
     isEditMode,
     isSettled,
+    isDirty,
     saveExpense: handleSaveClick,
     onCancel,
   });
@@ -317,6 +319,7 @@ export const ExpenseAddForm = ({
         }}
         cancel={{
           isOpen: dialogs.cancel.isOpen,
+          isPending: dialogs.save.isSaving,
           onClose: dialogs.cancel.close,
           onConfirm: dialogs.cancel.confirm,
         }}

@@ -4,6 +4,7 @@ import { useAlertStore } from '@/shared/store';
 interface UseExpenseFormDialogsProps {
   isEditMode: boolean;
   isSettled: boolean;
+  isDirty: boolean;
   saveExpense: () => Promise<void>;
   onCancel?: () => void;
 }
@@ -11,6 +12,7 @@ interface UseExpenseFormDialogsProps {
 export const useExpenseFormDialogs = ({
   isEditMode,
   isSettled,
+  isDirty,
   saveExpense,
   onCancel,
 }: UseExpenseFormDialogsProps) => {
@@ -56,6 +58,14 @@ export const useExpenseFormDialogs = ({
     onCancel?.();
   };
 
+  const openCancel = () => {
+    if (!isDirty) {
+      onCancel?.();
+      return;
+    }
+    setIsCancelOpen(true);
+  };
+
   return {
     save: {
       isOpen: isSaveOpen,
@@ -67,7 +77,7 @@ export const useExpenseFormDialogs = ({
     },
     cancel: {
       isOpen: isCancelOpen,
-      open: () => setIsCancelOpen(true),
+      open: openCancel,
       close: () => setIsCancelOpen(false),
       confirm: confirmCancel,
     },

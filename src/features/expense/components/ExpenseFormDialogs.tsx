@@ -22,6 +22,7 @@ interface ExpenseFormDialogsProps {
   };
   cancel: {
     isOpen: boolean;
+    isPending: boolean;
     onClose: () => void;
     onConfirm: () => void;
   };
@@ -61,6 +62,7 @@ export const ExpenseFormDialogs = ({
       isOpen={cancel.isOpen}
       onClose={cancel.onClose}
       onConfirm={cancel.onConfirm}
+      isPending={cancel.isPending}
     />
 
     {isEditMode && (

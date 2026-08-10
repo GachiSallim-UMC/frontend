@@ -51,6 +51,30 @@ const INITIAL_FORM: ChoreFormState = {
   memo: '',
 };
 
+const normalizeChoreForm = (form: ChoreFormState) => {
+  const usesDays =
+    form.repeatType === 'WEEKLY' ||
+    (form.repeatType === 'CUSTOM' && form.customOption === 'SPECIFIC_DAYS');
+  const usesInterval =
+    form.repeatType === 'CUSTOM' && usesRepeatInterval(form.customOption);
+
+  return {
+    title: form.title.trim(),
+    assigneeId: String(form.assigneeId),
+    category: form.category,
+    repeatType: form.repeatType,
+    customOption: form.repeatType === 'CUSTOM' ? form.customOption : '',
+    repeatInterval: usesInterval && form.repeatInterval ? Number(form.repeatInterval) : '',
+    repeatDays: usesDays ? [...form.repeatDays].sort() : [],
+    startDate: form.startDate,
+    dueDate: form.dueDate,
+    memo: form.memo.trim(),
+  };
+};
+
+const areChoreFormsEqual = (left: ChoreFormState, right: ChoreFormState) =>
+  JSON.stringify(normalizeChoreForm(left)) === JSON.stringify(normalizeChoreForm(right));
+
 const usesRepeatInterval = (customOption: ChoreApiCustomOption | '') =>
   customOption === 'EVERY_N_DAYS' ||
   customOption === 'EVERY_N_WEEKS' ||
@@ -61,13 +85,26 @@ export const useChoreForm = (initialData?: Partial<ChoreFormState>) => {
     ...INITIAL_FORM,
     ...initialData,
   });
+  const [initialFormData, setInitialFormData] = useState<ChoreFormState>({
+    ...INITIAL_FORM,
+    ...initialData,
+  });
   const [errors, setErrors] = useState<ChoreFormErrors>({});
 
   useEffect(() => {
     if (initialData) {
-      setFormData(previous => ({ ...previous, ...initialData }));
+      const nextForm = { ...INITIAL_FORM, ...initialData };
+      setFormData(nextForm);
+      setInitialFormData(nextForm);
     }
   }, [initialData]);
+
+  const initializeForm = useCallback((data: Partial<ChoreFormState>) => {
+    const nextForm = { ...INITIAL_FORM, ...data };
+    setFormData(nextForm);
+    setInitialFormData(nextForm);
+    setErrors({});
+  }, []);
 
   const updateField = useCallback((updates: Partial<ChoreFormState>) => {
     setFormData(previous => ({ ...previous, ...updates }));
@@ -149,6 +186,8 @@ export const useChoreForm = (initialData?: Partial<ChoreFormState>) => {
   return {
     formData,
     errors,
+    isDirty: !areChoreFormsEqual(formData, initialFormData),
+    initializeForm,
     updateField,
     getCreateDto,
     getUpdateDto: getCommonDto,

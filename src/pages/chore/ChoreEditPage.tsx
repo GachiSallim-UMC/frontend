@@ -25,7 +25,7 @@ export const ChoreEditPage = () => {
   const { data: members } = useGroupMembers(selectedGroupId);
   const updateMutation = useUpdateChore();
   const deleteMutation = useRemoveChore();
-  const { formData, errors, updateField, getUpdateDto } = useChoreForm();
+  const { formData, errors, isDirty, initializeForm, updateField, getUpdateDto } = useChoreForm();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -59,7 +59,7 @@ export const ChoreEditPage = () => {
   useEffect(() => {
     if (!choreData) return;
 
-    updateField({
+    initializeForm({
       title: choreData.title,
       assigneeId: choreData.assignee.userId,
       category: choreData.category,
@@ -71,7 +71,7 @@ export const ChoreEditPage = () => {
       dueDate: choreData.dueDate ?? '',
       memo: choreData.memo ?? '',
     });
-  }, [choreData, updateField]);
+  }, [choreData, initializeForm]);
 
   const handleSaveClick = () => {
     const dto = getUpdateDto();
@@ -96,6 +96,10 @@ export const ChoreEditPage = () => {
   };
 
   const handleCancelClick = () => {
+    if (!isDirty) {
+      navigate(-1);
+      return;
+    }
     setIsCancelModalOpen(true);
   };
 
@@ -193,6 +197,7 @@ export const ChoreEditPage = () => {
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
         onConfirm={handleConfirmCancel}
+        isPending={updateMutation.isPending || deleteMutation.isPending}
       />
       <ShareItemPickerModal
         type={activeType}

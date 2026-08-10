@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RuleBasicInfoFields, useCreateRule, useRuleEditor } from '@/features/rule';
 import RuleIcon from '@/assets/icons/sidebar/rules.svg?react';
-import { Button, ConfirmModal, FormActions } from '@/shared/components/ui';
+import { Button, ConfirmModal, FormActions, FormCancelModal } from '@/shared/components/ui';
 
 export const RuleFormPage = () => {
   const navigate = useNavigate();
-  const { title, category, content, validate, fieldProps } = useRuleEditor();
+  const { title, category, content, isDirty, validate, fieldProps } = useRuleEditor();
   const createRule = useCreateRule();
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const mutationError = createRule.error;
 
   const handleSubmitClick = () => {
@@ -36,6 +37,19 @@ export const RuleFormPage = () => {
     }
   };
 
+  const handleCancelClick = () => {
+    if (!isDirty) {
+      navigate(-1);
+      return;
+    }
+    setIsCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setIsCancelModalOpen(false);
+    navigate(-1);
+  };
+
   return (
     <div className="min-h-full w-full bg-white pb-6 lg:min-h-0 lg:max-w-[1114px] lg:bg-transparent lg:p-0">
       <div className="flex min-w-0 flex-col gap-4 lg:gap-[30px]">
@@ -51,7 +65,7 @@ export const RuleFormPage = () => {
 
         <FormActions
           onSave={handleSubmitClick}
-          onCancel={() => navigate(-1)}
+          onCancel={handleCancelClick}
           rightSlot={null}
           className="hidden lg:flex"
         />
@@ -67,6 +81,14 @@ export const RuleFormPage = () => {
           </Button>
         </div>
       </div>
+
+      <FormCancelModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+        icon={<RuleIcon className="size-6" />}
+        isPending={createRule.isPending}
+      />
 
       <ConfirmModal
         isOpen={isSaveModalOpen}
