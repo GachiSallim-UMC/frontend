@@ -44,7 +44,7 @@ export const GroupSwitchDropdown = () => {
         <ul
           role="listbox"
           aria-label="그룹 선택"
-          className="absolute left-0 top-full z-10 mt-2 min-w-full origin-top-left max-h-[280px] overflow-y-auto rounded-lg border border-gray-100 bg-white shadow-dropdown"
+          className="absolute left-0 top-full z-10 mt-2 w-full origin-top-left max-h-[280px] overflow-y-auto rounded-lg border border-gray-100 bg-white shadow-dropdown"
         >
           {groups.map(group => {
             const isSelected = group.id === selectedGroupId;
@@ -57,11 +57,11 @@ export const GroupSwitchDropdown = () => {
                 onClick={() => handleSelect(group.id)}
                 onKeyDown={e => e.key === 'Enter' && handleSelect(group.id)}
                 className={cn(
-                  'flex cursor-pointer items-center justify-between gap-2 whitespace-nowrap px-4 py-2.5 text-mobile-label font-normal transition-colors',
+                  'flex min-w-0 cursor-pointer items-center gap-2 px-4 py-2.5 text-mobile-label font-normal transition-colors',
                   isSelected ? 'bg-primary-100 text-primary-500' : 'text-gray-600 hover:bg-gray-100',
                 )}
               >
-                {group.name}
+                <span className="min-w-0 flex-1 truncate">{group.name}</span>
                 {isSelected && <Check className="size-4 shrink-0 text-primary-500" />}
               </li>
             );
