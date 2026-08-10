@@ -217,7 +217,7 @@ export const ExpenseAddPage = ({
               isSharing={isSharePending}
               mobileReceiptSlot={
                 <Receipt
-                  imageUrl={receiptQuery.data}
+                  imageUrl={receiptQuery.data ?? undefined}
                   onImageChange={handleReceiptChange}
                   disabled={
                     isReceiptUploading ||
@@ -243,7 +243,7 @@ export const ExpenseAddPage = ({
                 {/* 모바일에서는 폼의 mobileReceiptSlot에 이미 동일한 영수증 첨부가 있으므로 중복 방지를 위해 숨김 */}
                 <div className="hidden sm:block">
                   <Receipt
-                    imageUrl={receiptQuery.data}
+                    imageUrl={receiptQuery.data ?? undefined}
                     onImageChange={handleReceiptChange}
                     disabled={
                       isReceiptUploading ||
