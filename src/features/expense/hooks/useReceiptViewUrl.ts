@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getReceiptViewUrl } from '../api/expense.api';
-import { expenseKeys } from '../types/expense.types';
+import { expenseKeys } from './expense.keys';
 import { useExpenseQueryScope } from './useExpenseQueryScope';
 
 export const useReceiptViewUrl = (expenseId?: number | string) => {
@@ -10,5 +10,6 @@ export const useReceiptViewUrl = (expenseId?: number | string) => {
     queryKey: expenseKeys.receipt(userId, groupId, expenseId ?? 'new'),
     queryFn: () => getReceiptViewUrl(expenseId as number | string),
     enabled: Boolean(userId && groupId && expenseId),
+    meta: { skipGlobalError: true },
   });
 };

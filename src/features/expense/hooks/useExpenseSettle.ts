@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { settleExpenseSplit, expenseKeys } from '@/features/expense';
-import type { Expense } from '@/features/expense';
 import { useAlertStore } from '@/shared/store';
+import { settleExpenseSplit } from '../api/expense.api';
+import type { Expense } from '../types/expense.types';
+import { expenseKeys } from './expense.keys';
 import { useExpenseQueryScope } from './useExpenseQueryScope';
 
 export const settleMyExpenseShare = async (
