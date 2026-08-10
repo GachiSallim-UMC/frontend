@@ -3,19 +3,22 @@ import type { ExpenseStatus, User } from '@/shared/types';
 /** 분담 방식 */
 export type SplitType = 'EQUAL' | 'RATIO' | 'CUSTOM';
 
+/** 생활비 폼에서 사용하는 분담 방식 */
+export type SettlementMethod = SplitType;
+
 export type ExpenseFilter = 'TOTAL' | 'THIS_MONTH';
 
 /* 생활비 카테고리 */
-export type ExpenseCategory = 
-  | 'FINANCE' 
-  | 'FOOD' 
-  | 'SHOPPING' 
-  | 'EDUCATION' 
-  | 'GROCERY' 
-  | 'TRANSPORT' 
-  | 'LEISURE' 
-  | 'CAFE' 
-  | 'UTILITIES' 
+export type ExpenseCategory =
+  | 'FINANCE'
+  | 'FOOD'
+  | 'SHOPPING'
+  | 'EDUCATION'
+  | 'GROCERY'
+  | 'TRANSPORT'
+  | 'LEISURE'
+  | 'CAFE'
+  | 'UTILITIES'
   | 'ETC';
 
 /** 멤버별 부담금 */
