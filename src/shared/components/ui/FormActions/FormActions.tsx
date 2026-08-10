@@ -28,11 +28,11 @@ export const FormActions = ({
   rightSlot = <ShareMessengerButton />,
   className,
 }: FormActionsProps) => (
-  <div className={cn('flex items-center justify-between', className)}>
-    <div className="flex gap-3">
+  <div className={cn('flex items-center justify-between gap-6', className)}>
+    <div className="flex min-w-0 flex-1 gap-3">
       <Button
         type="button"
-        className="w-[150px] font-bold"
+        className="w-full max-w-[150px] min-w-0 font-bold"
         onClick={onSave}
         disabled={isSubmitting}
       >
@@ -41,7 +41,7 @@ export const FormActions = ({
       <Button
         type="button"
         variant="secondary"
-        className="w-[150px] font-normal"
+        className="w-full max-w-[150px] min-w-0 font-normal"
         onClick={onCancel}
         disabled={isSubmitting}
       >
@@ -50,7 +50,7 @@ export const FormActions = ({
       {onDelete && (
         <Button
           type="button"
-          className="w-[150px] border-0 bg-red-700 font-bold text-white hover:bg-red-500"
+          className="w-full max-w-[150px] min-w-0 border-0 bg-red-700 font-bold text-white hover:bg-red-500"
           onClick={onDelete}
           disabled={isSubmitting}
         >
@@ -58,6 +58,6 @@ export const FormActions = ({
         </Button>
       )}
     </div>
-    {rightSlot && <div className="w-[189px] min-w-0 shrink">{rightSlot}</div>}
+    {rightSlot && <div className="w-[189px] shrink-0">{rightSlot}</div>}
   </div>
 );
