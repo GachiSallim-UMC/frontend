@@ -63,9 +63,7 @@ const isRuleListItem = (value: unknown): value is RuleListItemResponse =>
   isRuleApiStatus(value.status) &&
   isRuleUserResponse(value.createdBy) &&
   isAgreementSummary(value.agreementSummary) &&
-  (value.myAgreementStatus === undefined ||
-    value.myAgreementStatus === null ||
-    isAgreementStatus(value.myAgreementStatus)) &&
+  (value.myAgreementStatus === null || isAgreementStatus(value.myAgreementStatus)) &&
   typeof value.createdAt === 'string' &&
   typeof value.updatedAt === 'string';
 

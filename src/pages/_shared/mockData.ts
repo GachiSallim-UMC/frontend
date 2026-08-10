@@ -246,6 +246,7 @@ export const rules: Rule[] = [
     registeredBy: users[0], // 홍길동
     registeredAt: '2025-07-01',
     agreement: { agreedCount: 3, totalCount: 3, agreedMembers: users },
+    myAgreementStatus: 'AGREED',
     status: 'active',
   },
   {
@@ -256,6 +257,7 @@ export const rules: Rule[] = [
     registeredBy: users[1], // 김영희
     registeredAt: '2025-07-05',
     agreement: { agreedCount: 2, totalCount: 3, agreedMembers: [users[0], users[1]] },
+    myAgreementStatus: 'AGREED',
     status: 'active',
   },
   {
@@ -266,6 +268,7 @@ export const rules: Rule[] = [
     registeredBy: users[2], // 이철수
     registeredAt: '2025-07-10',
     agreement: { agreedCount: 3, totalCount: 3, agreedMembers: users },
+    myAgreementStatus: 'AGREED',
     status: 'active',
   },
   {
@@ -276,6 +279,7 @@ export const rules: Rule[] = [
     registeredBy: users[0], // 홍길동
     registeredAt: '2025-06-20',
     agreement: { agreedCount: 1, totalCount: 3, agreedMembers: [users[0]] },
+    myAgreementStatus: 'AGREED',
     status: 'inactive',
   },
 ];
