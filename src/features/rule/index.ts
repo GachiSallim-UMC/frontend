@@ -11,6 +11,7 @@ export {
   RULE_STATUS_OPTIONS,
 } from './constants/rule.constants';
 export { useRuleForm } from './hooks/useRuleForm';
+export { useRuleEditor } from './hooks/useRuleEditor';
 export { useRuleAgreement } from './hooks/useRuleAgreement';
 export type { MyAgreement, RuleHistoryEntry, RuleHistoryType } from './hooks/useRuleAgreement';
 export {
@@ -35,3 +36,6 @@ export type {
   UpdateRuleDto,
 } from './types/rule.types';
 export { RuleListRow } from './components/RuleListRow';
+export { RuleBasicInfoFields } from './components/RuleBasicInfoFields';
+export { validateRuleForm } from './lib/ruleFormValidation';
+export type { RuleFormErrors, RuleFormValues } from './lib/ruleFormValidation';

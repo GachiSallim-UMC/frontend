@@ -9,7 +9,7 @@ import type {
 } from '../types/chore.types';
 import { isValidDateOnly } from '@/shared/lib/inputValidation';
 
-interface ChoreFormState {
+export interface ChoreFormState {
   title: string;
   assigneeId: number | '';
   category: ChoreApiCategory | '';
@@ -85,7 +85,8 @@ export const useChoreForm = (initialData?: Partial<ChoreFormState>) => {
     const nextErrors: ChoreFormErrors = {};
 
     if (!title.trim()) nextErrors.title = '집안일 이름을 입력해 주세요.';
-    else if (title.trim().length > 100) nextErrors.title = '집안일 이름은 100자 이하로 입력해 주세요.';
+    else if (title.trim().length > 100)
+      nextErrors.title = '집안일 이름은 100자 이하로 입력해 주세요.';
     if (!assigneeId) nextErrors.assigneeId = '담당자를 선택해 주세요.';
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
     if (!repeatType) nextErrors.repeatType = '반복 유형을 선택해 주세요.';

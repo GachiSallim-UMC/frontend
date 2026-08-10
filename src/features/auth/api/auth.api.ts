@@ -9,7 +9,6 @@ import type {
   SignupConfirmDto,
   SignupResendDto,
   ResetPasswordDto } from '../types/auth.type';
-import type { UploadUrlRequestDto, UploadUrlResponse } from '@/shared/types';
 
 const BASE = '/auth';
 
@@ -84,36 +83,6 @@ export const authApi = {
   resetPassword: async (dto: ResetPasswordDto): Promise<void> => {
     await apiClient.post(`${BASE}/password/reset`, dto);
   },
-  // S3 업로드 URL 발급
-  getUploadUrl: async (dto: UploadUrlRequestDto): Promise<UploadUrlResponse> => {
-    const { data } = await apiClient.post(`${BASE}/profile-image/upload-url`, dto);
-    return data;
-  },
-
-  // S3 파일 업로드
-  uploadToS3: async (uploadData: UploadUrlResponse, file: File) => {
-    const formData = new FormData();
-        
-    // 백엔드에서 준 fields 값들을 모두 폼 데이터에 추가
-    Object.entries(uploadData.fields).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-        
-    formData.append('file', file);
-
-    const response = await fetch(uploadData.uploadUrl, {
-      method: uploadData.uploadMethod,
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('S3 이미지 업로드에 실패했습니다.');
-      }
-
-    // 성공 시 사용할 최종 이미지 URL 반환
-    return uploadData.profileImageUrl;
-  },
-
   // 비밀번호 변경(마이페이지)
   changePassword: async (previousPassword: string, newPassword: string) => {
     const payload = {

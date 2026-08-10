@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
-  ChoreBasicInfo,
   ChoreFormActions,
-  ChoreMemo,
-  ChoreRepeat,
+  ChoreFormFields,
   useChoreFromList,
   useChoreForm,
   useUpdateChore,
@@ -13,7 +11,6 @@ import {
   ChoreSaveModal,
   ChoreCancelModal,
 } from '@/features/chore';
-import type { ChoreApiCategory } from '@/features/chore';
 import { useGroupMembers } from '@/features/member';
 import { useAuthStore, useGroupStore } from '@/shared/store';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
@@ -75,22 +72,6 @@ export const ChoreEditPage = () => {
       memo: choreData.memo ?? '',
     });
   }, [choreData, updateField]);
-
-  const handleBasicInfoChange = (
-    updates: Partial<{
-      title: string;
-      assigneeId: string;
-      category: ChoreApiCategory | '';
-    }>,
-  ) => {
-    const { assigneeId, ...rest } = updates;
-    updateField({
-      ...rest,
-      ...(assigneeId !== undefined
-        ? { assigneeId: assigneeId === '' ? '' : Number(assigneeId) }
-        : {}),
-    });
-  };
 
   const handleSaveClick = () => {
     const dto = getUpdateDto();
@@ -166,28 +147,11 @@ export const ChoreEditPage = () => {
 
   return (
     <div className="h-fit flex w-full max-w-[1114px] flex-col pb-[16px] lg:pb-0 gap-4 lg:gap-[30px]">
-      <ChoreBasicInfo
-        title={formData.title}
-        assigneeId={String(formData.assigneeId)}
-        category={formData.category}
+      <ChoreFormFields
+        formData={formData}
+        errors={errors}
         assigneeOptions={userOptions}
-        errors={errors}
-        onChange={handleBasicInfoChange}
-      />
-      <ChoreRepeat
-        repeatType={formData.repeatType}
-        customOption={formData.customOption}
-        repeatInterval={formData.repeatInterval}
-        repeatDays={formData.repeatDays}
-        startDate={formData.startDate}
-        dueDate={formData.dueDate}
-        errors={errors}
         onChange={updateField}
-      />
-      <ChoreMemo
-        value={formData.memo}
-        error={errors.memo}
-        onChange={memo => updateField({ memo })}
       />
       <ChoreFormActions
         onSave={handleSaveClick}

@@ -10,6 +10,7 @@ export * from './Modal';
 export * from './SearchInput';
 export * from './StatusBadge';
 export * from './SummaryCard';
+export * from './TableRowActions';
 export * from './TimelineItem';
 export * from './UserAvatar';
-export * from './Switch'
+export * from './Switch';
