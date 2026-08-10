@@ -222,8 +222,8 @@ export const ExpenseAddPage = ({
   }
 
   return (
-    <div className="w-full bg-white lg:bg-gray-50">
-      <div className="mx-auto w-full max-w-7xl lg:px-6 lg:py-6">
+    <div className="w-full bg-gray-50">
+      <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="min-w-0 w-full">
             <ExpenseAddForm

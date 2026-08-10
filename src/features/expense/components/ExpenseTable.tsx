@@ -1,6 +1,7 @@
+import EditIcon from '@/assets/icons/action/edit.svg?react';
+import ShareIcon from '@/assets/icons/action/share.svg?react';
 import {
   DataTable,
-  MobileListRow,
   UserAvatar,
   StatusBadge,
   TableRowActions,
@@ -69,14 +70,13 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
       key: 'payer',
       header: '지불자',
       render: (row) => (
-        <span className="flex min-w-0 items-center gap-2">
+        <span className="flex items-center gap-2">
           <UserAvatar
             name={row.payer?.name ?? '알 수 없음'}
             avatarUrl={row.payer?.avatarUrl}
             size="sm"
-            className="size-6 shrink-0 min-[1200px]:size-8"
           />
-          <span className="truncate">{row.payer?.nickname ?? '알 수 없음'}</span>
+          {row.payer?.nickname ?? '알 수 없음'}
         </span>
       ),
     },
@@ -109,8 +109,8 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
         <TableRowActions
           onEdit={onEdit ? () => onEdit(row) : undefined}
           onShare={onShare ? () => onShare(row) : undefined}
-          className="gap-1 text-gray-400"
-          iconClassName="size-8 min-[1200px]:size-[39px]"
+          className="gap-1"
+          iconClassName="h-[32px] w-[32px]"
         />
       ),
     },
@@ -125,8 +125,7 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
         className="
           border border-gray-100 overflow-hidden
           !rounded-[10px] !shadow-none
-          [&_thead]:bg-primary-50 [&_th]:h-[60px] [&_th]:px-2 [&_th]:py-0 [&_th]:border-gray-100
-          [&_td]:px-2 min-[1200px]:[&_th]:px-4 min-[1200px]:[&_td]:px-4
+          [&_thead]:bg-primary-50 [&_th]:h-[60px] [&_th]:py-0 [&_th]:border-gray-100
         "
       />
     </div>
@@ -148,41 +147,55 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
       {/* 데스크톱: 기존 테이블 */}
       {desktopTable}
 
-      {/* 모바일: Figma 공통 60px 목록 */}
-      <div className="w-full overflow-hidden rounded-lg bg-white lg:hidden">
-        {expenses.map((row, index) => (
-          <MobileListRow
+      {/* 모바일: 카드 리스트 */}
+      <div className="flex w-full flex-col gap-3 lg:hidden">
+        {expenses.map(row => (
+          <div
             key={row.id}
-            isLast={index === expenses.length - 1}
-            separatorClassName="after:left-4 after:right-4"
-            className="px-4"
+            className="w-full rounded-[12px] border border-gray-100 px-4 py-3.5"
           >
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="truncate text-mobile-label font-bold text-gray-900">
-                {row.title || '제목 없음'}
-              </span>
-              <span className="truncate text-mobile-caption text-gray-600">
-                {row.payer?.nickname ?? '알 수 없음'} ·{' '}
-                {formatDotDate(row.date, dateOrder)} |{' '}
-                {(row.amount ?? 0).toLocaleString()}원
-              </span>
+            <div className="flex w-full items-center gap-2">
+              {/* 왼쪽: 제목 + 부제목(지불자·날짜·금액) 세로 스택 */}
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[15px] font-bold text-gray-900">
+                  {row.title || '제목 없음'}
+                </div>
+
+                <div className="mt-1.5 truncate text-[13px] text-gray-500">
+                  {row.payer?.nickname ?? '알 수 없음'} ·{' '}
+                  {formatDotDate(row.date, dateOrder)} |{' '}
+                  {(row.amount ?? 0).toLocaleString()}원
+                </div>
+              </div>
+
+              {/* 오른쪽: 배지 + 아이콘, 왼쪽 블록 전체 높이 기준으로 세로 중앙 정렬 */}
+              <div className="flex shrink-0 items-center gap-2 self-center">
+                <StatusBadge
+                  variant={row.status === 'paid' ? 'done' : 'unpaid'}
+                />
+
+                <span className="flex items-center gap-1 text-gray-400">
+                  <button
+                    type="button"
+                    onClick={() => onEdit?.(row)}
+                    aria-label="수정"
+                    className="flex items-center justify-center p-0.5"
+                  >
+                    <EditIcon className="h-[28px] w-[28px]" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onShare?.(row)}
+                    aria-label="공유"
+                    className="flex items-center justify-center p-0.5"
+                  >
+                    <ShareIcon className="h-[28px] w-[28px]" />
+                  </button>
+                </span>
+              </div>
             </div>
-
-            <StatusBadge
-              variant={row.status === 'paid' ? 'done' : 'unpaid'}
-              size="sm"
-              className="ml-3 shrink-0"
-            />
-
-            <TableRowActions
-              onEdit={onEdit ? () => onEdit(row) : undefined}
-              onShare={onShare ? () => onShare(row) : undefined}
-              editLabel={`${row.title || '생활비'} 수정`}
-              shareLabel={`${row.title || '생활비'} 공유`}
-              className="ml-2 w-14 shrink-0 items-center text-gray-400"
-              iconClassName="size-7"
-            />
-          </MobileListRow>
+          </div>
         ))}
       </div>
     </>
