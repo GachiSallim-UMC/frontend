@@ -1,13 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import type { CreateExpenseDto, UpdateExpenseDto, Expense, ExpenseCategory } from '@/features/expense';
+import type {
+  CreateExpenseDto,
+  UpdateExpenseDto,
+  Expense,
+  ExpenseCategory,
+} from '@/features/expense';
 import type { SettlementMethod } from '@/features/expense';
 import { useCreateExpense, useUpdateExpense } from '@/features/expense';
-
 
 interface UseExpenseFormProps {
   initialExpense?: Expense;
   selectedPayerId?: string;
-  mockUsers: { id: string; name: string; avatarUrl?: string }[];
+  members: { id: string; name: string; avatarUrl?: string }[];
   onSave?: (newExpense: Expense) => void;
   isEditMode?: boolean;
   expenseId?: string;
@@ -17,7 +21,7 @@ interface UseExpenseFormProps {
 export function useExpenseForm({
   initialExpense,
   selectedPayerId = '',
-  mockUsers,
+  members,
   onSave,
   isEditMode = false,
   expenseId,
@@ -25,16 +29,20 @@ export function useExpenseForm({
 }: UseExpenseFormProps) {
   const [title, setTitle] = useState(initialExpense?.title || '');
   const [amount, setAmount] = useState(
-    initialExpense?.amount ? String(Number(initialExpense.amount)) : ''
+    initialExpense?.amount ? String(Number(initialExpense.amount)) : '',
   );
   const [checkedMembers, setCheckedMembers] = useState<string[]>(
-    initialExpense?.shares ? initialExpense.shares.map((s) => s.user.id) : mockUsers.map((u) => u.id)
+    initialExpense?.shares
+      ? initialExpense.shares.map(s => s.user.id)
+      : members.map(user => user.id),
   );
-  const [settlementMethod, setSettlementMethod] = useState<SettlementMethod>(initialExpense?.splitType || 'EQUAL');
+  const [settlementMethod, setSettlementMethod] = useState<SettlementMethod>(
+    initialExpense?.splitType || 'EQUAL',
+  );
   const [category, setCategory] = useState<ExpenseCategory>(initialExpense?.category || 'FOOD');
   const [memo, setMemo] = useState(initialExpense?.memo || '');
   const [expenseDate, setExpenseDate] = useState(
-    initialExpense?.date ? initialExpense.date.slice(0, 10) : ''
+    initialExpense?.date ? initialExpense.date.slice(0, 10) : '',
   );
   const [payerId, setPayerId] = useState(initialExpense?.payer.id || selectedPayerId);
 
@@ -57,10 +65,10 @@ export function useExpenseForm({
   const { mutateAsync: updateExpenseAsync } = useUpdateExpense();
 
   useEffect(() => {
-    if (!initialExpense && mockUsers.length > 0) {
-      setCheckedMembers(mockUsers.map((u) => u.id));
+    if (!initialExpense && members.length > 0) {
+      setCheckedMembers(members.map(user => user.id));
     }
-  }, [mockUsers, initialExpense]);
+  }, [members, initialExpense]);
 
   const handleMethodChange = (newMethod: SettlementMethod) => {
     setSettlementMethod(newMethod);
@@ -69,8 +77,8 @@ export function useExpenseForm({
   };
 
   const toggleMember = (id: string) => {
-    setCheckedMembers((prev) =>
-      prev.includes(id) ? prev.filter((memberId) => memberId !== id) : [...prev, id]
+    setCheckedMembers(prev =>
+      prev.includes(id) ? prev.filter(memberId => memberId !== id) : [...prev, id],
     );
   };
 
@@ -118,16 +126,16 @@ export function useExpenseForm({
 
       const targetMemberIds =
         settlementMethod === 'CUSTOM'
-          ? checkedMembers.map((id) => ({
+          ? checkedMembers.map(id => ({
               userId: id,
               amount: customMemberAmounts[id] || 0,
             }))
           : settlementMethod === 'RATIO'
-          ? checkedMembers.map((id) => ({
-              userId: id,
-              percentage: customMemberRatios[id] || 0,
-            }))
-          : checkedMembers.map((id) => ({ userId: id }));
+            ? checkedMembers.map(id => ({
+                userId: id,
+                percentage: customMemberRatios[id] || 0,
+              }))
+            : checkedMembers.map(id => ({ userId: id }));
 
       let savedExpense: Expense;
 
@@ -158,8 +166,8 @@ export function useExpenseForm({
           splitType: settlementMethod,
           targetMemberIds,
           memo,
-          receiptUrl: receiptUrl ?? '',
         };
+        if (receiptUrl) createPayload.receiptUrl = receiptUrl;
         savedExpense = await createExpenseAsync(createPayload);
       }
 
