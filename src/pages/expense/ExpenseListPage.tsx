@@ -1,6 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ExpenseFilterControl, ExpenseTable } from '@/features/expense';
+import {
+  ExpenseFilterControl,
+  ExpenseTable,
+  type ExpenseStatusFilter,
+} from '@/features/expense';
 import type { ExpenseFilter as ExpenseFilterValue } from '@/features/expense';
 import { useExpenseList, useExpenseSummary } from '@/features/expense';
 import type { Expense } from '@/features/expense';
@@ -17,8 +21,13 @@ import payIcon from '@/assets/icons/expense/pay.svg';
 import { enrichExpenseWithMembers, mapGroupMembersToUsers } from './expenseMembers';
 
 export const ExpenseListPage = () => {
+  // 기간 필터 (전체 / 이번 달)
   const [activeFilter, setActiveFilter] =
     useState<ExpenseFilterValue>('TOTAL');
+
+  // 지불 상태 필터 (전체 상태 / 완료 / 미정산)
+  const [activeStatus, setActiveStatus] =
+    useState<ExpenseStatusFilter>('ALL');
 
   const navigate = useNavigate();
 
@@ -54,6 +63,15 @@ export const ExpenseListPage = () => {
     [expenses, members],
   );
 
+  // 상태 필터까지 적용된 최종 목록 (테이블/카드에는 이걸 넘긴다)
+  const filteredExpenses = useMemo(
+    () =>
+      activeStatus === 'ALL'
+        ? enrichedExpenses
+        : enrichedExpenses.filter(expense => expense.status === activeStatus),
+    [enrichedExpenses, activeStatus],
+  );
+
   const {
     totalExpense,
     receiveAmount,
@@ -77,6 +95,7 @@ export const ExpenseListPage = () => {
   return (
     <div className="w-full">
       <div className="w-full">
+        {/* 데스크톱: 서머리 카드 3개 */}
         <div className="hidden lg:grid lg:grid-cols-3 lg:gap-5">
           <SummaryCard
             icon={
@@ -136,70 +155,70 @@ export const ExpenseListPage = () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-2 lg:hidden">
-          <SummaryCard
-            icon={
-              <img
-                src={totalExpenseIcon}
-                alt="총 지출"
-                className="h-8 w-8"
-              />
-            }
-            iconBg="bg-orange-100"
-            iconClassName="size-[52px]"
-            label="이번 달 총 지출"
-            value={`${totalExpense.toLocaleString()}원`}
-            subText={`${uniquePayerCount}명 기준`}
-            className="row-span-2 h-full min-h-[180px] px-4 py-4 shadow-none"
-            labelClassName="text-[12px] leading-[18px] tracking-normal text-gray-600"
-            valueClassName="text-[20px] leading-[28px]"
-            subTextClassName="mt-0.5 text-[11px] leading-[16px]"
-          />
+       {/* 모바일: 서머리 카드 하나에 구분선으로 분할 */}
+<div className="flex w-full items-stretch rounded-[12px] bg-white shadow-none lg:hidden">
+  {/* 왼쪽: 이번 달 총 지출 */}
+  <div className="flex flex-1 items-center gap-3 px-4 py-4">
+    <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-orange-100">
+      <img src={totalExpenseIcon} alt="총 지출" className="h-7 w-7" />
+    </div>
+    <div className="min-w-0">
+      <div className="text-[12px] leading-[18px] text-gray-600">
+        이번 달 총 지출
+      </div>
+      <div className="text-[20px] leading-[28px] font-bold text-gray-900">
+        {totalExpense.toLocaleString()}원
+      </div>
+      <div className="mt-0.5 text-[11px] leading-[16px] text-gray-400">
+        {uniquePayerCount}명 기준
+      </div>
+    </div>
+  </div>
 
-          <SummaryCard
-            icon={
-              <img
-                src={receiveIcon}
-                alt="받을 금액"
-                className="h-7 w-7"
-              />
-            }
-            iconBg="bg-orange-100"
-            iconClassName="size-[48px]"
-            label="내가 받아야 할 금액"
-            value={`${receiveAmount.toLocaleString()}원`}
-            subText={`${receiveCount}건 미정산`}
-            className="min-h-[86px] px-3 py-3 shadow-none"
-            labelClassName="text-[11px] leading-[16px] tracking-normal text-gray-600"
-            valueClassName="text-[16px] leading-[22px]"
-            subTextClassName="mt-0.5 text-[10px] leading-[14px]"
-          />
+  {/* 구분선 (세로) */}
+  <div className="my-4 w-px bg-gray-100" />
 
-          <SummaryCard
-            icon={
-              <img
-                src={payIcon}
-                alt="낼 금액"
-                className="h-7 w-7"
-              />
-            }
-            iconBg="bg-orange-100"
-            iconClassName="size-[48px]"
-            label="내가 내야 할 금액"
-            value={`${payAmount.toLocaleString()}원`}
-            subText={`${payCount}건 미정산`}
-            className="min-h-[86px] px-3 py-3 shadow-none"
-            labelClassName="text-[11px] leading-[16px] tracking-normal text-gray-600"
-            valueClassName="text-[16px] leading-[22px]"
-            subTextClassName="mt-0.5 text-[10px] leading-[14px]"
-          />
+  {/* 오른쪽: 받을 금액 / 낼 금액 (가로선으로 구분) */}
+  <div className="flex flex-1 flex-col justify-center divide-y divide-gray-100 px-4">
+    {/* 받을 금액 */}
+    <div className="flex items-center gap-2 py-2.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-100">
+        <img src={receiveIcon} alt="받을 금액" className="h-5 w-5" />
+      </div>
+      <div className="min-w-0">
+        <div className="text-[11px] leading-[16px] text-gray-600">
+          받을 금액
         </div>
+        <div className="text-[14px] leading-[20px] font-bold text-gray-900">
+          +{receiveAmount.toLocaleString()}원
+        </div>
+      </div>
+    </div>
+
+    {/* 낼 금액 */}
+    <div className="flex items-center gap-2 py-2.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-100">
+        <img src={payIcon} alt="낼 금액" className="h-5 w-5" />
+      </div>
+      <div className="min-w-0">
+        <div className="text-[11px] leading-[16px] text-gray-600">
+          낼 금액
+        </div>
+        <div className="text-[14px] leading-[20px] font-bold text-gray-900">
+          -{payAmount.toLocaleString()}원
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
         <div className="mt-4 mb-6 flex h-auto w-full flex-col rounded-[16px] bg-white pb-6 lg:mt-[30px] lg:mb-10 lg:rounded-[20px] lg:pb-8">
           <div className="w-full px-3 pt-4 sm:px-4 lg:px-[30px] lg:pt-[30px]">
             <ExpenseFilterControl
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
+              activeStatus={activeStatus}
+              onStatusChange={setActiveStatus}
             />
           </div>
 
@@ -225,7 +244,7 @@ export const ExpenseListPage = () => {
               </div>
             ) : (
               <ExpenseTable
-                expenses={enrichedExpenses}
+                expenses={filteredExpenses}
                 onEdit={handleEditExpense}
                 onShare={handleShareExpense}
               />

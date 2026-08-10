@@ -9,6 +9,5 @@ export * from './CheckboxModal';
 export * from './SettlementConfirm';
 export * from './ExpenseCancelModal';
 export * from './ExpenseSaveModal';
-export { ExpenseFilter as ExpenseFilterControl } from './ExpenseFilter';
-
-
+export { ExpenseFilter as ExpenseFilterControl, type ExpenseStatusFilter} from './ExpenseFilter';
+ 

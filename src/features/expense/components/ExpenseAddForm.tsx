@@ -14,7 +14,7 @@ import {
 import type { SettlementMethod } from '@/features/expense';
 import type { Expense, ExpenseCategory } from '@/features/expense';
 import type { User } from '@/shared/types';
-import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
+import { FormInput, SelectDropdown, TextArea, CheckboxGroup } from '@/shared/components/form';
 import { ShareMessengerButton, Button } from '@/shared/components/';
 import { useAlertStore } from '@/shared/store';
 import {
@@ -25,8 +25,6 @@ import {
 
 const labelClass = 'font-sans text-caption font-bold text-gray-800';
 
-// 모바일에서는 두 카드가 배경 위에 완전히 이어지도록 border/rounded/gap을 없애고,
-// 데스크톱(sm:)에서만 기존처럼 독립된 카드 스타일을 적용한다.
 const cardClass =
   'w-full p-0 sm:bg-white sm:p-5 sm:rounded-[18px] flex flex-col gap-4 sm:gap-5 lg:p-[32px] ';
 
@@ -86,9 +84,7 @@ interface ExpenseAddFormProps {
   receiptUrl?: string;
   onShare?: (expenseId: string) => void;
   isSharing?: boolean;
-  /** 상세(수정) 모드에서 전체/개별 정산 완료 처리 후 최신 데이터를 다시 불러오기 위한 콜백 */
   onRefresh?: () => void;
-  /** 저장/취소 버튼 바로 아래(모바일 전용)에 렌더링할 컨텐츠, 예: 영수증 등록 버튼 */
   mobileReceiptSlot?: React.ReactNode;
 }
 
@@ -250,6 +246,164 @@ export const ExpenseAddForm = ({
 
   const isCustom = settlementMethod === 'CUSTOM';
   const isRatio = settlementMethod === 'RATIO';
+
+  const handleMembersChange = (nextIds: string[]) => {
+    const added = nextIds.filter(id => !checkedMembers.includes(id));
+    const removed = checkedMembers.filter(id => !nextIds.includes(id));
+    [...added, ...removed].forEach(id => toggleMember(id));
+    setFieldErrors(previous => ({ ...previous, members: undefined }));
+  };
+
+  const memberCheckboxOptions = members.map(user => ({
+    value: user.id,
+    label: (
+      <div className="flex w-full flex-wrap items-center gap-2">
+        <span>{user.name}</span>
+
+        {settlementMethod === 'EQUAL' && (
+          <span className="font-normal text-button text-gray-800">
+            - {formatWon(settlementAmounts[user.id] ?? 0)}
+          </span>
+        )}
+
+        {isCustom && checkedMembers.includes(user.id) && !isDirectInputCompleted && (
+          <div className="ml-2 flex items-center gap-2">
+            <span className="font-normal text-button text-gray-800">-</span>
+
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={10}
+              placeholder="금액"
+              value={customMemberAmounts[user.id] ?? ''}
+              onChange={e => {
+                const input = e.target.value;
+
+                if (!isUnsignedIntegerInput(input)) {
+                  setMemberAmountErrors(previous => ({
+                    ...previous,
+                    [user.id]: '숫자만 입력해 주세요.',
+                  }));
+                  return;
+                }
+
+                if (input && Number(input) > MAX_EXPENSE_AMOUNT) {
+                  setMemberAmountErrors(previous => ({
+                    ...previous,
+                    [user.id]: `${MAX_EXPENSE_AMOUNT.toLocaleString()} 이하로 입력해 주세요.`,
+                  }));
+                  return;
+                }
+
+                setCustomMemberAmounts(previous => {
+                  const next = { ...previous };
+
+                  if (input === '') {
+                    delete next[user.id];
+                  } else {
+                    next[user.id] = Number(input);
+                  }
+
+                  return next;
+                });
+
+                setMemberAmountErrors(previous => {
+                  const next = { ...previous };
+                  delete next[user.id];
+                  return next;
+                });
+
+                setFieldErrors(previous => ({ ...previous, members: undefined }));
+              }}
+              className={`h-[26px] w-[80px] rounded border bg-white px-2 text-right text-caption font-normal text-gray-800 outline-none focus:border-gray-400 ${
+                memberAmountErrors[user.id] ? 'border-red-500' : 'border-gray-200'
+              }`}
+            />
+
+            {memberAmountErrors[user.id] && (
+              <span className="text-xs text-red-500">{memberAmountErrors[user.id]}</span>
+            )}
+          </div>
+        )}
+
+        {isCustom && (isDirectInputCompleted || !checkedMembers.includes(user.id)) && (
+          <span className="font-normal text-button text-gray-800">
+            - {formatWon(settlementAmounts[user.id] ?? 0)}
+          </span>
+        )}
+
+        {isRatio && checkedMembers.includes(user.id) && !isDirectInputCompleted && (
+          <div className="ml-2 flex items-center gap-2">
+            <span className="font-normal text-button text-gray-800">-</span>
+
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={3}
+              placeholder="비율"
+              value={customMemberRatios[user.id] ?? ''}
+              onChange={e => {
+                const input = e.target.value;
+
+                if (!isUnsignedIntegerInput(input)) {
+                  setMemberRatioErrors(previous => ({
+                    ...previous,
+                    [user.id]: '숫자만 입력해 주세요.',
+                  }));
+                  return;
+                }
+
+                if (input && Number(input) > 100) {
+                  setMemberRatioErrors(previous => ({
+                    ...previous,
+                    [user.id]: '100 이하로 입력해 주세요.',
+                  }));
+                  return;
+                }
+
+                setCustomMemberRatios(previous => {
+                  const next = { ...previous };
+
+                  if (input === '') {
+                    delete next[user.id];
+                  } else {
+                    next[user.id] = Number(input);
+                  }
+
+                  return next;
+                });
+
+                setMemberRatioErrors(previous => {
+                  const next = { ...previous };
+                  delete next[user.id];
+                  return next;
+                });
+
+                setFieldErrors(previous => ({ ...previous, members: undefined }));
+              }}
+              className={`h-[26px] w-[60px] rounded border bg-white px-2 text-right text-caption font-normal text-gray-800 outline-none focus:border-gray-400 ${
+                memberRatioErrors[user.id] ? 'border-red-500' : 'border-gray-200'
+              }`}
+            />
+
+            {memberRatioErrors[user.id] && (
+              <span className="text-xs text-red-500">{memberRatioErrors[user.id]}</span>
+            )}
+
+            <span className="font-normal text-button text-gray-800">%</span>
+          </div>
+        )}
+
+        {isRatio && (isDirectInputCompleted || !checkedMembers.includes(user.id)) && (
+          <span className="font-normal text-button text-gray-800">
+            - {customMemberRatios[user.id] || 0}% ({formatWon(settlementAmounts[user.id] ?? 0)})
+          </span>
+        )}
+      </div>
+    ),
+  }));
 
   const validateMemberInputs = () => {
     const nextAmountErrors: Record<string, string> = {};
@@ -421,11 +575,6 @@ export const ExpenseAddForm = ({
         </div>
       )}
 
-      {/*
-        모바일: 두 섹션 사이 gap을 없애 하나로 이어지는 흰 배경 화면처럼 보이게 하고,
-        대신 두 번째 섹션 상단에 얇은 구분선만 넣는다.
-        데스크톱(sm:): 기존처럼 카드 두 개가 gap을 두고 독립적으로 표시된다.
-      */}
       <fieldset
         disabled={isSettled}
         className={`flex w-full flex-col gap-0 sm:gap-6 ${isSettled ? 'opacity-60' : ''}`}
@@ -438,6 +587,7 @@ export const ExpenseAddForm = ({
           <FormInput
             label="항목명"
             required
+            inputSize="sm"
             value={title}
             onChange={e => {
               setTitle(e.target.value);
@@ -455,6 +605,7 @@ export const ExpenseAddForm = ({
             <FormInput
               label="금액"
               required
+              inputSize="sm"
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
@@ -508,6 +659,7 @@ export const ExpenseAddForm = ({
           <SelectDropdown
             label="선지불자"
             required
+            inputSize="sm"
             value={payerId}
             onChange={handlePayerSelect}
             options={members.map(payer => ({
@@ -524,6 +676,7 @@ export const ExpenseAddForm = ({
           <SelectDropdown
             label="카테고리"
             required
+            inputSize="sm"
             value={category}
             onChange={v => {
               setCategory(v as ExpenseCategory);
@@ -548,6 +701,7 @@ export const ExpenseAddForm = ({
           <SelectDropdown
             label="분담 방식"
             required
+            inputSize="sm"
             value={settlementMethod}
             onChange={v => {
               handleMethodChange(v as SettlementMethod);
@@ -633,208 +787,13 @@ export const ExpenseAddForm = ({
                   멤버 목록을 불러오는 중...
                 </div>
               ) : (
-                members.map(user => (
-                  <div
-                    key={user.id}
-                    className="flex min-h-[28px] items-center justify-between text-button text-gray-800"
-                  >
-                    <div className="flex w-full flex-wrap items-center gap-2">
-                      <label
-                        htmlFor={`member-${user.id}`}
-                        className="flex cursor-pointer items-center gap-2 font-normal text-button text-gray-800"
-                      >
-                        <input
-                          id={`member-${user.id}`}
-                          type="checkbox"
-                          checked={checkedMembers.includes(user.id)}
-                          onChange={() => {
-                            toggleMember(user.id);
-                            setFieldErrors(previous => ({
-                              ...previous,
-                              members: undefined,
-                            }));
-                          }}
-                          className="h-4 w-4 rounded border-gray-100 accent-gray-800"
-                        />
-                        <span>{user.name}</span>
-                      </label>
-
-                      {settlementMethod === 'EQUAL' && (
-                        <span className="font-normal text-button text-gray-800">
-                          - {formatWon(settlementAmounts[user.id] ?? 0)}
-                        </span>
-                      )}
-
-                      {isCustom &&
-                        checkedMembers.includes(user.id) &&
-                        !isDirectInputCompleted && (
-                          <div className="ml-2 flex items-center gap-2">
-                            <span className="font-normal text-button text-gray-800">
-                              -
-                            </span>
-
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              maxLength={10}
-                              placeholder="금액"
-                              value={customMemberAmounts[user.id] ?? ''}
-                              onChange={e => {
-                                const input = e.target.value;
-
-                                if (!isUnsignedIntegerInput(input)) {
-                                  setMemberAmountErrors(previous => ({
-                                    ...previous,
-                                    [user.id]: '숫자만 입력해 주세요.',
-                                  }));
-                                  return;
-                                }
-
-                                if (
-                                  input &&
-                                  Number(input) > MAX_EXPENSE_AMOUNT
-                                ) {
-                                  setMemberAmountErrors(previous => ({
-                                    ...previous,
-                                    [user.id]: `${MAX_EXPENSE_AMOUNT.toLocaleString()} 이하로 입력해 주세요.`,
-                                  }));
-                                  return;
-                                }
-
-                                setCustomMemberAmounts(previous => {
-                                  const next = { ...previous };
-
-                                  if (input === '') {
-                                    delete next[user.id];
-                                  } else {
-                                    next[user.id] = Number(input);
-                                  }
-
-                                  return next;
-                                });
-
-                                setMemberAmountErrors(previous => {
-                                  const next = { ...previous };
-                                  delete next[user.id];
-                                  return next;
-                                });
-
-                                setFieldErrors(previous => ({
-                                  ...previous,
-                                  members: undefined,
-                                }));
-                              }}
-                              className={`h-[26px] w-[80px] rounded border bg-white px-2 text-right text-caption font-normal text-gray-800 outline-none focus:border-gray-400 ${
-                                memberAmountErrors[user.id]
-                                  ? 'border-red-500'
-                                  : 'border-gray-200'
-                              }`}
-                            />
-
-                            {memberAmountErrors[user.id] && (
-                              <span className="text-xs text-red-500">
-                                {memberAmountErrors[user.id]}
-                              </span>
-                            )}
-                          </div>
-                        )}
-
-                      {isCustom &&
-                        (isDirectInputCompleted ||
-                          !checkedMembers.includes(user.id)) && (
-                          <span className="font-normal text-button text-gray-800">
-                            - {formatWon(settlementAmounts[user.id] ?? 0)}
-                          </span>
-                        )}
-
-                      {isRatio &&
-                        checkedMembers.includes(user.id) &&
-                        !isDirectInputCompleted && (
-                          <div className="ml-2 flex items-center gap-2">
-                            <span className="font-normal text-button text-gray-800">
-                              -
-                            </span>
-
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              maxLength={3}
-                              placeholder="비율"
-                              value={customMemberRatios[user.id] ?? ''}
-                              onChange={e => {
-                                const input = e.target.value;
-
-                                if (!isUnsignedIntegerInput(input)) {
-                                  setMemberRatioErrors(previous => ({
-                                    ...previous,
-                                    [user.id]: '숫자만 입력해 주세요.',
-                                  }));
-                                  return;
-                                }
-
-                                if (input && Number(input) > 100) {
-                                  setMemberRatioErrors(previous => ({
-                                    ...previous,
-                                    [user.id]: '100 이하로 입력해 주세요.',
-                                  }));
-                                  return;
-                                }
-
-                                setCustomMemberRatios(previous => {
-                                  const next = { ...previous };
-
-                                  if (input === '') {
-                                    delete next[user.id];
-                                  } else {
-                                    next[user.id] = Number(input);
-                                  }
-
-                                  return next;
-                                });
-
-                                setMemberRatioErrors(previous => {
-                                  const next = { ...previous };
-                                  delete next[user.id];
-                                  return next;
-                                });
-
-                                setFieldErrors(previous => ({
-                                  ...previous,
-                                  members: undefined,
-                                }));
-                              }}
-                              className={`h-[26px] w-[60px] rounded border bg-white px-2 text-right text-caption font-normal text-gray-800 outline-none focus:border-gray-400 ${
-                                memberRatioErrors[user.id]
-                                  ? 'border-red-500'
-                                  : 'border-gray-200'
-                              }`}
-                            />
-
-                            {memberRatioErrors[user.id] && (
-                              <span className="text-xs text-red-500">
-                                {memberRatioErrors[user.id]}
-                              </span>
-                            )}
-
-                            <span className="font-normal text-button text-gray-800">
-                              %
-                            </span>
-                          </div>
-                        )}
-
-                      {isRatio &&
-                        (isDirectInputCompleted ||
-                          !checkedMembers.includes(user.id)) && (
-                          <span className="font-normal text-button text-gray-800">
-                            - {customMemberRatios[user.id] || 0}% (
-                            {formatWon(settlementAmounts[user.id] ?? 0)})
-                          </span>
-                        )}
-                    </div>
-                  </div>
-                ))
+                <CheckboxGroup
+                  options={memberCheckboxOptions}
+                  value={checkedMembers}
+                  onChange={handleMembersChange}
+                  direction="col"
+                  size="sm"
+                />
               )}
             </div>
 
@@ -862,12 +821,6 @@ export const ExpenseAddForm = ({
             countInside
           />
 
-          {/*
-            정산 미리보기: 별도 컴포넌트/상태 없이 현재 입력값으로 바로 계산해서 텍스트로 나열.
-            멤버별 부담금액은 정산 대상 멤버 체크리스트에서 이미 확인할 수 있으므로
-            미리보기에서는 표시하지 않는다.
-            상세(수정) 모드에서는 하단에 전체/개별 정산 완료 버튼을 추가로 노출한다.
-          */}
           <div className="flex flex-col gap-3 border-t border-dashed border-gray-200 pt-4">
             <div className="flex items-center gap-2">
               <ExpenseIcon className="size-5" />

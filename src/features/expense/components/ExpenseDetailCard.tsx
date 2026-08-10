@@ -133,6 +133,7 @@ export function ExpenseDetailCard({
                       <StatusBadge
                         variant={badgeVariant}
                         label={badgeLabel}
+                        size="sm"
                       />
                     </div>
                   </div>
