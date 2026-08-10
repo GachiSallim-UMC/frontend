@@ -4,9 +4,17 @@ import type {
   UpdateExpenseDto,
   Expense,
   ExpenseCategory,
-} from '@/features/expense';
-import type { SettlementMethod } from '@/features/expense';
-import { useCreateExpense, useUpdateExpense } from '@/features/expense';
+} from '../types/expense.types';
+import { useCreateExpense, useUpdateExpense } from './useExpenseMutations';
+import type { SettlementMethod } from './useSettlementAmounts';
+
+const normalizeNumericInput = (value: string) => {
+  const normalized = value.replace(/,/g, '').trim();
+  return normalized === '' ? '' : String(Number(normalized));
+};
+
+const normalizeNumberRecord = (value: Record<string, number>) =>
+  Object.entries(value).sort(([left], [right]) => left.localeCompare(right));
 
 interface UseExpenseFormProps {
   initialExpense?: Expense;
@@ -60,6 +68,23 @@ export function useExpenseForm({
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const dirtySnapshot = JSON.stringify({
+    title: title.trim(),
+    amount: normalizeNumericInput(amount),
+    checkedMembers: [...checkedMembers].sort(),
+    settlementMethod,
+    category,
+    memo: memo.trim(),
+    expenseDate,
+    payerId: String(payerId),
+    customMemberAmounts:
+      settlementMethod === 'CUSTOM' ? normalizeNumberRecord(customMemberAmounts) : [],
+    customMemberRatios:
+      settlementMethod === 'RATIO' ? normalizeNumberRecord(customMemberRatios) : [],
+    receiptUrl: receiptUrl ?? '',
+  });
+  const initialDirtySnapshotRef = useRef(dirtySnapshot);
 
   const { mutateAsync: createExpenseAsync } = useCreateExpense();
   const { mutateAsync: updateExpenseAsync } = useUpdateExpense();
@@ -207,6 +232,7 @@ export function useExpenseForm({
     setIsDirectInputCompleted,
     warningMessage,
     setWarningMessage,
+    isDirty: dirtySnapshot !== initialDirtySnapshotRef.current,
     dateInputRef,
     handleIconClick,
     numericTotalAmount,

@@ -177,6 +177,7 @@ export const ExpenseAddForm = ({
     setIsDirectInputCompleted,
     warningMessage,
     setWarningMessage,
+    isDirty,
     dateInputRef,
     handleIconClick,
     numericTotalAmount,
@@ -559,6 +560,10 @@ export const ExpenseAddForm = ({
   };
 
   const handleCancelClick = () => {
+    if (!isDirty) {
+      onCancel?.();
+      return;
+    }
     setIsCancelModalOpen(true);
   };
 
@@ -946,6 +951,7 @@ export const ExpenseAddForm = ({
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
         onConfirm={handleConfirmCancel}
+        isPending={isSaving}
       />
 
       {isEditMode && (
