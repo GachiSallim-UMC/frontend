@@ -65,6 +65,7 @@ export const ExpenseAddForm = ({
     setIsModalOpen: setIsSettleMembersModalOpen,
     handleBulkSettle,
     handleIndividualSubmit,
+    handleReject,
     modalMembers,
   } = useExpenseSettle(initialExpense, onRefresh);
 
@@ -211,9 +212,9 @@ export const ExpenseAddForm = ({
   };
 
   // 현재 로그인한 사용자가 선지불자 본인인지 여부 (정산 완료 버튼 노출 판단용)
- const isPayer =
-  Boolean(currentUserId) &&
-  String(payerId) === String(currentUserId);
+  const isPayer =
+    Boolean(currentUserId) &&
+    String(payerId) === String(currentUserId);
 
   return (
     <>
@@ -345,6 +346,7 @@ export const ExpenseAddForm = ({
           members: modalMembers,
           onClose: () => setIsSettleMembersModalOpen(false),
           onSubmit: handleIndividualSubmit,
+          onReject: handleReject,
         }}
       />
     </>

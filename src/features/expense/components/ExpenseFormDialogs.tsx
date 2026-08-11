@@ -36,6 +36,7 @@ interface ExpenseFormDialogsProps {
     members: SettlementMember[];
     onClose: () => void;
     onSubmit: (selectedIds: (number | string)[]) => void;
+    onReject?: (id: number | string) => void | Promise<void>;
   };
 }
 
@@ -79,6 +80,7 @@ export const ExpenseFormDialogs = ({
           isOpen={individual.isOpen}
           onClose={individual.onClose}
           onSubmit={individual.onSubmit}
+          onReject={individual.onReject}
         />
       </>
     )}
