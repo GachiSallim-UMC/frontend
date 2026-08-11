@@ -215,13 +215,6 @@ export const ExpenseAddForm = ({
   Boolean(currentUserId) &&
   String(payerId) === String(currentUserId);
 
-  console.log('정산 버튼 체크', {
-  currentUserId,
-  payerId,
-  isEditMode,
-  isPayer,
-});
-
   return (
     <>
       {isSettled && (
