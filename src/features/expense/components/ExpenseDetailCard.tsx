@@ -11,11 +11,13 @@ import type { Expense } from '@/features/expense';
 
 interface ExpenseDetailCardProps {
   expense?: Expense;
+  currentUserId?: string;
   onRefresh?: () => void;
 }
 
 export function ExpenseDetailCard({
   expense,
+  currentUserId,
   onRefresh,
 }: ExpenseDetailCardProps) {
   const [isSettlementConfirmOpen, setIsSettlementConfirmOpen] = useState(false);
@@ -40,6 +42,10 @@ export function ExpenseDetailCard({
   const shares = expense.shares ?? [];
   const displayAmount =
     typeof expense.amount === 'number' ? expense.amount : 0;
+
+  // 선지불자(=정산 생성 시 먼저 돈을 낸 사람) 본인인지 여부
+  const isPayer =
+    Boolean(currentUserId) && String(expense.payer?.id) === String(currentUserId);
 
   const getSplitTypeText = (type: Expense['splitType']) => {
     switch (type) {
@@ -105,7 +111,7 @@ export function ExpenseDetailCard({
               </div>
             ) : (
               shares.map((share) => {
-                const isPayer =
+                const isSharePayer =
                   String(share.user.id) === String(expense.payer?.id);
 
                 const isPaid = Boolean(share.isPaid);
@@ -113,7 +119,7 @@ export function ExpenseDetailCard({
                 let badgeVariant: 'done' | 'pending' = 'pending';
                 let badgeLabel = '미납';
 
-                if (isPayer) {
+                if (isSharePayer) {
                   badgeVariant = 'done';
                   badgeLabel = '선지불';
                 } else if (isPaid) {
@@ -148,37 +154,44 @@ export function ExpenseDetailCard({
           <span>{displayAmount.toLocaleString()}원</span>
         </div>
 
-        <div className="flex gap-3 mt-2">
-          <CustomButton
-            label="전체 정산 완료"
-            variant="all"
-            onClick={() => setIsSettlementConfirmOpen(true)}
-            className="w-[136px]"
-          />
+        {/* 선지불자 본인에게만 정산 완료 처리 버튼 노출 */}
+        {isPayer && (
+          <div className="flex gap-3 mt-2">
+            <CustomButton
+              label="전체 정산 완료"
+              variant="all"
+              onClick={() => setIsSettlementConfirmOpen(true)}
+              className="w-[136px]"
+            />
 
-          <CustomButton
-            label="개별 완료 처리"
-            variant="each"
-            onClick={() => setIsModalOpen(true)}
-            className="w-[136px]"
-          />
-        </div>
+            <CustomButton
+              label="개별 완료 처리"
+              variant="each"
+              onClick={() => setIsModalOpen(true)}
+              className="w-[136px]"
+            />
+          </div>
+        )}
 
-        <CheckboxModal
-          title="개별 정산 완료 처리"
-          description="정산이 완료된 멤버를 선택해주세요."
-          members={modalMembers}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleIndividualSubmit}
-        />
+        {isPayer && (
+          <CheckboxModal
+            title="개별 정산 완료 처리"
+            description="정산이 완료된 멤버를 선택해주세요."
+            members={modalMembers}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSubmit={handleIndividualSubmit}
+          />
+        )}
       </div>
 
-      <SettlementConfirm
-        isOpen={isSettlementConfirmOpen}
-        onClose={() => setIsSettlementConfirmOpen(false)}
-        onConfirm={handleBulkSettle}
-      />
+      {isPayer && (
+        <SettlementConfirm
+          isOpen={isSettlementConfirmOpen}
+          onClose={() => setIsSettlementConfirmOpen(false)}
+          onConfirm={handleBulkSettle}
+        />
+      )}
     </>
   );
 }

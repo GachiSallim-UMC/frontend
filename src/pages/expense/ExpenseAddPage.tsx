@@ -199,6 +199,7 @@ export const ExpenseAddPage = ({
               members={members}
               membersLoading={membersLoading}
               initialExpense={savedExpense}
+              currentUserId={currentUserId}
               onSave={handleSave}
               onCancel={handleCancel}
               onDelete={
@@ -237,7 +238,7 @@ export const ExpenseAddPage = ({
               <>
                 {/* 모바일에서는 폼의 "정산 미리보기" 섹션에 이미 동일한 정보 + 전체/개별 정산 버튼이 있으므로 중복 방지를 위해 숨김 */}
                 <div className="hidden sm:block">
-                  <ExpenseDetailCard expense={savedExpense} />
+                  <ExpenseDetailCard expense={savedExpense} currentUserId={currentUserId}/>
                 </div>
 
                 {/* 모바일에서는 폼의 mobileReceiptSlot에 이미 동일한 영수증 첨부가 있으므로 중복 방지를 위해 숨김 */}

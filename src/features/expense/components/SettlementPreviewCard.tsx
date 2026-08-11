@@ -113,6 +113,10 @@ export const SettlementPreviewCard = ({
     (s) => String(s.user.id) === String(currentUserId),
   );
 
+  // 선지불자(=정산 생성 시 먼저 돈을 낸 사람) 본인인지 여부
+  const isPayer =
+    Boolean(currentUserId) && String(expense.payer?.id) === String(currentUserId);
+
   return (
     <>
       <div className="w-full sm:bg-white p-3 sm:rounded-[18px] sm:border sm:border-gray-100 sm:p-5 lg:p-[32px]">
@@ -183,21 +187,26 @@ export const SettlementPreviewCard = ({
         </div>
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <IconTextButton
-            label={isLoading ? '송금 링크 생성 중...' : '토스로 송금'}
-            variant="toss"
-            iconComponent={TossIcon}
-            onClick={() => requestPayLink(myShare)}
-            className="w-full sm:flex-1"
-          />
+          {/* 선지불자 본인이 아니고, 아직 자기 몫을 안 낸 경우에만 송금 버튼 노출 */}
+          {!isPayer && myShare && !myShare.isPaid && (
+            <IconTextButton
+              label={isLoading ? '송금 링크 생성 중...' : '토스로 송금'}
+              variant="toss"
+              iconComponent={TossIcon}
+              onClick={() => requestPayLink(myShare)}
+              className="w-full sm:flex-1"
+            />
+          )}
 
-          {/* 정산하기: 웹(데스크톱)에서만 노출, 모바일에서는 숨김 */}
-          <CustomButton
-            label="정산하기"
-            variant="settlement"
-            onClick={() => setIsSettlementConfirmOpen(true)}
-            className="hidden h-[50px] rounded-[8px] sm:flex sm:flex-1"
-          />
+          {/* 정산하기: 선지불자 본인에게만 노출 (웹은 기존처럼 데스크톱 전용 유지) */}
+          {isPayer && (
+            <CustomButton
+              label="정산하기"
+              variant="settlement"
+              onClick={() => setIsSettlementConfirmOpen(true)}
+              className="hidden h-[50px] rounded-[8px] sm:flex sm:flex-1"
+            />
+          )}
         </div>
       </div>
 
