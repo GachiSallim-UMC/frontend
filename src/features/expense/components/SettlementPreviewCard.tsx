@@ -5,9 +5,11 @@ import {
   CustomButton,
   IconTextButton,
   SettlementConfirm,
+  useClaimTransferComplete,
 } from '@/features/expense';
 import { useCreatePayLink, useExpenseSettle } from '@/features/expense';
 import type { Expense } from '@/features/expense';
+import { useAlertStore } from '@/shared/store';
 
 interface SettlementDraft {
   title: string;
@@ -39,13 +41,50 @@ export const SettlementPreviewCard = ({
   onRefresh,
   draft,
 }: SettlementPreviewCardProps) => {
-  const [isSettlementConfirmOpen, setIsSettlementConfirmOpen] = useState(false);
+  const [isSettlementConfirmOpen, setIsSettlementConfirmOpen] =
+    useState(false);
 
-  const { requestPayLink, isLoading } = useCreatePayLink();
-  const { handleBulkSettle } = useExpenseSettle(expense, onRefresh);
+  const {
+    requestPayLink,
+    isLoading: isPayLinkLoading,
+  } = useCreatePayLink();
+
+  const { handleBulkSettle } = useExpenseSettle(
+    expense,
+    onRefresh,
+  );
+
+  const {
+    requestTransferComplete,
+    isLoading: isClaimTransferLoading,
+  } = useClaimTransferComplete();
+
+  const handleTransferComplete = async (
+    shareId: number | string,
+  ) => {
+    const success = await requestTransferComplete(shareId);
+
+    if (success) {
+      useAlertStore.getState().showAlert({
+        title: '완료',
+        message: '송금 완료 알림을 성공적으로 보냈습니다.',
+        tone: 'success',
+      });
+
+      onRefresh?.();
+    } else {
+      useAlertStore.getState().showAlert({
+        title: '오류',
+        message: '송금 완료 처리에 실패했습니다. 다시 시도해 주세요.',
+        tone: 'error',
+      });
+    }
+  };
 
   if (!expense) {
-    const hasDraftContent = Boolean(draft?.title || draft?.amount);
+    const hasDraftContent = Boolean(
+      draft?.title || draft?.amount,
+    );
 
     return (
       <>
@@ -55,6 +94,7 @@ export const SettlementPreviewCard = ({
             <div className="w-full rounded-[16px] bg-white p-3">
               <div className="mb-3 flex items-center gap-2">
                 <ExpenseIcon className="size-6" />
+
                 <span className="text-subtitle font-bold text-gray-900">
                   정산 상세 미리보기
                 </span>
@@ -62,27 +102,46 @@ export const SettlementPreviewCard = ({
 
               <div className="flex flex-col text-button text-gray-900">
                 <div className="flex justify-between border-b border-gray-100 py-2">
-                  <span className="text-gray-600">항목</span>
+                  <span className="text-gray-600">
+                    항목
+                  </span>
+
                   <span className="truncate pl-2 text-right">
                     {draft?.title || '제목 없음'}
                   </span>
                 </div>
 
                 <div className="flex justify-between border-b border-gray-100 py-2">
-                  <span className="text-gray-600">총액</span>
+                  <span className="text-gray-600">
+                    총액
+                  </span>
+
                   <span>
-                    {(Number(draft?.amount) || 0).toLocaleString()}원
+                    {(Number(draft?.amount) || 0).toLocaleString()}
+                    원
                   </span>
                 </div>
 
                 <div className="flex justify-between border-b border-gray-100 py-2">
-                  <span className="text-gray-600">선지불자</span>
-                  <span>{draft?.payerName || '미선택'}</span>
+                  <span className="text-gray-600">
+                    선지불자
+                  </span>
+
+                  <span>
+                    {draft?.payerName || '미선택'}
+                  </span>
                 </div>
 
                 <div className="flex justify-between py-2">
-                  <span className="text-gray-600">분담 방식</span>
-                  <span>{settlementMethodLabel(draft?.splitType)}</span>
+                  <span className="text-gray-600">
+                    분담 방식
+                  </span>
+
+                  <span>
+                    {settlementMethodLabel(
+                      draft?.splitType,
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
@@ -102,16 +161,33 @@ export const SettlementPreviewCard = ({
   }
 
   const shares = expense.shares ?? [];
+
   const displayAmount =
-    typeof expense.amount === 'number' ? expense.amount : 0;
+    typeof expense.amount === 'number'
+      ? expense.amount
+      : 0;
+
   const memberCount = shares.length || 1;
+
   const isDirectSplit =
-    expense.splitType === 'CUSTOM' || expense.splitType === 'RATIO';
-  const equalPerPerson = Math.floor(displayAmount / memberCount);
+    expense.splitType === 'CUSTOM' ||
+    expense.splitType === 'RATIO';
+
+  const equalPerPerson = Math.floor(
+    displayAmount / memberCount,
+  );
 
   const myShare = shares.find(
-    (s) => String(s.user.id) === String(currentUserId),
+    share =>
+      String(share.user.id) ===
+      String(currentUserId),
   );
+
+  // 선지불자(=정산 생성 시 먼저 돈을 낸 사람) 본인인지 여부
+  const isPayer =
+    Boolean(currentUserId) &&
+    String(expense.payer?.id) ===
+      String(currentUserId);
 
   return (
     <>
@@ -127,11 +203,14 @@ export const SettlementPreviewCard = ({
 
           <div className="flex flex-col gap-2 text-button text-gray-900">
             <div className="flex flex-wrap items-center justify-between gap-1">
-              <span>{expense.title || '항목명 미입력'}</span>
+              <span>
+                {expense.title || '항목명 미입력'}
+              </span>
 
               {!isDirectSplit ? (
                 <span className="text-gray-900">
-                  {displayAmount.toLocaleString()} / {memberCount} ={' '}
+                  {displayAmount.toLocaleString()} /{' '}
+                  {memberCount} ={' '}
                   {equalPerPerson.toLocaleString()}원
                 </span>
               ) : (
@@ -155,7 +234,11 @@ export const SettlementPreviewCard = ({
             <span className="text-lg text-primary-700">
               {isDirectSplit
                 ? `${shares
-                    .reduce((acc, cur) => Math.max(acc, cur.amount), 0)
+                    .reduce(
+                      (acc, cur) =>
+                        Math.max(acc, cur.amount),
+                      0,
+                    )
                     .toLocaleString()}원 등`
                 : `${equalPerPerson.toLocaleString()}원`}
             </span>
@@ -168,13 +251,16 @@ export const SettlementPreviewCard = ({
                   분담 내역이 없습니다.
                 </div>
               ) : (
-                shares.map((share) => (
+                shares.map(share => (
                   <div
                     key={share.user.id}
                     className="flex justify-between text-caption text-gray-700"
                   >
                     <span>{share.user.name}</span>
-                    <span>{share.amount.toLocaleString()}원</span>
+
+                    <span>
+                      {share.amount.toLocaleString()}원
+                    </span>
                   </div>
                 ))
               )}
@@ -182,28 +268,68 @@ export const SettlementPreviewCard = ({
           )}
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <IconTextButton
-            label={isLoading ? '송금 링크 생성 중...' : '토스로 송금'}
-            variant="toss"
-            iconComponent={TossIcon}
-            onClick={() => requestPayLink(myShare)}
-            className="w-full sm:flex-1"
-          />
+        {/* 송금 / 송금 완료 / 정산하기 */}
+        <div className="mt-4 flex flex-col gap-1">
+          {/* 선지불자가 아니고, 아직 자기 몫을 안 낸 경우 */}
+          {!isPayer &&
+            myShare &&
+            !myShare.isPaid && (
+              <>
+                {/* 토스로 송금 */}
+                <IconTextButton
+                  label={
+                    isPayLinkLoading
+                      ? '송금 링크 생성 중...'
+                      : '토스로 송금'
+                  }
+                  variant="toss"
+                  iconComponent={TossIcon}
+                  onClick={() =>
+                    requestPayLink(myShare)
+                  }
+                  className="w-full"
+                  disabled={isPayLinkLoading}
+                />
 
-          {/* 정산하기: 웹(데스크톱)에서만 노출, 모바일에서는 숨김 */}
-          <CustomButton
-            label="정산하기"
-            variant="settlement"
-            onClick={() => setIsSettlementConfirmOpen(true)}
-            className="hidden h-[50px] rounded-[8px] sm:flex sm:flex-1"
-          />
+                {/* 송금 완료했어요 */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleTransferComplete(
+                      myShare.id,
+                    )
+                  }
+                  disabled={
+                    isClaimTransferLoading
+                  }
+                  className="w-full py-1 text-center text-[12px] text-primary-500 underline underline-offset-2 transition-colors hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isClaimTransferLoading
+                    ? '전송 중...'
+                    : '송금 완료했어요'}
+                </button>
+              </>
+            )}
+
+          {/* 선지불자 본인에게만 정산하기 표시 */}
+          {isPayer && (
+            <CustomButton
+              label="정산하기"
+              variant="settlement"
+              onClick={() =>
+                setIsSettlementConfirmOpen(true)
+              }
+              className="hidden h-[50px] rounded-[8px] sm:flex sm:w-full"
+            />
+          )}
         </div>
       </div>
 
       <SettlementConfirm
         isOpen={isSettlementConfirmOpen}
-        onClose={() => setIsSettlementConfirmOpen(false)}
+        onClose={() =>
+          setIsSettlementConfirmOpen(false)
+        }
         onConfirm={handleBulkSettle}
       />
     </>
@@ -211,13 +337,22 @@ export const SettlementPreviewCard = ({
 };
 
 function splitTypeLabel(expense: Expense): string {
-  if (expense.splitType === 'RATIO') return '비율 분할';
-  if (expense.splitType === 'CUSTOM') return '직접 입력';
+  if (expense.splitType === 'RATIO') {
+    return '비율 분할';
+  }
+
+  if (expense.splitType === 'CUSTOM') {
+    return '직접 입력';
+  }
+
   return '균등 분할';
 }
 
-function isDirectInputSummaryLabel(expense: Expense): string {
-  return expense.splitType === 'CUSTOM' || expense.splitType === 'RATIO'
+function isDirectInputSummaryLabel(
+  expense: Expense,
+): string {
+  return expense.splitType === 'CUSTOM' ||
+    expense.splitType === 'RATIO'
     ? '멤버별 부담 금액'
     : '1인당 부담 금액';
 }

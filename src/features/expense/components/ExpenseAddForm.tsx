@@ -23,6 +23,8 @@ interface ExpenseAddFormProps {
   onPayerChange?: (id: string) => void;
   memberAmounts?: Record<string, number>;
   initialExpense?: Expense;
+  /** 현재 로그인한 사용자 ID. 정산 완료 버튼을 선지불자 본인에게만 노출하기 위해 사용. */
+  currentUserId?: string;
   onSave?: (newExpense: Expense) => void;
   onCancel?: () => void;
   onDelete?: () => void;
@@ -42,6 +44,7 @@ export const ExpenseAddForm = ({
   onPayerChange,
   memberAmounts,
   initialExpense,
+  currentUserId,
   onSave,
   onCancel,
   onDelete,
@@ -62,6 +65,7 @@ export const ExpenseAddForm = ({
     setIsModalOpen: setIsSettleMembersModalOpen,
     handleBulkSettle,
     handleIndividualSubmit,
+    handleReject,
     modalMembers,
   } = useExpenseSettle(initialExpense, onRefresh);
 
@@ -207,6 +211,11 @@ export const ExpenseAddForm = ({
     dialogs.save.open();
   };
 
+  // 현재 로그인한 사용자가 선지불자 본인인지 여부 (정산 완료 버튼 노출 판단용)
+  const isPayer =
+    Boolean(currentUserId) &&
+    String(payerId) === String(currentUserId);
+
   return (
     <>
       {isSettled && (
@@ -280,16 +289,20 @@ export const ExpenseAddForm = ({
             }}
           />
 
-          <ExpenseSettlementPreview
-            title={title}
-            amount={amount}
-            payerId={payerId}
-            members={members}
-            settlementMethod={settlementMethod}
-            isEditMode={isEditMode}
-            onBulkSettle={dialogs.settlement.open}
-            onIndividualSettle={() => setIsSettleMembersModalOpen(true)}
-          />
+          {/* 모바일 전용: 데스크톱에서는 오른쪽 컬럼(ExpenseDetailCard + SettlementPreviewCard)이 이 역할을 대신함 */}
+          <div className="sm:hidden">
+            <ExpenseSettlementPreview
+              title={title}
+              amount={amount}
+              payerId={payerId}
+              members={members}
+              settlementMethod={settlementMethod}
+              isEditMode={isEditMode}
+              isPayer={isPayer}
+              onBulkSettle={dialogs.settlement.open}
+              onIndividualSettle={() => setIsSettleMembersModalOpen(true)}
+            />
+          </div>
         </div>
       </fieldset>
 
@@ -333,6 +346,7 @@ export const ExpenseAddForm = ({
           members: modalMembers,
           onClose: () => setIsSettleMembersModalOpen(false),
           onSubmit: handleIndividualSubmit,
+          onReject: handleReject,
         }}
       />
     </>

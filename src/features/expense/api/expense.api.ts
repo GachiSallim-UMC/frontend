@@ -15,6 +15,8 @@ import type {
   RequestReceiptUploadUrlDto,
   ReceiptUploadUrlResponse,
   PayLinkResponse,
+  BankAccount,
+  CreateBankAccountDto,
 } from '@/features/expense';
 import type { ExpenseStatus } from '@/shared/types';
 
@@ -36,6 +38,11 @@ function toExpenseStatus(rawStatus: string): ExpenseStatus {
 
 function toSplitIsPaid(rawStatus: string): boolean {
   return rawStatus === 'PAID' || rawStatus === 'PRE_PAID' || rawStatus === 'DONE';
+}
+
+/** 채무자가 "송금완료" 표시를 해서 선지불자의 확인을 기다리는 중(REQUESTED -> 확인 대기) 상태인지 */
+function toSplitIsPending(rawStatus: string): boolean {
+  return rawStatus === 'TRANSFER_PENDING';
 }
 
 export function toExpense(rawResponse: unknown): Expense {
@@ -70,6 +77,7 @@ export function toExpense(rawResponse: unknown): Expense {
               },
           amount: (s.amount as number) ?? 0,
           isPaid: toSplitIsPaid(s.status as string),
+          isPending: toSplitIsPending(s.status as string),
         };
       })
     : [];
@@ -160,8 +168,7 @@ export const createPayLink = async (splitId: number | string): Promise<PayLinkRe
   const response = await apiClient.post(`/expenses/splits/${splitId}/paylink`);
   if (
     !isRecord(response.data) ||
-    typeof response.data.deepLinkUrl !== 'string' ||
-    typeof response.data.status !== 'string'
+    typeof response.data.deepLinkUrl !== 'string'
   ) {
     throw invalidResponse('송금 링크 응답 형식이 올바르지 않습니다.');
   }
@@ -253,4 +260,68 @@ export const getReceiptViewUrl = async (
     }
     throw err;
   }
+};
+
+/** 정산 수령용 계좌 등록 */
+export const createBankAccount = async (
+  dto: CreateBankAccountDto,
+): Promise<BankAccount> => {
+  const response = await apiClient.post('/expenses/bank-accounts', dto);
+  if (
+    !isRecord(response.data) ||
+    typeof response.data.id !== 'number' ||
+    typeof response.data.bankName !== 'string' ||
+    typeof response.data.accountNumber !== 'string'
+  ) {
+    throw invalidResponse('계좌 등록 응답 형식이 올바르지 않습니다.');
+  }
+  return {
+    id: response.data.id,
+    bankName: response.data.bankName,
+    accountNumber: response.data.accountNumber,
+    isPrimary: Boolean(response.data.isPrimary),
+  };
+};
+
+/** 내 계좌 목록 조회 (기본 계좌가 먼저 오도록 정렬되어 응답) */
+export const getBankAccounts = async (): Promise<BankAccount[]> => {
+  const response = await apiClient.get('/expenses/bank-accounts');
+  if (!Array.isArray(response.data)) {
+    throw invalidResponse('계좌 목록 응답 형식이 올바르지 않습니다.');
+  }
+  return response.data.map((raw: unknown) => {
+    if (
+      !isRecord(raw) ||
+      typeof raw.id !== 'number' ||
+      typeof raw.bankName !== 'string' ||
+      typeof raw.accountNumber !== 'string'
+    ) {
+      throw invalidResponse('계좌 목록 응답 형식이 올바르지 않습니다.');
+    }
+    return {
+      id: raw.id,
+      bankName: raw.bankName,
+      accountNumber: raw.accountNumber,
+      isPrimary: Boolean(raw.isPrimary),
+    };
+  });
+};
+
+/** 송금 완료 알림 전송: 상태를 TRANSFER_PENDING으로 변경하고 수령인에게 확인 요청을 보냄 */
+export const claimTransferComplete = async (splitId: number | string): Promise<void> => {
+  await apiClient.patch(`/expenses/splits/${splitId}/transfer-claim`);
+};
+
+/** 기본(수계좌) 계좌 변경 */
+export const setPrimaryBankAccount = async (
+  bankAccountId: number | string,
+): Promise<void> => {
+  await apiClient.patch(`/expenses/bank-accounts/${bankAccountId}/primary`);
+};
+
+/** 계좌 삭제 */
+export const deleteBankAccount = async (
+  bankAccountId: number | string,
+): Promise<void> => {
+  await apiClient.delete(`/expenses/bank-accounts/${bankAccountId}`);
 };

@@ -11,6 +11,8 @@ interface ExpenseSettlementPreviewProps {
   members: User[];
   settlementMethod: SettlementMethod;
   isEditMode: boolean;
+  /** 현재 로그인한 사용자가 선지불자 본인인지 여부. true일 때만 정산 완료 버튼을 노출한다. */
+  isPayer: boolean;
   onBulkSettle: () => void;
   onIndividualSettle: () => void;
 }
@@ -22,6 +24,7 @@ export const ExpenseSettlementPreview = ({
   members,
   settlementMethod,
   isEditMode,
+  isPayer,
   onBulkSettle,
   onIndividualSettle,
 }: ExpenseSettlementPreviewProps) => (
@@ -53,21 +56,22 @@ export const ExpenseSettlementPreview = ({
       </div>
     </div>
 
-    {isEditMode && (
-      <div className="flex gap-3 pt-1">
-        <CustomButton
-          label="전체 정산 완료"
-          variant="all"
-          onClick={onBulkSettle}
-          className="flex-1"
-        />
-        <CustomButton
-          label="개별 완료 처리"
-          variant="each"
-          onClick={onIndividualSettle}
-          className="flex-1"
-        />
-      </div>
-    )}
+    {isEditMode && isPayer && (
+  <div className="flex gap-3 pt-1">
+    <CustomButton
+      label="전체 정산 완료"
+      variant="all"
+      onClick={onBulkSettle}
+      className="flex-1"
+    />
+
+    <CustomButton
+      label="개별 완료 처리"
+      variant="each"
+      onClick={onIndividualSettle}
+      className="flex-1"
+    />
+  </div>
+)}
   </div>
 );

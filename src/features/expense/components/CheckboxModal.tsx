@@ -6,6 +6,7 @@ interface MemberItem {
   name: string;
   amount?: number;
   isPaid?: boolean;
+  isPending?: boolean;
 }
 
 interface CheckboxModalProps {
@@ -15,6 +16,7 @@ interface CheckboxModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (selectedIds: (number | string)[]) => void;
+  onReject?: (id: number | string) => void | Promise<void>;
 }
 
 export const CheckboxModal = ({
@@ -24,8 +26,10 @@ export const CheckboxModal = ({
   isOpen,
   onClose,
   onSubmit,
+  onReject,
 }: CheckboxModalProps) => {
   const [selectedIds, setSelectedIds] = useState<(number | string)[]>([]);
+  const [rejectingId, setRejectingId] = useState<number | string | null>(null);
   const wasOpen = useRef(false);
 
   useEffect(() => {
@@ -38,6 +42,12 @@ export const CheckboxModal = ({
     }
     wasOpen.current = isOpen;
   }, [isOpen, members]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setRejectingId(null);
+    }
+  }, [isOpen]);
 
   const handleToggle = (id: number | string) => {
     const member = members.find((item) => item.id === id);
@@ -62,6 +72,18 @@ export const CheckboxModal = ({
     onSubmit(unpaidSelectedIds);
   };
 
+  const handleReject = async (id: number | string) => {
+    if (rejectingId !== null || !onReject) return;
+
+    setRejectingId(id);
+
+    try {
+      await onReject(id);
+    } finally {
+      setRejectingId(null);
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
       <div className="flex flex-col gap-4">
@@ -74,35 +96,57 @@ export const CheckboxModal = ({
         <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
           {members.map((member) => {
             const isPaid = Boolean(member.isPaid);
+            const isPending = Boolean(member.isPending);
+            const isRejectingThis = rejectingId === member.id;
 
             return (
-              <label
+              <div
                 key={member.id}
-                className={`flex items-center justify-between p-3 rounded-lg border border-gray-100 transition-colors ${
+                className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
                   isPaid
-                    ? 'opacity-50 cursor-not-allowed bg-gray-100'
-                    : 'hover:bg-gray-100 cursor-pointer'
+                    ? 'opacity-50 bg-gray-100 border-gray-100'
+                    : isPending
+                      ? 'bg-primary-50 border-primary-200'
+                      : 'hover:bg-gray-100 border-gray-100'
                 }`}
               >
-                <span className="font-sans text-button text-gray-800">
-                  {member.name}{' '}
-                  {member.amount !== undefined &&
-                    `(${member.amount.toLocaleString()}원)`}
-                  {isPaid && (
-                    <span className="ml-2 text-green-600 text-xs">
-                      ✓ 완료
-                    </span>
-                  )}
-                </span>
+                <label className="flex flex-1 items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isPaid || selectedIds.includes(member.id)}
+                    onChange={() => handleToggle(member.id)}
+                    disabled={isPaid}
+                    className="w-4 h-4 accent-gray-900 cursor-pointer disabled:cursor-not-allowed"
+                  />
 
-                <input
-                  type="checkbox"
-                  checked={isPaid || selectedIds.includes(member.id)}
-                  onChange={() => handleToggle(member.id)}
-                  disabled={isPaid}
-                  className="w-4 h-4 accent-gray-900 cursor-pointer disabled:cursor-not-allowed"
-                />
-              </label>
+                  <span className="font-sans text-button text-gray-800">
+                    {member.name}{' '}
+                    {member.amount !== undefined &&
+                      `(${member.amount.toLocaleString()}원)`}
+                    {isPaid && (
+                      <span className="ml-2 text-green-600 text-xs">
+                        ✓ 완료
+                      </span>
+                    )}
+                    {!isPaid && isPending && (
+                      <span className="ml-2 text-primary-600 text-xs">
+                        송금완료 표시함
+                      </span>
+                    )}
+                  </span>
+                </label>
+
+                {!isPaid && isPending && onReject && (
+                  <button
+                    type="button"
+                    onClick={() => void handleReject(member.id)}
+                    disabled={rejectingId !== null}
+                    className="ml-2 shrink-0 text-xs text-red-600 underline underline-offset-2 hover:text-red-700 disabled:cursor-not-allowed disabled:text-gray-400 disabled:no-underline"
+                  >
+                    {isRejectingThis ? '처리 중...' : '거절'}
+                  </button>
+                )}
+              </div>
             );
           })}
         </div>

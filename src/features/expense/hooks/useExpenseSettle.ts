@@ -142,6 +142,22 @@ export const useExpenseSettle = (
     }
   };
 
+  /** 채무자가 "송금완료"로 표시했지만 실제로 입금되지 않은 경우, 요청 상태(REQUESTED)로 되돌립니다. */
+  const handleReject = async (splitId: number | string) => {
+    try {
+      await settleExpenseSplit(Number(splitId), {
+        isBulkComplete: false,
+      });
+
+      await refreshExpenses();
+    } catch {
+      showAlert({
+        title: '오류',
+        message: '거절 처리에 실패했습니다.',
+      });
+    }
+  };
+
   const modalMembers =
     expense?.shares?.map((share) => ({
       id: share.id,
@@ -152,6 +168,7 @@ export const useExpenseSettle = (
         paidSplitIds.some(
           (paidId) => String(paidId) === String(share.id)
         ),
+      isPending: Boolean(share.isPending),
     })) ?? [];
 
   return {
@@ -159,6 +176,7 @@ export const useExpenseSettle = (
     setIsModalOpen,
     handleBulkSettle,
     handleIndividualSubmit,
+    handleReject,
     modalMembers,
   };
 };
