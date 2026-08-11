@@ -6,6 +6,15 @@ interface TodayChoresPanelProps {
   chores: DashboardChoreDto[];
 }
 
+const REPEAT_TEXT_LABEL: Record<string, string> = {
+    'Daily repeat': '매일',
+    'Weekly repeat': '매주',
+    'Monthly repeat': '매월',
+    'No repeat': '반복 없음',
+};
+
+const getRepeatTextLabel = (repeatText: string) => REPEAT_TEXT_LABEL[repeatText] ?? repeatText;
+
 export const TodayChoresPanel = ({ chores }: TodayChoresPanelProps) => {
     if (chores.length === 0) {
         return (
@@ -33,7 +42,7 @@ export const TodayChoresPanel = ({ chores }: TodayChoresPanelProps) => {
                             </div>
                             <div>
                                 <p className="mt-0.5 text-mobile-caption text-gray-600 lg:mt-1 lg:text-sm">
-                                    담당: {chore.assigneeName} | {chore.repeatText}
+                                    담당: {chore.assigneeName} | {getRepeatTextLabel(chore.repeatText)}
                                 </p>
                             </div>
                         </div>

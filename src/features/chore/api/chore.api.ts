@@ -13,6 +13,7 @@ import type {
   CreateChoreDto,
   CustomOption,
   DayOfWeek,
+  DeleteChoreResponse,
   GetChoresParams,
   RepeatType,
   UpdateChoreDto,
@@ -153,6 +154,7 @@ export const toChore = (response: ChoreListItemResponse): Chore => ({
   startDate: response.startDate,
   endDate: response.dueDate ?? undefined,
   status: calculateChoreStatus(response.completedAt, response.dueDate || response.startDate),
+  completedAt: response.completedAt ?? undefined,
   memo: response.memo ?? undefined,
 });
 
@@ -175,8 +177,9 @@ export const choreApi = {
     return data;
   },
 
-  remove: async (id: string): Promise<void> => {
-    await apiClient.delete(`${BASE}/${id}`);
+  remove: async (id: string): Promise<DeleteChoreResponse> => {
+    const { data } = await apiClient.delete<DeleteChoreResponse>(`${BASE}/${id}`);
+    return data;
   },
 
   complete: async (id: string): Promise<void> => {

@@ -11,6 +11,7 @@ import { getChoreUIStatus } from '../hooks/useChoreStatus';
 
 interface ChoreTableProps {
   chores: Chore[];
+  mobileChores?: Chore[];
   onEdit?: (chore: Chore) => void;
   onShare?: (chore: Chore) => void;
   onToggleComplete?: (chore: Chore) => void;
@@ -25,8 +26,24 @@ const REPEAT_LABEL: Record<Chore['repeatType'], string> = {
   custom: '사용자 지정',
 };
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
+const formatMobileDate = (dateOnly: string, today = new Date()) => {
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  const targetDay = Date.UTC(year, month - 1, day) / DAY_IN_MS;
+  const currentDay = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / DAY_IN_MS;
+  const difference = targetDay - currentDay;
+
+  if (difference === -1) return '어제';
+  if (difference === 0) return '오늘';
+  if (difference === 1) return '내일';
+
+  return `${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`;
+};
+
 export const ChoreTable = ({
   chores,
+  mobileChores = chores,
   onEdit,
   onShare,
   onToggleComplete,
@@ -95,15 +112,15 @@ export const ChoreTable = ({
     <>
       {/**모바일 뷰 */}
       <div className="flex flex-col rounded-xl bg-white px-[16px] lg:hidden">
-        {chores.length === 0 ? (
+        {mobileChores.length === 0 ? (
           <div className="py-[40px] text-center text-[12px] text-gray-400">
             등록된 집안일이 없습니다.
           </div>
         ) : (
-          chores.map((chore, index) => (
+          mobileChores.map((chore, index) => (
             <MobileListRow
               key={chore.id}
-              isLast={index === chores.length - 1}
+              isLast={index === mobileChores.length - 1}
               separatorClassName="after:left-0 after:right-0"
               className="gap-[10px] py-[16px]"
             >
@@ -131,7 +148,7 @@ export const ChoreTable = ({
                 <span className="truncate text-[12px] text-gray-900 font-bold">{chore.name}</span>
                 <span className="truncate text-[10px] text-gray-600">
                   {chore.assignee.name} | {REPEAT_LABEL[chore.repeatType]} |{' '}
-                  {chore.endDate || chore.startDate}
+                  {formatMobileDate(chore.endDate || chore.startDate)}
                 </span>
               </div>
               <div className="flex shrink-0 items-center gap-3">

@@ -1,5 +1,4 @@
 import { ChevronLeft, ChevronRight, Circle } from 'lucide-react';
-import { useWeekCalendar } from '../hooks/useWeekCalendar';
 import { getChoreTargetDateStr, getChoreUIStatus } from '../hooks/useChoreStatus';
 import type { Chore } from '../types/chore.types';
 
@@ -11,31 +10,46 @@ const STATUS_COLORS = {
 
 interface ChoreCalendarViewProps {
   chores?: Chore[];
+  selectedDate: string;
+  weekDates: string[];
+  weekDateValues: string[];
+  dayLabels: string[];
+  todayDate: string;
+  onPrevWeek: () => void;
+  onNextWeek: () => void;
+  onSelectDate: (date: string) => void;
 }
 
-export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
-  const { currentDate, weekDates, dayLabels, handlePrevWeek, handleNextWeek, todayString } =
-    useWeekCalendar();
-  const currentYear = currentDate.getFullYear();
-
-  const weekDays = weekDates.map((dateStr, index) => {
+export const ChoreCalendarView = ({
+  chores = [],
+  selectedDate,
+  weekDates,
+  weekDateValues,
+  dayLabels,
+  todayDate,
+  onPrevWeek,
+  onNextWeek,
+  onSelectDate,
+}: ChoreCalendarViewProps) => {
+  const weekDays = weekDateValues.map((dateValue, index) => {
     const choresForDay = chores.filter(chore => {
-      const targetDateStr = getChoreTargetDateStr(chore);
-      const dateObj = new Date(targetDateStr);
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const day = String(dateObj.getDate()).padStart(2, '0');
-
-      return `${month}.${day}` === dateStr;
+      return getChoreTargetDateStr(chore) === dateValue;
     });
 
     return {
       day: dayLabels[index],
-      date: dateStr,
+      date: weekDates[index],
+      dateValue,
       chores: choresForDay,
     };
   });
 
-  const headerDataText = `${currentYear}.${weekDates[0]} ~ ${weekDates[6]}`;
+  const fromYear = weekDateValues[0].slice(0, 4);
+  const toYear = weekDateValues[6].slice(0, 4);
+  const headerDataText =
+    fromYear === toYear
+      ? `${fromYear}.${weekDates[0]} ~ ${weekDates[6]}`
+      : `${fromYear}.${weekDates[0]} ~ ${toYear}.${weekDates[6]}`;
 
   return (
     <div className="flex flex-col bg-transparent lg:bg-white">
@@ -44,14 +58,15 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
         <button
           type="button"
           aria-label="이전 주"
-          onClick={handlePrevWeek}
+          onClick={onPrevWeek}
           className="mt-[20px] flex h-[38px] w-6 shrink-0 items-center justify-center"
         >
           <ChevronLeft size={20} className="text-gray-700" />
         </button>
         <div className="grid min-w-0 flex-1 grid-cols-7">
           {weekDays.map((day, index) => {
-            const isToday = day.date === todayString;
+            const isToday = day.dateValue === todayDate;
+            const isSelected = day.dateValue === selectedDate;
             const dayNumber = Number(day.date.split('.')[1]);
             const hasChores = day.chores.length > 0;
             return (
@@ -59,19 +74,26 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
                 <span className="mb-[6px] flex h-[14px] items-center text-[12px] leading-none text-gray-700">
                   {day.day}
                 </span>
-                <div
+                <button
+                  type="button"
+                  aria-label={`${day.dateValue} 집안일 보기`}
+                  aria-pressed={isSelected}
+                  onClick={() => onSelectDate(day.dateValue)}
                   className={`flex size-[clamp(32px,9.75vw,38px)] items-center justify-center rounded-full text-[12px] font-bold transition-colors ${
-                    isToday ? 'bg-primary-700 text-white' : 'bg-white text-gray-600'
+                    isSelected ? 'bg-primary-700 text-white' : 'bg-white text-gray-600'
                   }`}
                 >
                   {dayNumber}
-                </div>
+                </button>
                 <div className="mt-[6px] flex h-[4px] items-center justify-center">
-                  {hasChores && <div className="h-[4px] w-[4px] rounded-full bg-primary-700" />}
+                  {hasChores && (
+                    <div className="h-[4px] w-[4px] rounded-full bg-primary-700" />
+                  )}
                 </div>
-                {isToday && (
+                {isSelected && (
                   <div className="mt-[12px] h-[2px] w-[clamp(32px,9.75vw,38px)] bg-primary-700" />
                 )}
+                {!isSelected && isToday && <span className="sr-only">오늘</span>}
               </div>
             );
           })}
@@ -79,7 +101,7 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
         <button
           type="button"
           aria-label="다음 주"
-          onClick={handleNextWeek}
+          onClick={onNextWeek}
           className="mt-[20px] flex h-[38px] w-6 shrink-0 items-center justify-center"
         >
           <ChevronRight size={20} className="text-gray-700" />
@@ -91,14 +113,18 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
       <div className="hidden lg:flex lg:items-center lg:justify-between lg:py-[10px]">
         <div className="flex items-center gap-[16px]">
           <button
-            onClick={handlePrevWeek}
+            type="button"
+            aria-label="이전 주"
+            onClick={onPrevWeek}
             className="flex h-[34px] w-[34px] p-[7px] items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-primary-100 transition-colors"
           >
             <ChevronLeft size={20} className="text-gray-700" />
           </button>
           <h2 className="text-[16px] text-center font-bold text-gray-900">{headerDataText}</h2>
           <button
-            onClick={handleNextWeek}
+            type="button"
+            aria-label="다음 주"
+            onClick={onNextWeek}
             className="flex h-[34px] w-[34px] p-[7px] items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-primary-100 transition-colors"
           >
             <ChevronRight size={20} className="text-gray-700" />
@@ -135,7 +161,7 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
       {/*7일 캘린더 그리드*/}
       <div className="hidden lg:grid lg:grid-cols-7 overflow-hidden rounded-xl border border-gray-100">
         {weekDays.map((day, index) => {
-          const isToday = day.date === todayString;
+          const isToday = day.dateValue === todayDate;
 
           return (
             <div
