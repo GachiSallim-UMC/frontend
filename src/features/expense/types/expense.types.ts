@@ -44,6 +44,18 @@ export interface Expense {
   memo?: string;
 }
 
+export interface BankAccount {
+  id: number;
+  bankName: string;
+  accountNumber: string;
+  isPrimary: boolean;
+}
+
+export interface CreateBankAccountDto {
+  bankName: string;
+  accountNumber: string;
+}
+
 /** 분담 대상 멤버 (EXACT/PERCENTAGE 방식 시 상세 분담 정보 포함) */
 export interface ExpenseParticipant {
   userId: string;

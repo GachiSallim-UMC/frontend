@@ -6,3 +6,5 @@ export * from './useExpenseDetail';
 export * from './useExpenseSettle';
 export * from './useCreatePayLink';
 export * from './useExpenseMutations';
+export * from './useBankAccounts';
+

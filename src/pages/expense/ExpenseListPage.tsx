@@ -1,9 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import {
   ExpenseFilterControl,
   ExpenseTable,
   type ExpenseStatusFilter,
+  useBankAccounts,
+  BankAccountModal,
+  maskAccountNumber,
 } from '@/features/expense';
 import type { ExpenseFilter as ExpenseFilterValue } from '@/features/expense';
 import { useExpenseList, useExpenseSummary } from '@/features/expense';
@@ -21,13 +25,13 @@ import payIcon from '@/assets/icons/expense/pay.svg';
 import { enrichExpenseWithMembers, mapGroupMembersToUsers } from './expenseMembers';
 
 export const ExpenseListPage = () => {
-  // 기간 필터 (전체 / 이번 달)
   const [activeFilter, setActiveFilter] =
     useState<ExpenseFilterValue>('TOTAL');
 
-  // 지불 상태 필터 (전체 상태 / 완료 / 미정산)
   const [activeStatus, setActiveStatus] =
     useState<ExpenseStatusFilter>('ALL');
+
+  const [isBankAccountModalOpen, setIsBankAccountModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -48,6 +52,8 @@ export const ExpenseListPage = () => {
   const members = useMemo(() => mapGroupMembersToUsers(membersQuery.data), [membersQuery.data]);
   const membersLoading = membersQuery.isLoading;
 
+  const { primaryAccount, isLoading: isBankAccountLoading } = useBankAccounts();
+
   const {
     expenses,
     isLoading,
@@ -63,7 +69,6 @@ export const ExpenseListPage = () => {
     [expenses, members],
   );
 
-  // 상태 필터까지 적용된 최종 목록 (테이블/카드에는 이걸 넘긴다)
   const filteredExpenses = useMemo(
     () =>
       activeStatus === 'ALL'
@@ -95,7 +100,6 @@ export const ExpenseListPage = () => {
   return (
     <div className="w-full">
       <div className="w-full">
-        {/* 데스크톱: 서머리 카드 3개 */}
         <div className="hidden lg:grid lg:grid-cols-3 lg:gap-5">
           <SummaryCard
             icon={
@@ -155,71 +159,108 @@ export const ExpenseListPage = () => {
           />
         </div>
 
-       {/* 모바일: 서머리 카드 하나에 구분선으로 분할 */}
-<div className="flex w-full items-stretch rounded-[12px] bg-white shadow-none lg:hidden">
-  {/* 왼쪽: 이번 달 총 지출 */}
-  <div className="flex flex-1 items-center gap-3 px-4 py-4">
-    <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-orange-100">
-      <img src={totalExpenseIcon} alt="총 지출" className="h-7 w-7" />
-    </div>
-    <div className="min-w-0">
-      <div className="text-[12px] leading-[18px] text-gray-600">
-        이번 달 총 지출
-      </div>
-      <div className="text-[20px] leading-[28px] font-bold text-gray-900">
-        {totalExpense.toLocaleString()}원
-      </div>
-      <div className="mt-0.5 text-[11px] leading-[16px] text-gray-400">
-        {uniquePayerCount}명 기준
-      </div>
-    </div>
-  </div>
+        <div className="flex w-full items-stretch rounded-[12px] bg-white shadow-none lg:hidden">
+          <div className="flex flex-1 items-center gap-3 px-4 py-4">
+            <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-orange-100">
+              <img src={totalExpenseIcon} alt="총 지출" className="h-7 w-7" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[12px] leading-[18px] text-gray-600">
+                이번 달 총 지출
+              </div>
+              <div className="text-[20px] leading-[28px] font-bold text-gray-900">
+                {totalExpense.toLocaleString()}원
+              </div>
+              <div className="mt-0.5 text-[11px] leading-[16px] text-gray-400">
+                {uniquePayerCount}명 기준
+              </div>
+            </div>
+          </div>
 
-  {/* 구분선 (세로) */}
-  <div className="my-4 w-px bg-gray-100" />
+          <div className="my-4 w-px bg-gray-100" />
 
-  {/* 오른쪽: 받을 금액 / 낼 금액 (가로선으로 구분) */}
-  <div className="flex flex-1 flex-col justify-center divide-y divide-gray-100 px-4">
-    {/* 받을 금액 */}
-    <div className="flex items-center gap-2 py-2.5">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-100">
-        <img src={receiveIcon} alt="받을 금액" className="h-5 w-5" />
-      </div>
-      <div className="min-w-0">
-        <div className="text-[11px] leading-[16px] text-gray-600">
-          받을 금액
-        </div>
-        <div className="text-[14px] leading-[20px] font-bold text-gray-900">
-          +{receiveAmount.toLocaleString()}원
-        </div>
-      </div>
-    </div>
+          <div className="flex flex-1 flex-col justify-center divide-y divide-gray-100 px-4">
+            <div className="flex items-center gap-2 py-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-100">
+                <img src={receiveIcon} alt="받을 금액" className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[11px] leading-[16px] text-gray-600">
+                  받을 금액
+                </div>
+                <div className="text-[14px] leading-[20px] font-bold text-gray-900">
+                  +{receiveAmount.toLocaleString()}원
+                </div>
+              </div>
+            </div>
 
-    {/* 낼 금액 */}
-    <div className="flex items-center gap-2 py-2.5">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-100">
-        <img src={payIcon} alt="낼 금액" className="h-5 w-5" />
-      </div>
-      <div className="min-w-0">
-        <div className="text-[11px] leading-[16px] text-gray-600">
-          낼 금액
+            <div className="flex items-center gap-2 py-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-100">
+                <img src={payIcon} alt="낼 금액" className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[11px] leading-[16px] text-gray-600">
+                  낼 금액
+                </div>
+                <div className="text-[14px] leading-[20px] font-bold text-gray-900">
+                  -{payAmount.toLocaleString()}원
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="text-[14px] leading-[20px] font-bold text-gray-900">
-          -{payAmount.toLocaleString()}원
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
         <div className="mt-4 mb-6 flex h-auto w-full flex-col rounded-[16px] bg-white pb-6 lg:mt-[30px] lg:mb-10 lg:rounded-[20px] lg:pb-8">
-          <div className="w-full px-3 pt-4 sm:px-4 lg:px-[30px] lg:pt-[30px]">
-            <ExpenseFilterControl
-              activeFilter={activeFilter}
-              onFilterChange={setActiveFilter}
-              activeStatus={activeStatus}
-              onStatusChange={setActiveStatus}
-            />
+          <div className="flex w-full flex-nowrap items-center justify-between gap-3 overflow-x-auto px-3 pt-4 sm:px-4 lg:px-[30px] lg:pt-[30px]">
+            <div className="flex min-w-0 flex-1 items-center gap-3 overflow-x-auto">
+              <div className="flex shrink-0 items-center gap-2">
+                <ExpenseFilterControl
+                  activeFilter={activeFilter}
+                  onFilterChange={setActiveFilter}
+                  activeStatus={activeStatus}
+                  onStatusChange={setActiveStatus}
+                />
+              </div>
+
+              {!isBankAccountLoading && (
+                <div className="ml-auto flex shrink-0 items-center gap-1 whitespace-nowrap text-mobile-caption lg:ml-0 lg:text-caption">
+                  {primaryAccount ? (
+                    <>
+                      <span className="text-gray-700">
+                        <span className="lg:hidden">{primaryAccount.bankName}</span>
+                        <span className="hidden lg:inline">
+                          {primaryAccount.bankName} {maskAccountNumber(primaryAccount.accountNumber)}
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsBankAccountModalOpen(true)}
+                        className="ml-1 font-bold text-primary-400 hover:text-primary-500 lg:ml-2"
+                      >
+                        변경
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setIsBankAccountModalOpen(true)}
+                      className="font-bold text-primary-700 hover:text-primary-600"
+                    >
+                      <span className="lg:hidden">+계좌 등록</span>
+                      <span className="hidden lg:inline">+ 정산 받을 계좌 등록</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <Button
+              leftIcon={<Plus size={18} />}
+              onClick={() => navigate('/expenses/new')}
+              className="hidden shrink-0 lg:flex"
+            >
+              생활비 등록
+            </Button>
           </div>
 
           <div className="mt-4 flex w-full flex-col items-start overflow-x-auto px-3 pb-4 sm:px-4 lg:mt-[20px] lg:px-[30px]">
@@ -259,6 +300,11 @@ export const ExpenseListPage = () => {
         onSelect={handleSelectChatRoom}
         onClose={closeShare}
         isSubmitting={isSharePending}
+      />
+
+      <BankAccountModal
+        isOpen={isBankAccountModalOpen}
+        onClose={() => setIsBankAccountModalOpen(false)}
       />
     </div>
   );

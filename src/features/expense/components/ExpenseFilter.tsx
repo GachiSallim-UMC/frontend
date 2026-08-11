@@ -1,10 +1,8 @@
-import { ChevronDown, Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 import {
   FilterTabGroup,
   type FilterTab,
 } from '@/shared/components/ui/FilterTabGroup';
-import { Button } from '@/shared/components/ui/Button';
 import type { ExpenseFilter as ExpenseFilterValue } from '@/features/expense/types';
 
 /** 지불 상태 필터 (모바일 전용, StatusBadge 기준: paid = 완료, unpaid = 미정산) */
@@ -64,28 +62,19 @@ export const ExpenseFilter = ({
   activeStatus,
   onStatusChange,
 }: ExpenseFilterProps) => {
-  const navigate = useNavigate();
-
   return (
-    <div className="flex w-full items-center justify-between">
+    <div className="flex items-center">
       {/* 데스크톱: 기간 필터만 (상태 필터 없음) */}
-      <div className="hidden w-full items-center justify-between lg:flex">
+      <div className="hidden lg:flex lg:items-center">
         <FilterTabGroup
           tabs={DATE_TABS}
           value={activeFilter}
           onChange={onFilterChange}
         />
-
-        <Button
-          leftIcon={<Plus size={18} />}
-          onClick={() => navigate('/expenses/new')}
-        >
-          생활비 등록
-        </Button>
       </div>
 
       {/* 모바일: 상태 드롭다운 + 기간 드롭다운, 둘 다 표시 */}
-      <div className="flex w-full items-center gap-2 lg:hidden">
+      <div className="flex items-center gap-2 lg:hidden">
         <DropdownSelect
           value={activeStatus}
           onChange={onStatusChange}

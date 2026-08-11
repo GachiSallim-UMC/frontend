@@ -15,6 +15,8 @@ import type {
   RequestReceiptUploadUrlDto,
   ReceiptUploadUrlResponse,
   PayLinkResponse,
+  BankAccount,
+  CreateBankAccountDto,
 } from '@/features/expense';
 import type { ExpenseStatus } from '@/shared/types';
 
@@ -251,4 +253,61 @@ export const getReceiptViewUrl = async (
     }
     throw err;
   }
+};
+
+/** 정산 수령용 계좌 등록 */
+export const createBankAccount = async (
+  dto: CreateBankAccountDto,
+): Promise<BankAccount> => {
+  const response = await apiClient.post('/expenses/bank-accounts', dto);
+  if (
+    !isRecord(response.data) ||
+    typeof response.data.id !== 'number' ||
+    typeof response.data.bankName !== 'string' ||
+    typeof response.data.accountNumber !== 'string'
+  ) {
+    throw invalidResponse('계좌 등록 응답 형식이 올바르지 않습니다.');
+  }
+  return {
+    id: response.data.id,
+    bankName: response.data.bankName,
+    accountNumber: response.data.accountNumber,
+    isPrimary: Boolean(response.data.isPrimary),
+  };
+};
+
+/** 내 계좌 목록 조회 (기본 계좌가 먼저 오도록 정렬되어 응답) */
+export const getBankAccounts = async (): Promise<BankAccount[]> => {
+  const response = await apiClient.get('/expenses/bank-accounts');
+  if (!Array.isArray(response.data)) {
+    throw invalidResponse('계좌 목록 응답 형식이 올바르지 않습니다.');
+  }
+  return response.data.map((raw: unknown) => {
+    if (
+      !isRecord(raw) ||
+      typeof raw.id !== 'number' ||
+      typeof raw.bankName !== 'string' ||
+      typeof raw.accountNumber !== 'string'
+    ) {
+      throw invalidResponse('계좌 목록 응답 형식이 올바르지 않습니다.');
+    }
+    return {
+      id: raw.id,
+      bankName: raw.bankName,
+      accountNumber: raw.accountNumber,
+      isPrimary: Boolean(raw.isPrimary),
+    };
+  });
+};
+
+/** 송금 완료 알림 전송: 상태를 TRANSFER_PENDING으로 변경하고 수령인에게 확인 요청을 보냄 */
+export const claimTransferComplete = async (splitId: number | string): Promise<void> => {
+  await apiClient.patch(`/expenses/splits/${splitId}/transfer-claim`);
+};
+
+/** 기본(수계좌) 계좌 변경 */
+export const setPrimaryBankAccount = async (
+  bankAccountId: number | string,
+): Promise<void> => {
+  await apiClient.patch(`/expenses/bank-accounts/${bankAccountId}/primary`);
 };

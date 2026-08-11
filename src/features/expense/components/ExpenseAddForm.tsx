@@ -35,7 +35,15 @@ const toLocalDateOnly = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const todayStr = toLocalDateOnly(new Date());
+const addMonths = (date: Date, months: number) => {
+  const next = new Date(date);
+  next.setMonth(next.getMonth() + months);
+  return next;
+};
+
+
+const minDateStr = toLocalDateOnly(addMonths(new Date(), -6));
+const maxDateStr = toLocalDateOnly(addMonths(new Date(), 1));
 const RequiredMark = () => '*';
 const MEMO_MAX_LENGTH = 255;
 const MAX_EXPENSE_AMOUNT = 2_147_483_647;
@@ -142,11 +150,22 @@ export const ExpenseAddForm = ({
   };
 
   const handleDateBlur = () => {
-    if (expenseDate && expenseDate > todayStr) {
-      setExpenseDate(todayStr);
+    if (!expenseDate) return;
+
+    if (expenseDate > maxDateStr) {
+      setExpenseDate(maxDateStr);
       useAlertStore.getState().showAlert({
         title: '알림',
-        message: '오늘 이후의 날짜는 선택할 수 없습니다.',
+        message: '지출일은 오늘로부터 한 달 이후로 선택할 수 없습니다.',
+      });
+      return;
+    }
+
+    if (expenseDate < minDateStr) {
+      setExpenseDate(minDateStr);
+      useAlertStore.getState().showAlert({
+        title: '알림',
+        message: '지출일은 6개월 이전 날짜로 선택할 수 없습니다.',
       });
     }
   };
@@ -475,8 +494,10 @@ export const ExpenseAddForm = ({
       nextErrors.date = '지출일을 선택해 주세요.';
     } else if (!isValidDateOnly(expenseDate)) {
       nextErrors.date = '올바른 지출일을 선택해 주세요.';
-    } else if (expenseDate > todayStr) {
-      nextErrors.date = '지출일은 오늘 또는 이전 날짜로 선택해 주세요.';
+    } else if (expenseDate > maxDateStr) {
+      nextErrors.date = '지출일은 오늘로부터 한 달 이후로 선택할 수 없습니다.';
+    } else if (expenseDate < minDateStr) {
+      nextErrors.date = '지출일은 6개월 이전 날짜로 선택할 수 없습니다.';
     }
     if (!payerId) nextErrors.payerId = '선지불자를 선택해 주세요.';
     if (!category) nextErrors.category = '카테고리를 선택해 주세요.';
@@ -629,7 +650,8 @@ export const ExpenseAddForm = ({
                   value={expenseDate}
                   onChange={handleDateChange}
                   onBlur={handleDateBlur}
-                  max={todayStr}
+                  min={minDateStr}
+                  max={maxDateStr}
                   disabled={isEditMode}
                   placeholder="yyyy-mm-dd"
                   className={`h-[50px] w-full rounded-[8px] border bg-white px-4 pr-12 text-button text-gray-800 outline-none placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 [&::-webkit-calendar-picker-indicator]:hidden ${
