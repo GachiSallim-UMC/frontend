@@ -42,23 +42,41 @@ jobs:
 
       - name: SSM에서 빌드 환경변수 로드
         run: |
-          # 필수 값: 없으면 앱이 정상 동작하지 않으므로 빌드를 실패시킨다.
-          for NAME in VITE_API_BASE_URL VITE_COGNITO_DOMAIN_URL VITE_COGNITO_CLIENT_ID VITE_COGNITO_REDIRECT_URI VITE_COGNITO_LOGOUT_URI; do
-            VALUE=$(aws ssm get-parameter --name "/gachi-salim/dev/${NAME}" --query 'Parameter.Value' --output text)
+          VITE_API_BASE_URL=$(aws ssm get-parameter --name "/gachi-salim/dev/VITE_API_BASE_URL" --query 'Parameter.Value' --output text)
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "::error::VITE_API_BASE_URL 파라미터 값이 비어있음"
+            exit 1
+          fi
+          echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> .env
+
+          # 선택 값: 미설정 시 앱이 해당 기능만 no-op으로 우회하므로 없어도 빌드는 계속 진행한다.
+          VITE_VAPID_PUBLIC_KEY=$(aws ssm get-parameter --name "/gachi-salim/dev/VITE_VAPID_PUBLIC_KEY" --query 'Parameter.Value' --output text 2>/dev/null || true)
+          if [ -n "$VITE_VAPID_PUBLIC_KEY" ] && [ "$VITE_VAPID_PUBLIC_KEY" != "None" ]; then
+            echo "VITE_VAPID_PUBLIC_KEY=${VITE_VAPID_PUBLIC_KEY}" >> .env
+          fi
+
+      - name: GitHub Variables에서 Cognito/WS 환경변수 로드
+        env:
+          COGNITO_DOMAIN_URL: ${{ vars.VITE_COGNITO_DOMAIN_URL }}
+          COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+          COGNITO_REDIRECT_URI: ${{ vars.VITE_COGNITO_REDIRECT_URI }}
+          COGNITO_LOGOUT_URI: ${{ vars.VITE_COGNITO_LOGOUT_URI }}
+          WS_URL: ${{ vars.VITE_WS_URL }}
+        run: |
+          # 필수 값: 없으면 소셜 로그인이 동작하지 않으므로 빌드를 실패시킨다.
+          for NAME in COGNITO_DOMAIN_URL COGNITO_CLIENT_ID COGNITO_REDIRECT_URI COGNITO_LOGOUT_URI; do
+            VALUE="${!NAME}"
             if [ -z "$VALUE" ]; then
-              echo "::error::${NAME} 파라미터 값이 비어있음"
+              echo "::error::VITE_${NAME} 값이 비어있음 (Settings > Environments > dev > Variables 확인)"
               exit 1
             fi
-            echo "${NAME}=${VALUE}" >> .env
+            echo "VITE_${NAME}=${VALUE}" >> .env
           done
 
           # 선택 값: 미설정 시 앱이 해당 기능만 no-op으로 우회하므로 없어도 빌드는 계속 진행한다.
-          for NAME in VITE_WS_URL VITE_VAPID_PUBLIC_KEY; do
-            VALUE=$(aws ssm get-parameter --name "/gachi-salim/dev/${NAME}" --query 'Parameter.Value' --output text 2>/dev/null || true)
-            if [ -n "$VALUE" ] && [ "$VALUE" != "None" ]; then
-              echo "${NAME}=${VALUE}" >> .env
-            fi
-          done
+          if [ -n "$WS_URL" ]; then
+            echo "VITE_WS_URL=${WS_URL}" >> .env
+          fi
 
       - name: 빌드 (타입 체크 포함 — npm run build가 tsc -b를 실행함)
         run: npm run build
