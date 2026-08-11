@@ -43,7 +43,7 @@ jobs:
       - name: SSM에서 빌드 환경변수 로드
         run: |
           # 필수 값: 없으면 앱이 정상 동작하지 않으므로 빌드를 실패시킨다.
-          for NAME in VITE_API_BASE_URL VITE_COGNITO_DOMAIN_URL VITE_COGNITO_CLIENT_ID VITE_COGNITO_REDIRECT_URI VITE_COGNITO_LOGOUT_URI; do
+          for NAME in VITE_API_BASE_URL VITE_COGNITO_DOMAIN_URL VITE_COGNITO_CLIENT_ID; do
             VALUE=$(aws ssm get-parameter --name "/gachi-salim/dev/${NAME}" --query 'Parameter.Value' --output text)
             if [ -z "$VALUE" ]; then
               echo "::error::${NAME} 파라미터 값이 비어있음"
