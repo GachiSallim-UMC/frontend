@@ -65,7 +65,7 @@ export interface ExpenseParticipant {
 
 export interface PayLinkResponse {
   deepLinkUrl: string;
-  status: string;
+  status?: string;
 }
 export const expenseKeys = {
   all: ['expenses'] as const,

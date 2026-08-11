@@ -162,8 +162,7 @@ export const createPayLink = async (splitId: number | string): Promise<PayLinkRe
   const response = await apiClient.post(`/expenses/splits/${splitId}/paylink`);
   if (
     !isRecord(response.data) ||
-    typeof response.data.deepLinkUrl !== 'string' ||
-    typeof response.data.status !== 'string'
+    typeof response.data.deepLinkUrl !== 'string'
   ) {
     throw invalidResponse('송금 링크 응답 형식이 올바르지 않습니다.');
   }
