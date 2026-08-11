@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import { Modal } from '@/shared/components/ui/Modal';
 import { FormInput, Button } from '@/shared/components';
 import { SelectDropdown, type SelectOption } from '@/shared/components/form';
@@ -37,24 +38,25 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
     isSubmitting,
     registerAccount,
     changePrimaryAccount,
+    deleteAccount,
   } = useBankAccounts();
 
   const [isAddingAccount, setIsAddingAccount] = useState(false);
   const [bankCode, setBankCode] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // 모달이 닫혔다 다시 열릴 때 이전 상태가 남아있지 않도록 초기화
   useEffect(() => {
     if (!isOpen) {
       setIsAddingAccount(false);
       setBankCode('');
       setAccountNumber('');
       setToastMessage(null);
+      setDeletingId(null);
     }
   }, [isOpen]);
 
-  // 토스트는 모달 안에서만 잠깐 보였다 사라지는 로컬 메시지
   useEffect(() => {
     if (!toastMessage) return;
     const timer = setTimeout(() => setToastMessage(null), 2000);
@@ -78,6 +80,25 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
     const success = await changePrimaryAccount(accountId);
     if (success) {
       setToastMessage('주계좌가 변경되었습니다.');
+    }
+  };
+
+  const handleDeleteAccount = async (
+    e: React.MouseEvent,
+    accountId: number,
+  ) => {
+    e.stopPropagation();
+    if (isSubmitting || deletingId !== null) return;
+
+    setDeletingId(accountId);
+
+    try {
+      const success = await deleteAccount(accountId);
+      if (success) {
+        setToastMessage('계좌가 삭제되었습니다.');
+      }
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -113,27 +134,41 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
           </div>
         ) : (
           accounts.map(account => (
-            <button
+            <div
               key={account.id}
-              type="button"
-              disabled={account.isPrimary || isSubmitting}
-              onClick={() => handleSelectAccount(account.id, account.isPrimary)}
-              className={`flex items-center justify-between rounded-lg px-3 py-3 text-left text-button transition-colors ${
-                account.isPrimary
-                  ? 'font-bold text-gray-900'
-                  : 'text-gray-500 hover:bg-gray-50'
-              }`}
+              className="flex items-center rounded-lg px-3 py-3 hover:bg-gray-50"
             >
-              <span>
-                {account.bankName} {maskAccountNumber(account.accountNumber)}
-              </span>
-
-              {account.isPrimary && (
-                <span className="text-caption font-bold text-primary-700">
-                  주계좌
+              <button
+                type="button"
+                disabled={account.isPrimary || isSubmitting}
+                onClick={() => handleSelectAccount(account.id, account.isPrimary)}
+                className={`flex flex-1 items-center justify-between text-left text-button transition-colors ${
+                  account.isPrimary
+                    ? 'font-bold text-gray-900'
+                    : 'text-gray-500'
+                }`}
+              >
+                <span>
+                  {account.bankName} {maskAccountNumber(account.accountNumber)}
                 </span>
-              )}
-            </button>
+
+                {account.isPrimary && (
+                  <span className="text-caption font-bold text-primary-700">
+                    주계좌
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={e => void handleDeleteAccount(e, account.id)}
+                disabled={isSubmitting || deletingId !== null}
+                aria-label="계좌 삭제"
+                className="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           ))
         )}
       </div>

@@ -3,8 +3,10 @@ import {
   getBankAccounts,
   createBankAccount,
   setPrimaryBankAccount,
+  deleteBankAccount,
 } from '@/features/expense';
 import type { BankAccount, CreateBankAccountDto } from '@/features/expense';
+import { ApiError } from '@/shared/api';
 import { useAlertStore } from '@/shared/store';
 
 export function useBankAccounts() {
@@ -77,6 +79,35 @@ export function useBankAccounts() {
     [fetchAccounts],
   );
 
+  const deleteAccount = useCallback(
+    async (bankAccountId: number) => {
+      setIsSubmitting(true);
+
+      try {
+        await deleteBankAccount(bankAccountId);
+        await fetchAccounts();
+        return true;
+      } catch (err) {
+        console.error('계좌 삭제 실패:', err);
+
+        const isSettlementBlocked =
+          err instanceof ApiError && err.statusCode === 400;
+
+        useAlertStore.getState().showAlert({
+          title: '오류',
+          message: isSettlementBlocked
+            ? '본인이 선지불자인 미완료 정산 내역이 있어 마지막 계좌를 삭제할 수 없습니다.'
+            : '계좌 삭제에 실패했습니다.',
+        });
+
+        return false;
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [fetchAccounts],
+  );
+
   const primaryAccount = accounts.find(account => account.isPrimary) ?? accounts[0];
 
   return {
@@ -86,6 +117,7 @@ export function useBankAccounts() {
     isSubmitting,
     registerAccount,
     changePrimaryAccount,
+    deleteAccount,
     refetch: fetchAccounts,
   };
 }

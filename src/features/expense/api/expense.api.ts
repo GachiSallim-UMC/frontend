@@ -311,3 +311,10 @@ export const setPrimaryBankAccount = async (
 ): Promise<void> => {
   await apiClient.patch(`/expenses/bank-accounts/${bankAccountId}/primary`);
 };
+
+/** 계좌 삭제 */
+export const deleteBankAccount = async (
+  bankAccountId: number | string,
+): Promise<void> => {
+  await apiClient.delete(`/expenses/bank-accounts/${bankAccountId}`);
+};
