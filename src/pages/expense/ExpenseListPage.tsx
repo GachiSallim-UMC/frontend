@@ -52,7 +52,12 @@ export const ExpenseListPage = () => {
   const members = useMemo(() => mapGroupMembersToUsers(membersQuery.data), [membersQuery.data]);
   const membersLoading = membersQuery.isLoading;
 
-  const { primaryAccount, isLoading: isBankAccountLoading } = useBankAccounts();
+  const {
+    primaryAccount,
+    isLoading: isBankAccountLoading,
+    isError: isBankAccountError,
+    refetch: refetchBankAccounts,
+  } = useBankAccounts();
 
   const {
     expenses,
@@ -224,7 +229,15 @@ export const ExpenseListPage = () => {
 
               {!isBankAccountLoading && (
                 <div className="ml-auto flex shrink-0 items-center gap-1 whitespace-nowrap text-mobile-caption lg:ml-0 lg:text-caption">
-                  {primaryAccount ? (
+                  {isBankAccountError ? (
+                    <button
+                      type="button"
+                      onClick={() => void refetchBankAccounts()}
+                      className="font-bold text-red-500 hover:text-red-600"
+                    >
+                      계좌 조회 실패 · 다시 시도
+                    </button>
+                  ) : primaryAccount ? (
                     <>
                       <span className="text-gray-700">
                         <span className="lg:hidden">{primaryAccount.bankName}</span>

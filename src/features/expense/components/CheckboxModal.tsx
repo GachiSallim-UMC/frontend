@@ -16,7 +16,7 @@ interface CheckboxModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (selectedIds: (number | string)[]) => void;
-  onReject?: (id: number | string) => void;
+  onReject?: (id: number | string) => void | Promise<void>;
 }
 
 export const CheckboxModal = ({
@@ -29,6 +29,7 @@ export const CheckboxModal = ({
   onReject,
 }: CheckboxModalProps) => {
   const [selectedIds, setSelectedIds] = useState<(number | string)[]>([]);
+  const [rejectingId, setRejectingId] = useState<number | string | null>(null);
   const wasOpen = useRef(false);
 
   useEffect(() => {
@@ -41,6 +42,12 @@ export const CheckboxModal = ({
     }
     wasOpen.current = isOpen;
   }, [isOpen, members]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setRejectingId(null);
+    }
+  }, [isOpen]);
 
   const handleToggle = (id: number | string) => {
     const member = members.find((item) => item.id === id);
@@ -65,6 +72,18 @@ export const CheckboxModal = ({
     onSubmit(unpaidSelectedIds);
   };
 
+  const handleReject = async (id: number | string) => {
+    if (rejectingId !== null || !onReject) return;
+
+    setRejectingId(id);
+
+    try {
+      await onReject(id);
+    } finally {
+      setRejectingId(null);
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
       <div className="flex flex-col gap-4">
@@ -78,6 +97,7 @@ export const CheckboxModal = ({
           {members.map((member) => {
             const isPaid = Boolean(member.isPaid);
             const isPending = Boolean(member.isPending);
+            const isRejectingThis = rejectingId === member.id;
 
             return (
               <div
@@ -116,14 +136,14 @@ export const CheckboxModal = ({
                   </span>
                 </label>
 
-                {/* 대기 중인(TRANSFER_PENDING) 멤버만 거절(미수령) 버튼 노출 */}
                 {!isPaid && isPending && onReject && (
                   <button
                     type="button"
-                    onClick={() => onReject(member.id)}
-                    className="ml-2 shrink-0 text-xs text-red-600 underline underline-offset-2 hover:text-red-700"
+                    onClick={() => void handleReject(member.id)}
+                    disabled={rejectingId !== null}
+                    className="ml-2 shrink-0 text-xs text-red-600 underline underline-offset-2 hover:text-red-700 disabled:cursor-not-allowed disabled:text-gray-400 disabled:no-underline"
                   >
-                    거절
+                    {isRejectingThis ? '처리 중...' : '거절'}
                   </button>
                 )}
               </div>

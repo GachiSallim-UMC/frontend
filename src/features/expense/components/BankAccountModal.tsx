@@ -35,10 +35,12 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
   const {
     accounts,
     isLoading,
+    isError,
     isSubmitting,
     registerAccount,
     changePrimaryAccount,
     deleteAccount,
+    refetch,
   } = useBankAccounts();
 
   const [isAddingAccount, setIsAddingAccount] = useState(false);
@@ -128,6 +130,18 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
           <div className="py-6 text-center text-caption text-gray-400">
             계좌 목록을 불러오는 중...
           </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center gap-3 py-6 text-center text-caption text-red-500">
+            <p>계좌 목록을 불러오지 못했습니다.</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void refetch()}
+            >
+              다시 시도
+            </Button>
+          </div>
         ) : accounts.length === 0 && !isAddingAccount ? (
           <div className="py-6 text-center text-caption text-gray-400">
             등록된 계좌가 없습니다.
@@ -173,7 +187,7 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
         )}
       </div>
 
-      {isAddingAccount ? (
+      {!isError && (isAddingAccount ? (
         <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4">
           <SelectDropdown
             label="은행명"
@@ -222,7 +236,7 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
         >
           + 계좌 추가
         </button>
-      )}
+      ))}
 
       {toastMessage && (
         <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">
