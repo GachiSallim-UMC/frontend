@@ -230,7 +230,7 @@ export const MessengerPage = () => {
 
                 <div
                   ref={messageListRef}
-                  className="flex flex-1 flex-col gap-4 overflow-y-auto bg-gray-50 px-4 py-4 lg:gap-5 lg:px-[30px] lg:py-6"
+                  className="flex flex-1 flex-col gap-4 overflow-y-auto bg-gray-50 py-4 lg:gap-5 lg:px-[30px] lg:py-6"
                 >
                   {enrichedMessageGroups.length === 0 ? (
                     <div className="flex flex-1 items-center justify-center text-caption text-gray-500">

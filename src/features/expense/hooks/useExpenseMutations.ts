@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createExpense, updateExpense, deleteExpense } from '../api/expense.api';
 import type { CreateExpenseDto, UpdateExpenseDto, Expense } from '../types/expense.types';
-import { expenseKeys } from '../types/expense.types';
+import { expenseKeys } from './expense.keys';
 import { useExpenseQueryScope } from './useExpenseQueryScope';
 
 export function useCreateExpense() {

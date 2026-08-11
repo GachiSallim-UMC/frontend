@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { calculateExpenseSplit } from '@/features/expense';
-
-export type SettlementMethod = 'EQUAL' | 'CUSTOM' | 'RATIO';
+import { calculateExpenseSplit } from '@/features/expense/api/expense.api';
+import type { SettlementMethod } from '@/features/expense/types';
 
 interface UseSettlementAmountsParams {
   amount: string;

@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getExpense } from '../api/expense.api';
-import { expenseKeys, type Expense, type ExpenseFilter } from '../types/expense.types';
+import type { Expense, ExpenseFilter } from '../types/expense.types';
+import { expenseKeys } from './expense.keys';
 import { useExpenseQueryScope } from './useExpenseQueryScope';
 
 const isThisMonth = (dateString: string) => {

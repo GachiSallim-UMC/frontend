@@ -15,7 +15,7 @@ export const ChoreCreatePage = () => {
   const navigate = useNavigate();
   const showAlert = useAlertStore(state => state.showAlert);
   const createMutation = useCreateChore();
-  const { formData, errors, updateField, getCreateDto } = useChoreForm();
+  const { formData, errors, isDirty, updateField, getCreateDto } = useChoreForm();
   const selectedGroupId = useGroupStore(state => state.selectedGroupId);
   const groupId = selectedGroupId ? Number(selectedGroupId) : undefined;
   const { data: members } = useGroupMembers(selectedGroupId);
@@ -54,6 +54,10 @@ export const ChoreCreatePage = () => {
   };
 
   const handleCancelClick = () => {
+    if (!isDirty) {
+      navigate(-1);
+      return;
+    }
     setIsCancelModalOpen(true);
   };
 
@@ -93,6 +97,7 @@ export const ChoreCreatePage = () => {
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
         onConfirm={handleConfirmCancel}
+        isPending={createMutation.isPending}
       />
     </div>
   );

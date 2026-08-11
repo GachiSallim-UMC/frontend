@@ -59,7 +59,7 @@ const getRouteHeader = (pathname: string): MobileRouteHeader => {
   if (pathname === '/notifications') return { title: '알림', backTo: '/dashboard' };
   if (pathname === '/activity') return { title: '최근 활동 내역', backTo: '/dashboard' };
   if (pathname === '/mypage') return { title: '마이페이지', backTo: '/dashboard' };
-  if (pathname === '/group/settings') return { title: '그룹 설정', backTo: '/mypage' };
+  if (pathname === '/group/settings') return { title: '그룹 설정', backTo: '/dashboard' };
   return { title: '같이살림', backTo: '/dashboard' };
 };
 

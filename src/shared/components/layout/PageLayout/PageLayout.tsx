@@ -35,6 +35,7 @@ export const PageLayout = ({
   const hasWhiteMobileCanvas =
     pathname === '/items/new' ||
     (pathname.startsWith('/items/') && pathname.endsWith('/edit')) ||
+    pathname.startsWith('/chores/') ||
     pathname.startsWith('/rules/');
 
   return (

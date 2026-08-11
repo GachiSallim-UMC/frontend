@@ -40,25 +40,27 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
   return (
     <div className="flex flex-col bg-transparent lg:bg-white">
       {/**모바일 디자인 */}
-      <div className="flex w-full items-start gap-[5px] justify-center lg:hidden">
+      <div className="flex w-full items-start lg:hidden">
         <button
+          type="button"
+          aria-label="이전 주"
           onClick={handlePrevWeek}
-          className="mt-[20px] flex h-[38px] w-[24px] items-center justify-center"
+          className="mt-[20px] flex h-[38px] w-6 shrink-0 items-center justify-center"
         >
           <ChevronLeft size={20} className="text-gray-700" />
         </button>
-        <div className="flex items-start gap-[9px]">
+        <div className="grid min-w-0 flex-1 grid-cols-7">
           {weekDays.map((day, index) => {
             const isToday = day.date === todayString;
             const dayNumber = Number(day.date.split('.')[1]);
             const hasChores = day.chores.length > 0;
             return (
-              <div key={index} className="flex flex-col items-center">
+              <div key={index} className="flex min-w-0 flex-col items-center">
                 <span className="mb-[6px] flex h-[14px] items-center text-[12px] leading-none text-gray-700">
                   {day.day}
                 </span>
                 <div
-                  className={`flex h-[38px] w-[38px] items-center justify-center rounded-full text-[12px] font-bold transition-colors ${
+                  className={`flex size-[clamp(32px,9.75vw,38px)] items-center justify-center rounded-full text-[12px] font-bold transition-colors ${
                     isToday ? 'bg-primary-700 text-white' : 'bg-white text-gray-600'
                   }`}
                 >
@@ -67,14 +69,18 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
                 <div className="mt-[6px] flex h-[4px] items-center justify-center">
                   {hasChores && <div className="h-[4px] w-[4px] rounded-full bg-primary-700" />}
                 </div>
-                {isToday && <div className="mt-[12px] h-[2px] w-[38px] bg-primary-700" />}
+                {isToday && (
+                  <div className="mt-[12px] h-[2px] w-[clamp(32px,9.75vw,38px)] bg-primary-700" />
+                )}
               </div>
             );
           })}
         </div>
         <button
+          type="button"
+          aria-label="다음 주"
           onClick={handleNextWeek}
-          className="mt-[20px] flex h-[38px] w-[24px] gap-[5px] items-center justify-center"
+          className="mt-[20px] flex h-[38px] w-6 shrink-0 items-center justify-center"
         >
           <ChevronRight size={20} className="text-gray-700" />
         </button>
