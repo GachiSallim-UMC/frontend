@@ -33,6 +33,7 @@ export interface Chore {
   startDate: string;
   endDate?: string;
   status: Status;
+  completedAt?: string;
   memo?: string;
 }
 

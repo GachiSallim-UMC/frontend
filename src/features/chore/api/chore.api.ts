@@ -154,6 +154,7 @@ export const toChore = (response: ChoreListItemResponse): Chore => ({
   startDate: response.startDate,
   endDate: response.dueDate ?? undefined,
   status: calculateChoreStatus(response.completedAt, response.dueDate || response.startDate),
+  completedAt: response.completedAt ?? undefined,
   memo: response.memo ?? undefined,
 });
 

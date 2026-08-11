@@ -26,6 +26,21 @@ const REPEAT_LABEL: Record<Chore['repeatType'], string> = {
   custom: '사용자 지정',
 };
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
+const formatMobileDate = (dateOnly: string, today = new Date()) => {
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  const targetDay = Date.UTC(year, month - 1, day) / DAY_IN_MS;
+  const currentDay = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / DAY_IN_MS;
+  const difference = targetDay - currentDay;
+
+  if (difference === -1) return '어제';
+  if (difference === 0) return '오늘';
+  if (difference === 1) return '내일';
+
+  return `${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`;
+};
+
 export const ChoreTable = ({
   chores,
   mobileChores = chores,
@@ -133,7 +148,7 @@ export const ChoreTable = ({
                 <span className="truncate text-[12px] text-gray-900 font-bold">{chore.name}</span>
                 <span className="truncate text-[10px] text-gray-600">
                   {chore.assignee.name} | {REPEAT_LABEL[chore.repeatType]} |{' '}
-                  {chore.endDate || chore.startDate}
+                  {formatMobileDate(chore.endDate || chore.startDate)}
                 </span>
               </div>
               <div className="flex shrink-0 items-center gap-3">

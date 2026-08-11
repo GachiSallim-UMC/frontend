@@ -127,14 +127,19 @@ export const ChoreListPage = () => {
         return matchesKeyword && matchesRepeat && matchesStatus;
       })
       .sort((a, b) => {
-        const completionOrder =
-          Number(getChoreUIStatus(a) === 'done') - Number(getChoreUIStatus(b) === 'done');
+        const isADone = getChoreUIStatus(a) === 'done';
+        const isBDone = getChoreUIStatus(b) === 'done';
+        const completionOrder = Number(isADone) - Number(isBDone);
         if (completionOrder !== 0) return completionOrder;
+
+        if (isADone && isBDone) {
+          return (a.completedAt ?? '').localeCompare(b.completedAt ?? '');
+        }
 
         const dateOrder = getChoreTargetDateStr(a).localeCompare(getChoreTargetDateStr(b));
         if (dateOrder !== 0) return dateOrder;
 
-        return a.name.localeCompare(b.name, 'ko');
+        return 0;
       });
   }, [choresWithAssigneeAvatars, filter.keyword, filter.repeatType, filter.status]);
 
