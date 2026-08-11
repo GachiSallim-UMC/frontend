@@ -59,12 +59,10 @@ jobs:
         env:
           COGNITO_DOMAIN_URL: ${{ vars.VITE_COGNITO_DOMAIN_URL }}
           COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
-          COGNITO_REDIRECT_URI: ${{ vars.VITE_COGNITO_REDIRECT_URI }}
-          COGNITO_LOGOUT_URI: ${{ vars.VITE_COGNITO_LOGOUT_URI }}
           WS_URL: ${{ vars.VITE_WS_URL }}
         run: |
           # 필수 값: 없으면 소셜 로그인이 동작하지 않으므로 빌드를 실패시킨다.
-          for NAME in COGNITO_DOMAIN_URL COGNITO_CLIENT_ID COGNITO_REDIRECT_URI COGNITO_LOGOUT_URI; do
+          for NAME in COGNITO_DOMAIN_URL COGNITO_CLIENT_ID; do
             VALUE="${!NAME}"
             if [ -z "$VALUE" ]; then
               echo "::error::VITE_${NAME} 값이 비어있음 (Settings > Environments > dev > Variables 확인)"
