@@ -45,6 +45,7 @@ export type {
   DayOfWeek,
   CustomOption,
   GetChoresParams,
+  DeleteChoreResponse,
   IncompleteChoreResponse,
 } from './types/chore.types';
 

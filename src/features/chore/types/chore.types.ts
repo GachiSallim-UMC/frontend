@@ -135,12 +135,18 @@ export interface GetChoresParams {
   groupId: number;
   status?: ChoreApiStatus;
   assigneeId?: number;
+  fromDate?: string;
+  toDate?: string;
 }
 
 export interface IncompleteChoreResponse {
   choreId: number;
-  status: string;
-  completedBy: unknown | null;
+  status: ChoreApiStatus;
+  completedBy: ChoreApiUser | null;
   completedAt: string | null;
-  removedNextOccurrenceIds: number[];
+}
+
+export interface DeleteChoreResponse {
+  choreId: number;
+  deletedChoreIds: number[];
 }

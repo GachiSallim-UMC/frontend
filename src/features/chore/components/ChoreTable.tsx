@@ -11,6 +11,7 @@ import { getChoreUIStatus } from '../hooks/useChoreStatus';
 
 interface ChoreTableProps {
   chores: Chore[];
+  mobileChores?: Chore[];
   onEdit?: (chore: Chore) => void;
   onShare?: (chore: Chore) => void;
   onToggleComplete?: (chore: Chore) => void;
@@ -27,6 +28,7 @@ const REPEAT_LABEL: Record<Chore['repeatType'], string> = {
 
 export const ChoreTable = ({
   chores,
+  mobileChores = chores,
   onEdit,
   onShare,
   onToggleComplete,
@@ -95,15 +97,15 @@ export const ChoreTable = ({
     <>
       {/**모바일 뷰 */}
       <div className="flex flex-col rounded-xl bg-white px-[16px] lg:hidden">
-        {chores.length === 0 ? (
+        {mobileChores.length === 0 ? (
           <div className="py-[40px] text-center text-[12px] text-gray-400">
             등록된 집안일이 없습니다.
           </div>
         ) : (
-          chores.map((chore, index) => (
+          mobileChores.map((chore, index) => (
             <MobileListRow
               key={chore.id}
-              isLast={index === chores.length - 1}
+              isLast={index === mobileChores.length - 1}
               separatorClassName="after:left-0 after:right-0"
               className="gap-[10px] py-[16px]"
             >

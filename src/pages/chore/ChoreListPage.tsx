@@ -7,7 +7,9 @@ import {
   useChores,
   useCompleteChore,
   useIncompleteChore,
+  useWeekCalendar,
   getChoreUIStatus,
+  getChoreTargetDateStr,
 } from '@/features/chore';
 import type { Chore, ChoreFilter, RepeatType, ChoreApiStatus } from '@/features/chore';
 import { useAlertStore, useGroupStore } from '@/shared/store';
@@ -32,6 +34,18 @@ export const ChoreListPage = () => {
   const showAlert = useAlertStore(state => state.showAlert);
   const completeMutation = useCompleteChore();
   const incompleteMutation = useIncompleteChore();
+  const {
+    selectedDate,
+    weekDates,
+    weekDateValues,
+    fromDate,
+    toDate,
+    dayLabels,
+    handlePrevWeek,
+    handleNextWeek,
+    handleSelectDate,
+    todayDate,
+  } = useWeekCalendar();
   const {
     activeType,
     chatRoomOptions,
@@ -62,6 +76,8 @@ export const ChoreListPage = () => {
           groupId,
           status: apiStatus,
           assigneeId: filter.assigneeId,
+          fromDate,
+          toDate,
         }
       : undefined,
   );
@@ -97,19 +113,35 @@ export const ChoreListPage = () => {
     const keyword = filter.keyword?.trim().toLocaleLowerCase();
     const repeatType = filter.repeatType ? REPEAT_TYPE_FROM_FILTER[filter.repeatType] : undefined;
 
-    return choresWithAssigneeAvatars.filter(chore => {
-      const matchesKeyword = !keyword || chore.name.toLocaleLowerCase().includes(keyword);
-      const matchesRepeat = !repeatType || chore.repeatType === repeatType;
+    return choresWithAssigneeAvatars
+      .filter(chore => {
+        const matchesKeyword = !keyword || chore.name.toLocaleLowerCase().includes(keyword);
+        const matchesRepeat = !repeatType || chore.repeatType === repeatType;
 
-      let matchesStatus = true;
-      if (filter.status && filter.status !== 'ALL') {
-        const uiStatus = getChoreUIStatus(chore).toUpperCase();
-        matchesStatus = uiStatus === filter.status;
-      }
+        let matchesStatus = true;
+        if (filter.status && filter.status !== 'ALL') {
+          const uiStatus = getChoreUIStatus(chore).toUpperCase();
+          matchesStatus = uiStatus === filter.status;
+        }
 
-      return matchesKeyword && matchesRepeat && matchesStatus;
-    });
+        return matchesKeyword && matchesRepeat && matchesStatus;
+      })
+      .sort((a, b) => {
+        const completionOrder =
+          Number(getChoreUIStatus(a) === 'done') - Number(getChoreUIStatus(b) === 'done');
+        if (completionOrder !== 0) return completionOrder;
+
+        const dateOrder = getChoreTargetDateStr(a).localeCompare(getChoreTargetDateStr(b));
+        if (dateOrder !== 0) return dateOrder;
+
+        return a.name.localeCompare(b.name, 'ko');
+      });
   }, [choresWithAssigneeAvatars, filter.keyword, filter.repeatType, filter.status]);
+
+  const mobileChores = useMemo(
+    () => filteredChores.filter(chore => getChoreTargetDateStr(chore) === selectedDate),
+    [filteredChores, selectedDate],
+  );
 
   const handleEdit = (chore: Chore) => navigate(`/chores/${chore.id}/edit`);
 
@@ -137,14 +169,13 @@ export const ChoreListPage = () => {
     openShare(String(chore.id));
   };
 
-  const todayText = useMemo(() => {
-    const today = new Date();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const date = String(today.getDate()).padStart(2, '0');
+  const selectedDateText = useMemo(() => {
+    const [year, month, date] = selectedDate.split('-').map(Number);
+    const selected = new Date(year, month - 1, date);
     const days = ['일', '월', '화', '수', '목', '금', '토'];
-    const dayName = days[today.getDay()];
-    return `${month}월 ${date}일 (${dayName})`;
-  }, []);
+    const dayName = days[selected.getDay()];
+    return `${String(month).padStart(2, '0')}월 ${String(date).padStart(2, '0')}일 (${dayName})`;
+  }, [selectedDate]);
 
   return (
     <div className="flex w-full flex-1 flex-col bg-transparent lg:gap-[20px] lg:rounded-2xl lg:bg-white lg:p-[30px]">
@@ -156,10 +187,20 @@ export const ChoreListPage = () => {
         />
       </div>
       <div className="order-1 w-full lg:order-2">
-        <ChoreCalendarView chores={filteredChores} />
+        <ChoreCalendarView
+          chores={filteredChores}
+          selectedDate={selectedDate}
+          weekDates={weekDates}
+          weekDateValues={weekDateValues}
+          dayLabels={dayLabels}
+          todayDate={todayDate}
+          onPrevWeek={handlePrevWeek}
+          onNextWeek={handleNextWeek}
+          onSelectDate={handleSelectDate}
+        />
       </div>
       <div className="order-2 mt-[16px] w-full lg:hidden">
-        <h3 className="text-[14px] font-bold text-gray-700">{todayText}</h3>
+        <h3 className="text-[14px] font-bold text-gray-700">{selectedDateText}</h3>
       </div>
       <div className="order-4 mt-[8px] w-full flex-1 pb-[16px] lg:order-3 lg:mt-0 lg:pb-0">
         {isLoading ? (
@@ -180,6 +221,7 @@ export const ChoreListPage = () => {
         ) : (
           <ChoreTable
             chores={filteredChores}
+            mobileChores={mobileChores}
             onEdit={handleEdit}
             onShare={handleShareClick}
             onToggleComplete={handleToggleComplete}

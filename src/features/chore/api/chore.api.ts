@@ -13,6 +13,7 @@ import type {
   CreateChoreDto,
   CustomOption,
   DayOfWeek,
+  DeleteChoreResponse,
   GetChoresParams,
   RepeatType,
   UpdateChoreDto,
@@ -175,8 +176,9 @@ export const choreApi = {
     return data;
   },
 
-  remove: async (id: string): Promise<void> => {
-    await apiClient.delete(`${BASE}/${id}`);
+  remove: async (id: string): Promise<DeleteChoreResponse> => {
+    const { data } = await apiClient.delete<DeleteChoreResponse>(`${BASE}/${id}`);
+    return data;
   },
 
   complete: async (id: string): Promise<void> => {
