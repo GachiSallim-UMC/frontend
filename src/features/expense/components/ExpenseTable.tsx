@@ -98,7 +98,6 @@ export const ExpenseTable = ({ expenses, onEdit, onShare }: ExpenseTableProps) =
       render: (row) => (
         <StatusBadge
           variant={row.status === 'paid' ? 'done' : 'unpaid'}
-          size="sm"
         />
       ),
     },
