@@ -68,7 +68,9 @@ export const ChoreCalendarView = ({
             const isToday = day.dateValue === todayDate;
             const isSelected = day.dateValue === selectedDate;
             const dayNumber = Number(day.date.split('.')[1]);
-            const hasChores = day.chores.length > 0;
+            const hasIncompleteChores = day.chores.some(
+              chore => getChoreUIStatus(chore) !== 'done',
+            );
             return (
               <div key={index} className="flex min-w-0 flex-col items-center">
                 <span className="mb-[6px] flex h-[14px] items-center text-[12px] leading-none text-gray-700">
@@ -86,7 +88,9 @@ export const ChoreCalendarView = ({
                   {dayNumber}
                 </button>
                 <div className="mt-[6px] flex h-[4px] items-center justify-center">
-                  {hasChores && <div className="h-[4px] w-[4px] rounded-full bg-primary-700" />}
+                  {hasIncompleteChores && (
+                    <div className="h-[4px] w-[4px] rounded-full bg-primary-700" />
+                  )}
                 </div>
                 {isSelected && (
                   <div className="mt-[12px] h-[2px] w-[clamp(32px,9.75vw,38px)] bg-primary-700" />

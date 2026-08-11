@@ -133,7 +133,7 @@ export const ChoreListPage = () => {
         if (completionOrder !== 0) return completionOrder;
 
         if (isADone && isBDone) {
-          return (a.completedAt ?? '').localeCompare(b.completedAt ?? '');
+          return (b.completedAt ?? '').localeCompare(a.completedAt ?? '');
         }
 
         const dateOrder = getChoreTargetDateStr(a).localeCompare(getChoreTargetDateStr(b));
