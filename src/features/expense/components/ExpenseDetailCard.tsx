@@ -28,6 +28,7 @@ export function ExpenseDetailCard({
     setIsModalOpen,
     handleBulkSettle,
     handleIndividualSubmit,
+    handleReject,
     modalMembers,
   } = useExpenseSettle(expense, onRefresh);
 
@@ -115,6 +116,7 @@ export function ExpenseDetailCard({
                   String(share.user.id) === String(expense.payer?.id);
 
                 const isPaid = Boolean(share.isPaid);
+                const isPending = Boolean(share.isPending);
 
                 let badgeVariant: 'done' | 'pending' = 'pending';
                 let badgeLabel = '미납';
@@ -125,6 +127,9 @@ export function ExpenseDetailCard({
                 } else if (isPaid) {
                   badgeVariant = 'done';
                   badgeLabel = '완료';
+                } else if (isPending) {
+                  badgeVariant = 'pending';
+                  badgeLabel = '확인 대기';
                 }
 
                 return (
@@ -181,6 +186,7 @@ export function ExpenseDetailCard({
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             onSubmit={handleIndividualSubmit}
+            onReject={handleReject}
           />
         )}
       </div>

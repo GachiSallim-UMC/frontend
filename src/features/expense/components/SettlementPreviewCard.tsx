@@ -9,6 +9,7 @@ import {
 } from '@/features/expense';
 import { useCreatePayLink, useExpenseSettle } from '@/features/expense';
 import type { Expense } from '@/features/expense';
+import { useAlertStore } from '@/shared/store';
 
 interface SettlementDraft {
   title: string;
@@ -57,6 +58,28 @@ export const SettlementPreviewCard = ({
     requestTransferComplete,
     isLoading: isClaimTransferLoading,
   } = useClaimTransferComplete();
+
+  const handleTransferComplete = async (
+    shareId: number | string,
+  ) => {
+    const success = await requestTransferComplete(shareId);
+
+    if (success) {
+      useAlertStore.getState().showAlert({
+        title: '완료',
+        message: '송금 완료 알림을 성공적으로 보냈습니다.',
+        tone: 'success',
+      });
+
+      onRefresh?.();
+    } else {
+      useAlertStore.getState().showAlert({
+        title: '오류',
+        message: '송금 완료 처리에 실패했습니다. 다시 시도해 주세요.',
+        tone: 'error',
+      });
+    }
+  };
 
   if (!expense) {
     const hasDraftContent = Boolean(
@@ -272,7 +295,7 @@ export const SettlementPreviewCard = ({
                 <button
                   type="button"
                   onClick={() =>
-                    requestTransferComplete(
+                    void handleTransferComplete(
                       myShare.id,
                     )
                   }

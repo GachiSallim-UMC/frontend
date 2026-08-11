@@ -27,6 +27,8 @@ export interface MemberShare {
   user: User;
   amount: number;
   isPaid: boolean;
+  /** 채무자가 "송금완료" 표시를 해서 선지불자의 확인을 기다리는 중인지 여부 */
+  isPending: boolean;
 }
 
 /** 생활비 도메인 모델 */

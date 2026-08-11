@@ -40,6 +40,11 @@ function toSplitIsPaid(rawStatus: string): boolean {
   return rawStatus === 'PAID' || rawStatus === 'PRE_PAID' || rawStatus === 'DONE';
 }
 
+/** 채무자가 "송금완료" 표시를 해서 선지불자의 확인을 기다리는 중(REQUESTED -> 확인 대기) 상태인지 */
+function toSplitIsPending(rawStatus: string): boolean {
+  return rawStatus === 'TRANSFER_PENDING';
+}
+
 export function toExpense(rawResponse: unknown): Expense {
   if (!isRecord(rawResponse)) {
     throw invalidResponse('생활비 응답 형식이 올바르지 않습니다.');
@@ -72,6 +77,7 @@ export function toExpense(rawResponse: unknown): Expense {
               },
           amount: (s.amount as number) ?? 0,
           isPaid: toSplitIsPaid(s.status as string),
+          isPending: toSplitIsPending(s.status as string),
         };
       })
     : [];
