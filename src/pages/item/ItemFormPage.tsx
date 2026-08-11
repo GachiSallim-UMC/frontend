@@ -15,7 +15,13 @@ import {
 import { useGroupMembers } from '@/features/member';
 import ItemIcon from '@/assets/icons/sidebar/items.svg?react';
 import { ShareItemPickerModal, useShareToMessenger } from '@/features/messenger';
-import { Button, ConfirmModal, FormActions, ShareMessengerButton } from '@/shared/components/ui';
+import {
+  Button,
+  ConfirmModal,
+  FormActions,
+  FormCancelModal,
+  ShareMessengerButton,
+} from '@/shared/components/ui';
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
 import { useAuthStore, useGroupStore } from '@/shared/store';
@@ -66,6 +72,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
     setBuyerId,
     memo,
     setMemo,
+    isDirty,
   } = useItemForm(editingItem);
   const {
     itemId: quickItemId,
@@ -89,6 +96,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const buyerOptions = groupMembers.map(member => ({
     value: member.userId,
@@ -192,6 +200,19 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
     if (!canDeleteItem) return;
     deleteItem.reset();
     setIsDeleteModalOpen(true);
+  };
+
+  const handleCancelClick = () => {
+    if (!isDirty) {
+      navigate(-1);
+      return;
+    }
+    setIsCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setIsCancelModalOpen(false);
+    navigate(-1);
   };
 
   const handleConfirmDelete = async () => {
@@ -344,7 +365,7 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
         <FormActions
           className="mt-[30px] hidden lg:flex"
           onSave={handleSaveClick}
-          onCancel={() => navigate(-1)}
+          onCancel={handleCancelClick}
           onDelete={canDeleteItem ? handleDeleteClick : undefined}
           saveLabel={isPending ? '처리 중' : '저장'}
           isSubmitting={isPending}
@@ -387,6 +408,14 @@ const ItemFormContent = ({ editingItem, items }: ItemFormContentProps) => {
           </div>
         </Panel>
       </div>
+
+      <FormCancelModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+        icon={<ItemIcon className="size-6" />}
+        isPending={isPending}
+      />
 
       <ConfirmModal
         isOpen={isSaveModalOpen}

@@ -1,4 +1,4 @@
-import { useState, type ComponentProps, type ComponentType } from 'react';
+import { useMemo, useState, type ComponentProps, type ComponentType } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   RuleBasicInfoFields,
@@ -20,6 +20,7 @@ import {
   Button,
   ConfirmModal,
   FormActions,
+  FormCancelModal,
   ShareMessengerButton,
   StatusBadge,
   UserAvatar,
@@ -93,8 +94,22 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   const navigate = useNavigate();
   const currentUserId = useAuthStore(state => state.userId);
   const { data: groupMembers = [] } = useGroupMembers(rule.groupId ?? null);
-  const { title, category, content, validate, fieldProps } = useRuleEditor(rule);
-  const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(rule, currentUserId);
+  const avatarByUserId = useMemo(
+    () =>
+      new Map(
+        groupMembers.map(member => [
+          String(member.userId),
+          member.user.profileImage || undefined,
+        ]),
+      ),
+    [groupMembers],
+  );
+  const { title, category, content, isDirty, validate, fieldProps } = useRuleEditor(rule);
+  const { myAgreement, memberStatuses, historyEntries } = useRuleAgreement(
+    rule,
+    currentUserId,
+    avatarByUserId,
+  );
   const updateRule = useUpdateRule();
   const deleteRule = useDeleteRule();
   const updateAgreement = useUpdateRuleAgreement();
@@ -108,6 +123,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
   } = useShareToMessenger('rule');
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const isGroupAdmin = groupMembers.some(
     member => member.userId === currentUserId && member.role === 'ADMIN',
@@ -174,6 +190,19 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
     openShare(rule.id);
   };
 
+  const handleCancelClick = () => {
+    if (!isDirty) {
+      navigate(-1);
+      return;
+    }
+    setIsCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setIsCancelModalOpen(false);
+    navigate(-1);
+  };
+
   const handleDeleteClick = () => {
     if (!canDeleteRule) return;
     deleteRule.reset();
@@ -207,7 +236,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
 
         <FormActions
           onSave={handleSaveClick}
-          onCancel={() => navigate(-1)}
+          onCancel={handleCancelClick}
           onDelete={canDeleteRule ? handleDeleteClick : undefined}
           rightSlot={<ShareMessengerButton onClick={handleShare} />}
           className="hidden lg:flex"
@@ -235,6 +264,7 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
                   <span className="flex min-w-0 items-center gap-2 lg:gap-[9px]">
                     <UserAvatar
                       name={member.name}
+                      avatarUrl={member.avatarUrl}
                       size="sm"
                       className="h-8 w-8 shrink-0 lg:h-10 lg:w-10"
                     />
@@ -348,6 +378,14 @@ const RuleDetailContent = ({ rule }: { rule: Rule }) => {
           </div>
         </Panel>
       </div>
+
+      <FormCancelModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+        icon={<RuleIcon className="size-6" />}
+        isPending={isPending}
+      />
 
       <ConfirmModal
         isOpen={isSaveModalOpen}

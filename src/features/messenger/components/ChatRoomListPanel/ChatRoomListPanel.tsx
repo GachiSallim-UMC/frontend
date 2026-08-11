@@ -84,7 +84,7 @@ export const ChatRoomListPanel = ({
         )}
       </div>
 
-      <div className="flex flex-col gap-3 px-4 pt-3 lg:pt-0">
+      <div className="flex flex-col gap-3 pt-3 lg:px-4 lg:pt-0">
         <div className="flex items-center gap-2">
           <div className="flex h-11 flex-1 items-center gap-2 rounded-lg border border-gray-100 bg-white px-4 lg:h-[50px] lg:border-0 lg:bg-gray-100 lg:px-6">
             <Search className="h-4 w-4 shrink-0 text-gray-500 lg:h-[18px] lg:w-[18px]" />
@@ -121,7 +121,7 @@ export const ChatRoomListPanel = ({
       </div>
 
       <div
-        className={`mt-3 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 lg:gap-3 ${!isConnected ? 'opacity-50' : ''}`}
+        className={`mt-3 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto lg:gap-3 lg:px-4 ${!isConnected ? 'opacity-50' : ''}`}
       >
         {rooms.length === 0 ? (
           isEmptySearchResult ? (

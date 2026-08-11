@@ -16,6 +16,7 @@ export interface RuleUser {
   id: string;
   name: string;
   nickname: string;
+  avatarUrl?: string;
 }
 
 export interface RuleAgreementMember {

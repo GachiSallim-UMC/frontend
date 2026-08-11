@@ -17,10 +17,16 @@ export const useRuleEditor = (rule?: Rule) => {
     return Object.keys(nextErrors).length === 0;
   }, [category, content, title]);
 
+  const isDirty =
+    title.trim() !== (rule?.title ?? '').trim() ||
+    category !== (rule?.category ?? 'noise') ||
+    content.trim() !== (rule?.content ?? '').trim();
+
   return {
     title,
     category,
     content,
+    isDirty,
     validate,
     fieldProps: {
       title,

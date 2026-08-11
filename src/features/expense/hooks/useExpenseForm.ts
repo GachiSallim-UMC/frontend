@@ -4,9 +4,17 @@ import type {
   UpdateExpenseDto,
   Expense,
   ExpenseCategory,
-} from '@/features/expense';
-import type { SettlementMethod } from '@/features/expense';
-import { useCreateExpense, useUpdateExpense } from '@/features/expense';
+  SettlementMethod,
+} from '../types/expense.types';
+import { useCreateExpense, useUpdateExpense } from './useExpenseMutations';
+
+const normalizeNumericInput = (value: string) => {
+  const normalized = value.replace(/,/g, '').trim();
+  return normalized === '' ? '' : String(Number(normalized));
+};
+
+const normalizeNumberRecord = (value: Record<string, number>) =>
+  Object.entries(value).sort(([left], [right]) => left.localeCompare(right));
 
 interface UseExpenseFormProps {
   initialExpense?: Expense;
@@ -57,9 +65,25 @@ export function useExpenseForm({
   const [customMemberRatios, setCustomMemberRatios] = useState<Record<string, number>>({});
 
   const [isDirectInputCompleted, setIsDirectInputCompleted] = useState(!!initialExpense);
-  const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const dirtySnapshot = JSON.stringify({
+    title: title.trim(),
+    amount: normalizeNumericInput(amount),
+    checkedMembers: [...checkedMembers].sort(),
+    settlementMethod,
+    category,
+    memo: memo.trim(),
+    expenseDate,
+    payerId: String(payerId),
+    customMemberAmounts:
+      settlementMethod === 'CUSTOM' ? normalizeNumberRecord(customMemberAmounts) : [],
+    customMemberRatios:
+      settlementMethod === 'RATIO' ? normalizeNumberRecord(customMemberRatios) : [],
+    receiptUrl: receiptUrl ?? '',
+  });
+  const initialDirtySnapshotRef = useRef(dirtySnapshot);
 
   const { mutateAsync: createExpenseAsync } = useCreateExpense();
   const { mutateAsync: updateExpenseAsync } = useUpdateExpense();
@@ -73,7 +97,6 @@ export function useExpenseForm({
   const handleMethodChange = (newMethod: SettlementMethod) => {
     setSettlementMethod(newMethod);
     setIsDirectInputCompleted(false);
-    setWarningMessage(null);
   };
 
   const toggleMember = (id: string) => {
@@ -95,30 +118,6 @@ export function useExpenseForm({
     (sum, memberId) => sum + (customMemberRatios[memberId] ?? 0),
     0,
   );
-
-  const handleCompleteDirectInput = () => {
-    if (settlementMethod === 'RATIO') {
-      if (totalRatioSum > 100) {
-        setWarningMessage('입력된 비율의 합이 100%를 초과했습니다.');
-        return;
-      }
-      if (totalRatioSum < 100) {
-        setWarningMessage('입력된 비율의 합이 100%보다 부족합니다.');
-        return;
-      }
-    } else {
-      if (totalCustomSum > numericTotalAmount) {
-        setWarningMessage('입력된 금액이 총액을 초과했습니다.');
-        return;
-      }
-      if (totalCustomSum < numericTotalAmount) {
-        setWarningMessage('입력된 금액이 총액보다 부족합니다.');
-        return;
-      }
-    }
-    setWarningMessage(null);
-    setIsDirectInputCompleted(true);
-  };
 
   const handleSaveClick = async () => {
     try {
@@ -205,13 +204,11 @@ export function useExpenseForm({
     totalRatioSum,
     isDirectInputCompleted,
     setIsDirectInputCompleted,
-    warningMessage,
-    setWarningMessage,
+    isDirty: dirtySnapshot !== initialDirtySnapshotRef.current,
     dateInputRef,
     handleIconClick,
     numericTotalAmount,
     totalCustomSum,
-    handleCompleteDirectInput,
     handleSaveClick,
   };
 }

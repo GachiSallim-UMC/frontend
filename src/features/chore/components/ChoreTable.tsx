@@ -1,7 +1,6 @@
-import EditIcon from '@/assets/icons/action/edit.svg?react';
-import ShareIcon from '@/assets/icons/action/share.svg?react';
 import {
   DataTable,
+  MobileListRow,
   StatusBadge,
   TableRowActions,
   UserAvatar,
@@ -101,10 +100,12 @@ export const ChoreTable = ({
             등록된 집안일이 없습니다.
           </div>
         ) : (
-          chores.map(chore => (
-            <div
+          chores.map((chore, index) => (
+            <MobileListRow
               key={chore.id}
-              className="flex items-center gap-[10px] border-b border-gray-100 py-[16px] last:border-b-0"
+              isLast={index === chores.length - 1}
+              separatorClassName="after:left-0 after:right-0"
+              className="gap-[10px] py-[16px]"
             >
               <div className="flex shrink-0 items-center justify-center">
                 <input
@@ -121,6 +122,11 @@ export const ChoreTable = ({
                   "
                 />
               </div>
+              <UserAvatar
+                name={chore.assignee.name}
+                avatarUrl={chore.assignee.avatarUrl}
+                size="xs"
+              />
               <div className="flex min-w-0 flex-1 flex-col gap-0">
                 <span className="truncate text-[12px] text-gray-900 font-bold">{chore.name}</span>
                 <span className="truncate text-[10px] text-gray-600">
@@ -130,24 +136,16 @@ export const ChoreTable = ({
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <StatusBadge variant={getChoreUIStatus(chore)} size="sm" />
-                <div className="flex gap-0 items-center">
-                  <button
-                    onClick={() => onEdit?.(chore)}
-                    aria-label="수정"
-                    className="text-gray-400 transition-colors hover:text-gray-500"
-                  >
-                    <EditIcon className="h-[28px] w-[28px] fill-current" />
-                  </button>
-                  <button
-                    onClick={() => onShare?.(chore)}
-                    aria-label="공유"
-                    className="text-gray-400 transition-colors hover:text-gray-500"
-                  >
-                    <ShareIcon className="h-[28px] w-[28px] fill-current" />
-                  </button>
-                </div>
+                <TableRowActions
+                  onEdit={onEdit ? () => onEdit(chore) : undefined}
+                  onShare={onShare ? () => onShare(chore) : undefined}
+                  editLabel={`${chore.name} 수정`}
+                  shareLabel={`${chore.name} 공유`}
+                  className="items-center text-gray-400"
+                  iconClassName="size-7 fill-current"
+                />
               </div>
-            </div>
+            </MobileListRow>
           ))
         )}
       </div>

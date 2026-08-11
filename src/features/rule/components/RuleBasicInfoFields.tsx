@@ -1,8 +1,10 @@
 import { FormInput, SelectDropdown, TextArea } from '@/shared/components/form';
 import { Panel } from '@/shared/components/layout';
-import { StatusBadge } from '@/shared/components/ui';
 import type { RuleStatus } from '@/shared/types';
-import { RULE_CATEGORY_OPTIONS } from '../constants/rule.constants';
+import {
+  RULE_CATEGORY_OPTIONS,
+  RULE_STATUS_OPTIONS,
+} from '../constants/rule.constants';
 import type { RuleFormErrors, RuleFormValues } from '../lib/ruleFormValidation';
 
 interface RuleBasicInfoFieldsProps extends RuleFormValues {
@@ -73,12 +75,16 @@ export const RuleBasicInfoFields = ({
         className="block h-[88px] px-4 py-3 text-mobile-label lg:h-[100px] lg:pb-9 lg:pt-4 lg:text-button"
       />
       {status && (
-        <div className="order-3 flex flex-col gap-2 lg:order-4 lg:gap-1">
-          <span className="text-caption font-bold leading-[17px] text-gray-800">적용 상태</span>
-          <div className="flex h-11 items-center lg:h-[50px]">
-            <StatusBadge variant={status} />
-          </div>
-        </div>
+        <SelectDropdown
+          label="적용 상태"
+          value={status}
+          onChange={() => undefined}
+          options={RULE_STATUS_OPTIONS}
+          disabled
+          containerClassName="order-3 gap-2 lg:order-4 lg:gap-1"
+          labelClassName="leading-[17px] text-gray-800"
+          className="h-11 px-4 text-mobile-label lg:h-[50px] lg:px-3 lg:text-button"
+        />
       )}
     </div>
   </Panel>

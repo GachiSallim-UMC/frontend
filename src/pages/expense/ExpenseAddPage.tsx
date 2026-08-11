@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import {
   ExpenseAddForm,
@@ -6,9 +6,9 @@ import {
   Receipt,
   SettlementPreviewCard,
   useExpenseDetail,
+  useReceiptViewUrl,
   requestReceiptUploadUrl,
   uploadReceiptToS3,
-  getReceiptViewUrl,
   useDeleteExpense,
   type Expense,
 } from '@/features/expense';
@@ -95,40 +95,9 @@ export const ExpenseAddPage = ({
     string | undefined
   >(undefined);
 
-  const [receiptViewUrl, setReceiptViewUrl] = useState<
-    string | undefined
-  >(undefined);
-
   const [isReceiptUploading, setIsReceiptUploading] =
     useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchReceiptViewUrl = async () => {
-      if (!savedExpense?.id) return;
-
-      try {
-        const viewUrl = await getReceiptViewUrl(savedExpense.id);
-
-        if (isMounted) {
-          setReceiptViewUrl(viewUrl);
-        }
-      } catch (err) {
-        console.error('영수증 이미지 조회 실패:', err);
-
-        if (isMounted) {
-          setReceiptViewUrl(undefined);
-        }
-      }
-    };
-
-    fetchReceiptViewUrl();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [savedExpense?.id]);
+  const receiptQuery = useReceiptViewUrl(savedExpense?.id);
 
   const handleReceiptChange = async (file: File) => {
     setIsReceiptUploading(true);
@@ -248,13 +217,16 @@ export const ExpenseAddPage = ({
               isSharing={isSharePending}
               mobileReceiptSlot={
                 <Receipt
-                  imageUrl={receiptViewUrl}
+                  imageUrl={receiptQuery.data ?? undefined}
                   onImageChange={handleReceiptChange}
                   disabled={
                     isReceiptUploading ||
                     savedExpense?.status === 'paid'
                   }
                   isUploading={isReceiptUploading}
+                  isLoading={receiptQuery.isLoading}
+                  isError={receiptQuery.isError}
+                  onRetry={() => void receiptQuery.refetch()}
                 />
               }
             />
@@ -271,13 +243,16 @@ export const ExpenseAddPage = ({
                 {/* 모바일에서는 폼의 mobileReceiptSlot에 이미 동일한 영수증 첨부가 있으므로 중복 방지를 위해 숨김 */}
                 <div className="hidden sm:block">
                   <Receipt
-                    imageUrl={receiptViewUrl}
+                    imageUrl={receiptQuery.data ?? undefined}
                     onImageChange={handleReceiptChange}
                     disabled={
                       isReceiptUploading ||
                       savedExpense.status === 'paid'
                     }
                     isUploading={isReceiptUploading}
+                    isLoading={receiptQuery.isLoading}
+                    isError={receiptQuery.isError}
+                    onRetry={() => void receiptQuery.refetch()}
                   />
                 </div>
 

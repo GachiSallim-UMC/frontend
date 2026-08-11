@@ -3,19 +3,22 @@ import type { ExpenseStatus, User } from '@/shared/types';
 /** 분담 방식 */
 export type SplitType = 'EQUAL' | 'RATIO' | 'CUSTOM';
 
+/** 생활비 폼에서 사용하는 분담 방식 */
+export type SettlementMethod = SplitType;
+
 export type ExpenseFilter = 'TOTAL' | 'THIS_MONTH';
 
 /* 생활비 카테고리 */
-export type ExpenseCategory = 
-  | 'FINANCE' 
-  | 'FOOD' 
-  | 'SHOPPING' 
-  | 'EDUCATION' 
-  | 'GROCERY' 
-  | 'TRANSPORT' 
-  | 'LEISURE' 
-  | 'CAFE' 
-  | 'UTILITIES' 
+export type ExpenseCategory =
+  | 'FINANCE'
+  | 'FOOD'
+  | 'SHOPPING'
+  | 'EDUCATION'
+  | 'GROCERY'
+  | 'TRANSPORT'
+  | 'LEISURE'
+  | 'CAFE'
+  | 'UTILITIES'
   | 'ETC';
 
 /** 멤버별 부담금 */
@@ -67,16 +70,6 @@ export interface PayLinkResponse {
   deepLinkUrl: string;
   status?: string;
 }
-export const expenseKeys = {
-  all: ['expenses'] as const,
-  scope: (userId: string | null, groupId: string | null) =>
-    [...expenseKeys.all, userId, groupId] as const,
-  lists: (userId: string | null, groupId: string | null) =>
-    [...expenseKeys.scope(userId, groupId), 'list'] as const,
-  detail: (userId: string | null, groupId: string | null, id: number | string) =>
-    [...expenseKeys.scope(userId, groupId), 'detail', id] as const,
-};
-
 /** 생활비 등록 DTO */
 export interface CreateExpenseDto {
   title: string;

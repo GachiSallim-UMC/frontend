@@ -8,7 +8,7 @@ import {
   ShortageItemsPanel,
   useDashboardData
 } from '@/features/dashboard';
-import { GroupSwitchDropdown } from '@/features/member';
+import { GroupQuickActions, GroupSwitchDropdown } from '@/features/member';
 import { useGroupStore } from '@/shared/store';
 
 export const DashboardPage = () => {
@@ -31,8 +31,9 @@ export const DashboardPage = () => {
     return (
         <div className='flex flex-col'>
             {/* 그룹 전환 드롭다운: 모바일 전용 (Figma 06 · 대시보드) */}
-            <div className="mb-3 lg:hidden">
+            <div className="mb-3 flex min-w-0 items-center gap-2.5 lg:hidden">
                 <GroupSwitchDropdown />
+                <GroupQuickActions />
             </div>
 
             <DashboardSummary

@@ -235,20 +235,22 @@ export const uploadReceiptToS3 = async (
 
 export const getReceiptViewUrl = async (
   expenseId: number | string,
-): Promise<string | undefined> => {
+): Promise<string | null> => {
   try {
     const response = await apiClient.get(`/expenses/${expenseId}/receipt-image`);
     if (!isRecord(response.data)) {
       throw invalidResponse('영수증 조회 응답 형식이 올바르지 않습니다.');
     }
-    if (response.data.viewUrl === null) return undefined;
+    if (response.data.viewUrl === null) return null;
     if (typeof response.data.viewUrl !== 'string') {
       throw invalidResponse('영수증 조회 응답 형식이 올바르지 않습니다.');
     }
     return response.data.viewUrl;
   } catch (err) {
-    if (err instanceof ApiError && err.statusCode === 400) {
-      return undefined;
+    // 상세 생활비는 이미 조회된 상태이므로 영수증 하위 리소스의 400/404는
+    // 영수증이 등록되지 않은 정상 상태로 취급합니다.
+    if (err instanceof ApiError && (err.statusCode === 400 || err.statusCode === 404)) {
+      return null;
     }
     throw err;
   }

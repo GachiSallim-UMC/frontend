@@ -6,6 +6,9 @@ interface ReceiptProps {
   onImageChange?: (file: File) => void;
   disabled?: boolean;
   isUploading?: boolean;
+  isLoading?: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
 }
 
 const ALLOWED_RECEIPT_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -16,6 +19,9 @@ export const Receipt = ({
   onImageChange,
   disabled = false,
   isUploading = false,
+  isLoading = false,
+  isError = false,
+  onRetry,
 }: ReceiptProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(imageUrl);
@@ -63,6 +69,31 @@ export const Receipt = ({
     setPreviewUrl(url);
     onImageChange?.(file);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[104px] w-full items-center justify-center rounded-lg border border-gray-200 bg-white text-caption text-gray-500">
+        영수증 이미지를 불러오는 중입니다.
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex min-h-[104px] w-full flex-col items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 text-center">
+        <p className="text-caption text-red-700">영수증 이미지를 불러오지 못했습니다.</p>
+        {onRetry && (
+          <button
+            type="button"
+            className="text-button font-bold text-primary-600"
+            onClick={onRetry}
+          >
+            다시 시도
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
