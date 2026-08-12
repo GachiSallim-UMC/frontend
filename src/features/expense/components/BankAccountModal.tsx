@@ -188,7 +188,7 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
       </div>
 
       {!isError && (isAddingAccount ? (
-        <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4">
+        <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 px-0.5 pt-4">
           <SelectDropdown
             label="은행명"
             required
