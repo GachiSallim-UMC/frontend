@@ -1,5 +1,5 @@
 import type { ErrorDetail } from '@/shared/types';
-import { getApiErrorFallbackMessage } from './errorCodes';
+import { getApiErrorFallbackMessage } from '@/shared/api/errorCodes';
 
 export class ApiError extends Error {
   readonly statusCode: number;

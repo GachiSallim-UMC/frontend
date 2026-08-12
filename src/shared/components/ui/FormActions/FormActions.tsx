@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { Button } from '../Button/Button';
-import { ShareMessengerButton } from '../Button/ShareMessengerButton';
+import { Button } from '@/shared/components/ui/Button/Button';
+import { ShareMessengerButton } from '@/shared/components/ui/Button/ShareMessengerButton';
 
 interface FormActionsProps {
   onSave: () => void;

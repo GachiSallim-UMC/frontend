@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { FilterDropdown } from './FilterDropdown';
+import { FilterDropdown } from '@/shared/components/ui/Button/FilterDropdown';
 
 interface LabelFilterDropdownProps {
   /** 선택된 라벨. options[0](전체 항목)이면 비활성 상태로 표시됩니다. */

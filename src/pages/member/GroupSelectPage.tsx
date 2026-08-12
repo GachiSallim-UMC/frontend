@@ -5,7 +5,7 @@ import {
   GroupOrDivider,
   useMyGroups,
 } from '@/features/member';
-import { GroupPageShell } from './GroupPageShell';
+import { GroupPageShell } from '@/pages/member/GroupPageShell';
 
 export const GroupSelectPage = () => {
   // 목록 자체는 GroupList가 다시 조회하지만, React Query 캐시를 공유하므로 추가 요청은 없습니다.

@@ -8,7 +8,7 @@ import {
   useJoinGroup,
 } from '@/features/member';
 import { useAlertStore, useGroupStore } from '@/shared/store';
-import { GroupPageShell } from './GroupPageShell';
+import { GroupPageShell } from '@/pages/member/GroupPageShell';
 import { memberApi } from '@/features/member';
 
 export const JoinGroupPage = () => {

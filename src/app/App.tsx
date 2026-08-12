@@ -4,7 +4,7 @@ import { router } from '@/app/router';
 import { ApiError, getApiErrorTitle, isUnexpectedApiError } from '@/shared/api';
 import { useAlertStore } from '@/shared/store';
 import { AlertModal } from '@/shared/components/ui/AlertModal';
-import { PushSubscriptionSync } from './PushSubscriptionSync';
+import { PushSubscriptionSync } from '@/app/PushSubscriptionSync';
 
 const shouldSkipGlobalError = (meta: unknown) =>
   (meta as { skipGlobalError?: boolean } | undefined)?.skipGlobalError === true;

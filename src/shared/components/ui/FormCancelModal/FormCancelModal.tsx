@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ConfirmModal } from '../ConfirmModal';
+import { ConfirmModal } from '@/shared/components/ui/ConfirmModal';
 
 interface FormCancelModalProps {
   isOpen: boolean;

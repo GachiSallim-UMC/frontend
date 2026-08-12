@@ -21,7 +21,7 @@ import {
 import { requireSelectedGroupId } from '@/shared/api';
 import { ConfirmModal } from '@/shared/components/ui';
 import { useAuthStore, useAlertStore, useGroupStore } from '@/shared/store';
-import { enrichExpenseWithMembers, mapGroupMembersToUsers } from './expenseMembers';
+import { enrichExpenseWithMembers, mapGroupMembersToUsers } from '@/pages/expense/expenseMembers';
 
 interface ExpenseDetailPageProps {
   title?: string;

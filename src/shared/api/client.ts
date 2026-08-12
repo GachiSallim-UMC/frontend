@@ -3,8 +3,8 @@ import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axio
 import type { ApiResponse } from '@/shared/types';
 import { useAuthStore } from '@/shared/store/useAuthStore';
 import { useGroupStore } from '@/shared/store/useGroupStore';
-import { ApiError } from './ApiError';
-import { isApiResponse, unwrapApiResponse } from './response';
+import { ApiError } from '@/shared/api/ApiError';
+import { isApiResponse, unwrapApiResponse } from '@/shared/api/response';
 
 interface RetryableRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;

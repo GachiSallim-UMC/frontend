@@ -1,5 +1,5 @@
-import { apiClient } from './client';
-import { ApiError } from './ApiError';
+import { apiClient } from '@/shared/api/client';
+import { ApiError } from '@/shared/api/ApiError';
 
 interface ProfileImageUploadRequest {
   contentType: string;

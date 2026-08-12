@@ -1,5 +1,5 @@
 import { useGroupStore } from '@/shared/store';
-import { ApiError } from './ApiError';
+import { ApiError } from '@/shared/api/ApiError';
 
 export const requireSelectedGroupId = (): string => {
   const groupId = useGroupStore.getState().selectedGroupId;

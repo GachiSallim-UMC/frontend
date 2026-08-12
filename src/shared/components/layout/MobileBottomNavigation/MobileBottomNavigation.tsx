@@ -9,7 +9,7 @@ import ExpensesActiveIcon from '@/assets/icons/sidebar/expenses-active.svg?react
 import MessengerIcon from '@/assets/icons/sidebar/messenger.svg?react';
 import MessengerActiveIcon from '@/assets/icons/sidebar/messenger-active.svg?react';
 import { cn } from '@/shared/lib/cn';
-import { isMobileBottomNavigationPath } from './mobileNavigation';
+import { isMobileBottomNavigationPath } from '@/shared/components/layout/MobileBottomNavigation/mobileNavigation';
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 
