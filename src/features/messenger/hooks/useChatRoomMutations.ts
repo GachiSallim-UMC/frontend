@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { messengerApi } from '@/features/messenger/api/messenger.api';
 import type { CardMessageTypeDto, ChatRoomCategory } from '@/features/messenger/types';
-import { mapCategoryToChatRoomType } from './messenger.mappers';
-import { MESSENGER_QUERY_KEYS } from './useChatRoomQueries';
+import { mapCategoryToChatRoomType } from '@/features/messenger/hooks/messenger.mappers';
+import { MESSENGER_QUERY_KEYS } from '@/features/messenger/hooks/useChatRoomQueries';
 
 /** 채팅방 생성 */
 export const useCreateChatRoom = (groupId: string | null) => {

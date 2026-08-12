@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Button, FormInput, SelectDropdown } from '@/shared/components';
 import { formatDate, useDateFormat } from '@/shared/lib';
 import { RefreshCw } from 'lucide-react';
-import { MemberUpdateModal } from '../MemberUpdateModal';
-import { useGroupBasicInfoForm } from '../../hooks/useGroupBasicInfoForm';
+import { MemberUpdateModal } from '@/features/member/components/MemberUpdateModal';
+import { useGroupBasicInfoForm } from '@/features/member/hooks/useGroupBasicInfoForm';
 
 import CameraIcon from '@/assets/icons/member/camera.svg?react';
 import UploadIcon from '@/assets/icons/member/upload.svg?react';

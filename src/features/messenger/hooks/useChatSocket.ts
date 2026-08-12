@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { InfiniteData, QueryClient } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChatSocketConnection } from '@/features/messenger/api/messenger.socket';
-import { MESSENGER_QUERY_KEYS } from './useChatRoomQueries';
+import { MESSENGER_QUERY_KEYS } from '@/features/messenger/hooks/useChatRoomQueries';
 import type { ChatRoomListItemResponse, MessageResponse } from '@/features/messenger/types';
 import { useAlertStore } from '@/shared/store';
 

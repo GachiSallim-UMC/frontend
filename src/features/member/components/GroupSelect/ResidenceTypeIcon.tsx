@@ -4,7 +4,7 @@ import FamilyIcon from '@/assets/icons/member/ResidenceType/family.svg?react';
 import BoardingIcon from '@/assets/icons/member/ResidenceType/boarding.svg?react';
 import EtcIcon from '@/assets/icons/member/ResidenceType/etc.svg?react';
 import { cn } from '@/shared/lib';
-import type { ResidenceType } from '../../types/member.types';
+import type { ResidenceType } from '@/features/member/types/member.types';
 
 const ICON_BY_TYPE = {
   ROOMMATE: RoommateIcon,

@@ -2,8 +2,8 @@ import { useEffect, useState, type ChangeEvent } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { profileImageApi } from '@/shared/api';
 import { useAlertStore, useGroupStore } from '@/shared/store';
-import { memberApi } from '../api/member.api';
-import { useGroupDetail, useUpdateGroup } from './useGroupMutations';
+import { memberApi } from '@/features/member/api/member.api';
+import { useGroupDetail, useUpdateGroup } from '@/features/member/hooks/useGroupMutations';
 
 type GroupBasicInfoErrors = Partial<Record<'groupName' | 'maxMemberCount' | 'description', string>>;
 

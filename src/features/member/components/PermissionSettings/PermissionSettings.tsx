@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button, CheckboxGroup, type CheckboxOption } from '@/shared/components';
 import { useGroupStore } from '@/shared/store';
-import { useGroupPermissions, useUpdateGroupPermissions } from '../../hooks/useGroupMutations';
-import type { PermissionType, UpdateGroupPermissionsDto } from '../../types/member.types';
+import { useGroupPermissions, useUpdateGroupPermissions } from '@/features/member/hooks/useGroupMutations';
+import type { PermissionType, UpdateGroupPermissionsDto } from '@/features/member/types/member.types';
 
 const PERMISSION_LEFT_OPTIONS: CheckboxOption<PermissionType>[] = [
   { value: 'allowChoreRegistration', label: '멤버의 집안일 등록 허용' },

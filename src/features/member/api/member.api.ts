@@ -8,7 +8,7 @@ import type {
   GroupPermissionsResponse,
   UpdateGroupPermissionsDto,
   InviteInfoResponse,
-} from '../types/member.types';
+} from '@/features/member/types/member.types';
 
 const BASE = '/groups';
 

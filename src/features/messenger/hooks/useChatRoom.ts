@@ -7,9 +7,9 @@ import type {
   ChatShareCard,
   ShareCardType,
 } from '@/features/messenger/types';
-import { CARD_TYPE_BY_SHARE_TYPE, formatTimestamp } from './messenger.mappers';
-import { useChatMessages, useChatRoomDetail, useChatRooms } from './useChatRoomQueries';
-import { useChatSocket } from './useChatSocket';
+import { CARD_TYPE_BY_SHARE_TYPE, formatTimestamp } from '@/features/messenger/hooks/messenger.mappers';
+import { useChatMessages, useChatRoomDetail, useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
+import { useChatSocket } from '@/features/messenger/hooks/useChatSocket';
 import {
   useCreateChatRoom,
   useDeleteChatRoom,
@@ -20,7 +20,7 @@ import {
   useSendMessage,
   useTransferOwner,
   useUpdateMemberSettings,
-} from './useChatRoomMutations';
+} from '@/features/messenger/hooks/useChatRoomMutations';
 
 const matchesFilter = (category: ChatRoomCategory, unreadCount: number, filter: ChatFilter) => {
   switch (filter) {

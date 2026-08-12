@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { memberApi } from '../api/member.api';
+import { memberApi } from '@/features/member/api/member.api';
 import { useAuthStore } from '@/shared/store';
-import type { Group, MemberGroupResponse } from '../types/member.types';
+import type { Group, MemberGroupResponse } from '@/features/member/types/member.types';
 
 const toGroup = (group: MemberGroupResponse): Group => ({
   id: group.id,

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/components';
 import emptyGroupImage from '@/assets/images/member/empty-group.png';
-import { GroupOrDivider } from './GroupOrDivider';
+import { GroupOrDivider } from '@/features/member/components/GroupSelect/GroupOrDivider';
 
 /** 참여 중인 그룹이 하나도 없을 때 보여주는 안내 화면. */
 export const GroupEmptyState = () => {

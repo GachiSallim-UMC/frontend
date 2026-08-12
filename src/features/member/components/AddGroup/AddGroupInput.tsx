@@ -1,6 +1,6 @@
 import type { AddGroupDto } from '@/features/member/types/member.types';
 import { FormInput, SelectDropdown } from '@/shared/components';
-import { RESIDENCE_OPTIONS } from '../../constants/member.constants';
+import { RESIDENCE_OPTIONS } from '@/features/member/constants/member.constants';
 
 /** 최대 인원 2~12명. 디자인상 드롭다운으로 고릅니다. */
 const MAX_MEMBER_OPTIONS = Array.from({ length: 11 }, (_, index) => {

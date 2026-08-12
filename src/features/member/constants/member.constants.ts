@@ -1,4 +1,4 @@
-import type { ResidenceType } from '../types/member.types';
+import type { ResidenceType } from '@/features/member/types/member.types';
 
 export const RESIDENCE_OPTIONS: { value: ResidenceType; label: string }[] = [
   { label: '룸메이트', value: 'ROOMMATE' },

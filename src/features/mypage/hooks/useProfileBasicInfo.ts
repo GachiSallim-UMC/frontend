@@ -3,8 +3,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { profileImageApi } from '@/shared/api';
 import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from '@/shared/lib/inputValidation';
 import { useAlertStore, useAuthStore } from '@/shared/store';
-import { AVATAR_ID_TO_URL } from '../constants/avatars';
-import { myPageApi } from '../api/myPage.api';
+import { AVATAR_ID_TO_URL } from '@/features/mypage/constants/avatars';
+import { myPageApi } from '@/features/mypage/api/myPage.api';
 
 type ProfileField = 'name' | 'nickname';
 type ProfileErrors = Partial<Record<ProfileField, string>>;
