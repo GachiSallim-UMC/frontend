@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, Circle } from 'lucide-react';
-import { getChoreTargetDateStr, getChoreUIStatus } from '../hooks/useChoreStatus';
-import type { Chore } from '../types/chore.types';
+import { getChoreTargetDateStr, getChoreUIStatus } from '@/features/chore/hooks/useChoreStatus';
+import type { Chore } from '@/features/chore/types/chore.types';
 
 const STATUS_COLORS = {
   done: 'text-green-700',

@@ -3,7 +3,7 @@ import type {
   ChoreApiCustomOption as CustomOption,
   ChoreApiDayOfWeek as DayOfWeek,
   ChoreApiRepeatType as RepeatType,
-} from '../types/chore.types';
+} from '@/features/chore/types/chore.types';
 
 export const useChoreRepeat = () => {
   const [repeatType, setRepeatType] = useState<RepeatType>('NONE');

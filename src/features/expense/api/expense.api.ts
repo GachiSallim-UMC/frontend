@@ -17,7 +17,7 @@ import type {
   PayLinkResponse,
   BankAccount,
   CreateBankAccountDto,
-} from '@/features/expense';
+} from '@/features/expense/types/expense.types';
 import type { ExpenseStatus } from '@/shared/types';
 
 export interface GetExpensesParams {

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { createPayLink } from '@/features/expense';
-import type { MemberShare } from '@/features/expense';
+import { createPayLink } from '@/features/expense/api/expense.api';
+import type { MemberShare } from '@/features/expense/types/expense.types';
 import { useAlertStore } from '@/shared/store';
 
 const DEEPLINK_FALLBACK_TIMEOUT = 2500;

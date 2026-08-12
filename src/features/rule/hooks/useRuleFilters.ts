@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { RuleStatus } from '@/shared/types';
-import type { Rule, RuleCategory } from '../types/rule.types';
+import type { Rule, RuleCategory } from '@/features/rule/types/rule.types';
 
 /** 생활 규칙 목록 필터링 상태 및 파생 값 */
 export const useRuleFilters = (rules: Rule[]) => {

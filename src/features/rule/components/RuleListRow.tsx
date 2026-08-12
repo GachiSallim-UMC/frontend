@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { MobileListRow, StatusBadge, TableRowActions } from '@/shared/components/ui';
 import { cn } from '@/shared/lib/cn';
-import { RULE_CATEGORY_LABEL } from '../constants/rule.constants';
-import type { Rule } from '../types/rule.types';
+import { RULE_CATEGORY_LABEL } from '@/features/rule/constants/rule.constants';
+import type { Rule } from '@/features/rule/types/rule.types';
 
 interface RuleListRowProps {
   rule: Rule;

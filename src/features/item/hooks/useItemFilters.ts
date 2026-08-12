@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { toSelectOptions } from '@/shared/lib';
-import type { Item, ItemCategory } from '../types/item.types';
+import type { Item, ItemCategory } from '@/features/item/types/item.types';
 
 export const ITEM_CATEGORY_LABEL: Record<ItemCategory, string> = {
   daily: '생필품',

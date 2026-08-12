@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Rule, RuleAgreementApiStatus, RuleUser } from '../types/rule.types';
+import type { Rule, RuleAgreementApiStatus, RuleUser } from '@/features/rule/types/rule.types';
 
 export type MyAgreement = 'agree' | 'disagree' | 'pending';
 export type RuleHistoryType = 'register' | 'agree' | 'edit';

@@ -6,7 +6,7 @@ import type {
   ChoreApiRepeatType,
   CreateChoreDto,
   UpdateChoreDto,
-} from '../types/chore.types';
+} from '@/features/chore/types/chore.types';
 import { isValidDateOnly } from '@/shared/lib/inputValidation';
 
 export interface ChoreFormState {

@@ -3,8 +3,8 @@ import type {
   ChoreApiCustomOption as CustomOption,
   ChoreApiDayOfWeek as DayOfWeek,
   ChoreApiRepeatType as RepeatType,
-} from '../types/chore.types';
-import type { ChoreFormErrors } from '../hooks/useChoreForm';
+} from '@/features/chore/types/chore.types';
+import type { ChoreFormErrors } from '@/features/chore/hooks/useChoreForm';
 import CalendarIcon from '@/assets/icons/chore/calendar.svg';
 import { isUnsignedIntegerInput } from '@/shared/lib/inputValidation';
 import {
@@ -13,7 +13,7 @@ import {
   WEEK_OPTIONS,
   MONTH_OPTIONS,
   DAYS,
-} from '../constants/chore.constants';
+} from '@/features/chore/constants/chore.constants';
 
 interface ChoreRepeatProps {
   repeatType: RepeatType | '';

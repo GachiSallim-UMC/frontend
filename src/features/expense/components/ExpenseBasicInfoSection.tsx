@@ -5,7 +5,7 @@ import type { User } from '@/shared/types';
 import type { ExpenseCategory } from '@/features/expense/types';
 import { CATEGORY_OPTIONS, TODAY_DATE_ONLY } from '@/features/expense/lib/expenseForm.constants';
 import type { ExpenseFieldErrors } from '@/features/expense/lib/expenseFormValidation';
-import { EXPENSE_FORM_CARD_CLASS, EXPENSE_FORM_LABEL_CLASS } from './expenseForm.styles';
+import { EXPENSE_FORM_CARD_CLASS, EXPENSE_FORM_LABEL_CLASS } from '@/features/expense/components/expenseForm.styles';
 
 interface ExpenseBasicInfoSectionProps {
   title: string;

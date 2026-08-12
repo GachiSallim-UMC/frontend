@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { dashboardApi } from '../api/dashboard.api';
+import { dashboardApi } from '@/features/dashboard/api/dashboard.api';
 
 export const useDashboardData = (groupId: number) => {
   return useQuery({

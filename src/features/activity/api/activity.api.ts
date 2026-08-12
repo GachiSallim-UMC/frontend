@@ -1,6 +1,6 @@
 import { apiClient, withSelectedGroupParams } from '@/shared/api';
-import { ACTIVITY_CATEGORIES } from '../types/activity.type';
-import type { ActivityCategory, ActivityLog } from '../types/activity.type';
+import { ACTIVITY_CATEGORIES } from '@/features/activity/types/activity.type';
+import type { ActivityCategory, ActivityLog } from '@/features/activity/types/activity.type';
 
 const BASE = '/activities';
 

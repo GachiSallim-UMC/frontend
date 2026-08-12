@@ -1,6 +1,6 @@
 import type { ExpenseCategory, SettlementMethod } from '@/features/expense/types';
 import { isUnsignedIntegerInput, isValidDateOnly } from '@/shared/lib/inputValidation';
-import { MAX_EXPENSE_AMOUNT, MEMO_MAX_LENGTH, TODAY_DATE_ONLY } from './expenseForm.constants';
+import { MAX_EXPENSE_AMOUNT, MEMO_MAX_LENGTH, TODAY_DATE_ONLY } from '@/features/expense/lib/expenseForm.constants';
 
 export type ExpenseFieldErrors = Partial<
   Record<'title' | 'amount' | 'date' | 'payerId' | 'category' | 'members' | 'memo', string>

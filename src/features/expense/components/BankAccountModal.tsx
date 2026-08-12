@@ -3,8 +3,8 @@ import { Trash2 } from 'lucide-react';
 import { Modal } from '@/shared/components/ui/Modal';
 import { FormInput, Button } from '@/shared/components';
 import { SelectDropdown, type SelectOption } from '@/shared/components/form';
-import { useBankAccounts } from '@/features/expense';
-import { maskAccountNumber } from '@/features/expense';
+import { useBankAccounts } from '@/features/expense/hooks/useBankAccounts';
+import { maskAccountNumber } from '@/features/expense/lib/format';
 
 const BANK_OPTIONS: readonly SelectOption[] = [
   { value: 'KB', label: 'KB국민은행' },

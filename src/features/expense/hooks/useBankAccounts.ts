@@ -4,8 +4,8 @@ import {
   createBankAccount,
   setPrimaryBankAccount,
   deleteBankAccount,
-} from '@/features/expense';
-import type { BankAccount, CreateBankAccountDto } from '@/features/expense';
+} from '@/features/expense/api/expense.api';
+import type { BankAccount, CreateBankAccountDto } from '@/features/expense/types/expense.types';
 import { ApiError } from '@/shared/api';
 import { useAlertStore } from '@/shared/store';
 

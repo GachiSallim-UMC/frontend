@@ -1,13 +1,11 @@
 import { useState } from 'react';
-import {
-  CustomButton,
-  CheckboxModal,
-  SettlementConfirm,
-} from '@/features/expense';
+import { CustomButton } from '@/features/expense/components/CustomButton';
+import { CheckboxModal } from '@/features/expense/components/CheckboxModal';
+import { SettlementConfirm } from '@/features/expense/components/SettlementConfirm';
 import { StatusBadge } from '@/shared/components';
 import { formatDate, useDateFormat } from '@/shared/lib';
-import { useExpenseSettle } from '@/features/expense';
-import type { Expense } from '@/features/expense';
+import { useExpenseSettle } from '@/features/expense/hooks/useExpenseSettle';
+import type { Expense } from '@/features/expense/types/expense.types';
 
 interface ExpenseDetailCardProps {
   expense?: Expense;

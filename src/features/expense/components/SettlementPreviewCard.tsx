@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import TossIcon from '@/assets/icons/expense/toss.svg?react';
 import ExpenseIcon from '@/assets/icons/sidebar/expenses.svg?react';
-import {
-  CustomButton,
-  IconTextButton,
-  SettlementConfirm,
-  useClaimTransferComplete,
-} from '@/features/expense';
-import { useCreatePayLink, useExpenseSettle } from '@/features/expense';
-import type { Expense } from '@/features/expense';
+import { CustomButton } from '@/features/expense/components/CustomButton';
+import { IconTextButton } from '@/features/expense/components/IconTextButton';
+import { SettlementConfirm } from '@/features/expense/components/SettlementConfirm';
+import { useClaimTransferComplete } from '@/features/expense/hooks/useClaimTransferComplete';
+import { useCreatePayLink } from '@/features/expense/hooks/useCreatePayLink';
+import { useExpenseSettle } from '@/features/expense/hooks/useExpenseSettle';
+import type { Expense } from '@/features/expense/types/expense.types';
 import { useAlertStore } from '@/shared/store';
 
 interface SettlementDraft {

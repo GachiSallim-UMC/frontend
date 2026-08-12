@@ -4,8 +4,8 @@ import type { RuleStatus } from '@/shared/types';
 import {
   RULE_CATEGORY_OPTIONS,
   RULE_STATUS_OPTIONS,
-} from '../constants/rule.constants';
-import type { RuleFormErrors, RuleFormValues } from '../lib/ruleFormValidation';
+} from '@/features/rule/constants/rule.constants';
+import type { RuleFormErrors, RuleFormValues } from '@/features/rule/lib/ruleFormValidation';
 
 interface RuleBasicInfoFieldsProps extends RuleFormValues {
   errors: RuleFormErrors;

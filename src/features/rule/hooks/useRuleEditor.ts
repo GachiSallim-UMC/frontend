@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
-import type { Rule } from '../types/rule.types';
-import { useRuleForm } from './useRuleForm';
-import { validateRuleForm, type RuleFormErrors } from '../lib/ruleFormValidation';
+import type { Rule } from '@/features/rule/types/rule.types';
+import { useRuleForm } from '@/features/rule/hooks/useRuleForm';
+import { validateRuleForm, type RuleFormErrors } from '@/features/rule/lib/ruleFormValidation';
 
 export const useRuleEditor = (rule?: Rule) => {
   const { title, setTitle, category, setCategory, content, setContent } = useRuleForm(rule);

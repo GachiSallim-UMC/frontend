@@ -1,8 +1,8 @@
-import { ChoreBasicInfo } from './ChoreBasicInfo';
-import { ChoreMemo } from './ChoreMemo';
-import { ChoreRepeat } from './ChoreRepeat';
-import type { ChoreFormErrors, ChoreFormState } from '../hooks/useChoreForm';
-import type { ChoreApiCategory } from '../types/chore.types';
+import { ChoreBasicInfo } from '@/features/chore/components/ChoreBasicInfo';
+import { ChoreMemo } from '@/features/chore/components/ChoreMemo';
+import { ChoreRepeat } from '@/features/chore/components/ChoreRepeat';
+import type { ChoreFormErrors, ChoreFormState } from '@/features/chore/hooks/useChoreForm';
+import type { ChoreApiCategory } from '@/features/chore/types/chore.types';
 
 interface ChoreAssigneeOption {
   value: string;

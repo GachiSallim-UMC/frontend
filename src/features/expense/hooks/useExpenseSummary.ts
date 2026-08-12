@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Expense } from '@/features/expense';
+import type { Expense } from '@/features/expense/types/expense.types';
 
 export function useExpenseSummary(expenses: Expense[] = [], currentUserId?: string) {
   return React.useMemo(() => {
