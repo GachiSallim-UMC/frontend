@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {SocialBadge, SocialLoginInput, authApi } from '@/features/auth';
 import type {SocialProvider, SocialFormDto } from '@/features/auth';
 import { ApiError } from '@/shared/api';
@@ -29,6 +29,23 @@ export const SocialLoginPage = () => {
 
     const [agreedTerms, setAgreedTerms] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // 이용약관/개인정보처리방침 페이지에서 돌아왔을 때 입력값 & 동의 상태 복원
+    useEffect(() => {
+        const state = location.state as { formData?: SocialFormDto; agreed?: boolean } | null;
+        if (!state) return;
+
+        if (state.formData) {
+            setFormData(state.formData);
+        }
+
+        if (state.agreed !== undefined) {
+            setAgreedTerms(state.agreed ? ['terms'] : []);
+        }
+    }, [location.state]);
+
+    // 이용약관/개인정보처리방침 페이지로 이동했다가 돌아왔을 때 소셜 인증 정보가 유실되지 않도록 함께 전달
+    const legalState = { provider, email, accessToken, idToken, refreshToken, expiresIn };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -130,6 +147,7 @@ export const SocialLoginPage = () => {
                         onAgreedTermsChange={setAgreedTerms}
                         onSubmit={handleSubmit}
                         isSubmitting={isSubmitting}
+                        legalState={legalState}
                     />
 
                     <div className="mt-4 flex justify-center gap-2 text-mobile-body font-medium">
@@ -171,6 +189,7 @@ export const SocialLoginPage = () => {
                         onAgreedTermsChange={setAgreedTerms}
                         onSubmit={handleSubmit}
                         isSubmitting={isSubmitting}
+                        legalState={legalState}
                     />
 
                     { /* 로그인 페이지 이동 링크 */}
