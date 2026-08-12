@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { REALTIME_POLL_INTERVAL_MS } from '@/shared/lib';
+import { REALTIME_POLL_INTERVAL_MS, SHARED_QUERY_ROOTS } from '@/shared/lib';
+import { useGroupStore } from '@/shared/store';
 import { activityApi } from '@/features/activity/api/activity.api';
 import { groupByDate, matchesPeriod } from '@/features/activity/lib/activityDate';
 import type { ActivityCategory } from '@/features/activity/types/activity.type';
@@ -32,9 +33,12 @@ const ALL_MEMBERS_LABEL = '전체 멤버';
 const PAGE_SIZE = 10;
 
 const ACTIVITY_LOG_KEYS = {
-  all: ['activityLogs'] as const,
-  list: (type: ActivityCategory | null, userId: number | undefined) =>
-    [...ACTIVITY_LOG_KEYS.all, 'list', type, userId] as const,
+  all: SHARED_QUERY_ROOTS.activityLogs,
+  list: (
+    groupId: string | null,
+    type: ActivityCategory | null,
+    userId: number | undefined,
+  ) => [...ACTIVITY_LOG_KEYS.all, 'list', groupId, type, userId] as const,
 };
 
 /** 닉네임은 유일하지 않을 수 있어(동명이인) 필터 매칭용 라벨을 id 기준으로 유일하게 만듦 */
@@ -53,10 +57,16 @@ const buildMemberOptions = (seen: Map<number, string>): ActivityMemberOption[] =
 };
 
 export const useActivityLog = () => {
+  const groupId = useGroupStore(state => state.selectedGroupId);
   const [typeFilter, setTypeFilterOption] = useState<TypeFilterOption>(TYPE_FILTER_OPTIONS[0]);
   const [memberFilter, setMemberFilterOption] = useState<ActivityMemberOption | null>(null);
   const [periodFilter, setPeriodFilter] = useState<string>(PERIOD_OPTIONS[0]);
   const [seenMembers, setSeenMembers] = useState<Map<number, string>>(new Map());
+
+  useEffect(() => {
+    setMemberFilterOption(null);
+    setSeenMembers(new Map());
+  }, [groupId]);
 
   const {
     data,
@@ -68,7 +78,7 @@ export const useActivityLog = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ACTIVITY_LOG_KEYS.list(typeFilter.value, memberFilter?.id),
+    queryKey: ACTIVITY_LOG_KEYS.list(groupId, typeFilter.value, memberFilter?.id),
     queryFn: ({ pageParam }) =>
       activityApi.getList({
         type: typeFilter.value ?? undefined,
@@ -78,6 +88,7 @@ export const useActivityLog = () => {
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.data.length === PAGE_SIZE ? allPages.length + 1 : undefined,
+    enabled: Boolean(groupId),
     // 1페이지만 폴링 (여러 페이지 폴링 시 새 항목으로 경계가 밀려 중복 표시될 수 있음)
     refetchInterval: query => (query.state.data?.pages.length === 1 ? REALTIME_POLL_INTERVAL_MS : false),
     meta: { skipGlobalError: true }, // 에러는 isError로 인라인 표시하므로 전역 모달 생략

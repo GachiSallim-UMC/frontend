@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { invalidateGroupOverviewQueries } from '@/shared/lib';
 import { useAlertStore } from '@/shared/store';
 import { settleExpenseSplit } from '@/features/expense/api/expense.api';
 import type { Expense } from '@/features/expense/types/expense.types';
@@ -45,6 +46,28 @@ export const settleMyExpenseShare = async (
   }
 };
 
+/** 메신저 공유 카드에서도 정산 캐시 갱신을 빠뜨리지 않도록 제공하는 표준 mutation입니다. */
+export const useSettleMyExpenseShare = () => {
+  const queryClient = useQueryClient();
+  const { userId, groupId } = useExpenseQueryScope();
+
+  return useMutation({
+    mutationFn: ({ expense, currentUserId }: { expense: Expense; currentUserId: string }) =>
+      settleMyExpenseShare(expense, currentUserId),
+    onSuccess: async (result, { expense }) => {
+      if (!result.ok) return;
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) }),
+        queryClient.invalidateQueries({
+          queryKey: expenseKeys.detail(userId, groupId, expense.id),
+        }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
+    },
+  });
+};
+
 export const useExpenseSettle = (
   expense?: Expense,
   onRefresh?: () => void
@@ -56,15 +79,19 @@ export const useExpenseSettle = (
   const { userId, groupId } = useExpenseQueryScope();
 
   const refreshExpenses = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: expenseKeys.lists(userId, groupId),
-    });
-
-    if (expense?.id) {
-      await queryClient.invalidateQueries({
-        queryKey: expenseKeys.detail(userId, groupId, expense.id),
-      });
-    }
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: expenseKeys.lists(userId, groupId),
+      }),
+      ...(expense?.id
+        ? [
+            queryClient.invalidateQueries({
+              queryKey: expenseKeys.detail(userId, groupId, expense.id),
+            }),
+          ]
+        : []),
+      invalidateGroupOverviewQueries(queryClient, groupId),
+    ]);
 
     onRefresh?.();
   };

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { invalidateGroupOverviewQueries } from '@/shared/lib';
 import { useGroupStore } from '@/shared/store';
 import { ruleApi } from '@/features/rule/api/rule.api';
 import type { CreateRuleDto, UpdateRuleAgreementDto, UpdateRuleDto } from '@/features/rule/types/rule.types';
@@ -28,43 +29,63 @@ export const useRuleDetail = (id: string) =>
 
 export const useCreateRule = () => {
   const queryClient = useQueryClient();
+  const groupId = useGroupStore(state => state.selectedGroupId);
 
   return useMutation({
     mutationFn: (dto: CreateRuleDto) => ruleApi.create(dto),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: RULE_KEYS.all }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: RULE_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
+    },
   });
 };
 
 export const useUpdateRule = () => {
   const queryClient = useQueryClient();
+  const groupId = useGroupStore(state => state.selectedGroupId);
 
   return useMutation({
     mutationFn: ({ id, dto }: { id: string; dto: UpdateRuleDto }) => ruleApi.update(id, dto),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: RULE_KEYS.all });
-      queryClient.invalidateQueries({ queryKey: RULE_KEYS.detail(variables.id) });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: RULE_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: RULE_KEYS.detail(variables.id) }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
     },
   });
 };
 
 export const useUpdateRuleAgreement = () => {
   const queryClient = useQueryClient();
+  const groupId = useGroupStore(state => state.selectedGroupId);
 
   return useMutation({
     mutationFn: ({ id, dto }: { id: string; dto: UpdateRuleAgreementDto }) =>
       ruleApi.updateAgreement(id, dto),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: RULE_KEYS.all });
-      queryClient.invalidateQueries({ queryKey: RULE_KEYS.detail(variables.id) });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: RULE_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: RULE_KEYS.detail(variables.id) }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
     },
   });
 };
 
 export const useDeleteRule = () => {
   const queryClient = useQueryClient();
+  const groupId = useGroupStore(state => state.selectedGroupId);
 
   return useMutation({
     mutationFn: ruleApi.remove,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: RULE_KEYS.all }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: RULE_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
+    },
   });
 };

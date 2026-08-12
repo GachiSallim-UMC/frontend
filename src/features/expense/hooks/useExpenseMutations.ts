@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { invalidateGroupOverviewQueries } from '@/shared/lib';
 import { createExpense, updateExpense, deleteExpense } from '@/features/expense/api/expense.api';
 import type { CreateExpenseDto, UpdateExpenseDto, Expense } from '@/features/expense/types/expense.types';
 import { expenseKeys } from '@/features/expense/hooks/expense.keys';
@@ -10,8 +11,11 @@ export function useCreateExpense() {
 
   return useMutation<Expense, unknown, CreateExpenseDto>({
     mutationFn: dto => createExpense(dto),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
     },
   });
 }
@@ -22,11 +26,14 @@ export function useUpdateExpense() {
 
   return useMutation<Expense, unknown, { id: number | string; dto: UpdateExpenseDto }>({
     mutationFn: ({ id, dto }) => updateExpense(id, dto),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) });
-      queryClient.invalidateQueries({
-        queryKey: expenseKeys.detail(userId, groupId, variables.id),
-      });
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) }),
+        queryClient.invalidateQueries({
+          queryKey: expenseKeys.detail(userId, groupId, variables.id),
+        }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
     },
   });
 }
@@ -37,8 +44,11 @@ export function useDeleteExpense() {
 
   return useMutation<void, unknown, number | string>({
     mutationFn: id => deleteExpense(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
     },
   });
 }
