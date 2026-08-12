@@ -64,9 +64,15 @@ export const SelectDropdown = <T extends string>({
   const listboxId = `${inputId}-listbox`;
   const optionId = (index: number) => `${inputId}-option-${index}`;
 
-  const { isOpen, dropUp, containerRef, open, close, toggle } = useDropdown({
-    menuMaxHeight: MENU_MAX_HEIGHT,
-  });
+  const {
+    isOpen,
+    dropUp,
+    availableMenuHeight,
+    containerRef,
+    open,
+    close,
+    toggle,
+  } = useDropdown({ menuMaxHeight: MENU_MAX_HEIGHT });
   const selectedIndex = options.findIndex(option => option.value === value);
   const [activeIndex, setActiveIndex] = useState(selectedIndex);
   const listRef = useRef<HTMLUListElement>(null);
@@ -79,7 +85,20 @@ export const SelectDropdown = <T extends string>({
 
   useEffect(() => {
     if (!isOpen || activeIndex < 0) return;
-    listRef.current?.children[activeIndex]?.scrollIntoView({ block: 'nearest' });
+    const list = listRef.current;
+    const option = list?.children[activeIndex];
+    if (!list || !(option instanceof HTMLElement)) return;
+
+    // scrollIntoView는 모달처럼 바깥쪽에도 스크롤 컨테이너가 있으면
+    // 드롭다운뿐 아니라 모달 전체까지 움직여 메뉴 상단을 잘라낼 수 있다.
+    // 목록 자체의 scrollTop만 조정해 활성 옵션을 노출한다.
+    const optionTop = option.offsetTop;
+    const optionBottom = optionTop + option.offsetHeight;
+    if (optionTop < list.scrollTop) {
+      list.scrollTop = optionTop;
+    } else if (optionBottom > list.scrollTop + list.clientHeight) {
+      list.scrollTop = optionBottom - list.clientHeight;
+    }
   }, [activeIndex, isOpen]);
 
   const selectAt = (index: number) => {
@@ -186,7 +205,7 @@ export const SelectDropdown = <T extends string>({
             id={listboxId}
             role="listbox"
             aria-label={label}
-            style={{ maxHeight: MENU_MAX_HEIGHT }}
+            style={{ maxHeight: availableMenuHeight }}
             className={cn(
               'absolute left-0 right-0 z-20 overflow-y-auto rounded-lg border border-gray-100 bg-white py-1 shadow-dropdown',
               dropUp ? 'bottom-full mb-1.5' : 'top-full mt-1.5',
