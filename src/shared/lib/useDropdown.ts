@@ -12,6 +12,7 @@ interface UseDropdownOptions {
 export const useDropdown = ({ menuMaxHeight = 0 }: UseDropdownOptions = {}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropUp, setDropUp] = useState(false);
+  const [availableMenuHeight, setAvailableMenuHeight] = useState(menuMaxHeight);
   const containerRef = useRef<HTMLDivElement>(null);
 
   /** 뷰포트와 스크롤 조상 중 더 좁은 아래 공간을 기준으로 방향을 정합니다. */
@@ -21,16 +22,25 @@ export const useDropdown = ({ menuMaxHeight = 0 }: UseDropdownOptions = {}) => {
     if (!element) return;
 
     const rect = element.getBoundingClientRect();
+    let topBoundary = 0;
     let bottomBoundary = window.innerHeight;
     for (let parent = element.parentElement; parent; parent = parent.parentElement) {
       const { overflowY } = getComputedStyle(parent);
       if (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'hidden') {
-        bottomBoundary = Math.min(bottomBoundary, parent.getBoundingClientRect().bottom);
+        const parentRect = parent.getBoundingClientRect();
+        topBoundary = Math.max(topBoundary, parentRect.top);
+        bottomBoundary = Math.min(bottomBoundary, parentRect.bottom);
       }
     }
 
+    const spaceAbove = rect.top - topBoundary;
     const spaceBelow = bottomBoundary - rect.bottom;
-    setDropUp(spaceBelow < menuMaxHeight && rect.top > spaceBelow);
+    const shouldDropUp = spaceBelow < menuMaxHeight && spaceAbove > spaceBelow;
+    const availableSpace = shouldDropUp ? spaceAbove : spaceBelow;
+    setDropUp(shouldDropUp);
+    // 메뉴와 트리거 사이 간격(0.375rem = 6px)을 제외한 실제 공간만 사용해
+    // 스크롤 모달의 둥근 경계 밖으로 목록이 잘리지 않게 한다.
+    setAvailableMenuHeight(Math.max(0, Math.min(menuMaxHeight, availableSpace - 6)));
   }, [menuMaxHeight]);
 
   const open = useCallback(() => {
@@ -67,5 +77,13 @@ export const useDropdown = ({ menuMaxHeight = 0 }: UseDropdownOptions = {}) => {
     };
   }, [isOpen, updateDirection]);
 
-  return { isOpen, dropUp, containerRef, open, close, toggle };
+  return {
+    isOpen,
+    dropUp,
+    availableMenuHeight,
+    containerRef,
+    open,
+    close,
+    toggle,
+  };
 };
