@@ -12,6 +12,7 @@ app  →  pages  →  features  →  shared
 - `shared`는 어떤 도메인(`features`)도 import 하지 않습니다. (역방향 금지)
 - 도메인끼리 직접 참조하지 않습니다. 도메인 간 조합이 필요하면 `pages`에서 합칩니다.
 - 도메인 외부에서는 `features/<domain>/index.ts`(public API)만 import 합니다. 내부 파일(`api`, `hooks`)을 직접 가져오지 마세요.
+- 같은 도메인 내부에서는 자기 `index.ts`를 경유하지 않고 `@/features/<domain>/...` 절대경로로 내부 모듈을 참조합니다.
 
 ```ts
 // ✅ Good
@@ -19,6 +20,9 @@ import { useChores, ChoreTable } from '@/features/chore';
 
 // ❌ Bad — 내부 파일 직접 접근
 import { choreApi } from '@/features/chore/api/chore.api';
+
+// ✅ Good — chore 도메인 내부
+import type { Chore } from '@/features/chore/types/chore.types';
 ```
 
 ## 2. 네이밍
@@ -55,9 +59,8 @@ import { choreApi } from '@/features/chore/api/chore.api';
 
 1. 외부 라이브러리 (react, 라이브러리)
 2. 내부 절대경로 (`@/shared`, `@/features`)
-3. 상대경로 (`./`, `../`)
 
-절대경로 alias `@/*` → `src/*` 를 사용합니다. (`../../../` 금지)
+모든 내부 모듈 접근에는 절대경로 alias `@/*` → `src/*`를 사용합니다. `./`, `../`, `../../../` 등의 상대경로 import는 사용하지 않습니다.
 
 ## 5. 커밋 컨벤션
 
@@ -85,11 +88,17 @@ import { choreApi } from '@/features/chore/api/chore.api';
 ```
 main          # 배포 가능한 안정 버전
  └─ develop       # 통합 개발 브랜치
-     └─ feature/<이슈번호>-<도메인>-<기능>   # 기능 단위 작업
+     ├─ feature/<이슈번호>-<도메인>-<기능>   # 기능 추가
+     ├─ fix/<이슈번호>-<기능>                # 버그 수정
+     ├─ design/<이슈번호>-<기능>             # UI·디자인 수정
+     ├─ refactor/<이슈번호>-<기능>           # 리팩토링
+     ├─ docs/<이슈번호>-<기능>               # 문서 수정
+     └─ chore/<이슈번호>-<기능>              # 설정·기타 작업
 ```
 
 - 이슈번호는 **필수**입니다. 반드시 관련 이슈를 먼저 만들고 브랜치를 딴 뒤 작업합니다.
-- 예: `feature/7-chore-list`, `feature/12-expense-form`, `fix/23-button`, `docs/4-readme`
+- 형식: `<type>/<이슈번호>-<도메인 또는 기능>-<요약>`
+- 예: `feature/7-chore-list`, `feature/12-expense-form`, `fix/23-button`, `docs/222-project-conventions`
 - 작업은 `develop`에서 분기 → 완료 후 `develop`로 PR.
 - `develop` → `main` 머지는 배포 시점에만.
 
