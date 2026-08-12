@@ -10,15 +10,17 @@ interface SocialLoginInputProps {
     agreedTerms: string[];
     onAgreedTermsChange: (value: string[]) => void;
     isSubmitting?: boolean;
+    legalState?: Record<string, unknown>;
 }
 
-export const SocialLoginInput = ({ 
-    onSubmit, 
-    formData, 
+export const SocialLoginInput = ({
+    onSubmit,
+    formData,
     onFormDataChange,
     agreedTerms,
     onAgreedTermsChange,
     isSubmitting = false,
+    legalState,
  }: SocialLoginInputProps) => {
     // 약관 동의 여부 확인
     const isAgree = agreedTerms.includes('terms');
@@ -96,9 +98,9 @@ export const SocialLoginInput = ({
                                 value: 'terms',
                                 label: (
                                     <span className="text-mobile-body font-medium text-gray-500 select-none lg:text-base">
-                                        <Link to="/terms" state={{formData}} className="text-primary-500 hover:underline">이용약관</Link>
+                                        <Link to="/terms" state={{ ...legalState, formData, from: '/social-signup' }} className="text-primary-500 hover:underline">이용약관</Link>
                                         {' '}및{' '}
-                                        <Link to="/privacy" state={{formData}} className="text-primary-500 hover:underline">개인정보처리방침</Link>
+                                        <Link to="/privacy" state={{ ...legalState, formData, from: '/social-signup' }} className="text-primary-500 hover:underline">개인정보처리방침</Link>
                                         에 동의합니다.
                                     </span>
                                 ),

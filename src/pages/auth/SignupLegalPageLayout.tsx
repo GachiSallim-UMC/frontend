@@ -1,9 +1,9 @@
 import type { ComponentType } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { SignupFormData } from '@/features/auth';
 
-interface SignupNavigationState {
-  formData?: SignupFormData;
+interface LegalNavigationState {
+  from?: string;
+  [key: string]: unknown;
 }
 
 interface LegalHeaderProps {
@@ -29,10 +29,10 @@ export const SignupLegalPageLayout = ({
 }: SignupLegalPageLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const formData = (location.state as SignupNavigationState | null)?.formData;
+  const { from, ...restState } = (location.state as LegalNavigationState | null) ?? {};
 
   const returnToSignup = (agreed: boolean) => {
-    navigate('/signup', { state: { agreed, formData } });
+    navigate(from ?? '/signup', { state: { ...restState, agreed } });
   };
 
   return (
