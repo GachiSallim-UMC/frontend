@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { getReceiptViewUrl } from '../api/expense.api';
-import { expenseKeys } from './expense.keys';
-import { useExpenseQueryScope } from './useExpenseQueryScope';
+import { getReceiptViewUrl } from '@/features/expense/api/expense.api';
+import { expenseKeys } from '@/features/expense/hooks/expense.keys';
+import { useExpenseQueryScope } from '@/features/expense/hooks/useExpenseQueryScope';
 
 export const useReceiptViewUrl = (expenseId?: number | string) => {
   const { userId, groupId } = useExpenseQueryScope();

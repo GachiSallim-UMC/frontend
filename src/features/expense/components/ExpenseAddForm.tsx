@@ -8,13 +8,13 @@ import { useExpenseSettle } from '@/features/expense/hooks/useExpenseSettle';
 import { useSettlementAmounts } from '@/features/expense/hooks/useSettlementAmounts';
 import type { Expense, ExpenseCategory, SettlementMethod } from '@/features/expense/types';
 import type { User } from '@/shared/types';
-import { ExpenseBasicInfoSection } from './ExpenseBasicInfoSection';
-import { ExpenseFormActions } from './ExpenseFormActions';
-import { ExpenseMemberSplitFields } from './ExpenseMemberSplitFields';
-import { ExpenseMemberOption } from './ExpenseMemberOption';
-import { ExpenseMemoField } from './ExpenseMemoField';
-import { ExpenseSettlementPreview } from './ExpenseSettlementPreview';
-import { EXPENSE_FORM_CARD_CLASS } from './expenseForm.styles';
+import { ExpenseBasicInfoSection } from '@/features/expense/components/ExpenseBasicInfoSection';
+import { ExpenseFormActions } from '@/features/expense/components/ExpenseFormActions';
+import { ExpenseMemberSplitFields } from '@/features/expense/components/ExpenseMemberSplitFields';
+import { ExpenseMemberOption } from '@/features/expense/components/ExpenseMemberOption';
+import { ExpenseMemoField } from '@/features/expense/components/ExpenseMemoField';
+import { ExpenseSettlementPreview } from '@/features/expense/components/ExpenseSettlementPreview';
+import { EXPENSE_FORM_CARD_CLASS } from '@/features/expense/components/expenseForm.styles';
 
 interface ExpenseAddFormProps {
   members: User[];

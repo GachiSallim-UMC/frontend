@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useGroupStore } from '@/shared/store';
-import { ruleApi } from '../api/rule.api';
-import type { CreateRuleDto, UpdateRuleAgreementDto, UpdateRuleDto } from '../types/rule.types';
+import { ruleApi } from '@/features/rule/api/rule.api';
+import type { CreateRuleDto, UpdateRuleAgreementDto, UpdateRuleDto } from '@/features/rule/types/rule.types';
 
 const RULE_KEYS = {
   all: ['rules'] as const,

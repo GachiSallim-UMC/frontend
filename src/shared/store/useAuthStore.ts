@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
-import { useAutoLoginStore } from './useAutoLoginStore';
+import { useAutoLoginStore } from '@/shared/store/useAutoLoginStore';
 
 interface AuthState {
   accessToken: string | null;

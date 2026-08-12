@@ -7,8 +7,8 @@ import {
   type Column,
 } from '@/shared/components/ui';
 import { formatDate, useDateFormat } from '@/shared/lib';
-import { ITEM_CATEGORY_LABEL } from '../hooks/useItemFilters';
-import type { Item, ItemCategory } from '../types/item.types';
+import { ITEM_CATEGORY_LABEL } from '@/features/item/hooks/useItemFilters';
+import type { Item, ItemCategory } from '@/features/item/types/item.types';
 
 interface ItemTableProps {
   items: Item[];

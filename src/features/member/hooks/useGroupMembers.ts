@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { memberApi } from '../api/member.api';
+import { memberApi } from '@/features/member/api/member.api';
 import { useAuthStore } from '@/shared/store';
 
 export const GROUP_MEMBER_QUERY_KEYS = {

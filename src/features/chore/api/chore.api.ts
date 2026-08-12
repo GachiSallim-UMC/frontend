@@ -18,7 +18,7 @@ import type {
   RepeatType,
   UpdateChoreDto,
   IncompleteChoreResponse,
-} from '../types/chore.types';
+} from '@/features/chore/types/chore.types';
 
 const BASE = '/chores';
 

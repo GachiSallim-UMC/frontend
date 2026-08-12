@@ -1,5 +1,5 @@
 import { apiClient, withSelectedGroupParams } from '@/shared/api';
-import type { Notification, NotificationResponse } from '../types/notification.type';
+import type { Notification, NotificationResponse } from '@/features/notification/types/notification.type';
 
 const BASE = '/notifications';
 

@@ -1,7 +1,7 @@
 import { Button } from '@/shared/components';
 import type { Group } from '@/features/member/types/member.types';
-import { getResidenceLabel } from '../../constants/member.constants';
-import { ResidenceTypeIcon } from './ResidenceTypeIcon';
+import { getResidenceLabel } from '@/features/member/constants/member.constants';
+import { ResidenceTypeIcon } from '@/features/member/components/GroupSelect/ResidenceTypeIcon';
 
 interface GroupCardProps {
   group: Group;

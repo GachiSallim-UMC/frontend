@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GroupPageShell } from './GroupPageShell';
+import { GroupPageShell } from '@/pages/member/GroupPageShell';
 import {
   type AddGroupDto,
   AddGroupActions,

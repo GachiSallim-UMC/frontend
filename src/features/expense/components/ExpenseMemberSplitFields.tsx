@@ -1,7 +1,7 @@
 import type { SettlementMethod } from '@/features/expense/types';
 import { CheckboxGroup, SelectDropdown, type CheckboxOption } from '@/shared/components/form';
 import { SPLIT_METHOD_OPTIONS, formatWon } from '@/features/expense/lib/expenseForm.constants';
-import { EXPENSE_FORM_LABEL_CLASS } from './expenseForm.styles';
+import { EXPENSE_FORM_LABEL_CLASS } from '@/features/expense/components/expenseForm.styles';
 
 interface ExpenseMemberSplitFieldsProps {
   settlementMethod: SettlementMethod;

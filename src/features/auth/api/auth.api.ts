@@ -1,14 +1,15 @@
 import { ApiError, apiClient } from '@/shared/api';
-import type { 
-  LoginDto, 
-  LoginResponsePayload, 
+import type {
+  LoginDto,
+  LoginResponsePayload,
   MeResponsePayload,
   SignupDto,
   SocialFormDto,
   ForgotPasswordDto,
   SignupConfirmDto,
   SignupResendDto,
-  ResetPasswordDto } from '../types/auth.type';
+  ResetPasswordDto,
+} from '@/features/auth/types/auth.type';
 
 const BASE = '/auth';
 

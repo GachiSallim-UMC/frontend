@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { getExpenseById } from '../api/expense.api';
-import { expenseKeys } from './expense.keys';
-import { useExpenseQueryScope } from './useExpenseQueryScope';
+import { getExpenseById } from '@/features/expense/api/expense.api';
+import { expenseKeys } from '@/features/expense/hooks/expense.keys';
+import { useExpenseQueryScope } from '@/features/expense/hooks/useExpenseQueryScope';
 
 export const useExpenseDetail = (expenseId?: string) => {
   const { userId, groupId } = useExpenseQueryScope();

@@ -22,7 +22,7 @@ import { Button, SummaryCard } from '@/shared/components/ui';
 import totalExpenseIcon from '@/assets/icons/expense/totalexpense.svg';
 import receiveIcon from '@/assets/icons/expense/recive.svg';
 import payIcon from '@/assets/icons/expense/pay.svg';
-import { enrichExpenseWithMembers, mapGroupMembersToUsers } from './expenseMembers';
+import { enrichExpenseWithMembers, mapGroupMembersToUsers } from '@/pages/expense/expenseMembers';
 
 export const ExpenseListPage = () => {
   const [activeFilter, setActiveFilter] =

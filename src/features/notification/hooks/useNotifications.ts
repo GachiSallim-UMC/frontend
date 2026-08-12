@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { NOTIFICATION_CATEGORIES, notificationApi } from '@/features/notification/api/notification.api';
 import { REALTIME_POLL_INTERVAL_MS } from '@/shared/lib';
 import { useGroupStore } from '@/shared/store';
-import { useMarkAllNotificationsRead } from './useMarkAllNotificationsRead';
+import { useMarkAllNotificationsRead } from '@/features/notification/hooks/useMarkAllNotificationsRead';
 
 export const NOTIFICATION_QUERY_KEYS = {
   all: ['notifications'] as const,

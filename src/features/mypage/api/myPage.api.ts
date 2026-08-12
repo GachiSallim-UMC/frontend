@@ -1,5 +1,5 @@
 import { apiClient, ApiError } from '@/shared/api';
-import type { UpdateProfileDto, NotificationPreferencesDto } from '../types/mypage.types';
+import type { UpdateProfileDto, NotificationPreferencesDto } from '@/features/mypage/types/mypage.types';
 import { isAccountProfile, type AccountProfile } from '@/shared/types';
 
 const extractFilename = (contentDisposition?: string): string | null => {

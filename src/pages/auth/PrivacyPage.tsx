@@ -1,5 +1,5 @@
 import { PrivacyButtonGroup, PrivacyContent, PrivacyHeader } from '@/features/auth';
-import { SignupLegalPageLayout } from './SignupLegalPageLayout';
+import { SignupLegalPageLayout } from '@/pages/auth/SignupLegalPageLayout';
 
 export const PrivacyPage = () => (
   <SignupLegalPageLayout

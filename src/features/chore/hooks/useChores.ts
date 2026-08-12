@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { choreApi, toChore } from '../api/chore.api';
-import type { CreateChoreDto, GetChoresParams, UpdateChoreDto } from '../types/chore.types';
+import { choreApi, toChore } from '@/features/chore/api/chore.api';
+import type { CreateChoreDto, GetChoresParams, UpdateChoreDto } from '@/features/chore/types/chore.types';
 
 const CHORE_KEYS = {
   all: ['chores'] as const,

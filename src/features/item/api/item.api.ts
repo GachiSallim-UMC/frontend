@@ -14,7 +14,7 @@ import type {
   SupplyStatus,
   UpdateItemDto,
   UpdateItemStatusDto,
-} from '../types/item.types';
+} from '@/features/item/types/item.types';
 
 const BASE = '/supplies';
 

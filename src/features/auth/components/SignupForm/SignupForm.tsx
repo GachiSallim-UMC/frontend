@@ -1,8 +1,8 @@
 import type { ChangeEvent, FormEvent, SyntheticEvent } from 'react';
 import type { SignupFormData, SignupFormErrors } from '@/features/auth/types/auth.type';
 import { isUnsignedIntegerInput } from '@/shared/lib/inputValidation';
-import { SignupAccountStep } from './SignupAccountStep';
-import { SignupVerificationStep } from './SignupVerificationStep';
+import { SignupAccountStep } from '@/features/auth/components/SignupForm/SignupAccountStep';
+import { SignupVerificationStep } from '@/features/auth/components/SignupForm/SignupVerificationStep';
 
 interface SignupFormProps {
   variant: 'mobile' | 'desktop';

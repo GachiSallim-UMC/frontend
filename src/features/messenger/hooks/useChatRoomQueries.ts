@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { messengerApi } from '@/features/messenger/api/messenger.api';
-import type { MemberLookup } from './messenger.mappers';
-import { toChatMessage, toChatRoomDetail, toChatRoomSummary } from './messenger.mappers';
+import type { MemberLookup } from '@/features/messenger/hooks/messenger.mappers';
+import { toChatMessage, toChatRoomDetail, toChatRoomSummary } from '@/features/messenger/hooks/messenger.mappers';
 
 export const MESSENGER_QUERY_KEYS = {
   all: ['messenger'] as const,

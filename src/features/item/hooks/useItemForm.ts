@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { EditableItemStatus, Item, ItemCategory } from '../types/item.types';
+import type { EditableItemStatus, Item, ItemCategory } from '@/features/item/types/item.types';
 
 export const ITEM_STATUS_OPTIONS: { value: EditableItemStatus; label: string }[] = [
   { value: 'enough', label: '충분' },

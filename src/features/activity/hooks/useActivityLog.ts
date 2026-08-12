@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { REALTIME_POLL_INTERVAL_MS } from '@/shared/lib';
-import { activityApi } from '../api/activity.api';
-import { groupByDate, matchesPeriod } from '../lib/activityDate';
-import type { ActivityCategory } from '../types/activity.type';
+import { activityApi } from '@/features/activity/api/activity.api';
+import { groupByDate, matchesPeriod } from '@/features/activity/lib/activityDate';
+import type { ActivityCategory } from '@/features/activity/types/activity.type';
 
 interface ActivityMemberOption {
   id: number;

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { GroupNavigationBar } from '@/features/member';
-import { GroupPageHeader } from './GroupPageHeader';
+import { GroupPageHeader } from '@/pages/member/GroupPageHeader';
 
 interface GroupPageShellProps {
   /** 모바일 상단 바 제목 */

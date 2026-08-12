@@ -2,9 +2,9 @@ import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAlertStore, useGroupStore } from '@/shared/store';
 import type { ShareableOption, ShareCardType } from '@/features/messenger/types';
-import { CARD_TYPE_BY_SHARE_TYPE } from './messenger.mappers';
-import { useChatRooms } from './useChatRoomQueries';
-import { useSendCardMessage } from './useChatRoomMutations';
+import { CARD_TYPE_BY_SHARE_TYPE } from '@/features/messenger/hooks/messenger.mappers';
+import { useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
+import { useSendCardMessage } from '@/features/messenger/hooks/useChatRoomMutations';
 
 /** 도메인(집안일/정산/물품/규칙) 공통 "메신저에 공유" 흐름 — 방 선택 모달 오픈부터 카드 전송까지 */
 export const useShareToMessenger = (type: ShareCardType) => {

@@ -5,8 +5,8 @@ import type {
   Expense,
   ExpenseCategory,
   SettlementMethod,
-} from '../types/expense.types';
-import { useCreateExpense, useUpdateExpense } from './useExpenseMutations';
+} from '@/features/expense/types/expense.types';
+import { useCreateExpense, useUpdateExpense } from '@/features/expense/hooks/useExpenseMutations';
 
 const normalizeNumericInput = (value: string) => {
   const normalized = value.replace(/,/g, '').trim();

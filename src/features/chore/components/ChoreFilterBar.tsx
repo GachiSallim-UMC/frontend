@@ -4,11 +4,11 @@ import { Plus } from 'lucide-react';
 import { FilterDropdown } from '@/shared/components/ui/Button';
 import { SearchInput } from '@/shared/components/ui/SearchInput';
 import { Button } from '@/shared/components/ui/Button';
-import type { ChoreFilter } from '../types/chore.types';
+import type { ChoreFilter } from '@/features/chore/types/chore.types';
 import {
   CHORE_STATUS_FILTER_OPTIONS,
   CHORE_REPEAT_FILTER_OPTIONS,
-} from '../constants/chore.constants';
+} from '@/features/chore/constants/chore.constants';
 
 interface AssigneeFilterOption {
   id: string;

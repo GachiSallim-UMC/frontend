@@ -1,5 +1,5 @@
 import type { ChangeEvent, FormEvent } from 'react';
-import type { ResetPasswordFormData } from '@/features/auth';
+import type { ResetPasswordFormData } from '@/features/auth/types/auth.type';
 import { FormInput } from '@/shared/components/form';
 import { Button } from '@/shared/components/ui';
 import WarningIcon from "@/assets/icons/login/warning.svg?react"

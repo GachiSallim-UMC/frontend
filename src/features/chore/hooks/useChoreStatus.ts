@@ -1,4 +1,4 @@
-import type { Chore } from '../types/chore.types';
+import type { Chore } from '@/features/chore/types/chore.types';
 
 // 기준일 구하기
 export const getChoreTargetDateStr = (chore: Chore) => {

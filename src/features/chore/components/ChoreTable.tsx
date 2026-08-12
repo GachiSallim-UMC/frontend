@@ -6,8 +6,8 @@ import {
   UserAvatar,
   type Column,
 } from '@/shared/components/ui';
-import type { Chore } from '../types/chore.types';
-import { getChoreUIStatus } from '../hooks/useChoreStatus';
+import type { Chore } from '@/features/chore/types/chore.types';
+import { getChoreUIStatus } from '@/features/chore/hooks/useChoreStatus';
 
 interface ChoreTableProps {
   chores: Chore[];

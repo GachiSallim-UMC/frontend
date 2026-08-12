@@ -1,4 +1,4 @@
-import type { EditableRuleCategory } from '../types/rule.types';
+import type { EditableRuleCategory } from '@/features/rule/types/rule.types';
 
 export interface RuleFormValues {
   title: string;

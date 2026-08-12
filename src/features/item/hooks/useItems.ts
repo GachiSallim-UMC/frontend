@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useGroupStore } from '@/shared/store';
-import { itemApi } from '../api/item.api';
+import { itemApi } from '@/features/item/api/item.api';
 import type {
   CreateItemDto,
   PurchaseItemDto,
   UpdateItemDto,
   UpdateItemStatusDto,
-} from '../types/item.types';
+} from '@/features/item/types/item.types';
 
 const ITEM_KEYS = {
   all: ['items'] as const,

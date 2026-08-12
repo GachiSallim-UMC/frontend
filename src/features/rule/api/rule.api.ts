@@ -5,7 +5,7 @@ import {
   withSelectedNumericGroupBody,
 } from '@/shared/api';
 import type { RuleStatus } from '@/shared/types';
-import { RULE_CATEGORY_BY_ID, RULE_CATEGORY_ID } from '../constants/rule.constants';
+import { RULE_CATEGORY_BY_ID, RULE_CATEGORY_ID } from '@/features/rule/constants/rule.constants';
 import type {
   CreateRuleDto,
   Rule,
@@ -16,7 +16,7 @@ import type {
   RuleListItemResponse,
   UpdateRuleAgreementDto,
   UpdateRuleDto,
-} from '../types/rule.types';
+} from '@/features/rule/types/rule.types';
 
 const BASE = '/rules';
 

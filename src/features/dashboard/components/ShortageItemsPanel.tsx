@@ -1,5 +1,5 @@
 import { Panel, StatusBadge } from '@/shared/components'
-import type { DashboardSupplyDto } from '../types/dashboard.types';
+import type { DashboardSupplyDto } from '@/features/dashboard/types/dashboard.types';
 
 import AppleIcon from '@/assets/icons/dashboard/shortage/apple.svg?react';
 import CleanserIcon from '@/assets/icons/dashboard/shortage/cleanser.svg?react';

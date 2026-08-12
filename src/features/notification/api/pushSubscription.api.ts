@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/api';
-import type { PushSubscriptionPayload, PushSubscriptionResponse } from '../types/pushSubscription.type';
+import type { PushSubscriptionPayload, PushSubscriptionResponse } from '@/features/notification/types/pushSubscription.type';
 
 const BASE = '/notification-push-subscriptions';
 
