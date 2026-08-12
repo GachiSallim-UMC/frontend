@@ -34,9 +34,14 @@ export const FilterDropdown = ({
   containerClassName,
   mobileIcon,
 }: FilterDropdownProps) => {
-  const { isOpen, dropUp, containerRef, toggle, close } = useDropdown({
-    menuMaxHeight: MENU_MAX_HEIGHT,
-  });
+  const {
+    isOpen,
+    dropUp,
+    availableMenuHeight,
+    containerRef,
+    toggle,
+    close,
+  } = useDropdown({ menuMaxHeight: MENU_MAX_HEIGHT });
 
   const isActive = value !== allValue && value !== undefined && value !== '';
   const selectedOption = options.find(opt => opt.value === value);
@@ -79,9 +84,9 @@ export const FilterDropdown = ({
         <ul
           role="listbox"
           aria-label={defaultLabel}
-          style={{ maxHeight: MENU_MAX_HEIGHT }}
+          style={{ maxHeight: availableMenuHeight }}
           className={cn(
-            'absolute left-0 z-10 min-w-full origin-top-left overflow-y-auto rounded-lg border border-gray-100 bg-white shadow-dropdown lg:w-48',
+            'absolute left-0 z-20 min-w-full origin-top-left overflow-y-auto rounded-lg border border-gray-100 bg-white shadow-dropdown lg:w-48',
             dropUp ? 'bottom-full mb-2' : 'top-full mt-2',
           )}
         >
