@@ -152,26 +152,26 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
               key={account.id}
               className="flex items-center rounded-lg px-3 py-3 hover:bg-gray-50"
             >
-              <button
-                type="button"
-                disabled={account.isPrimary || isSubmitting}
-                onClick={() => handleSelectAccount(account.id, account.isPrimary)}
-                className={`flex flex-1 items-center justify-between text-left text-button transition-colors ${
-                  account.isPrimary
-                    ? 'font-bold text-gray-900'
-                    : 'text-gray-500'
-                }`}
-              >
-                <span>
-                  {account.bankName} {maskAccountNumber(account.accountNumber)}
-                </span>
+             <button
+  type="button"
+  disabled={account.isPrimary || isSubmitting}
+  onClick={() => handleSelectAccount(account.id, account.isPrimary)}
+  className={`flex flex-1 items-center justify-between gap-2 text-left text-mobile-label transition-colors lg:text-button ${
+    account.isPrimary
+      ? 'font-bold text-gray-900'
+      : 'text-gray-500'
+  }`}
+>
+  <span className="truncate">
+    {account.bankName} {maskAccountNumber(account.accountNumber)}
+  </span>
 
-                {account.isPrimary && (
-                  <span className="text-caption font-bold text-primary-700">
-                    주계좌
-                  </span>
-                )}
-              </button>
+  {account.isPrimary && (
+    <span className="whitespace-nowrap text-mobile-label font-bold text-primary-700 lg:text-caption">
+      주계좌
+    </span>
+  )}
+</button>
 
               <button
                 type="button"
