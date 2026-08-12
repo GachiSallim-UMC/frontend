@@ -194,7 +194,7 @@ export const ExpenseListPage = () => {
                   받을 금액
                 </div>
                 <div className="text-[14px] leading-[20px] font-bold text-gray-900 whitespace-nowrap">
-                  +{receiveAmount.toLocaleString()}원
+                  {receiveAmount.toLocaleString()}원
                 </div>
               </div>
             </div>
@@ -208,7 +208,7 @@ export const ExpenseListPage = () => {
                   낼 금액
                 </div>
                 <div className="text-[14px] leading-[20px] font-bold text-gray-900 whitespace-nowrap">
-                  -{payAmount.toLocaleString()}원
+                  {payAmount.toLocaleString()}원
                 </div>
               </div>
             </div>
@@ -216,8 +216,8 @@ export const ExpenseListPage = () => {
         </div>
 
         <div className="mt-4 mb-6 flex h-auto w-full flex-col rounded-[16px] bg-white pb-6 lg:mt-[30px] lg:mb-10 lg:rounded-[20px] lg:pb-8">
-          <div className="flex w-full flex-nowrap items-center justify-between gap-3 overflow-x-auto px-3 pt-4 sm:px-4 lg:px-[30px] lg:pt-[30px]">
-            <div className="flex min-w-0 flex-1 items-center gap-3 overflow-x-auto">
+          <div className="flex w-full flex-nowrap items-center justify-between gap-3 px-3 pt-4 sm:px-4 lg:px-[30px] lg:pt-[30px]">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="flex shrink-0 items-center gap-2">
                 <ExpenseFilterControl
                   activeFilter={activeFilter}
