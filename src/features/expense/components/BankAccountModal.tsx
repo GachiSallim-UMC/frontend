@@ -156,18 +156,18 @@ export function BankAccountModal({ isOpen, onClose }: BankAccountModalProps) {
                 type="button"
                 disabled={account.isPrimary || isSubmitting}
                 onClick={() => handleSelectAccount(account.id, account.isPrimary)}
-                className={`flex flex-1 items-center justify-between text-left text-button transition-colors ${
+                className={`flex flex-1 items-center justify-between gap-2 text-left text-mobile-label transition-colors lg:text-button ${
                   account.isPrimary
                     ? 'font-bold text-gray-900'
                     : 'text-gray-500'
                 }`}
               >
-                <span>
+                <span className="truncate">
                   {account.bankName} {maskAccountNumber(account.accountNumber)}
                 </span>
 
                 {account.isPrimary && (
-                  <span className="text-caption font-bold text-primary-700">
+                  <span className="whitespace-nowrap text-mobile-label font-bold text-primary-700 lg:text-caption">
                     주계좌
                   </span>
                 )}

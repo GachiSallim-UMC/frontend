@@ -121,7 +121,7 @@ export const ExpenseListPage = () => {
             subText={`${uniquePayerCount}명 기준`}
             className="h-[147px] px-6 py-0 shadow-none"
             labelClassName="leading-[19px] tracking-[0.62px] text-gray-600"
-            valueClassName="leading-[37px]"
+            valueClassName="leading-[37px] whitespace-nowrap"
             subTextClassName="mt-0.5 leading-[19px]"
           />
 
@@ -140,7 +140,7 @@ export const ExpenseListPage = () => {
             subText={`${receiveCount}건 미정산`}
             className="h-[147px] px-6 py-0 shadow-none"
             labelClassName="leading-[19px] tracking-[0.62px] text-gray-600"
-            valueClassName="leading-[37px]"
+            valueClassName="leading-[37px] whitespace-nowrap"
             subTextClassName="mt-0.5 leading-[19px]"
           />
 
@@ -159,7 +159,7 @@ export const ExpenseListPage = () => {
             subText={`${payCount}건 미정산`}
             className="h-[147px] px-6 py-0 shadow-none"
             labelClassName="leading-[19px] tracking-[0.62px] text-gray-600"
-            valueClassName="leading-[37px]"
+            valueClassName="leading-[37px] whitespace-nowrap"
             subTextClassName="mt-0.5 leading-[19px]"
           />
         </div>
@@ -173,7 +173,7 @@ export const ExpenseListPage = () => {
               <div className="text-[12px] leading-[18px] text-gray-600">
                 이번 달 총 지출
               </div>
-              <div className="text-[20px] leading-[28px] font-bold text-gray-900">
+              <div className="text-[18px] leading-[26px] font-bold text-gray-900 whitespace-nowrap">
                 {totalExpense.toLocaleString()}원
               </div>
               <div className="mt-0.5 text-[11px] leading-[16px] text-gray-400">
@@ -193,7 +193,7 @@ export const ExpenseListPage = () => {
                 <div className="text-[11px] leading-[16px] text-gray-600">
                   받을 금액
                 </div>
-                <div className="text-[14px] leading-[20px] font-bold text-gray-900">
+                <div className="text-[14px] leading-[20px] font-bold text-gray-900 whitespace-nowrap">
                   {receiveAmount.toLocaleString()}원
                 </div>
               </div>
@@ -207,7 +207,7 @@ export const ExpenseListPage = () => {
                 <div className="text-[11px] leading-[16px] text-gray-600">
                   낼 금액
                 </div>
-                <div className="text-[14px] leading-[20px] font-bold text-gray-900">
+                <div className="text-[14px] leading-[20px] font-bold text-gray-900 whitespace-nowrap">
                   {payAmount.toLocaleString()}원
                 </div>
               </div>
