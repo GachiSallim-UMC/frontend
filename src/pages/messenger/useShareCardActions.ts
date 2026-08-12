@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCompleteChore } from '@/features/chore';
-import { settleMyExpenseShare } from '@/features/expense';
+import { useSettleMyExpenseShare } from '@/features/expense';
 import { useUpdateItemStatus } from '@/features/item';
 import { useUpdateRuleAgreement } from '@/features/rule';
 import type { ChatMessage, ChatMessageGroup, ChatShareCard } from '@/features/messenger';
@@ -19,6 +19,7 @@ export const useShareCardActions = (
 ) => {
   const navigate = useNavigate();
   const completeChore = useCompleteChore();
+  const settleExpense = useSettleMyExpenseShare();
   const updateRuleAgreement = useUpdateRuleAgreement();
   const updateItemStatus = useUpdateItemStatus();
 
@@ -83,7 +84,9 @@ export const useShareCardActions = (
         }
       } else if (type === 'expense') {
         const expense = shareSourceData.expenses.find(item => item.id === message.refId);
-        if (expense) await settleMyExpenseShare(expense, currentUserId);
+        if (expense) {
+          await settleExpense.mutateAsync({ expense, currentUserId });
+        }
       } else if (type === 'item') {
         // 정식 구매 처리는 금액/카테고리 입력 UI가 필요해 우선 재고만 "충분"으로 되돌림
         const item = shareSourceData.items.find(entry => entry.id === message.refId);

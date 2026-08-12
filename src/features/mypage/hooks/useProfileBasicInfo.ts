@@ -1,8 +1,10 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { profileImageApi } from '@/shared/api';
+import { invalidateProfilePresentationQueries } from '@/shared/lib';
 import { NICKNAME_PATTERN, NICKNAME_PATTERN_MESSAGE } from '@/shared/lib/inputValidation';
 import { useAlertStore, useAuthStore } from '@/shared/store';
+import type { AccountProfile } from '@/shared/types';
 import { AVATAR_ID_TO_URL } from '@/features/mypage/constants/avatars';
 import { myPageApi } from '@/features/mypage/api/myPage.api';
 
@@ -38,8 +40,10 @@ export const useProfileBasicInfo = () => {
     setEmail(profileQuery.data.email);
   }, [profileQuery.data]);
 
-  const invalidateProfile = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['auth', 'me', userId] });
+  const syncUpdatedProfile = async (updatedProfile: AccountProfile) => {
+    // 공통 헤더는 같은 auth/me 캐시를 사용하므로 응답값을 즉시 반영합니다.
+    queryClient.setQueryData(['auth', 'me', userId], updatedProfile);
+    await invalidateProfilePresentationQueries(queryClient);
   };
 
   const clearFieldError = (field: ProfileField) => {
@@ -75,9 +79,9 @@ export const useProfileBasicInfo = () => {
         fileSize: file.size,
       });
       const finalImageUrl = await profileImageApi.uploadToS3(upload, file);
-      await myPageApi.updateProfile({ profileImage: finalImageUrl });
-      setProfileImage(finalImageUrl);
-      await invalidateProfile();
+      const updatedProfile = await myPageApi.updateProfile({ profileImage: finalImageUrl });
+      setProfileImage(updatedProfile.profileImage ?? null);
+      await syncUpdatedProfile(updatedProfile);
     } catch {
       showAlert({
         title: '업로드 실패',
@@ -95,9 +99,9 @@ export const useProfileBasicInfo = () => {
 
     try {
       setIsSaving(true);
-      await myPageApi.updateProfile({ profileImage: avatarUrl });
-      setProfileImage(avatarUrl);
-      await invalidateProfile();
+      const updatedProfile = await myPageApi.updateProfile({ profileImage: avatarUrl });
+      setProfileImage(updatedProfile.profileImage ?? null);
+      await syncUpdatedProfile(updatedProfile);
     } catch {
       showAlert({
         title: '저장 실패',
@@ -111,9 +115,9 @@ export const useProfileBasicInfo = () => {
   const deleteProfileImage = async () => {
     try {
       setIsSaving(true);
-      await myPageApi.updateProfile({ profileImage: null });
-      setProfileImage(null);
-      await invalidateProfile();
+      const updatedProfile = await myPageApi.updateProfile({ profileImage: null });
+      setProfileImage(updatedProfile.profileImage ?? null);
+      await syncUpdatedProfile(updatedProfile);
     } catch {
       showAlert({
         title: '삭제 실패',
@@ -144,12 +148,15 @@ export const useProfileBasicInfo = () => {
 
     try {
       setIsSaving(true);
-      await myPageApi.updateProfile({
+      const updatedProfile = await myPageApi.updateProfile({
         name: trimmedName,
         nickname: trimmedNickname,
         profileImage,
       });
-      await invalidateProfile();
+      setName(updatedProfile.name);
+      setNickname(updatedProfile.nickname);
+      setProfileImage(updatedProfile.profileImage ?? null);
+      await syncUpdatedProfile(updatedProfile);
       return true;
     } catch {
       showAlert({

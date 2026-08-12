@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memberApi } from '@/features/member/api/member.api';
+import { invalidateGroupOverviewQueries } from '@/shared/lib';
 import { MEMBER_QUERY_KEYS } from '@/features/member/hooks/useMyGroups';
 import { useAuthStore } from '@/shared/store';
 import type {
@@ -27,9 +28,12 @@ export const useCreateGroup = () => {
 
   return useMutation({
     mutationFn: (body: CreateGroupDto) => memberApi.createGroup(body),
-    onSuccess: createdGroup => {
+    onSuccess: async createdGroup => {
       upsertMyGroup(queryClient, userId, createdGroup);
-      queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, createdGroup.id),
+      ]);
     },
   });
 };
@@ -41,9 +45,12 @@ export const useJoinGroup = () => {
 
   return useMutation({
     mutationFn: (body: JoinGroupDto) => memberApi.joinGroup(body),
-    onSuccess: joinedGroup => {
+    onSuccess: async joinedGroup => {
       upsertMyGroup(queryClient, userId, joinedGroup);
-      queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, joinedGroup.id),
+      ]);
     },
   });
 };
@@ -55,9 +62,12 @@ export const useUpdateGroup = () => {
   return useMutation({
     mutationFn: ({ groupId, body }: { groupId: string; body: UpdateGroupDto }) =>
       memberApi.updateGroup(groupId, body),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all });
-      queryClient.invalidateQueries({ queryKey: ['group', variables.groupId] });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ['group', variables.groupId] }),
+        invalidateGroupOverviewQueries(queryClient, variables.groupId),
+      ]);
     },
   });
 };
@@ -68,8 +78,11 @@ export const useDeleteGroup = () => {
 
   return useMutation({
     mutationFn: (groupId: string) => memberApi.deleteGroup(groupId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all });
+    onSuccess: async (_, groupId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
     },
   });
 };
@@ -88,8 +101,13 @@ export const useUpdateMemberRole = () => {
       userId: string;
       role: 'ADMIN' | 'MEMBER';
     }) => memberApi.updateMemberRole(groupId, userId, role),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['member', 'group-members', variables.groupId] });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['member', 'group-members', variables.groupId],
+        }),
+        invalidateGroupOverviewQueries(queryClient, variables.groupId),
+      ]);
     },
   });
 };
@@ -101,9 +119,14 @@ export const useRemoveGroupMember = () => {
   return useMutation({
     mutationFn: ({ groupId, userId }: { groupId: string; userId: string }) =>
       memberApi.removeGroupMember(groupId, userId),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['member', 'group-members', variables.groupId] });
-      queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['member', 'group-members', variables.groupId],
+        }),
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, variables.groupId),
+      ]);
     },
   });
 };
