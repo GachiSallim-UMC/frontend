@@ -19,7 +19,8 @@ app  →  pages  →  features  →  shared
 - `shared`는 `features`를 import 하지 않습니다. (역방향 절대 금지)
 - 도메인끼리 직접 import 하지 않습니다. 조합은 `pages`에서.
 - 도메인은 `features/<domain>/index.ts`로만 외부 노출. 내부 파일 직접 import 금지.
-- 각 도메인은 `api·components·hooks·types·index` 구조를 따릅니다.
+- 같은 도메인 내부에서는 자기 `index.ts`를 경유하지 않고 `@/features/<domain>/...` 절대경로로 내부 모듈을 참조합니다.
+- `features/chore`를 표준으로 각 도메인은 `api·components·hooks·types·index` 구조를 따릅니다.
 
 ## 디자인 토큰 — 임의 색상 금지
 
@@ -35,7 +36,7 @@ app  →  pages  →  features  →  shared
 - 공통으로 재사용 가능하면 `shared/components`, 특정 도메인 전용이면 `features/<domain>/components`.
 - 새 컴포넌트 전에 **기존 `shared/components`에 비슷한 게 있는지 먼저 확인**하고 재사용/확장합니다.
 - `import type` 사용 (값 import와 분리).
-- 절대경로 `@/*`만 사용. `../../../` 금지.
+- 모든 내부 모듈 접근에는 절대경로 `@/*`를 사용합니다. 상대경로 import는 사용하지 않습니다.
 
 ## 작업 전 체크
 
@@ -55,3 +56,12 @@ npm run lint         # 린트 통과
 - 형식: `<type>: <한글 subject>` (예: `feat: 생활비 정산 폼 구현`)
 - type: feat / fix / style / refactor / design / docs / chore / test
 - 자세한 컨벤션은 [docs/CONVENTIONS.md](docs/CONVENTIONS.md).
+
+## 브랜치
+
+- 모든 작업 브랜치는 `develop`에서 분기하고 완료 후 `develop`으로 PR을 올립니다.
+- `develop`에서 `main`으로의 병합은 배포 시점에만 진행합니다.
+- 브랜치명에는 이슈 번호를 반드시 포함합니다.
+- 형식: `<type>/<이슈번호>-<도메인 또는 기능>-<요약>`
+- type: feature / fix / design / refactor / docs / chore
+- 예: `feature/7-chore-list`, `fix/23-button`, `docs/222-project-conventions`
