@@ -15,6 +15,10 @@ export interface ChatShareCard {
   details?: ChatShareCardDetail[];
   /** 강조 버튼 라벨 (예: 정산하기 / 구매 완료 / 완료 처리 / 동의하기) */
   actionLabel: string;
+  /** 현재 사용자에게 실행 가능한 액션이 없으면 강조 버튼을 숨깁니다. */
+  actionHidden?: boolean;
+  /** 완료·확인 대기처럼 상태만 안내할 때 강조 버튼을 비활성화합니다. */
+  actionDisabled?: boolean;
 }
 
 export interface ChatMessage {

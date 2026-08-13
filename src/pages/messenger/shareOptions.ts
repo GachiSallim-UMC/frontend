@@ -12,6 +12,40 @@ export interface ShareSourceData {
   rules: Rule[];
 }
 
+export interface ExpenseShareActionState {
+  actionLabel: string;
+  actionHidden?: boolean;
+  actionDisabled?: boolean;
+}
+
+/** 현재 사용자의 역할과 분담 상태에 맞는 메신저 생활비 카드 액션을 계산합니다. */
+export const getExpenseShareActionState = (
+  expense: Expense,
+  currentUserId: string,
+): ExpenseShareActionState => {
+  const isPayer = Boolean(currentUserId) && String(expense.payer.id) === String(currentUserId);
+  const myShare = expense.shares.find(share => String(share.user.id) === String(currentUserId));
+  const pendingShares = expense.shares.filter(share => share.isPending && !share.isPaid);
+  const isSettled =
+    expense.status === 'paid' ||
+    (expense.shares.length > 0 && expense.shares.every(share => share.isPaid));
+
+  if (!isPayer && !myShare) return { actionLabel: '', actionHidden: true };
+  if (isSettled) return { actionLabel: '정산 완료', actionDisabled: true };
+
+  if (isPayer) {
+    return pendingShares.length > 0
+      ? { actionLabel: '정산 확인' }
+      : { actionLabel: '송금 대기 중', actionDisabled: true };
+  }
+
+  if (!myShare) return { actionLabel: '', actionHidden: true };
+  if (myShare.isPaid) return { actionLabel: '정산 완료', actionDisabled: true };
+  if (myShare.isPending) return { actionLabel: '확인 대기 중', actionDisabled: true };
+
+  return { actionLabel: '송금 완료했어요' };
+};
+
 const REPEAT_LABEL: Record<Chore['repeatType'], string> = {
   once: '반복 없음',
   daily: '매일',

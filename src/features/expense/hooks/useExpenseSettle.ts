@@ -2,69 +2,48 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { invalidateGroupOverviewQueries } from '@/shared/lib';
 import { useAlertStore } from '@/shared/store';
-import { settleExpenseSplit } from '@/features/expense/api/expense.api';
+import { claimTransferComplete, settleExpenseSplit } from '@/features/expense/api/expense.api';
 import type { Expense } from '@/features/expense/types/expense.types';
 import { expenseKeys } from '@/features/expense/hooks/expense.keys';
 import { useExpenseQueryScope } from '@/features/expense/hooks/useExpenseQueryScope';
 
-export const settleMyExpenseShare = async (
-  expense: Expense,
-  userId: string
-): Promise<{ ok: boolean }> => {
-  const myShare = expense.shares?.find(
-    (share) => String(share.user.id) === String(userId)
-  );
-
-  if (!myShare) {
-    useAlertStore.getState().showAlert({
-      title: '알림',
-      message: '내 분담 내역을 찾을 수 없습니다.',
-    });
-    return { ok: false };
-  }
-
-  if (myShare.isPaid) {
-    useAlertStore.getState().showAlert({
-      title: '알림',
-      message: '이미 정산 완료된 항목입니다.',
-    });
-    return { ok: false };
-  }
-
-  try {
-    await settleExpenseSplit(Number(myShare.id), {
-      isBulkComplete: true,
-    });
-
-    return { ok: true };
-  } catch {
-    useAlertStore.getState().showAlert({
-      title: '오류',
-      message: '정산 처리에 실패했습니다.',
-    });
-    return { ok: false };
-  }
-};
-
-/** 메신저 공유 카드에서도 정산 캐시 갱신을 빠뜨리지 않도록 제공하는 표준 mutation입니다. */
-export const useSettleMyExpenseShare = () => {
+const useInvalidateExpenseSettlement = () => {
   const queryClient = useQueryClient();
   const { userId, groupId } = useExpenseQueryScope();
 
-  return useMutation({
-    mutationFn: ({ expense, currentUserId }: { expense: Expense; currentUserId: string }) =>
-      settleMyExpenseShare(expense, currentUserId),
-    onSuccess: async (result, { expense }) => {
-      if (!result.ok) return;
+  return async (expenseId: number | string) => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) }),
+      queryClient.invalidateQueries({
+        queryKey: expenseKeys.detail(userId, groupId, expenseId),
+      }),
+      invalidateGroupOverviewQueries(queryClient, groupId),
+    ]);
+  };
+};
 
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) }),
-        queryClient.invalidateQueries({
-          queryKey: expenseKeys.detail(userId, groupId, expense.id),
-        }),
-        invalidateGroupOverviewQueries(queryClient, groupId),
-      ]);
+/** 채무자의 송금 완료 알림을 전송하고 관련 생활비 캐시를 갱신합니다. */
+export const useClaimExpenseTransfer = () => {
+  const invalidateSettlement = useInvalidateExpenseSettlement();
+
+  return useMutation({
+    mutationFn: ({ splitId }: { expenseId: number | string; splitId: number | string }) =>
+      claimTransferComplete(splitId),
+    onSuccess: async (_result, { expenseId }) => invalidateSettlement(expenseId),
+  });
+};
+
+/** 선지불자가 확인한 분담 내역만 순서대로 완료 처리하고 관련 캐시를 갱신합니다. */
+export const useCompleteExpenseSplits = () => {
+  const invalidateSettlement = useInvalidateExpenseSettlement();
+
+  return useMutation({
+    mutationFn: async ({ splitIds }: { expenseId: number | string; splitIds: (number | string)[] }) => {
+      for (const splitId of splitIds) {
+        await settleExpenseSplit(Number(splitId), { isBulkComplete: true });
+      }
     },
+    onSettled: async (_result, _error, { expenseId }) => invalidateSettlement(expenseId),
   });
 };
 

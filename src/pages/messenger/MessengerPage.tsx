@@ -22,7 +22,7 @@ import { useGroupMembers } from '@/features/member';
 import { useMe } from '@/features/auth';
 import { useAuthStore, useGroupStore } from '@/shared/store';
 import { useChores } from '@/features/chore';
-import { useExpenseList } from '@/features/expense';
+import { SettlementConfirm, useExpenseList } from '@/features/expense';
 import { useItems } from '@/features/item';
 import { useRules } from '@/features/rule';
 import { buildShareCard, getShareOptions } from '@/pages/messenger/shareOptions';
@@ -160,8 +160,16 @@ export const MessengerPage = () => {
     if (shareCard) shareItem(shareCard, optionId);
   };
 
-  const { enrichedMessageGroups, handleViewShareDetail, handleShareAction, pendingActionIds } =
-    useShareCardActions(messageGroups, shareSourceData, currentUserId);
+  const {
+    enrichedMessageGroups,
+    handleViewShareDetail,
+    handleShareAction,
+    pendingActionIds,
+    settlementConfirmation,
+    closeSettlementConfirmation,
+    confirmExpenseSettlement,
+    isSettlementPending,
+  } = useShareCardActions(messageGroups, shareSourceData, currentUserId);
 
   const createRoomCandidates = groupMembers
     .filter(member => !member.leftAt && member.userId !== currentUserId)
@@ -342,6 +350,20 @@ export const MessengerPage = () => {
         member={transferOwnerTarget}
         onClose={closeTransferOwner}
         onConfirm={transferOwnership}
+      />
+
+      <SettlementConfirm
+        isOpen={Boolean(settlementConfirmation)}
+        onClose={closeSettlementConfirmation}
+        onConfirm={confirmExpenseSettlement}
+        title="정산 확인"
+        description={
+          settlementConfirmation
+            ? `“${settlementConfirmation.expenseTitle}”의 송금 완료 표시 ${settlementConfirmation.splitIds.length}건을 정산 완료 처리하시겠어요?`
+            : ''
+        }
+        confirmLabel="정산 완료"
+        isPending={isSettlementPending}
       />
     </div>
   );
