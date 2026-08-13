@@ -4,16 +4,16 @@ export interface IconTextButtonProps extends React.ButtonHTMLAttributes<HTMLButt
   label: string;
   iconComponent?: React.ComponentType<{ className?: string }>;
   iconSrc?: string;
-  variant?: 'message' | 'toss' ;
+  variant?: 'toss';
   className?: string;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export  function IconTextButton({
+export function IconTextButton({
   label,
   iconComponent: Icon,
   iconSrc,
-  variant = 'message',
+  variant = 'toss',
   className = '',
   onClick,
   ...props
@@ -21,7 +21,6 @@ export  function IconTextButton({
   const baseStyle = 'h-[50px] px-4 rounded-[8px] font-sans text-button transition-all flex items-center justify-center gap-2 cursor-pointer';
 
   const variantStyles = {
-    message: 'border border-dashed border-primary-500 text-primary-500 bg-white',
     toss: 'border-[1px] border-primary-500 text-primary-500 bg-white',
   };
 

@@ -1,5 +1,5 @@
 import type { ApiResponse } from '@/shared/types';
-import { ApiError } from './ApiError';
+import { ApiError } from '@/shared/api/ApiError';
 
 export const isApiResponse = (value: unknown): value is ApiResponse<unknown> => {
   if (typeof value !== 'object' || value === null) return false;

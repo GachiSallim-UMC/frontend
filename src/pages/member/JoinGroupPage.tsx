@@ -1,83 +1,139 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { JoinGroupInput, GroupPreviewCard, JoinGroupAction } from '@/features/member';
-import { groups } from '@/pages/_shared/mockData'
-import type { Group } from '@/features/member'
-import { useGroupStore } from '@/shared/store'
-import { GroupPageHeader } from './GroupPageHeader';
+import {
+  type Group,
+  JoinGroupInput,
+  GroupPreviewCard,
+  JoinGroupAction,
+  useJoinGroup,
+} from '@/features/member';
+import { useAlertStore, useGroupStore } from '@/shared/store';
+import { GroupPageShell } from '@/pages/member/GroupPageShell';
+import { memberApi } from '@/features/member';
 
 export const JoinGroupPage = () => {
-    const navigate = useNavigate();
-    const setSelectedGroupId = useGroupStore(s => s.setSelectedGroupId);
+  const navigate = useNavigate();
+  const setSelectedGroupId = useGroupStore(s => s.setSelectedGroupId);
+  const showAlert = useAlertStore(s => s.showAlert);
+  const joinGroupMutation = useJoinGroup();
 
-    const [inviteCode, setInviteCode] = useState<string>('');
-    const [showPreview, setShowPreview] = useState<boolean>(false);
-    
-    const [foundGroup, setFoundGroup] = useState<Group | null>(null);
+  const [inviteCode, setInviteCode] = useState<string>('');
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const [foundGroup, setFoundGroup] = useState<Group | null>(null);
+  const [isChecking, setIsChecking] = useState<boolean>(false);
+  const [inviteCodeError, setInviteCodeError] = useState<string>();
 
-    const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInviteCode(e.target.value);
-    };
+  const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase();
+    if (!/^[A-HJ-NP-Z2-9]*$/.test(value)) {
+      setInviteCodeError('I·O를 제외한 영문 대문자와 숫자 2~9만 입력할 수 있습니다.');
+      return;
+    }
+    setInviteCode(value);
+    setInviteCodeError(undefined);
+  };
 
-    const handleConfirmCode = () => {
-        const matchedGroup = groups.find((g) => g.inviteCode === inviteCode);
+  const handleConfirmCode = async () => {
+    setInviteCodeError(undefined);
 
-        if (matchedGroup) {
-        setFoundGroup(matchedGroup);
-        setShowPreview(true);
-        } else {
-        alert('유효하지 않은 초대 코드입니다. 다시 확인해주세요.');
-        setShowPreview(false);
-        setFoundGroup(null);
-        }
-    };
+    if (!/^[A-HJ-NP-Z2-9]{6}$/.test(inviteCode)) {
+      setInviteCodeError('초대 코드를 정확히 6자리로 입력해 주세요.');
+      return;
+    }
 
-    const handleJoinGroup = () => {
-        if (!foundGroup) return;
-        setSelectedGroupId(foundGroup.id);
-        navigate('/dashboard');
-    };
+    setIsChecking(true);
+    try {
+      const previewData = await memberApi.getInviteInfo(inviteCode);
 
-    const handleCancel = () => {
-        setShowPreview(false);
-        setFoundGroup(null); 
-    };
+      const groupPreview: Group = {
+        id: 'temp-id', // 가입 전이므로 임시 ID 사용
+        name: previewData.name,
+        description: previewData.description,
+        type: previewData.residenceType || 'ETC',
+        address: '',
+        inviteCode: inviteCode,
+        memberCount: previewData.currentMembers,
+        maxMemberCount: previewData.maxMembers,
+        members: [],
+        ownerId: '',
+        groupImage: previewData.groupImage || null,
+      };
 
-    return (
-        <div className="flex min-h-screen items-center justify-center bg-primary-100">
-            <div className="flex h-[696px] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white shadow-sm">
-                <GroupPageHeader />
+      setFoundGroup(groupPreview);
+      setShowPreview(true);
+    } catch {
+      setInviteCodeError('유효하지 않은 초대 코드이거나 만료되었습니다.');
+      setShowPreview(false);
+      setFoundGroup(null);
+    } finally {
+      setIsChecking(false);
+    }
+  };
 
-                <div className="flex-1 pt-5 pb-18 px-10">
-                    <div className="mb-5">
-                        <h1 className="mb-1 text-2xl font-bold text-gray-900">
-                            그룹 참여
-                        </h1>
-                        <p className="text-sm font-medium text-gray-600">
-                            초대 코드를 입력하면 그룹에 참여할 수 있습니다.
-                        </p>
-                    </div>
+  const handleJoinGroup = () => {
+    if (!inviteCode) return;
+    setInviteCodeError(undefined);
 
-                    <JoinGroupInput
-                        inviteCode={inviteCode}
-                        onChange={handleCodeChange}
-                        onConfirm={handleConfirmCode}
-                        disabled={showPreview}
-                    />
-
-                    {showPreview && foundGroup && (
-                        <div className='mt-4'>
-                            <GroupPreviewCard group={foundGroup} />
-
-                            <JoinGroupAction 
-                                onJoin={handleJoinGroup} 
-                                onCancel={handleCancel} 
-                            />
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+    joinGroupMutation.mutate(
+      { inviteCode },
+      {
+        onSuccess: res => {
+          setSelectedGroupId(res.id);
+          navigate('/dashboard');
+        },
+        onError: () => {
+          showAlert({
+            title: '그룹 참여 실패',
+            message: '가입에 실패했거나 이미 가입된 그룹입니다.',
+          });
+          setInviteCode('');
+          setShowPreview(false);
+          setFoundGroup(null);
+        },
+      },
     );
+  };
+
+  const handleCancel = () => {
+    setShowPreview(false);
+    setFoundGroup(null);
+  };
+
+  return (
+    <GroupPageShell
+      title="그룹 참여"
+      footer={
+        showPreview && foundGroup ? (
+          <JoinGroupAction
+            onJoin={handleJoinGroup}
+            onCancel={handleCancel}
+            isSubmitting={joinGroupMutation.isPending}
+          />
+        ) : undefined
+      }
+    >
+      <div className="mb-5">
+        <h2 className="mb-0.5 text-base font-bold tracking-[0.04em] text-gray-900 lg:mb-1 lg:text-2xl lg:tracking-normal">
+          그룹 참여
+        </h2>
+        <p className="text-mobile-label font-medium text-gray-600 lg:text-sm">
+          초대 코드를 입력하면 그룹에 참여할 수 있습니다.
+        </p>
+      </div>
+
+      <JoinGroupInput
+        inviteCode={inviteCode}
+        onChange={handleCodeChange}
+        onConfirm={handleConfirmCode}
+        error={inviteCodeError}
+        disabled={showPreview || isChecking}
+      />
+
+      {showPreview && foundGroup && (
+        <div className="mt-5">
+          <GroupPreviewCard group={foundGroup} />
+        </div>
+      )}
+    </GroupPageShell>
+  );
 };

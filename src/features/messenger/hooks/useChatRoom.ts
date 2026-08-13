@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import type {
-  CARD_MESSAGE_TYPES,
   ChatFilter,
+  ChatMessage,
   ChatRoomCategory,
   ChatRoomMember,
   ChatShareCard,
   ShareCardType,
 } from '@/features/messenger/types';
-import { useChatMessages, useChatRoomDetail, useChatRooms } from './useChatRoomQueries';
+import { CARD_TYPE_BY_SHARE_TYPE, formatTimestamp } from '@/features/messenger/hooks/messenger.mappers';
+import { useChatMessages, useChatRoomDetail, useChatRooms } from '@/features/messenger/hooks/useChatRoomQueries';
+import { useChatSocket } from '@/features/messenger/hooks/useChatSocket';
 import {
   useCreateChatRoom,
   useDeleteChatRoom,
@@ -18,7 +20,7 @@ import {
   useSendMessage,
   useTransferOwner,
   useUpdateMemberSettings,
-} from './useChatRoomMutations';
+} from '@/features/messenger/hooks/useChatRoomMutations';
 
 const matchesFilter = (category: ChatRoomCategory, unreadCount: number, filter: ChatFilter) => {
   switch (filter) {
@@ -33,13 +35,6 @@ const matchesFilter = (category: ChatRoomCategory, unreadCount: number, filter: 
   }
 };
 
-const CARD_TYPE_BY_SHARE_TYPE: Record<ShareCardType, (typeof CARD_MESSAGE_TYPES)[number]> = {
-  chore: 'CARD_CHORE',
-  expense: 'CARD_EXPENSE',
-  item: 'CARD_SUPPLY',
-  rule: 'CARD_RULE',
-};
-
 type ChatMessageItem = ReturnType<typeof useChatMessages>['messages'][number];
 
 interface ChatMessageGroup {
@@ -51,11 +46,15 @@ interface ChatMessageGroup {
   items: ChatMessageItem[];
 }
 
+const isSameDate = (a: string, b: string) => new Date(a).toDateString() === new Date(b).toDateString();
+
+// 날짜 구분선을 그룹 경계와 맞추기 위해, 같은 발신자라도 날짜가 바뀌면 새 그룹으로 끊는다.
 const groupMessagesBySender = (messages: ChatMessageItem[]): ChatMessageGroup[] => {
   const groups: ChatMessageGroup[] = [];
   messages.forEach(message => {
     const lastGroup = groups[groups.length - 1];
-    if (lastGroup && lastGroup.senderId === message.senderId) {
+    const lastItem = lastGroup?.items[lastGroup.items.length - 1];
+    if (lastGroup && lastItem && lastGroup.senderId === message.senderId && isSameDate(lastItem.createdAt, message.createdAt)) {
       lastGroup.items.push(message);
     } else {
       groups.push({
@@ -71,7 +70,7 @@ const groupMessagesBySender = (messages: ChatMessageItem[]): ChatMessageGroup[] 
   return groups;
 };
 
-export const useChatRoom = (groupId: string | null, currentUserId: string) => {
+export const useChatRoom = (groupId: string | null, currentUserId: string, initialRoomId?: string) => {
   const [activeRoomId, setActiveRoomIdState] = useState('');
   const [draft, setDraft] = useState('');
   const [activeShareType, setActiveShareType] = useState<ShareCardType | null>(null);
@@ -87,10 +86,11 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   const [isDelegateOpen, setIsDelegateOpen] = useState(false);
   const [kickTarget, setKickTarget] = useState<ChatRoomMember | null>(null);
   const [transferOwnerTarget, setTransferOwnerTarget] = useState<ChatRoomMember | null>(null);
-  // TODO: 웹소켓 연동 전까지는 REST 요청 성공 여부로만 연결 상태를 판단 (이번 라운드는 REST만 연동)
-  const [isConnected] = useState(true);
+  // 전송 중/실패 텍스트 메시지 (방 id별) — 서버가 확정하기 전까지 로컬에서만 관리
+  const [localMessagesByRoom, setLocalMessagesByRoom] = useState<Record<string, ChatMessage[]>>({});
 
   const { data: rooms, isLoading: isRoomsLoading } = useChatRooms(groupId);
+  const { isConnected } = useChatSocket(groupId, activeRoomId, currentUserId);
   const { data: activeRoom } = useChatRoomDetail(activeRoomId || null, currentUserId);
 
   // 메시지 응답에 sender(닉네임/프로필사진)가 아직 없어서, 채팅방 멤버 목록으로 대체 조회할 때 쓴다.
@@ -111,9 +111,9 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   const removeMemberMutation = useRemoveMember(groupId);
   const transferOwnerMutation = useTransferOwner();
   const sendMessageMutation = useSendMessage();
-  const sendCardMessageMutation = useSendCardMessage();
+  const sendCardMessageMutation = useSendCardMessage(groupId);
   const markAsReadMutation = useMarkAsRead(groupId);
-  const updateMemberSettingsMutation = useUpdateMemberSettings();
+  const updateMemberSettingsMutation = useUpdateMemberSettings(groupId);
 
   // 방을 전환할 때는 항상 읽음 처리도 같이 호출한다 (자동 첫 방 선택, 삭제/나가기 후 다음 방
   // 전환 등 모든 경로에서 빠뜨리기 쉬워서 한 곳으로 모음).
@@ -129,7 +129,8 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
   useEffect(() => {
     if (!hasAutoSelectedRef.current && !activeRoomId && rooms.length > 0) {
       hasAutoSelectedRef.current = true;
-      focusRoom(rooms[0].id);
+      const target = initialRoomId && rooms.some(room => room.id === initialRoomId) ? initialRoomId : rooms[0].id;
+      focusRoom(target);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRoomId, rooms]);
@@ -139,7 +140,8 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
     .filter(room => !searchQuery.trim() || room.name.toLowerCase().includes(searchQuery.trim().toLowerCase()))
     .sort((a, b) => Number(b.isPinned) - Number(a.isPinned));
 
-  const messageGroups = groupMessagesBySender(messageItems);
+  const localMessages = localMessagesByRoom[activeRoomId] ?? [];
+  const messageGroups = groupMessagesBySender([...messageItems, ...localMessages]);
 
   const setActiveRoomId = (roomId: string) => {
     focusRoom(roomId);
@@ -147,11 +149,67 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
     setIsManagePanelOpen(false);
   };
 
+  // 로컬 전송 중/실패 메시지 patch — patch가 null이면 제거(전송 성공, 또는 사용자가 직접 삭제)
+  const patchLocalMessage = (roomId: string, clientId: string, patch: Partial<ChatMessage> | null) => {
+    setLocalMessagesByRoom(prev => {
+      const roomMessages = prev[roomId];
+      if (!roomMessages) return prev;
+      const next = patch
+        ? roomMessages.map(message => (message.id === clientId ? { ...message, ...patch } : message))
+        : roomMessages.filter(message => message.id !== clientId);
+      return { ...prev, [roomId]: next };
+    });
+  };
+
+  const buildOptimisticMessage = (roomId: string, content: string): ChatMessage => {
+    const me = activeRoom?.members.find(member => member.id === currentUserId);
+    const now = new Date().toISOString();
+    return {
+      id: `local-${crypto.randomUUID()}`,
+      roomId,
+      senderId: currentUserId,
+      senderName: me?.name ?? '',
+      senderAvatarUrl: me?.avatarUrl,
+      timestamp: formatTimestamp(now),
+      createdAt: now,
+      isMine: true,
+      content,
+      status: 'pending',
+    };
+  };
+
   const sendMessage = () => {
     const content = draft.trim();
     if (!content || !activeRoomId) return;
-    sendMessageMutation.mutate({ roomId: activeRoomId, content });
+    const roomId = activeRoomId;
+    const optimisticMessage = buildOptimisticMessage(roomId, content);
+
+    setLocalMessagesByRoom(prev => ({ ...prev, [roomId]: [...(prev[roomId] ?? []), optimisticMessage] }));
     setDraft('');
+
+    sendMessageMutation.mutate(
+      { roomId, content },
+      {
+        onSuccess: () => patchLocalMessage(roomId, optimisticMessage.id, null),
+        onError: () => patchLocalMessage(roomId, optimisticMessage.id, { status: 'failed' }),
+      },
+    );
+  };
+
+  const retrySendMessage = (message: ChatMessage) => {
+    const roomId = message.roomId;
+    patchLocalMessage(roomId, message.id, { status: 'pending' });
+    sendMessageMutation.mutate(
+      { roomId, content: message.content ?? '' },
+      {
+        onSuccess: () => patchLocalMessage(roomId, message.id, null),
+        onError: () => patchLocalMessage(roomId, message.id, { status: 'failed' }),
+      },
+    );
+  };
+
+  const deleteFailedMessage = (message: ChatMessage) => {
+    patchLocalMessage(message.roomId, message.id, null);
   };
 
   const shareItem = (shareCard: ChatShareCard, refId: string) => {
@@ -160,11 +218,22 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
     setActiveShareType(null);
   };
 
-  const createRoom = ({ name, category }: { name: string; category: ChatRoomCategory; memberIds: string[] }) => {
+  const createRoom = ({ name, category, memberIds }: { name: string; category: ChatRoomCategory; memberIds: string[] }) => {
     createRoomMutation.mutate(
       { name, category },
       {
-        onSuccess: room => {
+        // 초대가 끝나기 전에 방을 포커스하면 상세 조회가 초대 반영 전 스냅샷을 받아와서
+        // 새로고침 전까지 방금 초대한 멤버가 안 보이는 문제가 있었다. 초대 완료까지 기다린 뒤 포커스한다.
+        // 초대 자체가 실패해도 방은 이미 생성된 상태이므로 포커스·모달 닫기는 계속 진행한다
+        // (실패 알림은 전역 mutationCache.onError가 별도로 띄운다).
+        onSuccess: async room => {
+          if (memberIds.length > 0) {
+            try {
+              await inviteMembersMutation.mutateAsync({ roomId: room.id, userIds: memberIds });
+            } catch {
+              // no-op: 아래에서 방 포커스는 계속 진행
+            }
+          }
           focusRoom(room.id);
           setIsCreateRoomOpen(false);
         },
@@ -275,6 +344,8 @@ export const useChatRoom = (groupId: string | null, currentUserId: string) => {
     draft,
     setDraft,
     sendMessage,
+    retrySendMessage,
+    deleteFailedMessage,
     activeShareType,
     openSharePicker: setActiveShareType,
     closeSharePicker: () => setActiveShareType(null),

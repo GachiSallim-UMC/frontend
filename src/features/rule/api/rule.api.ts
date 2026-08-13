@@ -5,7 +5,7 @@ import {
   withSelectedNumericGroupBody,
 } from '@/shared/api';
 import type { RuleStatus } from '@/shared/types';
-import { RULE_CATEGORY_BY_ID, RULE_CATEGORY_ID } from '../constants/rule.constants';
+import { RULE_CATEGORY_BY_ID, RULE_CATEGORY_ID } from '@/features/rule/constants/rule.constants';
 import type {
   CreateRuleDto,
   Rule,
@@ -14,21 +14,15 @@ import type {
   RuleApiStatus,
   RuleDetailResponse,
   RuleListItemResponse,
-  ShareRuleResponse,
   UpdateRuleAgreementDto,
   UpdateRuleDto,
-} from '../types/rule.types';
+} from '@/features/rule/types/rule.types';
 
 const BASE = '/rules';
 
 const STATUS_FROM_API: Record<RuleApiStatus, RuleStatus> = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
-};
-
-const STATUS_TO_API: Record<RuleStatus, RuleApiStatus> = {
-  active: 'ACTIVE',
-  inactive: 'INACTIVE',
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -56,13 +50,6 @@ const isAgreementSummary = (value: unknown): value is RuleAgreementSummaryRespon
   typeof value.disagreedCount === 'number' &&
   typeof value.pendingCount === 'number';
 
-const isShareRuleResponse = (value: unknown): value is ShareRuleResponse =>
-  isRecord(value) &&
-  typeof value.ruleId === 'number' &&
-  Number.isSafeInteger(value.ruleId) &&
-  typeof value.messageId === 'number' &&
-  Number.isSafeInteger(value.messageId);
-
 const isRuleListItem = (value: unknown): value is RuleListItemResponse =>
   isRecord(value) &&
   typeof value.ruleId === 'number' &&
@@ -76,6 +63,7 @@ const isRuleListItem = (value: unknown): value is RuleListItemResponse =>
   isRuleApiStatus(value.status) &&
   isRuleUserResponse(value.createdBy) &&
   isAgreementSummary(value.agreementSummary) &&
+  (value.myAgreementStatus === null || isAgreementStatus(value.myAgreementStatus)) &&
   typeof value.createdAt === 'string' &&
   typeof value.updatedAt === 'string';
 
@@ -85,7 +73,6 @@ const isRuleDetail = (value: unknown): value is RuleDetailResponse => {
 
   return (
     isNullableString(detail.categoryName) &&
-    (detail.myAgreementStatus === null || isAgreementStatus(detail.myAgreementStatus)) &&
     Array.isArray(detail.agreements) &&
     detail.agreements.every(
       agreement =>
@@ -152,6 +139,7 @@ const toRule = (response: RuleListItemResponse | RuleDetailResponse): Rule => {
 
   return {
     id: String(response.ruleId),
+    groupId: String(response.groupId),
     category:
       (response.categoryId === null ? undefined : RULE_CATEGORY_BY_ID.get(response.categoryId)) ??
       'etc',
@@ -167,7 +155,7 @@ const toRule = (response: RuleListItemResponse | RuleDetailResponse): Rule => {
       agreedMembers,
     },
     agreements,
-    myAgreementStatus: detail?.myAgreementStatus,
+    myAgreementStatus: response.myAgreementStatus,
     histories: detail?.histories.map(history => ({
       id: String(history.logId),
       action: history.action,
@@ -222,24 +210,11 @@ export const ruleApi = {
       categoryId: RULE_CATEGORY_ID[dto.category],
       title: dto.title,
       description: dto.content,
-      status: STATUS_TO_API[dto.status],
     });
   },
 
   updateAgreement: async (id: string, dto: UpdateRuleAgreementDto): Promise<void> => {
     await apiClient.put(`${BASE}/${id}/agreements`, dto);
-  },
-
-  share: async (id: string): Promise<ShareRuleResponse> => {
-    const { data } = await apiClient.post<unknown>(`${BASE}/${id}/share`);
-    if (!isShareRuleResponse(data)) {
-      throw new ApiError(
-        502,
-        'INVALID_API_RESPONSE',
-        '생활규칙 메신저 공유 응답 형식이 올바르지 않습니다.',
-      );
-    }
-    return data;
   },
 
   remove: async (id: string): Promise<void> => {

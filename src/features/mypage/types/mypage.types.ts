@@ -1,8 +1,12 @@
+import type {
+  DateFormatValue,
+  StartDayValue,
+} from '@/shared/types/common';
+
+export type { StartDayValue, DateFormatValue };
 export type ThemeValue = 'light' | 'dark';
 export type LanguageValue = 'ko' | 'en';
 export type TimezoneValue = 'seoul';
-export type StartDayValue = 'sunday' | 'monday';
-export type DateFormatValue = 'YYYY/MM/DD' | 'DD/MM/YY';
 export type FontSizeValue = 'large' | 'normal' | 'small';
 
 export type NotificationType =
@@ -12,3 +16,19 @@ export type NotificationType =
   | 'SETTLEMENT_REQUEST'
   | 'RULE_AGREEMENT_REQUEST'
   | 'GROUP_ACTIVITY_ALL';
+
+
+export interface UpdateProfileDto {
+  name?: string;
+  nickname?: string;
+  profileImage?: string | null;
+}
+
+export interface NotificationPreferencesDto {
+  choreDue: boolean;
+  supplyStatusChanged: boolean;
+  newMessage: boolean;
+  expenseRequest: boolean;
+  ruleAgreementRequest: boolean;
+  groupActivity: boolean;
+}

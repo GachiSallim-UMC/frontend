@@ -9,13 +9,12 @@ import type {
   CreateItemDto,
   Item,
   PurchaseItemDto,
-  ShareItemDto,
   SupplyCategory,
   SupplyResponse,
   SupplyStatus,
   UpdateItemDto,
   UpdateItemStatusDto,
-} from '../types/item.types';
+} from '@/features/item/types/item.types';
 
 const BASE = '/supplies';
 
@@ -33,26 +32,26 @@ const STATUS_TO_API = {
 } as const;
 
 const CATEGORY_FROM_API: Record<SupplyCategory, Item['category']> = {
-  DAILY: 'daily',
-  KITCHEN: 'kitchen',
+  DAILY_NECESSITIES: 'daily',
   BATHROOM: 'bathroom',
-  CLEANING: 'cleaning',
-  GROCERY: 'grocery',
-  MEDICINE: 'medicine',
-  PET: 'pet',
-  TOOL: 'tool',
+  KITCHEN: 'kitchen',
+  LAUNDRY_CLEANING: 'cleaning',
+  FOOD: 'grocery',
+  HEALTH_HYGIENE: 'medicine',
+  PET_PLANT: 'pet',
+  TOOLS_ETC: 'tool',
   ETC: 'etc',
 };
 
 const CATEGORY_TO_API: Record<Item['category'], SupplyCategory> = {
-  daily: 'DAILY',
-  kitchen: 'KITCHEN',
+  daily: 'DAILY_NECESSITIES',
   bathroom: 'BATHROOM',
-  cleaning: 'CLEANING',
-  grocery: 'GROCERY',
-  medicine: 'MEDICINE',
-  pet: 'PET',
-  tool: 'TOOL',
+  kitchen: 'KITCHEN',
+  cleaning: 'LAUNDRY_CLEANING',
+  grocery: 'FOOD',
+  medicine: 'HEALTH_HYGIENE',
+  pet: 'PET_PLANT',
+  tool: 'TOOLS_ETC',
   etc: 'ETC',
 };
 
@@ -63,14 +62,14 @@ const isSupplyStatus = (value: unknown): value is SupplyStatus =>
   value === 'SUFFICIENT' || value === 'LOW' || value === 'EMPTY' || value === 'PURCHASED';
 
 const isSupplyCategory = (value: unknown): value is SupplyCategory =>
-  value === 'DAILY' ||
-  value === 'KITCHEN' ||
+  value === 'DAILY_NECESSITIES' ||
   value === 'BATHROOM' ||
-  value === 'CLEANING' ||
-  value === 'GROCERY' ||
-  value === 'MEDICINE' ||
-  value === 'PET' ||
-  value === 'TOOL' ||
+  value === 'KITCHEN' ||
+  value === 'LAUNDRY_CLEANING' ||
+  value === 'FOOD' ||
+  value === 'HEALTH_HYGIENE' ||
+  value === 'PET_PLANT' ||
+  value === 'TOOLS_ETC' ||
   value === 'ETC';
 
 const isSupplyUser = (value: unknown): value is { userId: number; nickname: string } =>
@@ -105,6 +104,7 @@ const assertSupplyResponse = (value: unknown): SupplyResponse => {
 
 const toItem = (supply: SupplyResponse): Item => ({
   id: String(supply.supplyId),
+  groupId: String(supply.groupId),
   name: supply.name,
   category: CATEGORY_FROM_API[supply.category],
   buyer: supply.assignee
@@ -176,10 +176,6 @@ export const itemApi = {
 
   purchase: async (id: string, dto: PurchaseItemDto): Promise<void> => {
     await apiClient.post(`${BASE}/${id}/purchase`, dto);
-  },
-
-  share: async (id: string, dto: ShareItemDto): Promise<void> => {
-    await apiClient.post(`${BASE}/${id}/share`, dto);
   },
 
   remove: async (id: string): Promise<void> => {

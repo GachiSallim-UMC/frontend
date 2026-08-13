@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { authApi } from '../api/auth.api';
+import { authApi } from '@/features/auth/api/auth.api';
 import { useAuthStore } from '@/shared/store';
-import { AUTH_QUERY_KEYS } from './auth.keys';
+import { AUTH_QUERY_KEYS } from '@/features/auth/hooks/auth.keys';
 
 export const useMe = () => {
   const userId = useAuthStore(s => s.userId);

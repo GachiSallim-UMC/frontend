@@ -1,0 +1,170 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { memberApi } from '@/features/member/api/member.api';
+import { invalidateGroupOverviewQueries } from '@/shared/lib';
+import { MEMBER_QUERY_KEYS } from '@/features/member/hooks/useMyGroups';
+import { useAuthStore } from '@/shared/store';
+import type {
+  CreateGroupDto,
+  JoinGroupDto,
+  MemberGroupResponse,
+  UpdateGroupDto,
+} from '@/features/member/types/member.types';
+
+const upsertMyGroup = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  userId: string | null,
+  group: MemberGroupResponse,
+) => {
+  queryClient.setQueryData<MemberGroupResponse[]>(
+    MEMBER_QUERY_KEYS.myGroups(userId),
+    previous => [group, ...(previous ?? []).filter(previousGroup => previousGroup.id !== group.id)],
+  );
+};
+
+/** 그룹 생성 훅 */
+export const useCreateGroup = () => {
+  const queryClient = useQueryClient();
+  const userId = useAuthStore(state => state.userId);
+
+  return useMutation({
+    mutationFn: (body: CreateGroupDto) => memberApi.createGroup(body),
+    onSuccess: async createdGroup => {
+      upsertMyGroup(queryClient, userId, createdGroup);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, createdGroup.id),
+      ]);
+    },
+  });
+};
+
+/**초대 코드로 그룹 가입 훅 */
+export const useJoinGroup = () => {
+  const queryClient = useQueryClient();
+  const userId = useAuthStore(state => state.userId);
+
+  return useMutation({
+    mutationFn: (body: JoinGroupDto) => memberApi.joinGroup(body),
+    onSuccess: async joinedGroup => {
+      upsertMyGroup(queryClient, userId, joinedGroup);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, joinedGroup.id),
+      ]);
+    },
+  });
+};
+
+/**그룹 정보 수정 훅 */
+export const useUpdateGroup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ groupId, body }: { groupId: string; body: UpdateGroupDto }) =>
+      memberApi.updateGroup(groupId, body),
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ['group', variables.groupId] }),
+        invalidateGroupOverviewQueries(queryClient, variables.groupId),
+      ]);
+    },
+  });
+};
+
+/** 그룹 삭제 훅 */
+export const useDeleteGroup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (groupId: string) => memberApi.deleteGroup(groupId),
+    onSuccess: async (_, groupId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
+    },
+  });
+};
+
+/**멤버 역할 변경 훅 */
+export const useUpdateMemberRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      groupId,
+      userId,
+      role,
+    }: {
+      groupId: string;
+      userId: string;
+      role: 'ADMIN' | 'MEMBER';
+    }) => memberApi.updateMemberRole(groupId, userId, role),
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['member', 'group-members', variables.groupId],
+        }),
+        invalidateGroupOverviewQueries(queryClient, variables.groupId),
+      ]);
+    },
+  });
+};
+
+/** 멤버 추방 / 탈퇴 훅 */
+export const useRemoveGroupMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ groupId, userId }: { groupId: string; userId: string }) =>
+      memberApi.removeGroupMember(groupId, userId),
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['member', 'group-members', variables.groupId],
+        }),
+        queryClient.invalidateQueries({ queryKey: MEMBER_QUERY_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, variables.groupId),
+      ]);
+    },
+  });
+};
+
+export const useGroupPermissions = (groupId: number | string | undefined) => {
+  return useQuery({
+    queryKey: ['group-permissions', groupId],
+    queryFn: () => memberApi.getGroupPermissions(groupId!),
+    enabled: !!groupId,
+  });
+};
+
+export const useUpdateGroupPermissions = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: memberApi.updateGroupPermissions,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['group-permissions', variables.groupId] });
+    },
+  });
+};
+
+/** 초대 코드 미리보기 조회 훅 */
+export const useInviteInfo = (code: string | undefined) => {
+  return useQuery({
+    queryKey: ['group', 'invite-info', code],
+    queryFn: () => memberApi.getInviteInfo(code!),
+    enabled: !!code,
+    retry: false,
+  });
+};
+
+/** 특정 그룹 상세 정보 조회 훅 */
+export const useGroupDetail = (groupId: string | undefined) => {
+  return useQuery({
+    queryKey: ['group', groupId],
+    queryFn: () => memberApi.getGroupDetail(groupId!),
+    enabled: !!groupId,
+  });
+};

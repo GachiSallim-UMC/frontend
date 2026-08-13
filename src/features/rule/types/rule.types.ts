@@ -8,7 +8,7 @@ export type RuleCategory =
   | 'visitor'
   | 'safety'
   | 'etc';
-export type EditableRuleCategory = Exclude<RuleCategory, 'etc'>;
+export type EditableRuleCategory = RuleCategory;
 export type RuleApiStatus = 'ACTIVE' | 'INACTIVE';
 export type RuleAgreementApiStatus = 'AGREED' | 'DISAGREED' | 'PENDING';
 
@@ -16,6 +16,7 @@ export interface RuleUser {
   id: string;
   name: string;
   nickname: string;
+  avatarUrl?: string;
 }
 
 export interface RuleAgreementMember {
@@ -44,6 +45,8 @@ export interface RuleAgreement {
 /** 생활 규칙 도메인 모델 */
 export interface Rule {
   id: string;
+  /** 상세 화면이 현재 선택된 그룹의 규칙인지 확인할 때 사용합니다. */
+  groupId?: string;
   category: RuleCategory;
   categoryId?: number | null;
   categoryName?: string | null;
@@ -54,7 +57,7 @@ export interface Rule {
   updatedAt?: string;
   agreement: RuleAgreement;
   agreements?: RuleAgreementMember[];
-  myAgreementStatus?: RuleAgreementApiStatus | null;
+  myAgreementStatus: RuleAgreementApiStatus | null;
   histories?: RuleHistory[];
   status: RuleStatus;
 }
@@ -66,17 +69,10 @@ export interface CreateRuleDto {
   content: string;
 }
 
-export interface UpdateRuleDto extends CreateRuleDto {
-  status: RuleStatus;
-}
+export type UpdateRuleDto = CreateRuleDto;
 
 export interface UpdateRuleAgreementDto {
   status: RuleAgreementApiStatus;
-}
-
-export interface ShareRuleResponse {
-  ruleId: number;
-  messageId: number;
 }
 
 export interface RuleAgreementSummaryResponse {
@@ -95,13 +91,14 @@ export interface RuleListItemResponse {
   status: RuleApiStatus;
   createdBy: { userId: number; nickname: string };
   agreementSummary: RuleAgreementSummaryResponse;
+  /** 현재 로그인한 사용자의 동의 상태 */
+  myAgreementStatus: RuleAgreementApiStatus | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface RuleDetailResponse extends RuleListItemResponse {
   categoryName: string | null;
-  myAgreementStatus: RuleAgreementApiStatus | null;
   agreements: Array<{
     userId: number;
     nickname: string;

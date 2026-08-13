@@ -1,10 +1,15 @@
 import { ApiError, apiClient } from '@/shared/api';
-import type { 
-  LoginDto, 
-  LoginResponsePayload, 
+import type {
+  LoginDto,
+  LoginResponsePayload,
   MeResponsePayload,
   SignupDto,
-  SignupConfirmDto } from '../types/auth.type';
+  SocialFormDto,
+  ForgotPasswordDto,
+  SignupConfirmDto,
+  SignupResendDto,
+  ResetPasswordDto,
+} from '@/features/auth/types/auth.type';
 
 const BASE = '/auth';
 
@@ -60,4 +65,39 @@ export const authApi = {
   signupConfirm: async (dto: SignupConfirmDto): Promise<void> => {
     await apiClient.post(`${BASE}/signup/confirm`, dto);
   },
+  signupResend: async (dto: SignupResendDto): Promise<void> => {
+    await apiClient.post(`${BASE}/signup/resend`, dto);
+  },
+  socialSignup: async (dto: SocialFormDto, accessToken: string): Promise<MeResponsePayload> => {
+    const { data } = await apiClient.post<MeResponsePayload>(`${BASE}/social/signup`, dto, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    
+    if (!isMeResponsePayload(data)) {
+      throw new ApiError(502, 'INVALID_API_RESPONSE', '소셜 가입 응답 형식이 올바르지 않습니다.');
+    }
+    return data;
+  },
+  forgotPassword: async (dto: ForgotPasswordDto): Promise<void> => {
+    await apiClient.post(`${BASE}/password/forgot`, dto);
+  },
+  resetPassword: async (dto: ResetPasswordDto): Promise<void> => {
+    await apiClient.post(`${BASE}/password/reset`, dto);
+  },
+  // 비밀번호 변경(마이페이지)
+  changePassword: async (previousPassword: string, newPassword: string) => {
+    const payload = {
+      previousPassword,
+      newPassword
+    };
+
+    const { data } = await apiClient.post(`${BASE}/password/change`, payload);
+    return data;
+  },
+
+  // 회원 탈퇴
+  withdraw: async () => {
+    const { data } = await apiClient.delete(`${BASE}/me`);
+    return data;
+  }
 };

@@ -1,4 +1,4 @@
-import type { ActivityLog, ActivityLogGroup } from '../types/activity.type';
+import type { ActivityLog, ActivityLogGroup } from '@/features/activity/types/activity.type';
 
 export const isWithinDays = (isoDate: string, days: number) => {
   const diffDays = (Date.now() - new Date(isoDate).getTime()) / (1000 * 60 * 60 * 24);

@@ -1,67 +1,209 @@
 import { useState } from 'react';
-import { settleExpenseSplit } from '@/features/expense';
-import type { Expense } from '@/features/expense';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { invalidateGroupOverviewQueries } from '@/shared/lib';
+import { useAlertStore } from '@/shared/store';
+import { settleExpenseSplit } from '@/features/expense/api/expense.api';
+import type { Expense } from '@/features/expense/types/expense.types';
+import { expenseKeys } from '@/features/expense/hooks/expense.keys';
+import { useExpenseQueryScope } from '@/features/expense/hooks/useExpenseQueryScope';
 
-export const useExpenseSettle = (expense?: Expense, onRefresh?: () => void) => {
+export const settleMyExpenseShare = async (
+  expense: Expense,
+  userId: string
+): Promise<{ ok: boolean }> => {
+  const myShare = expense.shares?.find(
+    (share) => String(share.user.id) === String(userId)
+  );
+
+  if (!myShare) {
+    useAlertStore.getState().showAlert({
+      title: '알림',
+      message: '내 분담 내역을 찾을 수 없습니다.',
+    });
+    return { ok: false };
+  }
+
+  if (myShare.isPaid) {
+    useAlertStore.getState().showAlert({
+      title: '알림',
+      message: '이미 정산 완료된 항목입니다.',
+    });
+    return { ok: false };
+  }
+
+  try {
+    await settleExpenseSplit(Number(myShare.id), {
+      isBulkComplete: true,
+    });
+
+    return { ok: true };
+  } catch {
+    useAlertStore.getState().showAlert({
+      title: '오류',
+      message: '정산 처리에 실패했습니다.',
+    });
+    return { ok: false };
+  }
+};
+
+/** 메신저 공유 카드에서도 정산 캐시 갱신을 빠뜨리지 않도록 제공하는 표준 mutation입니다. */
+export const useSettleMyExpenseShare = () => {
+  const queryClient = useQueryClient();
+  const { userId, groupId } = useExpenseQueryScope();
+
+  return useMutation({
+    mutationFn: ({ expense, currentUserId }: { expense: Expense; currentUserId: string }) =>
+      settleMyExpenseShare(expense, currentUserId),
+    onSuccess: async (result, { expense }) => {
+      if (!result.ok) return;
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: expenseKeys.lists(userId, groupId) }),
+        queryClient.invalidateQueries({
+          queryKey: expenseKeys.detail(userId, groupId, expense.id),
+        }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
+    },
+  });
+};
+
+export const useExpenseSettle = (
+  expense?: Expense,
+  onRefresh?: () => void
+) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [paidSplitIds, setPaidSplitIds] = useState<(number | string)[]>([]);
+  const queryClient = useQueryClient();
+  const showAlert = useAlertStore((state) => state.showAlert);
+  const { userId, groupId } = useExpenseQueryScope();
+
+  const refreshExpenses = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: expenseKeys.lists(userId, groupId),
+      }),
+      ...(expense?.id
+        ? [
+            queryClient.invalidateQueries({
+              queryKey: expenseKeys.detail(userId, groupId, expense.id),
+            }),
+          ]
+        : []),
+      invalidateGroupOverviewQueries(queryClient, groupId),
+    ]);
+
+    onRefresh?.();
+  };
 
   const handleBulkSettle = async () => {
-    if (!expense?.shares || expense.shares.length === 0) return;
-
-    if (expense.status === 'paid') {
-      alert('이미 정산 완료된 항목입니다.');
+    if (!expense?.shares || expense.shares.length === 0) {
       return;
     }
 
-    if (!window.confirm('전체 정산을 완료 처리하시겠습니까?')) return;
+    if (expense.status === 'paid') {
+      showAlert({
+        title: '알림',
+        message: '이미 정산 완료된 항목입니다.',
+      });
+      return;
+    }
 
     try {
-      for (const share of expense.shares) {
-        const splitId = share.id;
-        if (!splitId) continue;
+      const unsettledShares = expense.shares.filter(
+        (share) => share.id && !share.isPaid
+      );
 
-        await settleExpenseSplit(Number(splitId), { isBulkComplete: true });
+      for (const share of unsettledShares) {
+        await settleExpenseSplit(Number(share.id), {
+          isBulkComplete: true,
+        });
       }
-      alert('전체 정산이 완료되었습니다.');
-      if (onRefresh) onRefresh();
-    } catch (error) {
-      console.error('전체 정산 실패:', error);
-      alert('전체 정산 처리에 실패했습니다.');
+
+      setPaidSplitIds((prev) => [
+        ...new Set([
+          ...prev,
+          ...unsettledShares.map((share) => share.id),
+        ]),
+      ]);
+
+      await refreshExpenses();
+    } catch {
+      showAlert({
+        title: '오류',
+        message: '전체 정산 처리에 실패했습니다.',
+      });
     }
   };
 
-  const handleIndividualSubmit = async (selectedSplitIds: (number | string)[]) => {
+  const handleIndividualSubmit = async (
+    selectedSplitIds: (number | string)[]
+  ) => {
     if (selectedSplitIds.length === 0) {
-      alert('완료 처리할 멤버를 선택해주세요.');
+      showAlert({
+        title: '알림',
+        message: '완료 처리할 멤버를 선택해주세요.',
+      });
       return;
     }
 
     try {
       for (const splitId of selectedSplitIds) {
-        await settleExpenseSplit(Number(splitId), { isBulkComplete: false });
+        await settleExpenseSplit(Number(splitId), {
+          isBulkComplete: true,
+        });
       }
 
-      alert('선택된 멤버의 개별 정산이 완료되었습니다.');
+      setPaidSplitIds((prev) => [
+        ...new Set([...prev, ...selectedSplitIds]),
+      ]);
+
+      await refreshExpenses();
+
       setIsModalOpen(false);
-      if (onRefresh) onRefresh();
-    } catch (error) {
-      console.error('개별 정산 실패:', error);
-      alert('개별 정산 처리에 실패했습니다.');
+    } catch {
+      showAlert({
+        title: '오류',
+        message: '개별 정산 처리에 실패했습니다.',
+      });
     }
   };
 
-  const modalMembers = expense?.shares?.map((share) => ({
-    id: share.id,
-    name: share.user?.name ?? '알 수 없음',
-    amount: share.amount ?? 0,
-    isPaid: share.isPaid,
-  })) || [];
+  /** 채무자가 "송금완료"로 표시했지만 실제로 입금되지 않은 경우, 요청 상태(REQUESTED)로 되돌립니다. */
+  const handleReject = async (splitId: number | string) => {
+    try {
+      await settleExpenseSplit(Number(splitId), {
+        isBulkComplete: false,
+      });
+
+      await refreshExpenses();
+    } catch {
+      showAlert({
+        title: '오류',
+        message: '거절 처리에 실패했습니다.',
+      });
+    }
+  };
+
+  const modalMembers =
+    expense?.shares?.map((share) => ({
+      id: share.id,
+      name: share.user?.name ?? '알 수 없음',
+      amount: share.amount ?? 0,
+      isPaid:
+        Boolean(share.isPaid) ||
+        paidSplitIds.some(
+          (paidId) => String(paidId) === String(share.id)
+        ),
+      isPending: Boolean(share.isPending),
+    })) ?? [];
 
   return {
     isModalOpen,
     setIsModalOpen,
     handleBulkSettle,
     handleIndividualSubmit,
+    handleReject,
     modalMembers,
   };
 };

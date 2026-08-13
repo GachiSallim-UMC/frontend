@@ -33,6 +33,7 @@ export interface Chore {
   startDate: string;
   endDate?: string;
   status: Status;
+  completedAt?: string;
   memo?: string;
 }
 
@@ -124,23 +125,6 @@ export interface CreateChoreDto {
 
 export type UpdateChoreDto = Omit<CreateChoreDto, 'groupId'>;
 
-export interface ShareChoreDto {
-  chatRoomId: number;
-  content?: string;
-}
-
-export interface ShareChoreResponse {
-  choreId: number;
-  chatMessageId: number;
-  shareCard: {
-    title: string;
-    assignee: string;
-    dueDate: string | null;
-    status: ChoreApiStatus;
-  };
-  sentAt: string;
-}
-
 export interface ChoreFilter {
   status?: ChoreApiStatus;
   assigneeId?: number;
@@ -152,4 +136,18 @@ export interface GetChoresParams {
   groupId: number;
   status?: ChoreApiStatus;
   assigneeId?: number;
+  fromDate?: string;
+  toDate?: string;
+}
+
+export interface IncompleteChoreResponse {
+  choreId: number;
+  status: ChoreApiStatus;
+  completedBy: ChoreApiUser | null;
+  completedAt: string | null;
+}
+
+export interface DeleteChoreResponse {
+  choreId: number;
+  deletedChoreIds: number[];
 }

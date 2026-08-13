@@ -1,13 +1,16 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { Button } from '../Button/Button';
-import { ShareMessengerButton } from '../Button/ShareMessengerButton';
+import { Button } from '@/shared/components/ui/Button/Button';
+import { ShareMessengerButton } from '@/shared/components/ui/Button/ShareMessengerButton';
 
 interface FormActionsProps {
   onSave: () => void;
   onCancel: () => void;
+  onDelete?: () => void;
   saveLabel?: string;
   cancelLabel?: string;
+  deleteLabel?: string;
+  isSubmitting?: boolean;
   /** 우측 슬롯 — 기본은 메신저 공유 버튼, null이면 아예 렌더링하지 않음 */
   rightSlot?: ReactNode;
   className?: string;
@@ -17,25 +20,44 @@ interface FormActionsProps {
 export const FormActions = ({
   onSave,
   onCancel,
+  onDelete,
   saveLabel = '저장',
   cancelLabel = '취소',
+  deleteLabel = '삭제',
+  isSubmitting = false,
   rightSlot = <ShareMessengerButton />,
   className,
 }: FormActionsProps) => (
-  <div className={cn('flex items-center justify-between', className)}>
-    <div className="flex gap-3">
-      <Button type="button" className="w-[150px] font-bold" onClick={onSave}>
+  <div className={cn('flex items-center justify-between gap-6', className)}>
+    <div className="flex min-w-0 flex-1 gap-3">
+      <Button
+        type="button"
+        className="w-full max-w-[150px] min-w-0 font-bold"
+        onClick={onSave}
+        disabled={isSubmitting}
+      >
         {saveLabel}
       </Button>
       <Button
         type="button"
         variant="secondary"
-        className="w-[150px] font-normal"
+        className="w-full max-w-[150px] min-w-0 font-normal"
         onClick={onCancel}
+        disabled={isSubmitting}
       >
         {cancelLabel}
       </Button>
+      {onDelete && (
+        <Button
+          type="button"
+          className="w-full max-w-[150px] min-w-0 border-0 bg-red-700 font-bold text-white hover:bg-red-500"
+          onClick={onDelete}
+          disabled={isSubmitting}
+        >
+          {deleteLabel}
+        </Button>
+      )}
     </div>
-    {rightSlot && <div className="w-[189px] min-w-0 shrink">{rightSlot}</div>}
+    {rightSlot && <div className="w-[189px] shrink-0">{rightSlot}</div>}
   </div>
 );

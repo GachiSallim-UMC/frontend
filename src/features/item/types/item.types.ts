@@ -2,14 +2,14 @@ import type { ItemStatus } from '@/shared/types';
 
 export type SupplyStatus = 'SUFFICIENT' | 'LOW' | 'EMPTY' | 'PURCHASED';
 export type SupplyCategory =
-  | 'DAILY'
-  | 'KITCHEN'
+  | 'DAILY_NECESSITIES'
   | 'BATHROOM'
-  | 'CLEANING'
-  | 'GROCERY'
-  | 'MEDICINE'
-  | 'PET'
-  | 'TOOL'
+  | 'KITCHEN'
+  | 'LAUNDRY_CLEANING'
+  | 'FOOD'
+  | 'HEALTH_HYGIENE'
+  | 'PET_PLANT'
+  | 'TOOLS_ETC'
   | 'ETC';
 export type SupplyPurchaseCategory =
   | 'FINANCE'
@@ -44,6 +44,8 @@ export interface ItemUser {
 /** 공용 물품 도메인 모델 */
 export interface Item {
   id: string;
+  /** 상세 화면이 현재 선택된 그룹의 물품인지 확인할 때 사용합니다. */
+  groupId?: string;
   name: string;
   category: ItemCategory;
   buyer?: ItemUser;
@@ -79,11 +81,6 @@ export interface UpdateItemStatusDto {
 export interface PurchaseItemDto {
   category: SupplyPurchaseCategory;
   amount: number;
-}
-
-export interface ShareItemDto {
-  chatRoomId: number;
-  content?: string;
 }
 
 export interface SupplyResponse {

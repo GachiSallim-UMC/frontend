@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Rule, RuleAgreementApiStatus, RuleUser } from '../types/rule.types';
+import type { Rule, RuleAgreementApiStatus, RuleUser } from '@/features/rule/types/rule.types';
 
 export type MyAgreement = 'agree' | 'disagree' | 'pending';
 export type RuleHistoryType = 'register' | 'agree' | 'edit';
@@ -17,6 +17,8 @@ const AGREEMENT_FROM_API: Record<RuleAgreementApiStatus, MyAgreement> = {
   DISAGREED: 'disagree',
   PENDING: 'pending',
 };
+
+const EMPTY_AVATAR_BY_USER_ID: ReadonlyMap<string, string | undefined> = new Map();
 
 const getHistoryType = (action: string): RuleHistoryType => {
   const normalized = action.toUpperCase();
@@ -37,7 +39,11 @@ const formatHistoryTime = (value: string) => {
 };
 
 /** 상세 응답의 멤버별 동의 상태와 히스토리를 화면 모델로 변환합니다. */
-export const useRuleAgreement = (rule: Rule, currentUserId?: string | null) => {
+export const useRuleAgreement = (
+  rule: Rule,
+  currentUserId?: string | null,
+  avatarByUserId: ReadonlyMap<string, string | undefined> = EMPTY_AVATAR_BY_USER_ID,
+) => {
   const myAgreement = rule.myAgreementStatus
     ? AGREEMENT_FROM_API[rule.myAgreementStatus]
     : 'pending';
@@ -49,6 +55,7 @@ export const useRuleAgreement = (rule: Rule, currentUserId?: string | null) => {
           id: agreement.userId,
           name: agreement.nickname,
           nickname: agreement.nickname,
+          avatarUrl: avatarByUserId.get(String(agreement.userId)),
         };
         return {
           member,
@@ -57,7 +64,7 @@ export const useRuleAgreement = (rule: Rule, currentUserId?: string | null) => {
           agreement: AGREEMENT_FROM_API[agreement.status],
         };
       }),
-    [currentUserId, rule.agreements, rule.registeredBy.id],
+    [avatarByUserId, currentUserId, rule.agreements, rule.registeredBy.id],
   );
 
   const historyEntries = useMemo<RuleHistoryEntry[]>(

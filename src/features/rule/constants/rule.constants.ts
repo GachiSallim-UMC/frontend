@@ -1,5 +1,5 @@
 import type { RuleStatus } from '@/shared/types';
-import type { EditableRuleCategory, RuleCategory } from '../types/rule.types';
+import type { EditableRuleCategory, RuleCategory } from '@/features/rule/types/rule.types';
 
 /** 백엔드 rule_categories seed/migration에서 모든 환경에 동일한 ID로 등록해야 합니다. */
 export const RULE_CATEGORY_DEFINITIONS: ReadonlyArray<{
@@ -13,6 +13,7 @@ export const RULE_CATEGORY_DEFINITIONS: ReadonlyArray<{
   { value: 'bathroom', id: 4, label: '화장실/욕실' },
   { value: 'visitor', id: 5, label: '방문객' },
   { value: 'safety', id: 6, label: '안전/보안' },
+  { value: 'etc', id: 7, label: '기타' },
 ];
 
 export const RULE_CATEGORY_LABEL: Record<RuleCategory, string> = {

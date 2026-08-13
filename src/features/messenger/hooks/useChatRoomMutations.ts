@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { messengerApi } from '@/features/messenger/api/messenger.api';
 import type { CardMessageTypeDto, ChatRoomCategory } from '@/features/messenger/types';
-import { mapCategoryToChatRoomType } from './messenger.mappers';
-import { MESSENGER_QUERY_KEYS } from './useChatRoomQueries';
+import { mapCategoryToChatRoomType } from '@/features/messenger/hooks/messenger.mappers';
+import { MESSENGER_QUERY_KEYS } from '@/features/messenger/hooks/useChatRoomQueries';
 
 /** 채팅방 생성 */
 export const useCreateChatRoom = (groupId: string | null) => {
@@ -64,7 +64,7 @@ export const useTransferOwner = () => {
   });
 };
 
-/** 텍스트 메시지 전송 */
+/** 텍스트 메시지 전송 — 실패 시 말풍선 옆에 인라인으로 보여주므로 전역 에러 모달은 건너뜀 */
 export const useSendMessage = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -73,23 +73,25 @@ export const useSendMessage = () => {
     onSuccess: (_data, { roomId }) => {
       queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.messages(roomId) });
     },
+    meta: { skipGlobalError: true },
   });
 };
 
 /** 카드(공유) 메시지 전송 */
-export const useSendCardMessage = () => {
+export const useSendCardMessage = (groupId: string | null) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ roomId, type, refId, content }: { roomId: string; type: CardMessageTypeDto; refId: string; content?: string }) =>
       messengerApi.sendCardMessage(roomId, { type, refId, content }),
     onSuccess: (_data, { roomId }) => {
       queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.messages(roomId) });
+      queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.rooms(groupId) });
     },
   });
 };
 
 /** 내 알림/상단고정 설정 변경 */
-export const useUpdateMemberSettings = () => {
+export const useUpdateMemberSettings = (groupId: string | null) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -103,6 +105,8 @@ export const useUpdateMemberSettings = () => {
     }) => messengerApi.updateMemberSettings(roomId, { notificationEnabled, isPinned }),
     onSuccess: (_data, { roomId }) => {
       queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.roomDetail(roomId) });
+      // 상단 고정은 방 목록 정렬에 쓰이므로 목록 쿼리도 같이 갱신한다
+      queryClient.invalidateQueries({ queryKey: MESSENGER_QUERY_KEYS.rooms(groupId) });
     },
   });
 };

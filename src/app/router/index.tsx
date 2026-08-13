@@ -1,13 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
-import { AppLayout } from './AppLayout';
-import { RequireAuth } from './RequireAuth';
-import { RequireGroup } from './RequireGroup';
+import { AppLayout } from '@/app/router/AppLayout';
+import { RequireAuth } from '@/app/router/RequireAuth';
+import { RequireGroup } from '@/app/router/RequireGroup';
 import { ExpenseListPage, ExpenseAddPage } from '@/pages/expense';
 import { ItemListPage, ItemFormPage, ItemEditRoute } from '@/pages/item';
 import { RuleListPage, RuleFormPage, RuleDetailRoute } from '@/pages/rule';
-import { NotificationPage } from '@/pages/notification';
+import { NotificationPage, NotificationRedirectPage } from '@/pages/notification';
 import { ChoreListPage } from '@/pages/chore/ChoreListPage';
 import { ChoreCreatePage } from '@/pages/chore/ChoreCreatePage';
 import { ChoreEditPage } from '@/pages/chore/ChoreEditPage';
@@ -24,6 +24,10 @@ import { PrivacyPage } from '@/pages/auth/PrivacyPage';
 import { MemberSettingPage } from '@/pages/member/MemberSettingPage';
 import { MessengerPage } from '@/pages/messenger';
 import { ActivityPage } from '@/pages/activity';
+import { SocialLoginPage } from '@/pages/auth/SocialLoginPage';
+import { AuthCallbackPage } from '@/pages/auth/AuthCallbackPage';
+import { ResetPasswordPage } from '@/pages/auth/ResetPasswordPage';
+
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -32,6 +36,9 @@ export const router = createBrowserRouter([
   { path: '/signup', element: <SignupPage /> },
   { path: '/terms', element: <TermsPage /> },
   { path: '/privacy', element: <PrivacyPage /> },
+  { path: '/social-signup', element:<SocialLoginPage />},
+  { path: '/auth/callback', element:<AuthCallbackPage />},
+  { path: '/reset-password', element:<ResetPasswordPage />},
   {
     element: <RequireAuth />,
     children: [
@@ -60,6 +67,7 @@ export const router = createBrowserRouter([
               { path: '/rules/:id', element: <RuleDetailRoute /> },
               { path: '/messenger', element: <MessengerPage /> },
               { path: '/notifications', element: <NotificationPage /> },
+              { path: '/notifications/:id', element: <NotificationRedirectPage /> },
               { path: '/activity', element: <ActivityPage /> },
               { path: '/mypage', element: <MyPage /> },
               { path: '/group/settings', element: <MemberSettingPage /> },

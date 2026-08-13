@@ -13,12 +13,12 @@ import type {
   CreateChoreDto,
   CustomOption,
   DayOfWeek,
+  DeleteChoreResponse,
   GetChoresParams,
   RepeatType,
-  ShareChoreDto,
-  ShareChoreResponse,
   UpdateChoreDto,
-} from '../types/chore.types';
+  IncompleteChoreResponse,
+} from '@/features/chore/types/chore.types';
 
 const BASE = '/chores';
 
@@ -112,6 +112,29 @@ const isChoreListItem = (value: unknown): value is ChoreListItemResponse =>
   typeof value.createdAt === 'string' &&
   typeof value.updatedAt === 'string';
 
+const calculateChoreStatus = (
+  completedAt: string | null,
+  dueDate: string | null,
+): Chore['status'] => {
+  if (completedAt !== null) {
+    return 'done';
+  }
+
+  if (dueDate !== null) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+
+    if (due <= today) {
+      return 'pending';
+    }
+  }
+
+  return 'scheduled';
+};
+
 /** API 응답을 기존 대시보드·메신저가 사용하는 UI 모델로 변환합니다. */
 export const toChore = (response: ChoreListItemResponse): Chore => ({
   id: String(response.choreId),
@@ -130,7 +153,8 @@ export const toChore = (response: ChoreListItemResponse): Chore => ({
   repeatDays: response.repeatDays.map(day => DAY_FROM_API[day]),
   startDate: response.startDate,
   endDate: response.dueDate ?? undefined,
-  status: STATUS_FROM_API[response.status],
+  status: calculateChoreStatus(response.completedAt, response.dueDate || response.startDate),
+  completedAt: response.completedAt ?? undefined,
   memo: response.memo ?? undefined,
 });
 
@@ -153,16 +177,17 @@ export const choreApi = {
     return data;
   },
 
-  remove: async (id: string): Promise<void> => {
-    await apiClient.delete(`${BASE}/${id}`);
+  remove: async (id: string): Promise<DeleteChoreResponse> => {
+    const { data } = await apiClient.delete<DeleteChoreResponse>(`${BASE}/${id}`);
+    return data;
   },
 
   complete: async (id: string): Promise<void> => {
     await apiClient.patch(`${BASE}/${id}/complete`);
   },
 
-  share: async (id: string, dto: ShareChoreDto): Promise<ShareChoreResponse> => {
-    const { data } = await apiClient.post<ShareChoreResponse>(`${BASE}/${id}/share`, dto);
+  incomplete: async (id: string): Promise<IncompleteChoreResponse> => {
+    const { data } = await apiClient.patch<IncompleteChoreResponse>(`${BASE}/${id}/incomplete`);
     return data;
   },
 };

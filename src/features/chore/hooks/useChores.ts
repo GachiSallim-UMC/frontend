@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { choreApi, toChore } from '../api/chore.api';
-import type { CreateChoreDto, GetChoresParams, UpdateChoreDto } from '../types/chore.types';
+import { invalidateGroupOverviewQueries } from '@/shared/lib';
+import { useGroupStore } from '@/shared/store';
+import { choreApi, toChore } from '@/features/chore/api/chore.api';
+import type { CreateChoreDto, GetChoresParams, UpdateChoreDto } from '@/features/chore/types/chore.types';
 
 const CHORE_KEYS = {
   all: ['chores'] as const,
@@ -29,18 +31,70 @@ export const useCreateChore = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (dto: CreateChoreDto) => choreApi.create(dto),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all });
+    onSuccess: async (_data, dto) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, dto.groupId),
+      ]);
     },
   });
 };
 
 export const useUpdateChore = () => {
   const queryClient = useQueryClient();
+  const groupId = useGroupStore(state => state.selectedGroupId);
   return useMutation({
     mutationFn: ({ id, dto }: { id: string; dto: UpdateChoreDto }) => choreApi.update(id, dto),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
+    },
+  });
+};
+
+/**집안일 삭제 훅 */
+export const useRemoveChore = () => {
+  const queryClient = useQueryClient();
+  const groupId = useGroupStore(state => state.selectedGroupId);
+  return useMutation({
+    mutationFn: (id: string) => choreApi.remove(id),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
+    },
+  });
+};
+
+/**집안일 완료 훅 */
+export const useCompleteChore = () => {
+  const queryClient = useQueryClient();
+  const groupId = useGroupStore(state => state.selectedGroupId);
+  return useMutation({
+    mutationFn: (id: string) => choreApi.complete(id),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
+    },
+  });
+};
+
+/**집안일 완료->미완료 훅 */
+export const useIncompleteChore = () => {
+  const queryClient = useQueryClient();
+  const groupId = useGroupStore(state => state.selectedGroupId);
+  return useMutation({
+    mutationFn: (id: string) => choreApi.incomplete(id),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CHORE_KEYS.all }),
+        invalidateGroupOverviewQueries(queryClient, groupId),
+      ]);
     },
   });
 };

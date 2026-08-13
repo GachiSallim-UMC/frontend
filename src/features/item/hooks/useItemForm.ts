@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { EditableItemStatus, Item, ItemCategory } from '../types/item.types';
+import type { EditableItemStatus, Item, ItemCategory } from '@/features/item/types/item.types';
 
 export const ITEM_STATUS_OPTIONS: { value: EditableItemStatus; label: string }[] = [
   { value: 'enough', label: '충분' },
@@ -17,6 +17,13 @@ export const useItemForm = (editingItem?: Item) => {
   const [buyerId, setBuyerId] = useState(editingItem?.buyer?.id ?? '');
   const [memo, setMemo] = useState(editingItem?.memo ?? '');
 
+  const isDirty =
+    name.trim() !== (editingItem?.name ?? '').trim() ||
+    category !== (editingItem?.category ?? '') ||
+    status !== (initialStatus ?? '') ||
+    String(buyerId) !== String(editingItem?.buyer?.id ?? '') ||
+    memo.trim() !== (editingItem?.memo ?? '').trim();
+
   return {
     name,
     setName,
@@ -28,5 +35,6 @@ export const useItemForm = (editingItem?: Item) => {
     setBuyerId,
     memo,
     setMemo,
+    isDirty,
   };
 };

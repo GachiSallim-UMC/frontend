@@ -10,9 +10,17 @@ interface ShareItemPickerModalProps {
   options: ShareableOption[];
   onSelect: (optionId: string) => void;
   onClose: () => void;
+  /** 전송 중엔 선택/취소를 막아 중복 클릭으로 같은 카드가 두 번 전송되는 걸 방지한다 */
+  isSubmitting?: boolean;
 }
 
-export const ShareItemPickerModal = ({ type, options, onSelect, onClose }: ShareItemPickerModalProps) => {
+export const ShareItemPickerModal = ({
+  type,
+  options,
+  onSelect,
+  onClose,
+  isSubmitting = false,
+}: ShareItemPickerModalProps) => {
   const style = type ? SHARE_CARD_STYLE[type] : null;
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -28,7 +36,7 @@ export const ShareItemPickerModal = ({ type, options, onSelect, onClose }: Share
       closeOnOverlayClick
       className="max-w-[500px] rounded-[28px] p-0"
     >
-      <div className="flex flex-col gap-2 px-10 pb-3 pt-10">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-10 pb-3 pt-10">
         <h3 className="text-[18px] font-bold leading-[normal] text-gray-800">
           {style ? `${style.label} 항목 선택` : ''}
         </h3>
@@ -74,19 +82,20 @@ export const ShareItemPickerModal = ({ type, options, onSelect, onClose }: Share
         )}
       </div>
 
-      <div className="flex items-center gap-5 border-t border-gray-100 px-10 py-[26px]">
+      <div className="flex shrink-0 items-center gap-5 border-t border-gray-100 px-10 py-[26px]">
         <button
           type="button"
           onClick={() => selectedId && onSelect(selectedId)}
-          disabled={!selectedId}
+          disabled={!selectedId || isSubmitting}
           className="h-[58px] flex-1 rounded-lg bg-primary-600 text-[16px] font-bold leading-[normal] text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          선택
+          {isSubmitting ? '전송 중...' : '선택'}
         </button>
         <button
           type="button"
           onClick={onClose}
-          className="h-[58px] w-[140px] shrink-0 rounded-lg bg-gray-200 text-[16px] font-bold leading-[normal] text-white transition-colors hover:bg-gray-200/80"
+          disabled={isSubmitting}
+          className="h-[58px] w-[140px] shrink-0 rounded-lg bg-gray-200 text-[16px] font-bold leading-[normal] text-white transition-colors hover:bg-gray-200/80 disabled:cursor-not-allowed disabled:opacity-50"
         >
           취소
         </button>

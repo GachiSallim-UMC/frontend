@@ -34,6 +34,7 @@ interface NavItem {
   ActiveIcon?: IconType;
   label: string;
   badge?: number;
+  end?: boolean;
 }
 
 interface NavGroup {
@@ -44,7 +45,9 @@ interface NavGroup {
 const NAV_GROUPS: NavGroup[] = [
   {
     title: 'MAIN',
-    items: [{ to: '/dashboard', Icon: DashboardIcon, ActiveIcon: DashboardActiveIcon, label: '대시보드' }],
+    items: [
+      { to: '/dashboard', Icon: DashboardIcon, ActiveIcon: DashboardActiveIcon, label: '대시보드' },
+    ],
   },
   {
     title: '관리',
@@ -59,7 +62,12 @@ const NAV_GROUPS: NavGroup[] = [
     title: '소통',
     items: [
       { to: '/messenger', Icon: MessengerIcon, ActiveIcon: MessengerActiveIcon, label: '메신저' },
-      { to: '/notifications', Icon: NotificationsIcon, ActiveIcon: NotificationsActiveIcon, label: '알림' },
+      {
+        to: '/notifications',
+        Icon: NotificationsIcon,
+        ActiveIcon: NotificationsActiveIcon,
+        label: '알림',
+      },
       { to: '/activity', Icon: ActivityIcon, ActiveIcon: ActivityActiveIcon, label: '활동 내역' },
     ],
   },
@@ -67,13 +75,19 @@ const NAV_GROUPS: NavGroup[] = [
 
 const BOTTOM_NAV: NavItem[] = [
   { to: '/mypage', Icon: MypageIcon, ActiveIcon: MypageActiveIcon, label: '마이페이지' },
-  { to: '/group/settings', Icon: GroupSettingsIcon, ActiveIcon: GroupSettingsActiveIcon, label: '그룹 설정' },
-  { to: '/group', Icon: GroupChangeIcon, label: '그룹 변경' },
+  {
+    to: '/group/settings',
+    Icon: GroupSettingsIcon,
+    ActiveIcon: GroupSettingsActiveIcon,
+    label: '그룹 설정',
+  },
+  { to: '/group', Icon: GroupChangeIcon, label: '그룹 변경', end: true },
 ];
 
 const NavItemLink = ({ item }: { item: NavItem }) => (
   <NavLink
     to={item.to}
+    end={item.end}
     className={({ isActive }) =>
       cn(
         'flex items-center gap-[8px] rounded-r-[10px] border-l-4 px-[22px] py-[10px] text-body transition-colors',

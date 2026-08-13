@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, Circle } from 'lucide-react';
-import { useWeekCalendar } from '../hooks/useWeekCalendar';
-import type { Chore } from '../types/chore.types';
+import { getChoreTargetDateStr, getChoreUIStatus } from '@/features/chore/hooks/useChoreStatus';
+import type { Chore } from '@/features/chore/types/chore.types';
 
 const STATUS_COLORS = {
   done: 'text-green-700',
@@ -10,50 +10,124 @@ const STATUS_COLORS = {
 
 interface ChoreCalendarViewProps {
   chores?: Chore[];
+  selectedDate: string;
+  weekDates: string[];
+  weekDateValues: string[];
+  dayLabels: string[];
+  todayDate: string;
+  onPrevWeek: () => void;
+  onNextWeek: () => void;
+  onSelectDate: (date: string) => void;
 }
 
-export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
-  const { currentDate, weekDates, handlePrevWeek, handleNextWeek } = useWeekCalendar();
-  const currentYear = currentDate.getFullYear();
-  const today = new Date();
-  const todayString = `${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
-  const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
-
-  const weekDays = weekDates.map((dateStr, index) => {
+export const ChoreCalendarView = ({
+  chores = [],
+  selectedDate,
+  weekDates,
+  weekDateValues,
+  dayLabels,
+  todayDate,
+  onPrevWeek,
+  onNextWeek,
+  onSelectDate,
+}: ChoreCalendarViewProps) => {
+  const weekDays = weekDateValues.map((dateValue, index) => {
     const choresForDay = chores.filter(chore => {
-      const dateObj = new Date(chore.startDate);
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const day = String(dateObj.getDate()).padStart(2, '0');
-
-      return `${month}.${day}` === dateStr;
+      return getChoreTargetDateStr(chore) === dateValue;
     });
 
     return {
-      day: daysOfWeek[index],
-      date: dateStr,
+      day: dayLabels[index],
+      date: weekDates[index],
+      dateValue,
       chores: choresForDay,
     };
   });
 
-  const headerDataText = `${currentYear}.${weekDates[0]} ~ ${weekDates[6]}`;
+  const fromYear = weekDateValues[0].slice(0, 4);
+  const toYear = weekDateValues[6].slice(0, 4);
+  const headerDataText =
+    fromYear === toYear
+      ? `${fromYear}.${weekDates[0]} ~ ${weekDates[6]}`
+      : `${fromYear}.${weekDates[0]} ~ ${toYear}.${weekDates[6]}`;
 
   return (
-    <div className="flex flex-col bg-white">
+    <div className="flex flex-col bg-transparent lg:bg-white">
+      {/**모바일 디자인 */}
+      <div className="flex w-full items-start lg:hidden">
+        <button
+          type="button"
+          aria-label="이전 주"
+          onClick={onPrevWeek}
+          className="mt-[20px] flex h-[38px] w-6 shrink-0 items-center justify-center"
+        >
+          <ChevronLeft size={20} className="text-gray-700" />
+        </button>
+        <div className="grid min-w-0 flex-1 grid-cols-7">
+          {weekDays.map((day, index) => {
+            const isToday = day.dateValue === todayDate;
+            const isSelected = day.dateValue === selectedDate;
+            const dayNumber = Number(day.date.split('.')[1]);
+            const hasChores = day.chores.length > 0;
+            return (
+              <div key={index} className="flex min-w-0 flex-col items-center">
+                <span className="mb-[6px] flex h-[14px] items-center text-[12px] leading-none text-gray-700">
+                  {day.day}
+                </span>
+                <button
+                  type="button"
+                  aria-label={`${day.dateValue} 집안일 보기`}
+                  aria-pressed={isSelected}
+                  onClick={() => onSelectDate(day.dateValue)}
+                  className={`flex size-[clamp(32px,9.75vw,38px)] items-center justify-center rounded-full text-[12px] font-bold transition-colors ${
+                    isSelected ? 'bg-primary-700 text-white' : 'bg-white text-gray-600'
+                  }`}
+                >
+                  {dayNumber}
+                </button>
+                <div className="mt-[6px] flex h-[4px] items-center justify-center">
+                  {hasChores && (
+                    <div className="h-[4px] w-[4px] rounded-full bg-primary-700" />
+                  )}
+                </div>
+                {isSelected && (
+                  <div className="mt-[12px] h-[2px] w-[clamp(32px,9.75vw,38px)] bg-primary-700" />
+                )}
+                {!isSelected && isToday && <span className="sr-only">오늘</span>}
+              </div>
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          aria-label="다음 주"
+          onClick={onNextWeek}
+          className="mt-[20px] flex h-[38px] w-6 shrink-0 items-center justify-center"
+        >
+          <ChevronRight size={20} className="text-gray-700" />
+        </button>
+      </div>
+
+      {/**PC 디자인 */}
       {/*좌측 날짜*/}
-      <div className="flex items-center justify-between py-[10px]">
+      <div className="hidden lg:flex lg:items-center lg:justify-between lg:py-[10px]">
         <div className="flex items-center gap-[16px]">
           <button
-            onClick={handlePrevWeek}
+            type="button"
+            aria-label="이전 주"
+            onClick={onPrevWeek}
             className="flex h-[34px] w-[34px] p-[7px] items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-primary-100 transition-colors"
           >
-            <ChevronLeft className="h-5 w-5 text-gray-700" />
+            <ChevronLeft size={20} className="text-gray-700" />
           </button>
           <h2 className="text-[16px] text-center font-bold text-gray-900">{headerDataText}</h2>
           <button
-            onClick={handleNextWeek}
+            type="button"
+            aria-label="다음 주"
+            onClick={onNextWeek}
             className="flex h-[34px] w-[34px] p-[7px] items-center justify-center rounded-full border border-gray-100 bg-white hover:bg-primary-100 transition-colors"
           >
-            <ChevronRight className="h-5 w-5 text-gray-700" />
+            <ChevronRight size={20} className="text-gray-700" />
           </button>
         </div>
 
@@ -85,9 +159,9 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
       </div>
 
       {/*7일 캘린더 그리드*/}
-      <div className="grid grid-cols-7 overflow-hidden rounded-xl border border-gray-100">
+      <div className="hidden lg:grid lg:grid-cols-7 overflow-hidden rounded-xl border border-gray-100">
         {weekDays.map((day, index) => {
-          const isToday = day.date === todayString;
+          const isToday = day.dateValue === todayDate;
 
           return (
             <div
@@ -111,29 +185,32 @@ export const ChoreCalendarView = ({ chores = [] }: ChoreCalendarViewProps) => {
 
               <div className="flex-1 p-[12px] bg-white">
                 <div className="flex flex-col gap-[12px]">
-                  {day.chores.map(chore => (
-                    <div
-                      key={chore.id}
-                      className={`flex flex-col gap-0 ${chore.status === 'done' ? 'opacity-50' : ''}`}
-                    >
-                      <div className="flex items-center gap-[6px]">
-                        <Circle
-                          size={8}
-                          fill="currentColor"
-                          strokeWidth={0}
-                          className={STATUS_COLORS[chore.status as keyof typeof STATUS_COLORS]}
-                        />
-                        <span
-                          className={`text-[12px] text-gray-900 font-bold leading-tight ${chore.status === 'done' ? 'line-through' : ''}`}
-                        >
-                          {chore.name}
+                  {day.chores.map(chore => {
+                    const uiStatus = getChoreUIStatus(chore);
+                    return (
+                      <div
+                        key={chore.id}
+                        className={`flex flex-col gap-0 ${uiStatus === 'done' ? 'opacity-50' : ''}`}
+                      >
+                        <div className="flex items-center gap-[6px]">
+                          <Circle
+                            size={8}
+                            fill="currentColor"
+                            strokeWidth={0}
+                            className={STATUS_COLORS[uiStatus]}
+                          />
+                          <span
+                            className={`text-[12px] text-gray-900 font-bold leading-tight ${uiStatus === 'done' ? 'line-through' : ''}`}
+                          >
+                            {chore.name}
+                          </span>
+                        </div>
+                        <span className="pl-[14px] text-[10px] text-gray-600">
+                          {chore.assignee.name}
                         </span>
                       </div>
-                      <span className="pl-[14px] text-[10px] text-gray-600">
-                        {chore.assignee.name}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>

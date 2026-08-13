@@ -1,8 +1,9 @@
 export type ShareCardType = 'expense' | 'chore' | 'item' | 'rule';
 
 export interface ChatShareCardDetail {
+  /** value 없으면 한 줄 표시, 있으면 좌우 2단(라벨/값) 표시 */
   label: string;
-  value: string;
+  value?: string;
 }
 
 export interface ChatShareCard {
@@ -22,10 +23,17 @@ export interface ChatMessage {
   senderId: string;
   senderName: string;
   senderAvatarUrl?: string;
+  /** 시:분 표시용 (예: '오전 10:06') */
   timestamp: string;
+  /** 날짜 구분선 계산용 원본 ISO 시각 */
+  createdAt: string;
   isMine: boolean;
   content?: string;
   shareCard?: ChatShareCard;
+  /** 카드가 참조하는 원본 도메인 항목 id (상세 보강용) */
+  refId?: string;
+  /** 로컬(옵티미스틱) 전용 — 서버가 확정한 메시지는 undefined */
+  status?: 'pending' | 'failed';
 }
 
 export type ChatRoomCategory = 'group' | 'notice' | 'dm';
@@ -118,6 +126,8 @@ export interface ChatRoomListItemResponse {
   lastMessage: MessageResponse | null;
   unreadCount: number;
   memberCount: number;
+  /** 요청자(나) 기준 상단 고정 여부 */
+  isPinned: boolean;
 }
 
 export interface ChatRoomMemberResponse {
@@ -181,3 +191,33 @@ export interface ListMessagesQuery {
 export interface TransferOwnerRequest {
   userId: string;
 }
+
+// ==================== 웹소켓(API Gateway WebSocket) 이벤트 ====================
+// REST({statusCode, data, error})와 별개로 { event, data } 포맷을 씀.
+
+export interface ChatSocketRoomJoinedEvent {
+  event: 'room:joined';
+  data: { chatRoomId: string };
+}
+
+export interface ChatSocketRoomJoinErrorEvent {
+  event: 'room:join:error';
+  data: { message: string };
+}
+
+export interface ChatSocketRoomLeftEvent {
+  event: 'room:left';
+  data: { chatRoomId: string };
+}
+
+/** 텍스트/카드 메시지 모두 이 이벤트로 옴 (data.type으로 구분) */
+export interface ChatSocketMessageNewEvent {
+  event: 'message:new';
+  data: MessageResponse;
+}
+
+export type ChatSocketServerEvent =
+  | ChatSocketRoomJoinedEvent
+  | ChatSocketRoomJoinErrorEvent
+  | ChatSocketRoomLeftEvent
+  | ChatSocketMessageNewEvent;

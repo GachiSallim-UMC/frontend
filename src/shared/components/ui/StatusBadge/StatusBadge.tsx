@@ -17,6 +17,7 @@ interface StatusBadgeProps {
   variant: BadgeVariant;
   label?: string;
   className?: string;
+  size?: 'sm' | 'lg';
 }
 
 /**
@@ -40,13 +41,16 @@ const variantConfig: Record<BadgeVariant, { label: string; className: string }> 
   disagree: { label: '반대', className: 'bg-red-100 text-red-700' },
 };
 
-export const StatusBadge = ({ variant, label, className }: StatusBadgeProps) => {
+export const StatusBadge = ({ variant, label, className, size = 'lg' }: StatusBadgeProps) => {
   const config = variantConfig[variant];
 
   return (
     <span
       className={cn(
-        'inline-flex h-[34px] w-[68px] items-center justify-center rounded-full text-caption font-bold',
+        'inline-flex items-center justify-center rounded-full font-bold',
+        size === 'sm'
+          ? 'h-[26px] w-[52px] text-[10px]' // 모바일용
+          : 'h-[34px] w-[68px] text-caption',
         config.className,
         className,
       )}

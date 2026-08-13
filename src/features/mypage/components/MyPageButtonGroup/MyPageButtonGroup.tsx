@@ -1,56 +1,69 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { WarningModal } from '@/features/mypage/components/WarningModal'
 import { Button } from '@/shared/components';
+import { useAlertStore } from '@/shared/store';
+import {myPageApi} from '@/features/mypage/api/myPage.api'
 import LogoutIcon from "@/assets/icons/mypage/logout.svg?react"
 import CrossIcon from "@/assets/icons/mypage/cross.svg?react"
 
-export const MyPageButtonGroup = () => {
-    const navigate = useNavigate();
+interface MyPageButtonGroupProps {
+    onLogout: () => void;
+    isLoggingOut?: boolean;
+}
+
+export const MyPageButtonGroup = ({
+    onLogout,
+    isLoggingOut = false,
+}: MyPageButtonGroupProps) => {
+    const showAlert = useAlertStore((state) => state.showAlert);
 
     const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
 
     const handleLogout = () => {
-        navigate('/login');
+        onLogout();
     };
 
-    const handleWithdrawClick = () => {
-        setIsWithdrawalModalOpen(true);
-    };
+    const handleConfirmWithdraw = async () => {
+        setIsWithdrawing(true);
+        try {
+            await myPageApi.withdraw();
+            showAlert({ title: '완료', message: '회원 탈퇴가 완료되었습니다.', tone: 'success' });
+            setIsWithdrawalModalOpen(false);
 
-    const handleCloseModal = () => {
-        setIsWithdrawalModalOpen(false);
-    };
-
-    const handleConfirmWithdraw = () => {
-        console.log("회원 탈퇴 처리됨");
-        setIsWithdrawalModalOpen(false);
-        navigate('/login'); 
+            onLogout();
+        } catch {
+            showAlert({ title: '탈퇴 실패', message: '문제가 발생했습니다.' });
+        } finally {
+            setIsWithdrawing(false);
+        }
     };
 
     return (
         <>
-            <div className="flex w-full items-center gap-5">
+            <div className="flex w-full flex-col gap-2 lg:flex-row lg:items-center lg:gap-5">
                 <Button
                     variant='secondary'
                     size="lg"
-                    className='flex-1'
+                    className='h-11 border-red-700 text-mobile-body text-red-700 hover:bg-red-100 lg:h-12 lg:flex-1 lg:border-gray-100 lg:text-base lg:text-gray-500 lg:hover:bg-gray-100'
                     leftIcon={
-                        <LogoutIcon className='h-5 w-5' />
+                        <LogoutIcon className='hidden h-5 w-5 lg:block' />
                     }
+                    disabled={isLoggingOut || isWithdrawing}
                     onClick={handleLogout}
                 >
-                    로그아웃
+                    {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
                 </Button>
 
                 <Button
                     variant='danger'
                     size="lg"
-                    className='flex-1'
+                    className='h-11 text-mobile-body lg:h-12 lg:flex-1 lg:text-base'
                     leftIcon={
-                        <CrossIcon className='h-5 w-5' />
+                        <CrossIcon className='hidden h-5 w-5 lg:block' />
                     }
-                    onClick={handleWithdrawClick}
+                    onClick={() => setIsWithdrawalModalOpen(true)}
+                    disabled={isLoggingOut || isWithdrawing}
                 >
                     회원탈퇴
                 </Button>
@@ -59,8 +72,9 @@ export const MyPageButtonGroup = () => {
             {/* 모달 렌더링 영역 */}
             <WarningModal 
                 isOpen={isWithdrawalModalOpen} 
-                onClose={handleCloseModal} 
+                onClose={() => { if (!isWithdrawing) setIsWithdrawalModalOpen(false) }} 
                 onConfirm={handleConfirmWithdraw} 
+                isWithdrawing={isWithdrawing} 
             />
         </>
     )

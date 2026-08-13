@@ -13,6 +13,7 @@ export { ChatRoomManagePanel } from './components/ChatRoomManagePanel';
 export { ConnectionStatusBadge } from './components/ConnectionStatusBadge';
 export { ConfirmActionModal } from './components/ConfirmActionModal';
 export { CreateChatRoomModal } from './components/CreateChatRoomModal';
+export { DateDivider } from './components/DateDivider';
 export { DelegateOwnerModal } from './components/DelegateOwnerModal';
 export { DeleteChatRoomModal } from './components/DeleteChatRoomModal';
 export { EmptyChatState } from './components/EmptyChatState';
@@ -24,7 +25,9 @@ export { ShareItemPickerModal } from './components/ShareItemPickerModal';
 export { ShareTypeBar } from './components/ShareTypeBar';
 export { TransferOwnerModal } from './components/TransferOwnerModal';
 export { useChatRoom } from './hooks/useChatRoom';
-export { useUnreadMessageCount } from './hooks/useChatRoomQueries';
+export { useChatRooms, useUnreadMessageCount } from './hooks/useChatRoomQueries';
+export { useSendCardMessage } from './hooks/useChatRoomMutations';
+export { useShareToMessenger } from './hooks/useShareToMessenger';
 export type {
   ChatFilter,
   ChatMessage,

@@ -43,11 +43,38 @@ jobs:
       - name: SSM에서 빌드 환경변수 로드
         run: |
           VITE_API_BASE_URL=$(aws ssm get-parameter --name "/gachi-salim/dev/VITE_API_BASE_URL" --query 'Parameter.Value' --output text)
-          if [ -z "$VITE_API_BASE_URL" ]; then
+          if [ -z "$VITE_API_BASE_URL" ] || [ "$VITE_API_BASE_URL" = "None" ]; then
             echo "::error::VITE_API_BASE_URL 파라미터 값이 비어있음"
             exit 1
           fi
-          echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> .env
+          printf 'VITE_API_BASE_URL=%s\n' "$VITE_API_BASE_URL" >> .env
+
+      - name: GitHub Variables에서 공개 환경변수 로드
+        env:
+          VITE_COGNITO_DOMAIN_URL: ${{ vars.VITE_COGNITO_DOMAIN_URL }}
+          VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+          VITE_WS_URL: ${{ vars.VITE_WS_URL }}
+          VITE_VAPID_PUBLIC_KEY: ${{ vars.VITE_VAPID_PUBLIC_KEY }}
+        run: |
+          # 필수 값: 없으면 소셜 로그인이 동작하지 않으므로 빌드를 실패시킨다.
+          for NAME in VITE_COGNITO_DOMAIN_URL VITE_COGNITO_CLIENT_ID; do
+            VALUE="${!NAME}"
+            if [ -z "$VALUE" ]; then
+              echo "::error::${NAME} 값이 비어있음 (Settings > Environments > dev > Variables 확인)"
+              exit 1
+            fi
+            printf '%s=%s\n' "$NAME" "$VALUE" >> .env
+          done
+
+          # 선택 값: 미설정 시 메신저 실시간 연결만 비활성화한다.
+          if [ -n "$VITE_WS_URL" ]; then
+            printf 'VITE_WS_URL=%s\n' "$VITE_WS_URL" >> .env
+          fi
+
+          # 선택 값: 미설정 시 웹 푸시 구독만 비활성화한다.
+          if [ -n "$VITE_VAPID_PUBLIC_KEY" ]; then
+            printf 'VITE_VAPID_PUBLIC_KEY=%s\n' "$VITE_VAPID_PUBLIC_KEY" >> .env
+          fi
 
       - name: 빌드 (타입 체크 포함 — npm run build가 tsc -b를 실행함)
         run: npm run build

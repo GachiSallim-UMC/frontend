@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { activityApi } from '../api/activity.api';
-import { groupByDate, matchesPeriod } from '../lib/activityDate';
-import type { ActivityCategory, ActivityLog } from '../types/activity.type';
+import { REALTIME_POLL_INTERVAL_MS, SHARED_QUERY_ROOTS } from '@/shared/lib';
+import { useGroupStore } from '@/shared/store';
+import { activityApi } from '@/features/activity/api/activity.api';
+import { groupByDate, matchesPeriod } from '@/features/activity/lib/activityDate';
+import type { ActivityCategory } from '@/features/activity/types/activity.type';
 
 interface ActivityMemberOption {
   id: number;
@@ -31,18 +33,16 @@ const ALL_MEMBERS_LABEL = '전체 멤버';
 const PAGE_SIZE = 10;
 
 const ACTIVITY_LOG_KEYS = {
-  all: ['activityLogs'] as const,
-  list: (type: ActivityCategory | null, userId: number | undefined) =>
-    [...ACTIVITY_LOG_KEYS.all, 'list', type, userId] as const,
+  all: SHARED_QUERY_ROOTS.activityLogs,
+  list: (
+    groupId: string | null,
+    type: ActivityCategory | null,
+    userId: number | undefined,
+  ) => [...ACTIVITY_LOG_KEYS.all, 'list', groupId, type, userId] as const,
 };
 
 /** 닉네임은 유일하지 않을 수 있어(동명이인) 필터 매칭용 라벨을 id 기준으로 유일하게 만듦 */
-const getMemberOptions = (logs: ActivityLog[]): ActivityMemberOption[] => {
-  const seen = new Map<number, string>();
-  logs.forEach(log => {
-    if (!seen.has(log.user.id)) seen.set(log.user.id, log.user.nickname);
-  });
-
+const buildMemberOptions = (seen: Map<number, string>): ActivityMemberOption[] => {
   const nicknameCounts = new Map<string, number>();
   seen.forEach(nickname => nicknameCounts.set(nickname, (nicknameCounts.get(nickname) ?? 0) + 1));
 
@@ -57,9 +57,16 @@ const getMemberOptions = (logs: ActivityLog[]): ActivityMemberOption[] => {
 };
 
 export const useActivityLog = () => {
+  const groupId = useGroupStore(state => state.selectedGroupId);
   const [typeFilter, setTypeFilterOption] = useState<TypeFilterOption>(TYPE_FILTER_OPTIONS[0]);
   const [memberFilter, setMemberFilterOption] = useState<ActivityMemberOption | null>(null);
   const [periodFilter, setPeriodFilter] = useState<string>(PERIOD_OPTIONS[0]);
+  const [seenMembers, setSeenMembers] = useState<Map<number, string>>(new Map());
+
+  useEffect(() => {
+    setMemberFilterOption(null);
+    setSeenMembers(new Map());
+  }, [groupId]);
 
   const {
     data,
@@ -71,7 +78,7 @@ export const useActivityLog = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ACTIVITY_LOG_KEYS.list(typeFilter.value, memberFilter?.id),
+    queryKey: ACTIVITY_LOG_KEYS.list(groupId, typeFilter.value, memberFilter?.id),
     queryFn: ({ pageParam }) =>
       activityApi.getList({
         type: typeFilter.value ?? undefined,
@@ -81,10 +88,32 @@ export const useActivityLog = () => {
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.data.length === PAGE_SIZE ? allPages.length + 1 : undefined,
+    enabled: Boolean(groupId),
+    // 1페이지만 폴링 (여러 페이지 폴링 시 새 항목으로 경계가 밀려 중복 표시될 수 있음)
+    refetchInterval: query => (query.state.data?.pages.length === 1 ? REALTIME_POLL_INTERVAL_MS : false),
+    meta: { skipGlobalError: true }, // 에러는 isError로 인라인 표시하므로 전역 모달 생략
   });
 
   const logs = useMemo(() => data?.pages.flatMap(page => page.data) ?? [], [data]);
-  const memberOptionsList = useMemo(() => getMemberOptions(logs), [logs]);
+
+  // logs는 멤버 필터로 이미 좁혀진 응답이라, 옵션을 필터와 무관하게 유지하려면 누적이 필요하다.
+  useEffect(() => {
+    if (logs.length === 0) return;
+    setSeenMembers(prev => {
+      let changed = false;
+      const next = new Map(prev);
+      logs.forEach(log => {
+        // 기존 id도 닉네임이 바뀌었으면 최신값으로 갱신 (세션 중 개명 대응)
+        if (next.get(log.user.id) !== log.user.nickname) {
+          next.set(log.user.id, log.user.nickname);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [logs]);
+
+  const memberOptionsList = useMemo(() => buildMemberOptions(seenMembers), [seenMembers]);
 
   const groupedLogs = useMemo(() => {
     const filtered = logs.filter(log => matchesPeriod(log.createdAt, periodFilter));

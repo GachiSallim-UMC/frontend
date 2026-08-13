@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react';
 import { toSelectOptions } from '@/shared/lib';
-import type { Item, ItemCategory } from '../types/item.types';
+import type { Item, ItemCategory } from '@/features/item/types/item.types';
 
 export const ITEM_CATEGORY_LABEL: Record<ItemCategory, string> = {
-  daily: '생활용품',
-  kitchen: '주방',
-  bathroom: '욕실',
-  cleaning: '청소',
+  daily: '생필품',
+  bathroom: '욕실용품',
+  kitchen: '주방용품',
+  cleaning: '세탁/청소용품',
   grocery: '식료품',
-  medicine: '의약품',
-  pet: '반려동물',
-  tool: '공구',
+  medicine: '의약/위생용품',
+  pet: '반려동물/식물용품',
+  tool: '공구/기타 생활용품',
   etc: '기타',
 };
 

@@ -20,7 +20,7 @@ export const Header = ({
   unreadNotificationCount = 0,
 }: HeaderProps) => {
   return (
-    <header className="z-10 flex h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6">
+    <header className="z-10 hidden h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6 lg:flex">
       {/* 그룹 정보 */}
       <div>
         <h1 className="text-group-title font-semibold text-gray-900">{groupName}</h1>
@@ -57,7 +57,7 @@ export const Header = ({
         </div>
 
         <Link to="/mypage" className="flex items-center gap-2" aria-label="마이페이지">
-          <UserAvatar name={user.name} avatarUrl={user.avatarUrl} size="md" />
+          <UserAvatar name={user.name} avatarUrl={user.avatarUrl} size="md" fallback="plain" />
           <span className="text-button font-bold text-gray-900">{user.name}</span>
         </Link>
       </div>

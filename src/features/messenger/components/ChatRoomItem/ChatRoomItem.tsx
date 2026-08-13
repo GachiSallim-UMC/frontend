@@ -13,6 +13,8 @@ interface ChatRoomItemProps {
   unreadCount?: number;
   isActive?: boolean;
   onClick?: () => void;
+  /** 모바일: 카드형 그룹 컨테이너의 마지막 항목엔 구분선을 안 그림 */
+  isLast?: boolean;
 }
 
 export const ChatRoomItem = ({
@@ -25,14 +27,17 @@ export const ChatRoomItem = ({
   unreadCount = 0,
   isActive = false,
   onClick,
+  isLast = false,
 }: ChatRoomItemProps) => {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        'flex h-[76px] w-full gap-2.5 rounded-lg border bg-white px-4 py-3 text-left transition-colors',
-        isActive ? 'border-primary-500' : 'border-gray-100 hover:bg-gray-50',
+        'flex h-[76px] w-full gap-2.5 bg-white px-4 py-3 text-left transition-colors',
+        !isLast && 'border-b border-gray-100 lg:border-b-0',
+        'lg:rounded-lg lg:border',
+        isActive ? 'lg:border-primary-500' : 'lg:border-gray-100 hover:bg-gray-50',
       )}
     >
       {thumbnailUrl ? (
