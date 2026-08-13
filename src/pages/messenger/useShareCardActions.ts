@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCompleteChore } from '@/features/chore';
-import { useSettleMyExpenseShare } from '@/features/expense';
+import { useClaimExpenseTransfer, useCompleteExpenseSplits } from '@/features/expense';
 import { useUpdateItemStatus } from '@/features/item';
 import { useUpdateRuleAgreement } from '@/features/rule';
 import type { ChatMessage, ChatMessageGroup, ChatShareCard } from '@/features/messenger';
-import { buildShareCard } from '@/pages/messenger/shareOptions';
+import { buildShareCard, getExpenseShareActionState } from '@/pages/messenger/shareOptions';
 import type { ShareSourceData } from '@/pages/messenger/shareOptions';
 
 /**
@@ -19,7 +19,8 @@ export const useShareCardActions = (
 ) => {
   const navigate = useNavigate();
   const completeChore = useCompleteChore();
-  const settleExpense = useSettleMyExpenseShare();
+  const claimExpenseTransfer = useClaimExpenseTransfer();
+  const completeExpenseSplits = useCompleteExpenseSplits();
   const updateRuleAgreement = useUpdateRuleAgreement();
   const updateItemStatus = useUpdateItemStatus();
 
@@ -27,6 +28,12 @@ export const useShareCardActions = (
   const shareCardCacheRef = useRef(new Map<string, ChatShareCard>());
   // 공유 카드 액션 버튼 연타 방지용 — 처리 중인 메시지 id 집합
   const [pendingActionIds, setPendingActionIds] = useState<Set<string>>(new Set());
+  const [settlementConfirmation, setSettlementConfirmation] = useState<{
+    messageId: string;
+    expenseId: string;
+    expenseTitle: string;
+    splitIds: (number | string)[];
+  } | null>(null);
   // 동의 완료한 규칙 id — rules 목록 캐시가 갱신되기 전에 다시 눌러도 중복 요청되지 않도록 즉시 기록
   const agreedRuleIdsRef = useRef(new Set<string>());
 
@@ -36,14 +43,24 @@ export const useShareCardActions = (
     items: group.items.map(item => {
       if (!item.shareCard) return item;
 
-      const cached = shareCardCacheRef.current.get(item.id);
-      if (cached) return { ...item, shareCard: cached };
-
-      if (!item.refId) return item;
-      const enrichedShareCard = buildShareCard(item.shareCard.type, item.refId, shareSourceData);
+      let enrichedShareCard = shareCardCacheRef.current.get(item.id);
+      if (!enrichedShareCard && item.refId) {
+        enrichedShareCard = buildShareCard(item.shareCard.type, item.refId, shareSourceData) ?? undefined;
+      }
       if (!enrichedShareCard) return item;
 
       shareCardCacheRef.current.set(item.id, enrichedShareCard);
+
+      if (item.shareCard.type === 'expense' && item.refId) {
+        const expense = shareSourceData.expenses.find(entry => entry.id === item.refId);
+        if (expense) {
+          enrichedShareCard = {
+            ...enrichedShareCard,
+            ...getExpenseShareActionState(expense, currentUserId),
+          };
+        }
+      }
+
       return { ...item, shareCard: enrichedShareCard };
     }),
   }));
@@ -84,8 +101,30 @@ export const useShareCardActions = (
         }
       } else if (type === 'expense') {
         const expense = shareSourceData.expenses.find(item => item.id === message.refId);
-        if (expense) {
-          await settleExpense.mutateAsync({ expense, currentUserId });
+        if (!expense) return;
+
+        const actionState = getExpenseShareActionState(expense, currentUserId);
+        if (actionState.actionHidden || actionState.actionDisabled) return;
+
+        const isPayer = String(expense.payer.id) === String(currentUserId);
+        if (isPayer) {
+          const pendingSplitIds = expense.shares
+            .filter(share => share.isPending && !share.isPaid)
+            .map(share => share.id);
+          if (pendingSplitIds.length === 0) return;
+
+          setSettlementConfirmation({
+            messageId: message.id,
+            expenseId: expense.id,
+            expenseTitle: expense.title,
+            splitIds: pendingSplitIds,
+          });
+        } else {
+          const myShare = expense.shares.find(
+            share => String(share.user.id) === String(currentUserId),
+          );
+          if (!myShare) return;
+          await claimExpenseTransfer.mutateAsync({ expenseId: expense.id, splitId: myShare.id });
         }
       } else if (type === 'item') {
         // 정식 구매 처리는 금액/카테고리 입력 UI가 필요해 우선 재고만 "충분"으로 되돌림
@@ -105,5 +144,35 @@ export const useShareCardActions = (
     }
   };
 
-  return { enrichedMessageGroups, handleViewShareDetail, handleShareAction, pendingActionIds };
+  const confirmExpenseSettlement = async () => {
+    if (!settlementConfirmation || completeExpenseSplits.isPending) return;
+
+    setPendingActionIds(prev => new Set(prev).add(settlementConfirmation.messageId));
+    try {
+      await completeExpenseSplits.mutateAsync({
+        expenseId: settlementConfirmation.expenseId,
+        splitIds: settlementConfirmation.splitIds,
+      });
+      setSettlementConfirmation(null);
+    } finally {
+      setPendingActionIds(prev => {
+        const next = new Set(prev);
+        next.delete(settlementConfirmation.messageId);
+        return next;
+      });
+    }
+  };
+
+  return {
+    enrichedMessageGroups,
+    handleViewShareDetail,
+    handleShareAction,
+    pendingActionIds,
+    settlementConfirmation,
+    closeSettlementConfirmation: () => {
+      if (!completeExpenseSplits.isPending) setSettlementConfirmation(null);
+    },
+    confirmExpenseSettlement,
+    isSettlementPending: completeExpenseSplits.isPending,
+  };
 };
