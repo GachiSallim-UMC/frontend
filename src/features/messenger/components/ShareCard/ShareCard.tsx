@@ -15,6 +15,8 @@ export const ShareCard = ({
   headline,
   details,
   actionLabel,
+  actionHidden,
+  actionDisabled,
   onViewDetail,
   onAction,
   isActionPending,
@@ -58,17 +60,19 @@ export const ShareCard = ({
           >
             상세 보기
           </button>
-          <button
-            type="button"
-            onClick={onAction}
-            disabled={isActionPending}
-            className={cn(
-              'h-9 flex-1 rounded-lg text-center text-[12px] font-bold leading-[normal] disabled:cursor-not-allowed disabled:opacity-50',
-              style.fill,
-            )}
-          >
-            {actionLabel}
-          </button>
+          {!actionHidden && (
+            <button
+              type="button"
+              onClick={onAction}
+              disabled={actionDisabled || isActionPending}
+              className={cn(
+                'h-9 flex-1 rounded-lg text-center text-[12px] font-bold leading-[normal] disabled:cursor-not-allowed disabled:opacity-50',
+                style.fill,
+              )}
+            >
+              {actionLabel}
+            </button>
+          )}
         </div>
       </div>
     </div>
