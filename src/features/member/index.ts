@@ -63,4 +63,12 @@ export type {
   InviteInfoResponse,
 } from './types/member.types';
 
-export { RESIDENCE_OPTIONS, getResidenceLabel } from './constants/member.constants';
+export {
+  RESIDENCE_OPTIONS,
+  MIN_GROUP_MEMBER_COUNT,
+  MAX_GROUP_MEMBER_COUNT,
+  GROUP_MEMBER_COUNT_OPTIONS,
+  GROUP_MEMBER_COUNT_ERROR_MESSAGE,
+  isValidGroupMemberCount,
+  getResidenceLabel,
+} from './constants/member.constants';

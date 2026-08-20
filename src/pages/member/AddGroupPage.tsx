@@ -5,7 +5,10 @@ import {
   type AddGroupDto,
   AddGroupActions,
   AddGroupInput,
+  GROUP_MEMBER_COUNT_ERROR_MESSAGE,
   InvitationCodeBox,
+  MIN_GROUP_MEMBER_COUNT,
+  isValidGroupMemberCount,
   useCreateGroup,
 } from '@/features/member';
 import { useGroupStore } from '@/shared/store';
@@ -21,7 +24,7 @@ export const AddGroupPage = () => {
     name: '',
     description: '',
     type: '',
-    maxMemberCount: 2,
+    maxMemberCount: MIN_GROUP_MEMBER_COUNT,
   });
   const [errors, setErrors] = useState<Partial<Record<keyof AddGroupDto, string>>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -41,12 +44,8 @@ export const AddGroupPage = () => {
       nextErrors.description = '그룹 설명은 255자 이하로 입력해 주세요.';
     }
     if (!formData.type) nextErrors.type = '거주 유형을 선택해 주세요.';
-    if (
-      !Number.isInteger(formData.maxMemberCount) ||
-      formData.maxMemberCount < 2 ||
-      formData.maxMemberCount > 12
-    ) {
-      nextErrors.maxMemberCount = '최대 인원은 2명부터 12명까지 선택할 수 있습니다.';
+    if (!isValidGroupMemberCount(formData.maxMemberCount)) {
+      nextErrors.maxMemberCount = GROUP_MEMBER_COUNT_ERROR_MESSAGE;
     }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {

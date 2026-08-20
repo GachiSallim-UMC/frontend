@@ -4,6 +4,7 @@ import { formatDate, useDateFormat } from '@/shared/lib';
 import { RefreshCw } from 'lucide-react';
 import { MemberUpdateModal } from '@/features/member/components/MemberUpdateModal';
 import { useGroupBasicInfoForm } from '@/features/member/hooks/useGroupBasicInfoForm';
+import { GROUP_MEMBER_COUNT_OPTIONS } from '@/features/member/constants/member.constants';
 
 import CameraIcon from '@/assets/icons/member/camera.svg?react';
 import UploadIcon from '@/assets/icons/member/upload.svg?react';
@@ -20,11 +21,6 @@ interface GroupBasicInfoProps {
   isAdmin?: boolean;
   onUnauthorized?: () => void;
 }
-
-const MAX_MEMBER_OPTIONS = Array.from({ length: 11 }, (_, index) => {
-  const count = index + 2;
-  return { value: String(count), label: `${count}명` };
-});
 
 export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: GroupBasicInfoProps) => {
   const dateFormat = useDateFormat();
@@ -294,7 +290,7 @@ export const GroupBasicInfo = ({ isAdmin = false, onUnauthorized }: GroupBasicIn
                 setMaxMemberCount(value);
                 setErrors(previous => ({ ...previous, maxMemberCount: undefined }));
               }}
-              options={MAX_MEMBER_OPTIONS}
+              options={GROUP_MEMBER_COUNT_OPTIONS}
               placeholder="인원 선택"
               error={errors.maxMemberCount}
               disabled={!isAdmin}
