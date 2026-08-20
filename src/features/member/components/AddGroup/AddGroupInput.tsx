@@ -1,12 +1,9 @@
 import type { AddGroupDto } from '@/features/member/types/member.types';
 import { FormInput, SelectDropdown } from '@/shared/components';
-import { RESIDENCE_OPTIONS } from '@/features/member/constants/member.constants';
-
-/** 최대 인원 2~12명. 디자인상 드롭다운으로 고릅니다. */
-const MAX_MEMBER_OPTIONS = Array.from({ length: 11 }, (_, index) => {
-  const count = index + 2;
-  return { value: String(count), label: `${count}명` };
-});
+import {
+  GROUP_MEMBER_COUNT_OPTIONS,
+  RESIDENCE_OPTIONS,
+} from '@/features/member/constants/member.constants';
 
 const labelClass = 'text-mobile-body font-bold text-gray-700 lg:text-base lg:text-gray-800';
 
@@ -75,7 +72,7 @@ export const AddGroupInput = ({
         <SelectDropdown
           value={String(formData.maxMemberCount)}
           placeholder="선택"
-          options={MAX_MEMBER_OPTIONS}
+          options={GROUP_MEMBER_COUNT_OPTIONS}
           onChange={value => onChange('maxMemberCount', Number(value))}
           disabled={disabled}
           error={errors.maxMemberCount}
