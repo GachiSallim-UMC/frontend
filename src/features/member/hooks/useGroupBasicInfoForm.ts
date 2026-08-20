@@ -4,6 +4,10 @@ import { profileImageApi } from '@/shared/api';
 import { useAlertStore, useGroupStore } from '@/shared/store';
 import { memberApi } from '@/features/member/api/member.api';
 import { useGroupDetail, useUpdateGroup } from '@/features/member/hooks/useGroupMutations';
+import {
+  GROUP_MEMBER_COUNT_ERROR_MESSAGE,
+  isValidGroupMemberCount,
+} from '@/features/member/constants/member.constants';
 
 type GroupBasicInfoErrors = Partial<Record<'groupName' | 'maxMemberCount' | 'description', string>>;
 
@@ -104,12 +108,8 @@ export const useGroupBasicInfoForm = ({
     else if (trimmedGroupName.length > 40) {
       nextErrors.groupName = '그룹 이름은 40자 이하로 입력해 주세요.';
     }
-    if (
-      !Number.isInteger(parsedMaxMemberCount) ||
-      parsedMaxMemberCount < 2 ||
-      parsedMaxMemberCount > 12
-    ) {
-      nextErrors.maxMemberCount = '최대 인원은 2명부터 12명까지 선택해 주세요.';
+    if (!isValidGroupMemberCount(parsedMaxMemberCount)) {
+      nextErrors.maxMemberCount = GROUP_MEMBER_COUNT_ERROR_MESSAGE;
     }
     if (description.length > 255) {
       nextErrors.description = '그룹 소개는 255자 이하로 입력해 주세요.';
